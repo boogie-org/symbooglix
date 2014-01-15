@@ -1,0 +1,3 @@
+[submodule "boogie"]
+	path = boogie
+	url = hg::https://hg.codeplex.com/forks/danliew/boogie
