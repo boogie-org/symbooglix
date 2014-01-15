@@ -1,5 +1,5 @@
 <!-- vim: set textwidth=80: -->
-Symboolix
+Symbooglix
 =========
 
 The Symbolic execution engine for Boogie
