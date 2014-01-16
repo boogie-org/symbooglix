@@ -2,7 +2,8 @@
 Symbooglix
 =========
 
-The Symbolic execution engine for Boogie
+The Symbolic execution engine for
+[Boogie](http://research.microsoft.com/en-us/projects/boogie/)
 
 Getting started
 ===============
