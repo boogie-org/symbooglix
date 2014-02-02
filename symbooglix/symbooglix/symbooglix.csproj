@@ -33,6 +33,10 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Compile Include="driver.cs" />
+    <Compile Include="Core\Executor.cs" />
+    <Compile Include="Core\Memory.cs" />
+    <Compile Include="Core\ExecutionState.cs" />
+    <Compile Include="Core\StateScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -50,4 +54,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Core\" />
+  </ItemGroup>
 </Project>
