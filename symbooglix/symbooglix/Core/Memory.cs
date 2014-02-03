@@ -8,24 +8,24 @@ namespace symbooglix
         {
         }
 
-		public bool dump()
-		{
-			// TODO:
-			return true;
-		}
+        public bool dump()
+        {
+            // TODO:
+            return true;
+        }
 
-		public List<StackFrame> stack;
-		public List<MemoryObject> globals;
-	}
+        public List<StackFrame> stack;
+        public List<MemoryObject> globals;
+    }
 
-	public class StackFrame
-	{
-		public List<MemoryObject> locals;
-	}
+    public class StackFrame
+    {
+        public List<MemoryObject> locals;
+    }
 
-	public class MemoryObject
-	{
-		public MemoryObject() { }
-	}
+    public class MemoryObject
+    {
+        public MemoryObject() { }
+    }
 }
 

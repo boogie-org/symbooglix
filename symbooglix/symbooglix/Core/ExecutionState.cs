@@ -4,28 +4,28 @@ namespace symbooglix
 {
     public class ExecutionState
     {
-		public Memory mem;
+        public Memory mem;
 
-		// FIXME: Loads axioms and types
+        // FIXME: Loads axioms and types
 
-		// FIXME: Add Path Constraints container
+        // FIXME: Add Path Constraints container
 
-		// FIXME: Add something to track program counter in an elegant way that handles block commands
+        // FIXME: Add something to track program counter in an elegant way that handles block commands
 
         public ExecutionState()
         {
         }
 
-		public bool dumpStackTrace()
-		{
-			// TODO
-			return true;
-		}
+        public bool dumpStackTrace()
+        {
+            // TODO
+            return true;
+        }
 
-		public bool dumpState()
-		{
-			return mem.dump();
-		}
+        public bool dumpState()
+        {
+            return mem.dump();
+        }
     }
 }
 
