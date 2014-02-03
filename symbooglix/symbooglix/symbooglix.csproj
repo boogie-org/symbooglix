@@ -57,4 +57,7 @@
   <ItemGroup>
     <Folder Include="Core\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
 </Project>

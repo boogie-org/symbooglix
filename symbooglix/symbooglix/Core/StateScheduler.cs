@@ -7,13 +7,18 @@ namespace symbooglix
     {
 		ExecutionState getNextState(); // FIXME: Return reference
 		bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove); //FIXME: pass by ref
+        bool addState(ExecutionState toAdd);
+        bool removeState(ExecutionState toRemove);
 		int getNumberOfStates();
     }
 
 	public class DFSStateScheduler : IStateScheduler
 	{
 		private List<ExecutionState> states;
-		public DFSStateScheduler() { }
+		public DFSStateScheduler() 
+        { 
+            states = new List<ExecutionState>();
+        }
 
 		public ExecutionState getNextState() 
 		{ 
@@ -41,6 +46,17 @@ namespace symbooglix
 		}
 
 		public int getNumberOfStates() { return states.Count;}
+
+        public bool addState (ExecutionState toAdd)
+        {
+            states.Add(toAdd);
+            return true;
+        }
+
+        public bool removeState (ExecutionState toRemove)
+        {
+            throw new NotImplementedException ();
+        }
 	}
 }
 
