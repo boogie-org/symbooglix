@@ -2,6 +2,7 @@ using System;
 using Microsoft;
 using System.Linq;
 using Microsoft.Boogie;
+using System.Diagnostics;
 
 
 namespace symbooglix
@@ -15,6 +16,7 @@ namespace symbooglix
                 return 1;
             }
 
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
             //Microsoft.Boogie.Program p = null;
             Program p = null;
 

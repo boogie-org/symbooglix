@@ -31,10 +31,17 @@ namespace symbooglix
         public List<MemoryObject> locals;
         public Implementation procedure;
 
-        public StackFrame(Implementation procedure)
+        public StackFrame(Implementation procedure, Block BB)
         {
             locals = new List<MemoryObject>();
             this.procedure = procedure;
+            currentBlock = BB;
+        }
+
+        public Block currentBlock
+        {
+            get;
+            private set;
         }
     }
 

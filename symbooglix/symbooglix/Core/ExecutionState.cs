@@ -1,17 +1,13 @@
 using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
+using System.Linq;
+using System.Diagnostics;
 
 namespace symbooglix
 {
     public class ExecutionState
     {
-        public Block currentBlock
-        {
-            get;
-            private set;
-        }
-
         public Memory mem;
 
         // FIXME: Loads axioms and types
@@ -37,12 +33,21 @@ namespace symbooglix
             return mem.dump();
         }
 
+        public StackFrame getCurrentStackFrame()
+        {
+            return mem.stack.Last();
+        }
+
+        public Block getCurrentBlock()
+        {
+            return getCurrentStackFrame().currentBlock;
+        }
+
         public void enterProcedure(Implementation p)
         {
-            StackFrame s = new StackFrame(p);
+            StackFrame s = new StackFrame(p, p.Blocks[0]);
             mem.stack.Add(s);
-            currentBlock = p.Blocks[0];
-            //blockCmdIterator().Reset(); FIXME
+            //blockCmdIterator().Reset(); FIXME we need to reset the iterator when we enter a new procedure
             blockCmdIterator().MoveNext(); // Executor expects that Current is first instruction
         }
 
@@ -52,7 +57,6 @@ namespace symbooglix
                 throw new InvalidOperationException("Not currently in procedure");
 
             mem.popStackFrame();
-
         }
 
         public bool finished()
@@ -64,17 +68,18 @@ namespace symbooglix
                 return false;
         }
 
-        // FIXME: How is this going to work when we clone execution state?
+        // FIXME: How is this going to work when we clone execution state or transfer to a different block?
         public IEnumerator<Absy> blockCmdIterator()
         {
-            foreach (Cmd c in currentBlock.Cmds)
+            Debug.WriteLine("Entering block " + getCurrentBlock().Label);
+            foreach (Cmd c in getCurrentBlock().Cmds)
             {
-                Console.WriteLine("tick");
+                Debug.WriteLine("tick");
                 yield return c;
             }
 
-            Console.WriteLine("tick");
-            yield return currentBlock.TransferCmd;
+            Debug.WriteLine("tick");
+            yield return getCurrentBlock().TransferCmd;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace symbooglix
 {
@@ -47,7 +48,7 @@ namespace symbooglix
                 executeInstruction();
                 currentState.blockCmdIterator().MoveNext();
             }
-            System.Diagnostics.Debug.Write("Finished executing all states");
+            System.Diagnostics.Debug.WriteLine("Finished executing all states");
 
             return true;
         }
@@ -78,12 +79,14 @@ namespace symbooglix
 
         public void enterProcedure(Implementation p)
         {
+            Debug.WriteLine("Entering procedure " + p.Name);
             currentState.enterProcedure(p);
         }
 
         public void leaveProcedure()
         {
-            currentState.mem.popStackFrame();
+            Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
+            currentState.leaveProcedure();
 
             if (currentState.finished())
                 stateScheduler.removeState(currentState);
@@ -92,12 +95,12 @@ namespace symbooglix
 
         public void handleSimpleInstruction(Cmd si)
         {
-            Console.WriteLine("Exec:{0}", si.ToString());
+            Console.WriteLine("Exec: " + si.ToString());
         }
 
         public void handleTransferCmd(TransferCmd ti)
         {
-            Console.WriteLine("Exec:{0}", ti.ToString());
+            Console.WriteLine("Exec: " + ti.ToString());
 
             // FIXME: Do the exit correctly
             leaveProcedure();
