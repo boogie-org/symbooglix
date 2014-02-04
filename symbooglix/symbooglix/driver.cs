@@ -3,6 +3,7 @@ using Microsoft;
 using System.Linq;
 using Microsoft.Boogie;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 
 namespace symbooglix
@@ -17,19 +18,32 @@ namespace symbooglix
             }
 
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
-            //Microsoft.Boogie.Program p = null;
             Program p = null;
+            var defines = new List<String> { "FILE_0" }; // WTF??
+            int errors = Parser.Parse (args[0], defines, out p);
 
-
-
-            System.Collections.Generic.List<string> defines = null;
-            int success = Parser.Parse (args[0], defines, out p);
-
-            if (success != 0)
+            if (errors != 0)
             {
                 Console.WriteLine("Failed to parse");
                 return 1;
             }
+
+            errors = p.Resolve();
+
+            if (errors != 0)
+            {
+                Console.WriteLine("Failed to resolve.");
+                return 1;
+            }
+
+            errors = p.Typecheck();
+
+            if (errors != 0)
+            {
+                Console.WriteLine("Failed to resolve.");
+                return 1;
+            }
+
 
             IStateScheduler scheduler = new DFSStateScheduler();
             PrintingExecutor e = new PrintingExecutor(p, scheduler);
