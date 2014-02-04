@@ -30,10 +30,8 @@ namespace symbooglix
 
         public override bool run(Implementation entryPoint)
         {
-            Console.WriteLine("Entering `" + entryPoint.Id + "`"
-                              );
             // Make the first execution state
-            currentState = new ExecutionState();
+            currentState = new ExecutionState(entryPoint);
             stateScheduler.addState(currentState);
             
             // FIXME: Check entry point is in prog?
@@ -41,12 +39,13 @@ namespace symbooglix
             // FIXME: Loads globals
 
             // Push entry point onto stack frame
-            enterFunction(entryPoint);
+            enterProcedure(entryPoint);
 
             while (stateScheduler.getNumberOfStates() != 0)
             {
                 currentState = stateScheduler.getNextState();
-                executeInstruction(currentState);
+                executeInstruction();
+                currentState.blockCmdIterator().MoveNext();
             }
             System.Diagnostics.Debug.Write("Finished executing all states");
 
@@ -59,14 +58,49 @@ namespace symbooglix
             return true;
         }
 
-        private bool executeInstruction(ExecutionState e)
+        private void executeInstruction()
         {
-            // TODO
-            return true;
+            Absy currentInstruction=currentState.blockCmdIterator().Current;
+            if (currentInstruction == null)
+                throw new InvalidOperationException("Instruction was null");
+
+            if (currentInstruction is Cmd)
+            {
+                handleSimpleInstruction(currentInstruction as Cmd);
+            } else if (currentInstruction is TransferCmd)
+            {
+                handleTransferCmd(currentInstruction as TransferCmd);
+            } else
+            {
+                throw new NotSupportedException("Unsupported instruction");
+            }
         }
 
-        public void enterFunction(Implementation f)
+        public void enterProcedure(Implementation p)
         {
+            currentState.enterProcedure(p);
+        }
+
+        public void leaveProcedure()
+        {
+            currentState.mem.popStackFrame();
+
+            if (currentState.finished())
+                stateScheduler.removeState(currentState);
+     
+        }
+
+        public void handleSimpleInstruction(Cmd si)
+        {
+            Console.WriteLine("Exec:{0}", si.ToString());
+        }
+
+        public void handleTransferCmd(TransferCmd ti)
+        {
+            Console.WriteLine("Exec:{0}", ti.ToString());
+
+            // FIXME: Do the exit correctly
+            leaveProcedure();
 
         }
 

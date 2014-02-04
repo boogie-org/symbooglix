@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.Boogie;
 
 namespace symbooglix
 {
@@ -6,12 +7,19 @@ namespace symbooglix
     {
         public Memory()
         {
+            stack = new List<StackFrame>();
+            globals = new List<MemoryObject>();
         }
 
         public bool dump()
         {
             // TODO:
             return true;
+        }
+
+        public void popStackFrame()
+        {
+            stack.RemoveAt(stack.Count - 1);
         }
 
         public List<StackFrame> stack;
@@ -21,6 +29,13 @@ namespace symbooglix
     public class StackFrame
     {
         public List<MemoryObject> locals;
+        public Implementation procedure;
+
+        public StackFrame(Implementation procedure)
+        {
+            locals = new List<MemoryObject>();
+            this.procedure = procedure;
+        }
     }
 
     public class MemoryObject
