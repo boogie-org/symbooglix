@@ -9,6 +9,7 @@ namespace symbooglix
     public class ExecutionState
     {
         public Memory mem;
+        private bool started = false;
 
         // FIXME: Loads axioms and types
 
@@ -19,7 +20,6 @@ namespace symbooglix
         public ExecutionState(Implementation entryPoint)
         {
             mem = new Memory();
-
         }
 
         public bool dumpStackTrace()
@@ -45,6 +45,7 @@ namespace symbooglix
 
         public void enterProcedure(Implementation p)
         {
+            started = true;
             StackFrame s = new StackFrame(p, p.Blocks[0]);
             mem.stack.Add(s);
             //blockCmdIterator().Reset(); FIXME we need to reset the iterator when we enter a new procedure
@@ -61,8 +62,7 @@ namespace symbooglix
 
         public bool finished()
         {
-            // FIXME: We should not return true when the state has just been created.
-            if (mem.stack.Count == 0)
+            if (started && mem.stack.Count == 0)
                 return true;
             else
                 return false;
