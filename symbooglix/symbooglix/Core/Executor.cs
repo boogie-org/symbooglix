@@ -63,7 +63,7 @@ namespace symbooglix
         {
             Absy currentInstruction=currentState.blockCmdIterator().Current;
             if (currentInstruction == null)
-                throw new InvalidOperationException("Instruction was null");
+                throw new NullReferenceException("Instruction was null");
 
             if (currentInstruction is Cmd)
             {
