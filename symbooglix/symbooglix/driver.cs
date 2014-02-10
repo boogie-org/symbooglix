@@ -33,7 +33,7 @@ namespace symbooglix
             }
 
             string boogieProgramPath = CommandLineOptions.Clo.Files [0];
-            if (Path.GetExtension(boogieProgramPath) != "bpl")
+			if (Path.GetExtension(boogieProgramPath) != ".bpl")
             {
                 Console.WriteLine("The program should be a *.bpl file");
                 return 1;
