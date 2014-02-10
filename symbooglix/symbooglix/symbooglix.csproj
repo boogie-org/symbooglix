@@ -37,6 +37,7 @@
     <Compile Include="Core\Memory.cs" />
     <Compile Include="Core\ExecutionState.cs" />
     <Compile Include="Core\StateScheduler.cs" />
+    <Compile Include="SymboglixCommandLineOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">

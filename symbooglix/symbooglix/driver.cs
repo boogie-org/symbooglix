@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft;
 using System.Linq;
 using Microsoft.Boogie;
@@ -12,12 +13,32 @@ namespace symbooglix
     {
         public static int Main(String[] args)
         {
-            if (args.Length == 0) {
-                Console.WriteLine ("Pass boogie file as first arg!");
+            // Debug log output goes to standard error.
+            Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
+
+            // FIXME: Urgh... we are forced to use Boogie's command line
+            // parser becaue the Boogie program resolver/type checker
+            // is dependent on the parser being used...EURGH!
+            CommandLineOptions.Install(new SymboglixCommandLineOptions());
+            if (!CommandLineOptions.Clo.Parse(args))
+            {
+                Console.WriteLine("Failed to parser command line arguments");
                 return 1;
             }
 
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
+            if (CommandLineOptions.Clo.Files.Count != 1)
+            {
+                Console.WriteLine("You must pass a single boogie program");
+                return 1;
+            }
+
+            string boogieProgramPath = CommandLineOptions.Clo.Files [0];
+            if (Path.GetExtension(boogieProgramPath) != "bpl")
+            {
+                Console.WriteLine("The program should be a *.bpl file");
+                return 1;
+            }
+
             Program p = null;
             var defines = new List<String> { "FILE_0" }; // WTF??
             int errors = Parser.Parse (args[0], defines, out p);
