@@ -46,7 +46,7 @@ namespace symbooglix
             {
                 currentState = stateScheduler.getNextState();
                 executeInstruction();
-                currentState.blockCmdIterator().MoveNext();
+                currentState.getCurrentStackFrame().currentInstruction.MoveNext();
             }
             System.Diagnostics.Debug.WriteLine("Finished executing all states");
 
@@ -61,7 +61,7 @@ namespace symbooglix
 
         private void executeInstruction()
         {
-            Absy currentInstruction=currentState.blockCmdIterator().Current;
+            Absy currentInstruction = currentState.getCurrentStackFrame().currentInstruction.Current;
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 

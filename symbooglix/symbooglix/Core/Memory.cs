@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Boogie;
+using System.Diagnostics;
 
 namespace symbooglix
 {
@@ -30,18 +31,30 @@ namespace symbooglix
     {
         public List<MemoryObject> locals;
         public Implementation procedure;
+        private BlockCmdIterator BCI;
+        public IEnumerator<Absy> currentInstruction;
 
-        public StackFrame(Implementation procedure, Block BB)
+        public StackFrame(Implementation procedure)
         {
             locals = new List<MemoryObject>();
             this.procedure = procedure;
-            currentBlock = BB;
+            transferToBlock(procedure.Blocks[0]);
         }
 
         public Block currentBlock
         {
             get;
             private set;
+        }
+
+        public void transferToBlock(Block BB)
+        {
+            // Check if BB is in procedure
+            Debug.Assert(procedure.Blocks.Contains(BB));
+
+            currentBlock = BB;
+            BCI = new BlockCmdIterator(currentBlock);
+            currentInstruction = BCI.GetEnumerator();
         }
     }
 

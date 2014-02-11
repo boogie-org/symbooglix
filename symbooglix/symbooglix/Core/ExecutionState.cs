@@ -46,10 +46,10 @@ namespace symbooglix
         public void enterProcedure(Implementation p)
         {
             started = true;
-            StackFrame s = new StackFrame(p, p.Blocks[0]);
+            StackFrame s = new StackFrame(p);
             mem.stack.Add(s);
             //blockCmdIterator().Reset(); FIXME we need to reset the iterator when we enter a new procedure
-            blockCmdIterator().MoveNext(); // Executor expects that Current is first instruction
+            s.currentInstruction.MoveNext(); // Move so pointing at first instruction
         }
 
         public void leaveProcedure()
@@ -68,19 +68,6 @@ namespace symbooglix
                 return false;
         }
 
-        // FIXME: How is this going to work when we clone execution state or transfer to a different block?
-        public IEnumerator<Absy> blockCmdIterator()
-        {
-            Debug.WriteLine("Entering block " + getCurrentBlock().Label);
-            foreach (Cmd c in getCurrentBlock().Cmds)
-            {
-                Debug.WriteLine("tick");
-                yield return c;
-            }
-
-            Debug.WriteLine("tick");
-            yield return getCurrentBlock().TransferCmd;
-        }
     }
 }
 
