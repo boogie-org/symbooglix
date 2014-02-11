@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace symbooglix
 {
@@ -33,6 +34,7 @@ namespace symbooglix
             // FIXME: How do we comparisions with refs??
             foreach(ExecutionState e in toRemove)
             {
+                Debug.Assert(states.Contains(e));
                 states.Remove(e);
             }
 
@@ -55,7 +57,9 @@ namespace symbooglix
 
         public bool removeState (ExecutionState toRemove)
         {
-            throw new NotImplementedException ();
+            Debug.Assert(states.Contains(toRemove));
+            states.Remove(toRemove);
+            return true;
         }
     }
 }

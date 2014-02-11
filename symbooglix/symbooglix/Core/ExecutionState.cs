@@ -48,8 +48,6 @@ namespace symbooglix
             started = true;
             StackFrame s = new StackFrame(p);
             mem.stack.Add(s);
-            //blockCmdIterator().Reset(); FIXME we need to reset the iterator when we enter a new procedure
-            s.currentInstruction.MoveNext(); // Move so pointing at first instruction
         }
 
         public void leaveProcedure()

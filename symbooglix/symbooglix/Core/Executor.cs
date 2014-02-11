@@ -45,8 +45,8 @@ namespace symbooglix
             while (stateScheduler.getNumberOfStates() != 0)
             {
                 currentState = stateScheduler.getNextState();
-                executeInstruction();
                 currentState.getCurrentStackFrame().currentInstruction.MoveNext();
+                executeInstruction();
             }
             System.Diagnostics.Debug.WriteLine("Finished executing all states");
 
