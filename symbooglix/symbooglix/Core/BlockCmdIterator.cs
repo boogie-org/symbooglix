@@ -15,14 +15,10 @@ namespace symbooglix
 
         public IEnumerator<Absy> GetEnumerator ()
         {
-            Debug.WriteLine("Entering block " + BB.Label);
             foreach (Cmd c in BB.Cmds)
             {
-                Debug.WriteLine("tick");
                 yield return c;
             }
-
-            Debug.WriteLine("tick");
             yield return BB.TransferCmd;
         }
 

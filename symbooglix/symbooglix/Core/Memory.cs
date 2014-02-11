@@ -49,6 +49,7 @@ namespace symbooglix
 
         public void transferToBlock(Block BB)
         {
+            Debug.WriteLine("Entering block " + BB.ToString());
             // Check if BB is in procedure
             Debug.Assert(procedure.Blocks.Contains(BB));
 

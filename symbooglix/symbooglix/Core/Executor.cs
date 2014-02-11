@@ -95,7 +95,7 @@ namespace symbooglix
 
         public void handleSimpleInstruction(Cmd si)
         {
-            Console.WriteLine("Exec: " + si.ToString());
+            Debug.WriteLine("Exec: " + si.ToString().TrimEnd('\n'));
         }
 
         public void handleTransferCmd(TransferCmd ti)
