@@ -25,7 +25,9 @@ namespace symbooglix
 
         public SymbolicVariable getFreshSymbolic(Microsoft.Boogie.TypedIdent t)
         {
-            var s = new SymbolicVariable(t);
+            TypedIdent modifiedT = (TypedIdent) t.Clone(); // Need a copy so we can modify its name without affecting the original source
+            modifiedT.Name = "symbolic_" + count.ToString();
+            var s = new SymbolicVariable(modifiedT);
             symbolics.Add(s);
             ++count;
             Debug.WriteLine("Created new symbolic " + s);
@@ -70,7 +72,7 @@ namespace symbooglix
 
         public override string ToString()
         {
-            return string.Format("[SymbolicVariable: {0}:{1} == {2}]", getName(), getType(), expr);
+            return string.Format("[SymbolicVariable: {0}:{1}]", getName(), getType());
         }
 
     }
