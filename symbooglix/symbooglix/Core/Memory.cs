@@ -9,7 +9,7 @@ namespace symbooglix
         public Memory()
         {
             stack = new List<StackFrame>();
-            globals = new List<MemoryObject>();
+            globals = new Dictionary<GlobalVariable,Expr>();
         }
 
         public bool dump()
@@ -24,19 +24,19 @@ namespace symbooglix
         }
 
         public List<StackFrame> stack;
-        public List<MemoryObject> globals;
+        public Dictionary<GlobalVariable,Expr> globals;
     }
 
     public class StackFrame
     {
-        public List<MemoryObject> locals;
+        public Dictionary<Variable,Expr> locals;
         public Implementation procedure;
         private BlockCmdIterator BCI;
         public IEnumerator<Absy> currentInstruction;
 
         public StackFrame(Implementation procedure)
         {
-            locals = new List<MemoryObject>();
+            locals = new Dictionary<Variable,Expr>();
             this.procedure = procedure;
             transferToBlock(procedure.Blocks[0]);
         }
@@ -59,9 +59,5 @@ namespace symbooglix
         }
     }
 
-    public class MemoryObject
-    {
-        public MemoryObject() { }
-    }
 }
 
