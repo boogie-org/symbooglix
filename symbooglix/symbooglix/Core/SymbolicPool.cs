@@ -23,12 +23,12 @@ namespace symbooglix
             count = 0;
         }
 
-        SymbolicVariable getFreshSymbolic(Microsoft.Boogie.TypedIdent t)
+        public SymbolicVariable getFreshSymbolic(Microsoft.Boogie.TypedIdent t)
         {
             var s = new SymbolicVariable(t);
             symbolics.Add(s);
             ++count;
-            Debug.Write("Created new symbolic " + s);
+            Debug.WriteLine("Created new symbolic " + s);
             return s;
         }
 
@@ -53,6 +53,11 @@ namespace symbooglix
             return typedIdentifier.Name;
         }
 
+        public Microsoft.Boogie.Type getType()
+        {
+            return typedIdentifier.Type;
+        }
+
 
         public SymbolicVariable(TypedIdent t)
         {
@@ -65,7 +70,7 @@ namespace symbooglix
 
         public override string ToString()
         {
-            return string.Format("[SymbolicVariable: {0}:{1} == {2}]", getName(), typedIdentifier, expr);
+            return string.Format("[SymbolicVariable: {0}:{1} == {2}]", getName(), getType(), expr);
         }
 
     }

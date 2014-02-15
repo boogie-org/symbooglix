@@ -10,6 +10,7 @@ namespace symbooglix
     {
         public Memory mem;
         private bool started = false;
+        public List<SymbolicVariable> symbolics;
 
         // FIXME: Loads axioms and types
 
@@ -17,9 +18,10 @@ namespace symbooglix
 
         // FIXME: Add something to track program counter in an elegant way that handles block commands
 
-        public ExecutionState(Implementation entryPoint)
+        public ExecutionState()
         {
             mem = new Memory();
+            symbolics = new List<SymbolicVariable>();
         }
 
         public bool dumpStackTrace()

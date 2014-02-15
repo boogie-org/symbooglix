@@ -4,6 +4,8 @@ procedure main(p1:int, p2:bv8) returns (r:bv8);
 function {:bvbuiltin "bvadd"} bv8add(bv8,bv8) returns(bv8);
 function {:bvbuiltin "bvugt"} bv8ugt(bv8,bv8) returns(bool);
 
+var g:bv8;
+
 implementation main(p1:int, p2:bv8) returns (r:bv8)
 {
     var a:bv8;

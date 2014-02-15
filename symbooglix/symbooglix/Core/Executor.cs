@@ -2,6 +2,7 @@ using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace symbooglix
 {
@@ -18,26 +19,54 @@ namespace symbooglix
 
     public class PrintingExecutor : AExecutor
     {
-        public PrintingExecutor(Program prog, IStateScheduler scheduler) : base(prog) { stateScheduler = scheduler; }
+        public PrintingExecutor(Program prog, IStateScheduler scheduler) : base(prog) 
+        { 
+            stateScheduler = scheduler;
+            symbolicPool = new SymbolicPool();
+        }
 
         private IStateScheduler stateScheduler;
         private ExecutionState currentState;
+        private ExecutionState initialState; // Represents a state that has not entered any procedures
+        private SymbolicPool symbolicPool;
+        private bool hasBeenPrepared = false;
 
         public override bool prepare()
         {
-            // TODO
+            // Create initial execution state
+            initialState = new ExecutionState();
+
+            // Load Globals
+            var GVs = prog.TopLevelDeclarations.OfType<GlobalVariable>();
+            foreach (GlobalVariable gv in GVs)
+            {
+                // Make symbolic initially
+                // FIXME: We should probably check if globals are set to constant value first
+                var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
+                initialState.mem.globals.Add(gv, s.expr);
+                initialState.symbolics.Add(s);
+            }
+
+            // FIXME: Load axioms
+
+            // FIXME: Initialise constants from axioms
+
+            hasBeenPrepared = true;
             return true;
         }
 
         public override bool run(Implementation entryPoint)
         {
-            // Make the first execution state
-            currentState = new ExecutionState(entryPoint);
+            if (!hasBeenPrepared)
+                prepare();
+
+            // FIXME: Clone initialState so we can deal with execution at a different entry point later on
+            currentState = initialState;
+
             stateScheduler.addState(currentState);
             
             // FIXME: Check entry point is in prog?
 
-            // FIXME: Loads globals
 
             // Push entry point onto stack frame
             enterProcedure(entryPoint);
@@ -80,7 +109,40 @@ namespace symbooglix
         public void enterProcedure(Implementation p)
         {
             Debug.WriteLine("Entering procedure " + p.Name);
+
+            // FIXME: The boundary between Executor and ExecutionState is
+            // unclear, who should do the heavy lifting?
             currentState.enterProcedure(p);
+
+            // Load procedure in parameters on to stack
+            foreach(Variable v in p.InParams)
+            {
+                // FIXME: How do we know where these input parameters have come from
+                // we do not need fresh symbolics if we've come from a call
+
+                // Just make symbolic for now
+                var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
+                currentState.getCurrentStackFrame().locals.Add(v, s.expr);
+                currentState.symbolics.Add(s);
+            }
+
+            // Load procedure out parameters on to stack
+            foreach(Variable v in p.OutParams)
+            {
+                // Make symbolic
+                var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
+                currentState.getCurrentStackFrame().locals.Add(v, s.expr);
+                currentState.symbolics.Add(s);
+            }
+
+            // Load procedure's declared locals on to stack
+            foreach(Variable v in p.LocVars)
+            {
+                // Make symbolic
+                var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
+                currentState.getCurrentStackFrame().locals.Add(v, s.expr);
+                currentState.symbolics.Add(s);
+            }
         }
 
         public void leaveProcedure()
