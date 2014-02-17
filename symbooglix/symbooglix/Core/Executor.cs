@@ -166,6 +166,14 @@ namespace symbooglix
             {
                 handleAssignCmd( (AssignCmd) si);
             }
+            else if ( si is AssertCmd)
+            {
+                handleAssertCmd( (AssertCmd) si);
+            }
+            else
+            {
+                throw new NotImplementedException("Command not yet supported.");
+            }
         }
 
         public void handleTransferCmd(TransferCmd ti)
@@ -201,6 +209,20 @@ namespace symbooglix
 
                 Debug.WriteLine("Assignment : " + lhsrhs.Item1.DeepAssignedIdentifier + " := " + rvalue);
             }
+        }
+
+        protected void handleAssertCmd(AssertCmd c)
+        {
+            // Duplicate and rewrite expr
+            Duplicator d = new Duplicator();
+            VariableMapRewriter r = new VariableMapRewriter(currentState);
+
+            Expr dupAndrw = (Expr) d.Visit(c.Expr);
+            dupAndrw = (Expr) r.Visit(dupAndrw);
+
+            // FIXME: fork with true and negated assertions and solve
+            Debug.WriteLine("Assert : " + dupAndrw);
+
         }
 
     }
