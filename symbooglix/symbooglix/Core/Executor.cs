@@ -160,7 +160,7 @@ namespace symbooglix
 
         public void handleSimpleInstruction(Cmd si)
         {
-            Debug.WriteLine("Exec: " + si.ToString().TrimEnd('\n'));
+            Debug.WriteLine("Exec before: " + si.ToString().TrimEnd('\n'));
 
             if (si is AssignCmd)
             {
@@ -174,6 +174,8 @@ namespace symbooglix
             {
                 throw new NotImplementedException("Command not yet supported.");
             }
+
+            Debug.WriteLine("Exec after: " + si.ToString().TrimEnd('\n'));
         }
 
         public void handleTransferCmd(TransferCmd ti)
@@ -189,7 +191,6 @@ namespace symbooglix
         {
             // FIXME: Handle map assignments
 
-            Duplicator d = new Duplicator();
             VariableMapRewriter r = new VariableMapRewriter(currentState); 
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
             {
@@ -197,13 +198,8 @@ namespace symbooglix
                 if (! currentState.isInScopeVariable(lhsrhs.Item1.DeepAssignedIdentifier))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
-                // FIXME: This is not very efficient
-                // as we may need to rewrite large
-                // parts of the Expr Tree.
-                Expr rvalue = (Expr) d.Visit(lhsrhs.Item2);
-
-                // Expand out the expression so we only have symbolic identifiers in the expression
-                rvalue = (Expr)r.Visit(rvalue);
+                // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                var rvalue = (Expr)r.Visit(lhsrhs.Item2);
 
                 currentState.assignToVariableInScope(lhsrhs.Item1.DeepAssignedVariable, rvalue);
 
@@ -213,15 +209,12 @@ namespace symbooglix
 
         protected void handleAssertCmd(AssertCmd c)
         {
-            // Duplicate and rewrite expr
-            Duplicator d = new Duplicator();
+
             VariableMapRewriter r = new VariableMapRewriter(currentState);
-
-            Expr dupAndrw = (Expr) d.Visit(c.Expr);
-            dupAndrw = (Expr) r.Visit(dupAndrw);
-
-            // FIXME: fork with true and negated assertions and solve
+            var dupAndrw = (Expr) r.Visit(c.Expr);
             Debug.WriteLine("Assert : " + dupAndrw);
+
+            // TODO: fork with true and negated assertions and solve
 
         }
 

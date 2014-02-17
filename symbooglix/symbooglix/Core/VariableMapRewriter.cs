@@ -3,7 +3,7 @@ using Microsoft.Boogie;
 
 namespace symbooglix
 {
-    public class VariableMapRewriter : StandardVisitor
+    public class VariableMapRewriter : Duplicator
     {
         private ExecutionState state;
         public VariableMapRewriter(ExecutionState e)
@@ -22,7 +22,7 @@ namespace symbooglix
             foreach (SymbolicVariable s in state.symbolics)
             {
                 if (s.expr == node)
-                    return (Expr) base.Visit(node);
+                    return (Expr) s.expr; // Don't need to duplicate these
             }
 
             // Not a symbolic so we should try rewriting it.
@@ -34,7 +34,6 @@ namespace symbooglix
             // We remove the IdentifierExpr entirely and replace it
             // with the expression that represents this variable
             // currently.
-            // FIXME: Do we need to duplicate here?
             return e;
         }
     }
