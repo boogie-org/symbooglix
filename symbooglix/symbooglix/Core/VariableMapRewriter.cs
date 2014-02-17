@@ -22,7 +22,7 @@ namespace symbooglix
             foreach (SymbolicVariable s in state.symbolics)
             {
                 if (s.expr == node)
-                    return node;
+                    return (Expr) base.Visit(node);
             }
 
             // Not a symbolic so we should try rewriting it.
