@@ -176,28 +176,27 @@ namespace symbooglix
 
         protected void handleAssignCmd(AssignCmd c)
         {
-            int index = 0;
+            // FIXME: Handle map assignments
+
             Duplicator d = new Duplicator();
             VariableMapRewriter r = new VariableMapRewriter(currentState); 
-            foreach(AssignLhs lvalue in c.Lhss)
+            foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
             {
                 // Check lhs is actually in scope
-                if (! currentState.isInScopeVariable(lvalue.DeepAssignedIdentifier))
+                if (! currentState.isInScopeVariable(lhsrhs.Item1.DeepAssignedIdentifier))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
                 // FIXME: This is not very efficient
                 // as we may need to rewrite large
                 // parts of the Expr Tree.
-                Expr rvalue = (Expr) d.Visit(c.Rhss [index]);
+                Expr rvalue = (Expr) d.Visit(lhsrhs.Item2);
 
                 // Expand out the expression so we only have symbolic identifiers in the expression
                 rvalue = (Expr)r.Visit(rvalue);
 
-                currentState.assignToVariableInScope(lvalue.DeepAssignedVariable, rvalue);
+                currentState.assignToVariableInScope(lhsrhs.Item1.DeepAssignedVariable, rvalue);
 
-                ++index;
-
-                Debug.WriteLine("Assignment : " + lvalue.DeepAssignedIdentifier + " := " + rvalue);
+                Debug.WriteLine("Assignment : " + lhsrhs.Item1.DeepAssignedIdentifier + " := " + rvalue);
             }
         }
 
