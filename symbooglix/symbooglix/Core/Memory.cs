@@ -22,7 +22,7 @@ namespace symbooglix
 
             foreach (var tuple in globals.Keys.Zip(globals.Values))
             {
-                d += indent + tuple.Item1 + " := " + tuple.Item2 + "\n";
+                d += indent + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type  + " := " + tuple.Item2 + "\n";
             }
 
             d += indent + "\nStack:\n";
@@ -76,7 +76,7 @@ namespace symbooglix
 
             foreach (var tuple in locals.Keys.Zip(locals.Values))
             {
-                d += indent + tuple.Item1 + " := " + tuple.Item2 + "\n";
+                d += indent + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2 + "\n";
             }
 
             return d;
