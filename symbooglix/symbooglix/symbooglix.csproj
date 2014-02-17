@@ -40,6 +40,7 @@
     <Compile Include="SymboglixCommandLineOptions.cs" />
     <Compile Include="Core\BlockCmdIterator.cs" />
     <Compile Include="Core\SymbolicPool.cs" />
+    <Compile Include="Core\VariableMapRewriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">

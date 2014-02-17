@@ -52,6 +52,72 @@ namespace symbooglix
             mem.stack.Add(s);
         }
 
+        // Returns variable Expr if in scope, otherwise
+        // return null
+        public Expr getInScopeVariableExpr(Variable v)
+        {
+            // Only the current stackframe is in scope
+            if (getCurrentStackFrame().locals.ContainsKey(v))
+            {
+                return getCurrentStackFrame().locals [v];
+            }
+
+            if (v is GlobalVariable)
+            {
+                GlobalVariable g = (GlobalVariable)v;
+                // If not in stackframe look through globals
+                if (mem.globals.ContainsKey(g))
+                {
+                    return mem.globals [g];
+                }
+            }
+
+            return null;
+        }
+
+        public bool isInScopeVariable(Variable v)
+        {
+            if (getCurrentStackFrame().locals.ContainsKey(v))
+                return true;
+
+            if (v is GlobalVariable)
+            {
+                GlobalVariable g = (GlobalVariable)v;
+                if (mem.globals.ContainsKey(g))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool isInScopeVariable(IdentifierExpr i)
+        {
+            return isInScopeVariable(i.Decl);
+        }
+
+        public void assignToVariableInScope(Variable v, Expr value)
+        {
+            if (getCurrentStackFrame().locals.ContainsKey(v))
+            {
+                getCurrentStackFrame().locals [v] = value;
+                return;
+            }
+
+
+            if (v is GlobalVariable)
+            {
+                var g = v as GlobalVariable;
+                if (mem.globals.ContainsKey(g))
+                {
+                    mem.globals [g] = value;
+                    return;
+                }
+            }
+
+            throw new InvalidOperationException("Cannot assign to variable not in scope.");
+
+        }
+
         public void leaveProcedure()
         {
             if (finished())

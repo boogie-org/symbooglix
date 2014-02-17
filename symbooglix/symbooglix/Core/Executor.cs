@@ -158,6 +158,11 @@ namespace symbooglix
         public void handleSimpleInstruction(Cmd si)
         {
             Debug.WriteLine("Exec: " + si.ToString().TrimEnd('\n'));
+
+            if (si is AssignCmd)
+            {
+                handleAssignCmd( (AssignCmd) si);
+            }
         }
 
         public void handleTransferCmd(TransferCmd ti)
@@ -167,6 +172,33 @@ namespace symbooglix
             // FIXME: Do the exit correctly
             leaveProcedure();
 
+        }
+
+        protected void handleAssignCmd(AssignCmd c)
+        {
+            int index = 0;
+            Duplicator d = new Duplicator();
+            VariableMapRewriter r = new VariableMapRewriter(currentState); 
+            foreach(AssignLhs lvalue in c.Lhss)
+            {
+                // Check lhs is actually in scope
+                if (! currentState.isInScopeVariable(lvalue.DeepAssignedIdentifier))
+                    throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
+
+                // FIXME: This is not very efficient
+                // as we may need to rewrite large
+                // parts of the Expr Tree.
+                Expr rvalue = (Expr) d.Visit(c.Rhss [index]);
+
+                // Expand out the expression so we only have symbolic identifiers in the expression
+                rvalue = (Expr)r.Visit(rvalue);
+
+                currentState.assignToVariableInScope(lvalue.DeepAssignedVariable, rvalue);
+
+                ++index;
+
+                Debug.WriteLine("Assignment : " + lvalue.DeepAssignedIdentifier + " := " + rvalue);
+            }
         }
 
     }
