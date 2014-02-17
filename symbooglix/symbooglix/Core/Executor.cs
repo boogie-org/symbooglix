@@ -114,6 +114,9 @@ namespace symbooglix
             // unclear, who should do the heavy lifting?
             currentState.enterProcedure(p);
 
+            // FIXME: We should check there are no name clashes between
+            // existing program variables and symbolics
+
             // Load procedure in parameters on to stack
             foreach(Variable v in p.InParams)
             {
