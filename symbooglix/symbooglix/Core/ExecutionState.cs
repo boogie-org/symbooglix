@@ -30,9 +30,9 @@ namespace symbooglix
             return true;
         }
 
-        public bool dumpState()
+        public void dumpState()
         {
-            return mem.dump();
+            Console.WriteLine(mem);
         }
 
         public StackFrame getCurrentStackFrame()
@@ -123,7 +123,6 @@ namespace symbooglix
             if (finished())
                 throw new InvalidOperationException("Not currently in procedure");
 
-            Debug.WriteLine(getCurrentStackFrame().ToString());
             mem.popStackFrame();
         }
 

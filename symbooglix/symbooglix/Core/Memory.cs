@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Boogie;
 using System.Diagnostics;
+using System.Linq;
 
 namespace symbooglix
 {
@@ -12,10 +13,29 @@ namespace symbooglix
             globals = new Dictionary<GlobalVariable,Expr>();
         }
 
-        public bool dump()
+        public override string ToString()
         {
-            // TODO:
-            return true;
+            string d = "[Memory]\n";
+            string indent = "    ";
+
+            d += indent + "Globals:\n";
+
+            foreach (var tuple in globals.Keys.Zip(globals.Values))
+            {
+                d += indent + tuple.Item1 + " := " + tuple.Item2 + "\n";
+            }
+
+            d += indent + "\nStack:\n";
+
+            int depth = stack.Count;
+            for (int index = depth -1; index >= 0; --index)
+            {
+                d += indent + index + ":\n";
+                d += stack [index].ToString();
+                d += "\n";
+            }
+
+            return d;
         }
 
         public void popStackFrame()

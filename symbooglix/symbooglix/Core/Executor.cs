@@ -148,10 +148,13 @@ namespace symbooglix
         public void leaveProcedure()
         {
             Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
+            currentState.dumpState();
             currentState.leaveProcedure();
 
             if (currentState.finished())
+            {
                 stateScheduler.removeState(currentState);
+            }
      
         }
 
