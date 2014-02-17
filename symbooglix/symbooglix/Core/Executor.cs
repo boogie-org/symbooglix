@@ -145,10 +145,13 @@ namespace symbooglix
             }
         }
 
-        public void leaveProcedure()
+        public void handleReturnCmd(ReturnCmd c)
         {
             Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
             currentState.dumpState();
+
+            // TODO: Pass paramters back to caller.
+
             currentState.leaveProcedure();
 
             if (currentState.finished())
@@ -186,8 +189,17 @@ namespace symbooglix
         {
             Console.WriteLine("Exec: " + ti.ToString());
 
-            // FIXME: Do the exit correctly
-            leaveProcedure();
+            if (ti is GotoCmd)
+            {
+                handleGotoCmd((GotoCmd) ti);
+            } 
+            else if (ti is ReturnCmd)
+            {
+                handleReturnCmd((ReturnCmd) ti);
+            } else
+            {
+                throw new InvalidOperationException("Invalid transfer command");
+            }
 
         }
 
@@ -232,6 +244,13 @@ namespace symbooglix
 
             currentState.cm.addConstraint(dupAndrw);
 
+        }
+
+        protected void handleGotoCmd(GotoCmd c)
+        {
+            // TODO fork state per block
+
+            // TODO look ahead for assumes
         }
 
     }
