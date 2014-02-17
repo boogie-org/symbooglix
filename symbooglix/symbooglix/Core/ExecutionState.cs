@@ -123,6 +123,7 @@ namespace symbooglix
             if (finished())
                 throw new InvalidOperationException("Not currently in procedure");
 
+            Debug.WriteLine(getCurrentStackFrame().ToString());
             mem.popStackFrame();
         }
 

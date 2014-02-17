@@ -47,6 +47,21 @@ namespace symbooglix
             private set;
         }
 
+        public override string ToString()
+        {
+            string d = "[Stack frame for " + procedure.Name + "]\n";
+            string indent = "    ";
+            d += indent + "Current block :" + currentBlock + "\n";
+            d += indent + "Current instruction : " + currentInstruction.Current + "\n";
+
+            foreach (var tuple in locals.Keys.Zip(locals.Values))
+            {
+                d += indent + tuple.Item1 + " := " + tuple.Item2 + "\n";
+            }
+
+            return d;
+        }
+
         public void transferToBlock(Block BB)
         {
             Debug.WriteLine("Entering block " + BB.ToString());
