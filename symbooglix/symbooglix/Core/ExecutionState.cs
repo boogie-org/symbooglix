@@ -11,6 +11,7 @@ namespace symbooglix
         public Memory mem;
         private bool started = false;
         public List<SymbolicVariable> symbolics;
+        public ConstraintManager cm;
 
         // FIXME: Loads axioms and types
 
@@ -22,6 +23,7 @@ namespace symbooglix
         {
             mem = new Memory();
             symbolics = new List<SymbolicVariable>();
+            cm = new ConstraintManager();
         }
 
         public bool dumpStackTrace()
@@ -33,6 +35,7 @@ namespace symbooglix
         public void dumpState()
         {
             Console.WriteLine(mem);
+            Console.WriteLine(cm);
         }
 
         public StackFrame getCurrentStackFrame()

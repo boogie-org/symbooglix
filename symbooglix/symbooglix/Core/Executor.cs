@@ -170,6 +170,10 @@ namespace symbooglix
             {
                 handleAssertCmd( (AssertCmd) si);
             }
+            else if ( si is AssumeCmd)
+            {
+                handleAssumeCmd( (AssumeCmd) si);
+            }
             else
             {
                 throw new NotImplementedException("Command not yet supported.");
@@ -215,6 +219,18 @@ namespace symbooglix
             Debug.WriteLine("Assert : " + dupAndrw);
 
             // TODO: fork with true and negated assertions and solve
+
+        }
+
+        protected void handleAssumeCmd(AssumeCmd c)
+        {
+            VariableMapRewriter r = new VariableMapRewriter(currentState);
+            var dupAndrw = (Expr) r.Visit(c.Expr);
+            Debug.WriteLine("Assume : " + dupAndrw);
+
+            // TODO: Check assumption
+
+            currentState.cm.addConstraint(dupAndrw);
 
         }
 

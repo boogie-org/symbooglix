@@ -41,6 +41,7 @@
     <Compile Include="Core\SymbolicPool.cs" />
     <Compile Include="Core\VariableMapRewriter.cs" />
     <Compile Include="SymbooglixCommandLineOptions.cs" />
+    <Compile Include="Core\ConstraintManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">

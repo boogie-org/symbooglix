@@ -36,6 +36,8 @@ namespace symbooglix
             // currently.
             return e;
         }
+
+        // FIXME: We should not duplicate literals either
     }
 }
 
