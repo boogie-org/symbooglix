@@ -19,7 +19,7 @@ namespace symbooglix
             // FIXME: Urgh... we are forced to use Boogie's command line
             // parser becaue the Boogie program resolver/type checker
             // is dependent on the parser being used...EURGH!
-            CommandLineOptions.Install(new SymboglixCommandLineOptions());
+            CommandLineOptions.Install(new SymbooglixCommandLineOptions());
             if (!CommandLineOptions.Clo.Parse(args))
             {
                 Console.WriteLine("Failed to parser command line arguments");

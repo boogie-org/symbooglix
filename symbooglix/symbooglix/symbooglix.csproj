@@ -37,10 +37,10 @@
     <Compile Include="Core\Memory.cs" />
     <Compile Include="Core\ExecutionState.cs" />
     <Compile Include="Core\StateScheduler.cs" />
-    <Compile Include="SymboglixCommandLineOptions.cs" />
     <Compile Include="Core\BlockCmdIterator.cs" />
     <Compile Include="Core\SymbolicPool.cs" />
     <Compile Include="Core\VariableMapRewriter.cs" />
+    <Compile Include="SymbooglixCommandLineOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
