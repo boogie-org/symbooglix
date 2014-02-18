@@ -29,7 +29,7 @@ namespace symbooglix
             Expr e = state.getInScopeVariableExpr(node.Decl);
 
             if (e == null)
-                throw new NullReferenceException("Identifier is not is scope");
+                throw new NullReferenceException("Identifier " + node.Decl + " is not is scope");
 
             // We remove the IdentifierExpr entirely and replace it
             // with the expression that represents this variable

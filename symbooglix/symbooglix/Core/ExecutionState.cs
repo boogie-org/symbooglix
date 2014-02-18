@@ -78,6 +78,21 @@ namespace symbooglix
             return null;
         }
 
+  
+        public bool assignToVariableInStack(StackFrame s, Variable v, Expr value)
+        {
+            Debug.Assert(mem.stack.Contains(s));
+
+            if (s.locals.ContainsKey(v))
+            {
+                s.locals [v] = value;
+                return true;
+            }
+
+            return false;
+
+        }
+
         public bool isInScopeVariable(Variable v)
         {
             if (getCurrentStackFrame().locals.ContainsKey(v))
@@ -100,12 +115,8 @@ namespace symbooglix
 
         public void assignToVariableInScope(Variable v, Expr value)
         {
-            if (getCurrentStackFrame().locals.ContainsKey(v))
-            {
-                getCurrentStackFrame().locals [v] = value;
+            if (assignToVariableInStack(getCurrentStackFrame(), v, value))
                 return;
-            }
-
 
             if (v is GlobalVariable)
             {

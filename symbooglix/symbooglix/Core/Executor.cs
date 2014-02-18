@@ -69,7 +69,8 @@ namespace symbooglix
 
 
             // Push entry point onto stack frame
-            enterProcedure(entryPoint);
+            // FIXME: handle requires
+            enterProcedure(entryPoint,null);
 
             while (stateScheduler.getNumberOfStates() != 0)
             {
@@ -106,7 +107,11 @@ namespace symbooglix
             }
         }
 
-        public void enterProcedure(Implementation p)
+        // if procedureParams == null then parameters will be assumed to be fresh symbolics
+        // otherwise procedureParams should be a listof Expr for the procedure.
+        // Note there is not need to make a copy of these Expr because a Boogie
+        // procedure is not allowed to modify passed in parameters.
+        public void enterProcedure(Implementation p, List<Expr> procedureParams)
         {
             Debug.WriteLine("Entering procedure " + p.Name);
 
@@ -118,15 +123,27 @@ namespace symbooglix
             // existing program variables and symbolics
 
             // Load procedure in parameters on to stack
-            foreach(Variable v in p.InParams)
+            if (procedureParams == null)
             {
-                // FIXME: How do we know where these input parameters have come from
-                // we do not need fresh symbolics if we've come from a call
+                // Give all parameters fresh symbolics
+                foreach (Variable v in p.InParams)
+                {
+                    // Just make symbolic for now
+                    var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
+                    currentState.getCurrentStackFrame().locals.Add(v, s.expr);
+                    currentState.symbolics.Add(s);
+                }
+            }
+            else
+            {
+                // Push expr for param on to stack.
+                Debug.Assert(procedureParams.Count == p.InParams.Count);
 
-                // Just make symbolic for now
-                var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
-                currentState.getCurrentStackFrame().locals.Add(v, s.expr);
-                currentState.symbolics.Add(s);
+                foreach (var tuple in p.InParams.Zip(procedureParams))
+                {
+                    currentState.getCurrentStackFrame().locals.Add(tuple.Item1, tuple.Item2);
+                }
+
             }
 
             // Load procedure out parameters on to stack
@@ -151,10 +168,32 @@ namespace symbooglix
         public void handleReturnCmd(ReturnCmd c)
         {
             Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
+
+
+            // Pass Parameters to Caller
+            if (currentState.mem.stack.Count > 1)
+            {
+                StackFrame callingSF = currentState.mem.stack.ElementAt(currentState.mem.stack.Count - 2);
+                CallCmd caller = (CallCmd) callingSF.currentInstruction.Current;
+                Debug.Assert(caller is CallCmd);
+
+                // Assign return parameters
+                Debug.Assert(caller.Proc.OutParams.Count == caller.Outs.Count);
+                foreach (var tuple in caller.Outs.Zip(currentState.getCurrentStackFrame().procedure.OutParams))
+                {
+                    // Get return value
+                    Expr value = currentState.getInScopeVariableExpr(tuple.Item2);
+                    Debug.Assert(value != null);
+
+                    // Assign
+                    currentState.assignToVariableInStack(callingSF, tuple.Item1.Decl, value);
+                }
+
+            }
+
             currentState.dumpState();
 
-            // TODO: Pass paramters back to caller.
-
+            // Pop stack frame
             currentState.leaveProcedure();
 
             if (currentState.finished())
@@ -170,15 +209,18 @@ namespace symbooglix
 
             if (si is AssignCmd)
             {
-                handleAssignCmd( (AssignCmd) si);
-            }
-            else if ( si is AssertCmd)
+                handleAssignCmd((AssignCmd)si);
+            } else if (si is AssertCmd)
             {
-                handleAssertCmd( (AssertCmd) si);
-            }
-            else if ( si is AssumeCmd)
+                handleAssertCmd((AssertCmd)si);
+            } else if (si is AssumeCmd)
             {
-                handleAssumeCmd( (AssumeCmd) si);
+                handleAssumeCmd((AssumeCmd)si);
+            }
+            else if (si is CallCmd)
+            {
+                // FIXME: Eurgh why is CallCmd not a TransferCmd??
+                handleCallCmd((CallCmd) si);
             }
             else
             {
@@ -199,7 +241,8 @@ namespace symbooglix
             else if (ti is ReturnCmd)
             {
                 handleReturnCmd((ReturnCmd) ti);
-            } else
+            } 
+            else
             {
                 throw new InvalidOperationException("Invalid transfer command");
             }
@@ -213,6 +256,9 @@ namespace symbooglix
             VariableMapRewriter r = new VariableMapRewriter(currentState); 
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
             {
+                // Check assignment allow
+                Debug.Assert(lhsrhs.Item1.DeepAssignedVariable.IsMutable);
+
                 // Check lhs is actually in scope
                 if (! currentState.isInScopeVariable(lhsrhs.Item1.DeepAssignedIdentifier))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
@@ -254,6 +300,27 @@ namespace symbooglix
             // TODO fork state per block
 
             // TODO look ahead for assumes
+        }
+
+        protected void handleCallCmd(CallCmd c)
+        {
+            var args = new List<Expr>();
+            var reWritter = new VariableMapRewriter(currentState);
+
+            // Find corresponding implementation
+            var implementations = prog.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Proc == c.Proc);
+            Debug.Assert(implementations.Count() == 1);
+            Implementation imp = implementations.First();
+
+            Debug.Write("Calling: " + imp.Name + "(");
+            foreach (Expr e in c.Ins)
+            {
+                args.Add( (Expr) reWritter.Visit(e) );
+                Debug.Write(args.Last().ToString() + ", ");
+            }
+            Debug.WriteLine(")");
+
+            enterProcedure(imp, args);
         }
 
     }

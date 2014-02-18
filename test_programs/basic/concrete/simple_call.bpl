@@ -8,6 +8,7 @@ procedure main() returns (r:bv16)
     a := 1bv8;
     b := 2bv16;
     call result := h(a,b);
+    assert result == bv16add(a++a, b);
 }
 
 procedure h(a:bv8, b:bv16) returns (r:bv16)
