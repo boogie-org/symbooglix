@@ -29,6 +29,8 @@ namespace symbooglix
         { 
             stateScheduler = scheduler;
             symbolicPool = new SymbolicPool();
+            preEventHandlers = new List<IExecutorHandler>();
+            postEventHandlers = new List<IExecutorHandler>();
         }
 
         private IStateScheduler stateScheduler;
@@ -38,6 +40,8 @@ namespace symbooglix
             private set;
         }
         private ExecutionState initialState; // Represents a state that has not entered any procedures
+        private List<IExecutorHandler> preEventHandlers;
+        private List<IExecutorHandler> postEventHandlers;
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
 
@@ -64,6 +68,27 @@ namespace symbooglix
             hasBeenPrepared = true;
             return true;
         }
+
+        public void registerPreEventHandler(IExecutorHandler handler)
+        {
+            preEventHandlers.Add(handler);
+        }
+
+        public void unregisterPreEventHandler(IExecutorHandler handler)
+        {
+            preEventHandlers.Remove(handler);
+        }
+
+        public void registerPostEventHandler(IExecutorHandler handler)
+        {
+            postEventHandlers.Add(handler);
+        }
+
+        public void unregisterPostEventHandler(IExecutorHandler handler)
+        {
+            postEventHandlers.Remove(handler);
+        }
+
 
         public override bool run(Implementation entryPoint)
         {
@@ -105,7 +130,25 @@ namespace symbooglix
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
+            HandlerAction action = HandlerAction.CONTINUE;
+            // Invoke pre-event handlers
+            foreach (IExecutorHandler h in preEventHandlers)
+            {
+                action = currentInstruction.visitCmd(h, this);
+                if (action == HandlerAction.STOP)
+                    return;
+            }
+
+            // Ignore the action returned from ourself
             currentInstruction.visitCmd(this, this); // Use double dispatch
+
+            // Invoke post-event handlers
+            foreach (IExecutorHandler h in postEventHandlers)
+            {
+                action = currentInstruction.visitCmd(h, this);
+                if (action == HandlerAction.STOP)
+                    return;
+            }
         }
 
         // if procedureParams == null then parameters will be assumed to be fresh symbolics
@@ -192,8 +235,6 @@ namespace symbooglix
                 }
 
             }
-
-            currentState.dumpState();
 
             // Pop stack frame
             currentState.leaveProcedure();
@@ -282,7 +323,22 @@ namespace symbooglix
             }
             Debug.WriteLine(")");
 
+            HandlerAction action = HandlerAction.CONTINUE;
+            foreach (IExecutorHandler h in preEventHandlers)
+            {
+                action = h.enterProcedure(imp, args, this);
+                if (action == HandlerAction.STOP)
+                    break;
+            }
+
+            // We have slightly different semantics here to the handle() methods. Clients cannot block enterProcedure()
             enterProcedure(imp, args, this);
+            foreach (IExecutorHandler h in postEventHandlers)
+            {
+                action = h.enterProcedure(imp, args, this);
+                if (action == HandlerAction.STOP)
+                    break;
+            }
             return HandlerAction.CONTINUE;
         }
 

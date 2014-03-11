@@ -8,6 +8,26 @@ namespace symbooglix
         {
 
         }
+
+        public bool useInstructionPrinter = false;
+        public bool useEnterLeaveStackPrinter = false;
+
+        protected override bool ParseOption(string name, CommandLineParseState ps)
+        {
+            if (name == "useInstructionPrinter")
+            {
+                useInstructionPrinter = true;
+                return true;
+            }
+
+            if (name == "useEnterLeaveStackPrinter")
+            {
+                useEnterLeaveStackPrinter = true;
+                return true;
+            }
+
+            return base.ParseOption(name, ps);
+        }
     }
 }
 

@@ -26,6 +26,8 @@ namespace symbooglix
                 return 1;
             }
 
+            var parsedArgs = (SymbooglixCommandLineOptions) CommandLineOptions.Clo;
+
             if (CommandLineOptions.Clo.Files.Count != 1)
             {
                 Console.WriteLine("You must pass a single boogie program");
@@ -71,6 +73,19 @@ namespace symbooglix
 
             // FIXME: Find a better way to choose entry point.
             Microsoft.Boogie.Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().FirstOrDefault();
+
+            if (parsedArgs.useInstructionPrinter)
+            {
+                Console.WriteLine("Installing instruction printer");
+                e.registerPreEventHandler(new InstructionPrinter());
+            }
+
+            if (parsedArgs.useEnterLeaveStackPrinter)
+            {
+                Console.WriteLine("Installing Entering and Leaving stack printer");
+                e.registerPreEventHandler(new EnterAndLeaveStackPrinter());
+            }
+
 
             return e.run(entry)? 1 : 0;
 

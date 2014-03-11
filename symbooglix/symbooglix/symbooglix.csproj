@@ -45,6 +45,8 @@
     <Compile Include="Core\BoogieCmdExtensions.cs" />
     <Compile Include="Core\ExecutorHandlers\IExecutorHandler.cs" />
     <Compile Include="Core\ExecutorHandlers\DummyHandlers.cs" />
+    <Compile Include="Core\ExecutorHandlers\InstructionPrinter.cs" />
+    <Compile Include="Core\ExecutorHandlers\EnterAndLeaveStackPrinter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
