@@ -17,26 +17,26 @@ namespace symbooglix
         protected Program prog;
     }
 
-	public class Executor : AExecutor, IExecutorHandler
+    public class Executor : AExecutor, IExecutorHandler
     {
-		public enum HandlerAction 
-		{ 
-			CONTINUE, // Allow execution of other handlers for this event
-			STOP // Do not execute any more handlers for this event
-		};
+        public enum HandlerAction 
+        { 
+            CONTINUE, // Allow execution of other handlers for this event
+            STOP // Do not execute any more handlers for this event
+        };
 
-		public Executor(Program prog, IStateScheduler scheduler) : base(prog)
+        public Executor(Program prog, IStateScheduler scheduler) : base(prog)
         { 
             stateScheduler = scheduler;
             symbolicPool = new SymbolicPool();
         }
 
         private IStateScheduler stateScheduler;
-		public  ExecutionState currentState
-		{
-			get;
-			private set;
-		}
+        public  ExecutionState currentState
+        {
+            get;
+            private set;
+        }
         private ExecutionState initialState; // Represents a state that has not entered any procedures
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
@@ -80,7 +80,7 @@ namespace symbooglix
 
             // Push entry point onto stack frame
             // FIXME: handle requires
-			enterProcedure(entryPoint,null, this);
+            enterProcedure(entryPoint,null, this);
 
             while (stateScheduler.getNumberOfStates() != 0)
             {
@@ -105,14 +105,14 @@ namespace symbooglix
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
-			currentInstruction.visitCmd(this, this); // Use double dispatch
+            currentInstruction.visitCmd(this, this); // Use double dispatch
         }
 
         // if procedureParams == null then parameters will be assumed to be fresh symbolics
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-		public HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
+        public HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
         {
             Debug.WriteLine("Entering procedure " + p.Name);
 
@@ -165,10 +165,10 @@ namespace symbooglix
                 currentState.symbolics.Add(s);
             }
 
-			return HandlerAction.CONTINUE;
+            return HandlerAction.CONTINUE;
         }
 
-		public HandlerAction handle(ReturnCmd c, Executor executor)
+        public HandlerAction handle(ReturnCmd c, Executor executor)
         {
             Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
 
@@ -203,12 +203,12 @@ namespace symbooglix
                 stateScheduler.removeState(currentState);
             }
 
-			return HandlerAction.CONTINUE;
+            return HandlerAction.CONTINUE;
      
         }
 
 
-		public HandlerAction handle(AssignCmd c, Executor executor)
+        public HandlerAction handle(AssignCmd c, Executor executor)
         {
             // FIXME: Handle map assignments
 
@@ -229,10 +229,10 @@ namespace symbooglix
 
                 Debug.WriteLine("Assignment : " + lhsrhs.Item1.DeepAssignedIdentifier + " := " + rvalue);
             }
-			return HandlerAction.CONTINUE;
+            return HandlerAction.CONTINUE;
         }
 
-		public HandlerAction handle(AssertCmd c, Executor executor)
+        public HandlerAction handle(AssertCmd c, Executor executor)
         {
 
             VariableMapRewriter r = new VariableMapRewriter(currentState);
@@ -241,10 +241,10 @@ namespace symbooglix
 
             // TODO: fork with true and negated assertions and solve
 
-			return HandlerAction.CONTINUE;
+            return HandlerAction.CONTINUE;
         }
 
-		public HandlerAction handle(AssumeCmd c, Executor executor)
+        public HandlerAction handle(AssumeCmd c, Executor executor)
         {
             VariableMapRewriter r = new VariableMapRewriter(currentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
@@ -253,18 +253,18 @@ namespace symbooglix
             // TODO: Check assumption
 
             currentState.cm.addConstraint(dupAndrw);
-			return HandlerAction.CONTINUE;
+            return HandlerAction.CONTINUE;
         }
 
-		public HandlerAction handle(GotoCmd c, Executor executor)
+        public HandlerAction handle(GotoCmd c, Executor executor)
         {
             // TODO fork state per block
 
             // TODO look ahead for assumes
-			return HandlerAction.CONTINUE;
+            return HandlerAction.CONTINUE;
         }
 
-		public HandlerAction handle(CallCmd c, Executor executor)
+        public HandlerAction handle(CallCmd c, Executor executor)
         {
             var args = new List<Expr>();
             var reWritter = new VariableMapRewriter(currentState);
@@ -282,33 +282,33 @@ namespace symbooglix
             }
             Debug.WriteLine(")");
 
-			enterProcedure(imp, args, this);
-			return HandlerAction.CONTINUE;
+            enterProcedure(imp, args, this);
+            return HandlerAction.CONTINUE;
         }
 
-		public HandlerAction handle(AssertEnsuresCmd c, Executor executor)
-		{
-			throw new NotImplementedException ();
-			//return HandlerAction.CONTINUE;
-		}
+        public HandlerAction handle(AssertEnsuresCmd c, Executor executor)
+        {
+            throw new NotImplementedException ();
+            //return HandlerAction.CONTINUE;
+        }
 
-		public HandlerAction handle(AssertRequiresCmd c, Executor executor)
-		{
-			throw new NotImplementedException ();
-			//return HandlerAction.CONTINUE;
-		}
+        public HandlerAction handle(AssertRequiresCmd c, Executor executor)
+        {
+            throw new NotImplementedException ();
+            //return HandlerAction.CONTINUE;
+        }
 
-		public HandlerAction handle(HavocCmd c, Executor executor)
-		{
-			throw new NotImplementedException ();
-			//return HandlerAction.CONTINUE;
-		}
+        public HandlerAction handle(HavocCmd c, Executor executor)
+        {
+            throw new NotImplementedException ();
+            //return HandlerAction.CONTINUE;
+        }
 
-		public HandlerAction handle(YieldCmd c, Executor executor)
-		{
-			throw new NotImplementedException ();
-			//return HandlerAction.CONTINUE;
-		}
+        public HandlerAction handle(YieldCmd c, Executor executor)
+        {
+            throw new NotImplementedException ();
+            //return HandlerAction.CONTINUE;
+        }
 
     }
 }
