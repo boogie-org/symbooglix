@@ -1,10 +1,12 @@
 using Microsoft.Boogie;
 using System;
+using System.Collections.Generic;
 
 namespace symbooglix
 {
 	public interface IExecutorHandler
 	{
+		// Visit Cmd events
 		Executor.HandlerAction handle(AssertCmd c, Executor executor);
 		Executor.HandlerAction handle(AssignCmd c, Executor executor);
 		Executor.HandlerAction handle(AssumeCmd c, Executor executor);
@@ -20,6 +22,8 @@ namespace symbooglix
 		Executor.HandlerAction handle(ReturnCmd c, Executor executor);
 		//Executor.HandlerAction handle(StateCmd c, Executor executor);
 		Executor.HandlerAction handle(YieldCmd c, Executor executor);
+
+		Executor.HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor);
 	}
 }
 

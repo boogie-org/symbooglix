@@ -80,7 +80,7 @@ namespace symbooglix
 
             // Push entry point onto stack frame
             // FIXME: handle requires
-            enterProcedure(entryPoint,null);
+			enterProcedure(entryPoint,null, this);
 
             while (stateScheduler.getNumberOfStates() != 0)
             {
@@ -112,7 +112,7 @@ namespace symbooglix
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-        public void enterProcedure(Implementation p, List<Expr> procedureParams)
+		public HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
         {
             Debug.WriteLine("Entering procedure " + p.Name);
 
@@ -164,6 +164,8 @@ namespace symbooglix
                 currentState.getCurrentStackFrame().locals.Add(v, s.expr);
                 currentState.symbolics.Add(s);
             }
+
+			return HandlerAction.CONTINUE;
         }
 
 		public HandlerAction handle(ReturnCmd c, Executor executor)
@@ -280,7 +282,7 @@ namespace symbooglix
             }
             Debug.WriteLine(")");
 
-            enterProcedure(imp, args);
+			enterProcedure(imp, args, this);
 			return HandlerAction.CONTINUE;
         }
 
