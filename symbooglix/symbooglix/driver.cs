@@ -86,6 +86,11 @@ namespace symbooglix
                 e.registerPreEventHandler(new EnterAndLeaveStackPrinter());
             }
 
+            if (parsedArgs.useCallSequencePrinter)
+            {
+                Console.WriteLine("Installing call sequence printer");
+                e.registerPreEventHandler(new CallSequencePrinter());
+            }
 
             return e.run(entry)? 1 : 0;
 

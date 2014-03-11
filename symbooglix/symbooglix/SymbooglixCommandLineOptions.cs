@@ -11,6 +11,7 @@ namespace symbooglix
 
         public bool useInstructionPrinter = false;
         public bool useEnterLeaveStackPrinter = false;
+        public bool useCallSequencePrinter = false;
 
         protected override bool ParseOption(string name, CommandLineParseState ps)
         {
@@ -23,6 +24,12 @@ namespace symbooglix
             if (name == "useEnterLeaveStackPrinter")
             {
                 useEnterLeaveStackPrinter = true;
+                return true;
+            }
+
+            if (name == "useCallSequencePrinter")
+            {
+                useCallSequencePrinter = true;
                 return true;
             }
 

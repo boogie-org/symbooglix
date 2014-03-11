@@ -113,7 +113,7 @@ namespace symbooglix
                 currentState.getCurrentStackFrame().currentInstruction.MoveNext();
                 executeInstruction();
             }
-            System.Diagnostics.Debug.WriteLine("Finished executing all states");
+            Console.WriteLine("Finished executing all states");
 
             return true;
         }
@@ -157,8 +157,6 @@ namespace symbooglix
         // procedure is not allowed to modify passed in parameters.
         public HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
         {
-            Debug.WriteLine("Entering procedure " + p.Name);
-
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
             currentState.enterProcedure(p);
@@ -213,8 +211,6 @@ namespace symbooglix
 
         public HandlerAction handle(ReturnCmd c, Executor executor)
         {
-            Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
-
             // Pass Parameters to Caller
             if (currentState.mem.stack.Count > 1)
             {
@@ -315,13 +311,10 @@ namespace symbooglix
             Debug.Assert(implementations.Count() == 1);
             Implementation imp = implementations.First();
 
-            Debug.Write("Calling: " + imp.Name + "(");
             foreach (Expr e in c.Ins)
             {
                 args.Add( (Expr) reWritter.Visit(e) );
-                Debug.Write(args.Last().ToString() + ", ");
             }
-            Debug.WriteLine(")");
 
             HandlerAction action = HandlerAction.CONTINUE;
             foreach (IExecutorHandler h in preEventHandlers)
