@@ -1,0 +1,8 @@
+# Binaries
+BoogieTests/bin/
+BoogieTests/obj/
+symbooglix/bin/
+symbooglix/obj/
+
+# Monodevelop files
+symbooglix.userprefs
