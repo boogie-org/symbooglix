@@ -31,6 +31,7 @@ namespace symbooglix
             symbolicPool = new SymbolicPool();
             preEventHandlers = new List<IExecutorHandler>();
             postEventHandlers = new List<IExecutorHandler>();
+            breakPointHandlers = new List<IBreakPointHandler>();
         }
 
         private IStateScheduler stateScheduler;
@@ -42,6 +43,7 @@ namespace symbooglix
         private ExecutionState initialState; // Represents a state that has not entered any procedures
         private List<IExecutorHandler> preEventHandlers;
         private List<IExecutorHandler> postEventHandlers;
+        private List<IBreakPointHandler> breakPointHandlers;
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
 
@@ -89,6 +91,15 @@ namespace symbooglix
             postEventHandlers.Remove(handler);
         }
 
+        public void registerBreakPointHandler(IBreakPointHandler handler)
+        {
+            breakPointHandlers.Add(handler);
+        }
+
+        public void unregisterBreakPointHandler(IBreakPointHandler handler)
+        {
+            breakPointHandlers.Remove(handler);
+        }
 
         public override bool run(Implementation entryPoint)
         {
@@ -150,6 +161,22 @@ namespace symbooglix
                     return;
             }
         }
+
+        protected void handleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
+        {
+            string breakPointName = QKeyValue.FindStringAttribute(cmd.Attributes, "symbooglix_bp");
+            if (breakPointName == null)
+                return;
+
+            HandlerAction action = HandlerAction.CONTINUE;
+            foreach (IBreakPointHandler h in breakPointHandlers)
+            {
+                action = h.handleBreakPoint(breakPointName, this);
+                if (action == HandlerAction.STOP)
+                    return;
+            }
+        }
+
 
         // if procedureParams == null then parameters will be assumed to be fresh symbolics
         // otherwise procedureParams should be a listof Expr for the procedure.
@@ -271,7 +298,7 @@ namespace symbooglix
 
         public HandlerAction handle(AssertCmd c, Executor executor)
         {
-
+            handleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(currentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
             Debug.WriteLine("Assert : " + dupAndrw);
@@ -283,6 +310,7 @@ namespace symbooglix
 
         public HandlerAction handle(AssumeCmd c, Executor executor)
         {
+            handleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(currentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
             Debug.WriteLine("Assume : " + dupAndrw);

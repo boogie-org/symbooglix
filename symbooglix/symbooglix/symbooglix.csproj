@@ -48,6 +48,7 @@
     <Compile Include="Core\ExecutorHandlers\InstructionPrinter.cs" />
     <Compile Include="Core\ExecutorHandlers\EnterAndLeaveStackPrinter.cs" />
     <Compile Include="Core\ExecutorHandlers\CallSequencePrinter.cs" />
+    <Compile Include="Core\ExecutorHandlers\BreakPointHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
