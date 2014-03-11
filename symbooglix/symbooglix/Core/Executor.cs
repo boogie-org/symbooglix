@@ -17,16 +17,26 @@ namespace symbooglix
         protected Program prog;
     }
 
-    public class PrintingExecutor : AExecutor
+	public class Executor : AExecutor, IExecutorHandler
     {
-        public PrintingExecutor(Program prog, IStateScheduler scheduler) : base(prog) 
+		public enum HandlerAction 
+		{ 
+			CONTINUE, // Allow execution of other handlers for this event
+			STOP // Do not execute any more handlers for this event
+		};
+
+		public Executor(Program prog, IStateScheduler scheduler) : base(prog)
         { 
             stateScheduler = scheduler;
             symbolicPool = new SymbolicPool();
         }
 
         private IStateScheduler stateScheduler;
-        private ExecutionState currentState;
+		public  ExecutionState currentState
+		{
+			get;
+			private set;
+		}
         private ExecutionState initialState; // Represents a state that has not entered any procedures
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
@@ -95,16 +105,7 @@ namespace symbooglix
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
-            if (currentInstruction is Cmd)
-            {
-                handleSimpleInstruction(currentInstruction as Cmd);
-            } else if (currentInstruction is TransferCmd)
-            {
-                handleTransferCmd(currentInstruction as TransferCmd);
-            } else
-            {
-                throw new NotSupportedException("Unsupported instruction");
-            }
+			currentInstruction.visitCmd(this, this); // Use double dispatch
         }
 
         // if procedureParams == null then parameters will be assumed to be fresh symbolics
@@ -165,10 +166,9 @@ namespace symbooglix
             }
         }
 
-        public void handleReturnCmd(ReturnCmd c)
+		public HandlerAction handle(ReturnCmd c, Executor executor)
         {
             Debug.WriteLine("Leaving Procedure " + currentState.getCurrentStackFrame().procedure.Name);
-
 
             // Pass Parameters to Caller
             if (currentState.mem.stack.Count > 1)
@@ -200,56 +200,13 @@ namespace symbooglix
             {
                 stateScheduler.removeState(currentState);
             }
+
+			return HandlerAction.CONTINUE;
      
         }
 
-        public void handleSimpleInstruction(Cmd si)
-        {
-            Debug.WriteLine("Exec before: " + si.ToString().TrimEnd('\n'));
 
-            if (si is AssignCmd)
-            {
-                handleAssignCmd((AssignCmd)si);
-            } else if (si is AssertCmd)
-            {
-                handleAssertCmd((AssertCmd)si);
-            } else if (si is AssumeCmd)
-            {
-                handleAssumeCmd((AssumeCmd)si);
-            }
-            else if (si is CallCmd)
-            {
-                // FIXME: Eurgh why is CallCmd not a TransferCmd??
-                handleCallCmd((CallCmd) si);
-            }
-            else
-            {
-                throw new NotImplementedException("Command not yet supported.");
-            }
-
-            Debug.WriteLine("Exec after: " + si.ToString().TrimEnd('\n'));
-        }
-
-        public void handleTransferCmd(TransferCmd ti)
-        {
-            Console.WriteLine("Exec: " + ti.ToString());
-
-            if (ti is GotoCmd)
-            {
-                handleGotoCmd((GotoCmd) ti);
-            } 
-            else if (ti is ReturnCmd)
-            {
-                handleReturnCmd((ReturnCmd) ti);
-            } 
-            else
-            {
-                throw new InvalidOperationException("Invalid transfer command");
-            }
-
-        }
-
-        protected void handleAssignCmd(AssignCmd c)
+		public HandlerAction handle(AssignCmd c, Executor executor)
         {
             // FIXME: Handle map assignments
 
@@ -270,9 +227,10 @@ namespace symbooglix
 
                 Debug.WriteLine("Assignment : " + lhsrhs.Item1.DeepAssignedIdentifier + " := " + rvalue);
             }
+			return HandlerAction.CONTINUE;
         }
 
-        protected void handleAssertCmd(AssertCmd c)
+		public HandlerAction handle(AssertCmd c, Executor executor)
         {
 
             VariableMapRewriter r = new VariableMapRewriter(currentState);
@@ -281,9 +239,10 @@ namespace symbooglix
 
             // TODO: fork with true and negated assertions and solve
 
+			return HandlerAction.CONTINUE;
         }
 
-        protected void handleAssumeCmd(AssumeCmd c)
+		public HandlerAction handle(AssumeCmd c, Executor executor)
         {
             VariableMapRewriter r = new VariableMapRewriter(currentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
@@ -292,17 +251,18 @@ namespace symbooglix
             // TODO: Check assumption
 
             currentState.cm.addConstraint(dupAndrw);
-
+			return HandlerAction.CONTINUE;
         }
 
-        protected void handleGotoCmd(GotoCmd c)
+		public HandlerAction handle(GotoCmd c, Executor executor)
         {
             // TODO fork state per block
 
             // TODO look ahead for assumes
+			return HandlerAction.CONTINUE;
         }
 
-        protected void handleCallCmd(CallCmd c)
+		public HandlerAction handle(CallCmd c, Executor executor)
         {
             var args = new List<Expr>();
             var reWritter = new VariableMapRewriter(currentState);
@@ -321,7 +281,32 @@ namespace symbooglix
             Debug.WriteLine(")");
 
             enterProcedure(imp, args);
+			return HandlerAction.CONTINUE;
         }
+
+		public HandlerAction handle(AssertEnsuresCmd c, Executor executor)
+		{
+			throw new NotImplementedException ();
+			//return HandlerAction.CONTINUE;
+		}
+
+		public HandlerAction handle(AssertRequiresCmd c, Executor executor)
+		{
+			throw new NotImplementedException ();
+			//return HandlerAction.CONTINUE;
+		}
+
+		public HandlerAction handle(HavocCmd c, Executor executor)
+		{
+			throw new NotImplementedException ();
+			//return HandlerAction.CONTINUE;
+		}
+
+		public HandlerAction handle(YieldCmd c, Executor executor)
+		{
+			throw new NotImplementedException ();
+			//return HandlerAction.CONTINUE;
+		}
 
     }
 }

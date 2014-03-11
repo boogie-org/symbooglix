@@ -42,6 +42,9 @@
     <Compile Include="Core\VariableMapRewriter.cs" />
     <Compile Include="SymbooglixCommandLineOptions.cs" />
     <Compile Include="Core\ConstraintManager.cs" />
+    <Compile Include="Core\BoogieCmdExtensions.cs" />
+    <Compile Include="Core\ExecutorHandlers\IExecutorHandler.cs" />
+    <Compile Include="Core\ExecutorHandlers\DummyHandlers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -59,8 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
+    <Folder Include="Core\ExecutorHandlers\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 </Project>

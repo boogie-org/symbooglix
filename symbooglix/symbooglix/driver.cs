@@ -67,7 +67,7 @@ namespace symbooglix
 
 
             IStateScheduler scheduler = new DFSStateScheduler();
-            PrintingExecutor e = new PrintingExecutor(p, scheduler);
+            Executor e = new Executor(p, scheduler);
 
             // FIXME: Find a better way to choose entry point.
             Microsoft.Boogie.Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().FirstOrDefault();
