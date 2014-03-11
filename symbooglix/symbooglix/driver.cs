@@ -74,6 +74,14 @@ namespace symbooglix
             // FIXME: Find a better way to choose entry point.
             Microsoft.Boogie.Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().FirstOrDefault();
 
+            // This debugging handler should be registered first
+            IExecutorHandler verifyUnmodified = null;
+            if (parsedArgs.useVerifyUnmodifiedProcedureHandler)
+            {
+                verifyUnmodified = new VerifyUnmodifiedProcedureHandler();
+                e.registerPreEventHandler(verifyUnmodified);
+            }
+
             if (parsedArgs.useInstructionPrinter)
             {
                 Console.WriteLine("Installing instruction printer");
@@ -92,12 +100,16 @@ namespace symbooglix
                 e.registerPreEventHandler(new CallSequencePrinter());
             }
 
+            if (parsedArgs.useVerifyUnmodifiedProcedureHandler)
+            {
+                // This debugging handler should be registered last
+                e.registerPostEventHandler(verifyUnmodified);
+            }
+
             // Just print a message about break points for now.
             e.registerBreakPointHandler(new BreakPointPrinter());
+
             return e.run(entry)? 1 : 0;
-
-
-
         }
     }
 }

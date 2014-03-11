@@ -73,31 +73,40 @@ namespace symbooglix
 
         public void registerPreEventHandler(IExecutorHandler handler)
         {
+            Debug.Assert(handler != null);
             preEventHandlers.Add(handler);
         }
 
         public void unregisterPreEventHandler(IExecutorHandler handler)
         {
+            Debug.Assert(handler != null);
+            Debug.Assert(preEventHandlers.Contains(handler));
             preEventHandlers.Remove(handler);
         }
 
         public void registerPostEventHandler(IExecutorHandler handler)
         {
+            Debug.Assert(handler != null);
             postEventHandlers.Add(handler);
         }
 
         public void unregisterPostEventHandler(IExecutorHandler handler)
         {
+            Debug.Assert(handler != null);
+            Debug.Assert(postEventHandlers.Contains(handler));
             postEventHandlers.Remove(handler);
         }
 
         public void registerBreakPointHandler(IBreakPointHandler handler)
         {
+            Debug.Assert(handler != null);
             breakPointHandlers.Add(handler);
         }
 
         public void unregisterBreakPointHandler(IBreakPointHandler handler)
         {
+            Debug.Assert(handler != null);
+            Debug.Assert(breakPointHandlers.Contains(handler));
             breakPointHandlers.Remove(handler);
         }
 

@@ -12,6 +12,7 @@ namespace symbooglix
         public bool useInstructionPrinter = false;
         public bool useEnterLeaveStackPrinter = false;
         public bool useCallSequencePrinter = false;
+        public bool useVerifyUnmodifiedProcedureHandler = true;
 
         protected override bool ParseOption(string name, CommandLineParseState ps)
         {
@@ -30,6 +31,12 @@ namespace symbooglix
             if (name == "useCallSequencePrinter")
             {
                 useCallSequencePrinter = true;
+                return true;
+            }
+
+            if (name == "noVerifyUMP")
+            {
+                useVerifyUnmodifiedProcedureHandler = false;
                 return true;
             }
 
