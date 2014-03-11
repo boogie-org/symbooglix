@@ -177,6 +177,14 @@ namespace symbooglix
             }
         }
 
+        public void makeSymbolic(IdentifierExpr idExpr)
+        {
+            Debug.Assert(currentState.isInScopeVariable(idExpr));
+            var s = symbolicPool.getFreshSymbolic(idExpr.Decl.TypedIdent);
+            currentState.symbolics.Add(s);
+            currentState.assignToVariableInScope(idExpr.Decl, s.expr);
+        }
+
 
         // if procedureParams == null then parameters will be assumed to be fresh symbolics
         // otherwise procedureParams should be a listof Expr for the procedure.
@@ -377,8 +385,12 @@ namespace symbooglix
 
         public HandlerAction handle(HavocCmd c, Executor executor)
         {
-            throw new NotImplementedException ();
-            //return HandlerAction.CONTINUE;
+            Debug.WriteLine("Havoc : " + c.ToString().TrimEnd('\n'));
+            foreach (IdentifierExpr idExpr in c.Vars)
+            {
+                makeSymbolic(idExpr);
+            }
+            return HandlerAction.CONTINUE;
         }
 
         public HandlerAction handle(YieldCmd c, Executor executor)

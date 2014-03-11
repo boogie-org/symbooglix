@@ -92,8 +92,8 @@ namespace symbooglix
                 e.registerPreEventHandler(new CallSequencePrinter());
             }
 
+            // Just print a message about break points for now.
             e.registerBreakPointHandler(new BreakPointPrinter());
-
             return e.run(entry)? 1 : 0;
 
 
