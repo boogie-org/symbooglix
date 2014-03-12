@@ -6,27 +6,18 @@ using System.Linq;
 
 namespace symbooglix
 {
-    public abstract class AExecutor
-    {
-        public AExecutor(Program prog) { this.prog = prog;} //FIXME: make copy so it possible to have multiple executors running in parallel
 
-        public abstract bool prepare(); // Modify program to make it suitable for execution
-        public abstract bool run(Implementation entryPoint);
-        public abstract bool terminate();
-
-        protected Program prog;
-    }
-
-    public class Executor : AExecutor, IExecutorHandler
+    public class Executor : IExecutorHandler
     {
         public enum HandlerAction 
         { 
             CONTINUE, // Allow execution of other handlers for this event
             STOP // Do not execute any more handlers for this event
         };
-
-        public Executor(Program prog, IStateScheduler scheduler) : base(prog)
+        
+        public Executor(Program prog, IStateScheduler scheduler)
         { 
+            this.prog = prog;
             stateScheduler = scheduler;
             symbolicPool = new SymbolicPool();
             preEventHandlers = new List<IExecutorHandler>();
@@ -40,6 +31,7 @@ namespace symbooglix
             get;
             private set;
         }
+        private Program prog;
         private ExecutionState initialState; // Represents a state that has not entered any procedures
         private List<IExecutorHandler> preEventHandlers;
         private List<IExecutorHandler> postEventHandlers;
@@ -47,7 +39,7 @@ namespace symbooglix
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
 
-        public override bool prepare()
+        public bool prepare()
         {
             // Create initial execution state
             initialState = new ExecutionState();
@@ -110,7 +102,7 @@ namespace symbooglix
             breakPointHandlers.Remove(handler);
         }
 
-        public override bool run(Implementation entryPoint)
+        public bool run(Implementation entryPoint)
         {
             if (!hasBeenPrepared)
                 prepare();
@@ -138,7 +130,7 @@ namespace symbooglix
             return true;
         }
 
-        public override bool terminate()
+        public bool terminate()
         {
             //TODO
             return true;
