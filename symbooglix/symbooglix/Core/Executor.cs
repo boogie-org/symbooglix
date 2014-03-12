@@ -130,10 +130,12 @@ namespace symbooglix
             return true;
         }
 
-        public bool terminate()
+        public void terminate()
         {
-            //TODO
-            return true;
+            Console.WriteLine("Terminating early");
+            Console.WriteLine("FIXME: Save state information");
+            stateScheduler.removeAll(s => true);
+            Debug.Assert(stateScheduler.getNumberOfStates() == 0);
         }
 
         private void executeInstruction()

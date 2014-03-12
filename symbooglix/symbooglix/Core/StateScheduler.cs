@@ -10,6 +10,7 @@ namespace symbooglix
         bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove); //FIXME: pass by ref
         bool addState(ExecutionState toAdd);
         bool removeState(ExecutionState toRemove);
+        void removeAll(Predicate<ExecutionState> p);
         int getNumberOfStates();
     }
 
@@ -61,6 +62,12 @@ namespace symbooglix
             states.Remove(toRemove);
             return true;
         }
+
+        public void removeAll(Predicate<ExecutionState> p)
+        {
+            states.RemoveAll(p);
+        }
+
     }
 }
 
