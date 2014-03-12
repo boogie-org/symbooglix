@@ -50,6 +50,7 @@
     <Compile Include="Core\ExecutorHandlers\CallSequencePrinter.cs" />
     <Compile Include="Core\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Core\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
+    <Compile Include="Expr\FindSymbolicsVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -68,6 +69,7 @@
   <ItemGroup>
     <Folder Include="Core\" />
     <Folder Include="Core\ExecutorHandlers\" />
+    <Folder Include="Expr\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

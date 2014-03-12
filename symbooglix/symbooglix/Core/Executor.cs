@@ -180,12 +180,23 @@ namespace symbooglix
             }
         }
 
+        // FIXME: Use Variable instead of IdentifierExpr?
         public void makeSymbolic(IdentifierExpr idExpr)
         {
             Debug.Assert(currentState.isInScopeVariable(idExpr));
             var s = symbolicPool.getFreshSymbolic(idExpr.Decl.TypedIdent);
             currentState.symbolics.Add(s);
             currentState.assignToVariableInScope(idExpr.Decl, s.expr);
+        }
+
+        public bool isSymbolic(Variable v)
+        {
+            // FIXME: Find a better way to do this?
+            Debug.Assert(currentState.isInScopeVariable(v));
+            Expr e = currentState.getInScopeVariableExpr(v);
+            var fsv = new FindSymbolicsVisitor(symbolicPool);
+            fsv.Visit(e);
+            return fsv.symbolics.Count != 0;
         }
 
 

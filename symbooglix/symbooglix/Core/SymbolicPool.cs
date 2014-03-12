@@ -9,7 +9,11 @@ namespace symbooglix
     public class SymbolicPool
     {
         // FIXME: We are preventing garbage collection by holding on to these
-        List<SymbolicVariable> symbolics;
+        public HashSet<SymbolicVariable> symbolics
+        {
+            get;
+            private set;
+        }
 
         public int count
         {
@@ -19,7 +23,7 @@ namespace symbooglix
 
         public SymbolicPool()
         {
-            symbolics = new List<SymbolicVariable>();
+            symbolics = new HashSet<SymbolicVariable>();
             count = 0;
         }
 
