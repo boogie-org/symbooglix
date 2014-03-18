@@ -15,7 +15,7 @@ namespace SymbooglixLibTests
         [SetUp()]
         public void Init()
         {
-            p = TestHelper.loadProgram("programs/SingleProcedure.bpl");
+            p = TestHelper.loadProgram("programs/SymbolicOnEntry.bpl");
             e = TestHelper.getExecutor(p);
         }
 
