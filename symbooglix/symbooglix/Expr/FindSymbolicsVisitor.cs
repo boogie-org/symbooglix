@@ -19,10 +19,12 @@ namespace symbooglix
         public FindSymbolicsVisitor(SymbolicPool pool)
         {
             symbolics = new List<IdentifierExpr>();
+            this.pool = pool;
         }
 
         public override Expr VisitIdentifierExpr(IdentifierExpr node)
         {
+            Debug.Assert(node != null);
             Debug.Assert(pool.symbolics.Where(sv => sv.expr == node).Count() == 1);
             symbolics.Add(node);
             return node;

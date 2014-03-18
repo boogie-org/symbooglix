@@ -191,8 +191,9 @@ namespace symbooglix
         public bool isSymbolic(Variable v)
         {
             // FIXME: Find a better way to do this?
-            Debug.Assert(currentState.isInScopeVariable(v));
+            Debug.Assert(currentState.isInScopeVariable(v), "Variable is not in scope");
             Expr e = currentState.getInScopeVariableExpr(v);
+            Debug.Assert(e != null , "Expression for variable is NULL");
             var fsv = new FindSymbolicsVisitor(symbolicPool);
             fsv.Visit(e);
             return fsv.symbolics.Count != 0;

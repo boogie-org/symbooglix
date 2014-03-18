@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "..\boogie\Source\M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoogieTests", "BoogieTests\BoogieTests.csproj", "{C79BC529-CCCB-465A-ADF3-FB34683C3133}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SymbooglixLibTests", "SymbooglixLibTests\SymbooglixLibTests.csproj", "{F2D05CFA-9CF9-4853-8230-2C9566216DC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -134,6 +136,16 @@ Global
 		{E1F10180-C7B9-4147-B51F-FA1B701966DC}.Release|x86.Build.0 = Release|Any CPU
 		{E1F10180-C7B9-4147-B51F-FA1B701966DC}.z3apidebug|Any CPU.ActiveCfg = z3apidebug|Any CPU
 		{E1F10180-C7B9-4147-B51F-FA1B701966DC}.z3apidebug|Any CPU.Build.0 = z3apidebug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.Checked|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.Checked|Any CPU.Build.0 = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.QED|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.QED|Any CPU.Build.0 = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.Release|x86.Build.0 = Release|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.z3apidebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2D05CFA-9CF9-4853-8230-2C9566216DC0}.z3apidebug|Any CPU.Build.0 = Debug|Any CPU
 		{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}.Checked|Any CPU.ActiveCfg = Checked|Any CPU
 		{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}.Checked|Any CPU.Build.0 = Checked|Any CPU
 		{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}.Debug|x86.ActiveCfg = Debug|Any CPU
