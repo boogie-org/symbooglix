@@ -102,7 +102,7 @@ namespace symbooglix
             breakPointHandlers.Remove(handler);
         }
 
-        public bool run(Implementation entryPoint)
+        public void run(Implementation entryPoint)
         {
             if (!hasBeenPrepared)
                 prepare();
@@ -127,7 +127,6 @@ namespace symbooglix
             }
             Console.WriteLine("Finished executing all states");
 
-            return true;
         }
 
         public void terminate()

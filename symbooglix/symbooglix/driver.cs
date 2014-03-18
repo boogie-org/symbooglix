@@ -109,7 +109,8 @@ namespace symbooglix
             // Just print a message about break points for now.
             e.registerBreakPointHandler(new BreakPointPrinter());
 
-            return e.run(entry)? 1 : 0;
+            e.run(entry);
+            return 0;
         }
     }
 }
