@@ -346,9 +346,10 @@ namespace symbooglix
         public HandlerAction handle(GotoCmd c, Executor executor)
         {
             // TODO fork state per block
+            throw new NotImplementedException();
 
             // TODO look ahead for assumes
-            return HandlerAction.CONTINUE;
+            //return HandlerAction.CONTINUE;
         }
 
         public HandlerAction handle(CallCmd c, Executor executor)
