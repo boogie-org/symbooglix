@@ -1,3 +1,4 @@
+// RUN: %symbooglix %s /useInstructionPrinter 2>&1 | %OutputCheck %s
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
 // Bitvector functions
@@ -10,8 +11,12 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
 {
     var a:bv8;
     var b:bv8;
+    // CHECK: InstructionPrinter: a := 1bv8;
     a := 1bv8;
+    // CHECK: InstructionPrinter: b := 2bv8;
     b := 2bv8;
+    // CHECK: InstructionPrinter: r := bv8add\(a, b\);
+    // CHECK: Assignment : r := bv8add\(1bv8, 2bv8\)
     r := bv8add(a,b);
     assert bv8ugt(r, 0bv8);
 }
