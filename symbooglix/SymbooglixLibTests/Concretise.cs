@@ -21,26 +21,6 @@ namespace SymbooglixLibTests
             e = TestHelper.getExecutor(p);
         }
 
-        // FIXME: This should probably be in ExecutionState
-        public Variable getVariableByName(string name, ExecutionState state)
-        {
-            var local = ( from pair in state.getCurrentStackFrame().locals
-                          where pair.Key.Name == name
-                          select pair.Key );
-            if (local.Count() != 0)
-            {
-                Assert.AreEqual(local.Count(), 1);
-                return local.First();
-            }
-
-            var global = ( from pair in state.mem.globals
-                           where pair.Key.Name == name
-                           select pair.Key );
-
-            Assert.AreEqual(global.Count(), 1);
-            return global.First();
-        }
-
         public Executor.HandlerAction handleBreakPoint(string name, Executor e)
         {
             if (name == "entry")
@@ -63,15 +43,15 @@ namespace SymbooglixLibTests
             ++hits;
 
             // Check "a" is now concrete
-            Variable varA = getVariableByName("a", e.currentState);
+            Variable varA = e.currentState.getInScopeVariableAndExprByName("a").Key;
             Assert.IsFalse(e.isSymbolic(varA));
 
             // Check "x" is now concrete
-            Variable varX = getVariableByName("x", e.currentState);
+            Variable varX = e.currentState.getInScopeVariableAndExprByName("x").Key;
             Assert.IsFalse(e.isSymbolic(varX));
 
             // Check "y" is still symbolic
-            Variable varY = getVariableByName("y", e.currentState);
+            Variable varY = e.currentState.getInScopeVariableAndExprByName("y").Key;
             Assert.IsTrue(e.isSymbolic(varY));
 
             return Executor.HandlerAction.STOP;

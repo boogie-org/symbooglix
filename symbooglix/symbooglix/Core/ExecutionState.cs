@@ -78,6 +78,26 @@ namespace symbooglix
             return null;
         }
 
+        public KeyValuePair<Variable,Expr> getInScopeVariableAndExprByName(string name)
+        {
+            var local = ( from pair in getCurrentStackFrame().locals
+                         where pair.Key.Name == name
+                         select pair );
+            if (local.Count() != 0)
+            {
+                Debug.Assert(local.Count() == 1);
+                return local.First();
+            }
+
+            var global = ( from pair in mem.globals
+                          where pair.Key.Name == name
+                          select pair );
+
+            Debug.Assert(global.Count() == 1);
+            var kp = global.First();
+            return new KeyValuePair<Variable,Expr>( (Variable) kp.Key, kp.Value);
+        }
+
   
         public bool assignToVariableInStack(StackFrame s, Variable v, Expr value)
         {
