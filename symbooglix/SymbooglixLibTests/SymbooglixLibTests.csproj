@@ -37,10 +37,13 @@
   <ItemGroup>
     <Compile Include="SymbolicOnEntry.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="Concretise.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="programs\Concretise.bpl" />
+    <None Include="programs\Concretise.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="programs\SymbolicOnEntry.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
