@@ -29,7 +29,7 @@ namespace SymbooglixLibTests
                           select pair.Key );
             if (local.Count() != 0)
             {
-                Assert.Equals(local.Count(), 1);
+                Assert.AreEqual(local.Count(), 1);
                 return local.First();
             }
 
@@ -79,7 +79,7 @@ namespace SymbooglixLibTests
        
 
         [Test()]
-        public void LocalsAreSymbolic()
+        public void Run()
         {
             e.registerBreakPointHandler(this);
             e.run(TestHelper.getMain(p));

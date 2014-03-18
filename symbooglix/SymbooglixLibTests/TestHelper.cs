@@ -17,14 +17,25 @@ namespace SymbooglixLibTests
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
             Assert.IsTrue(File.Exists(path));
 
+            // THIS IS A HACK. Boogie's methods
+            // depend on its command line parser being set!
+            CommandLineOptions.Install(new SymbooglixCommandLineOptions());
+
             int errors = 0;
             Program p = null;
             List<String> defines = null;
             errors = Parser.Parse(path, defines, out p);
-            Assert.IsTrue(errors == 0);
-            Assert.IsTrue(p != null);
+            Assert.AreEqual(errors, 0);
+            Assert.IsNotNull(p);
 
-            // Type check?
+            // Resolve
+            errors = p.Resolve();
+            Assert.AreEqual(errors, 0);
+
+            // Type check
+            errors = p.Typecheck();
+            Assert.AreEqual(errors, 0);
+
             return p;
         }
 
