@@ -45,6 +45,10 @@ namespace SymbooglixLibTests
                 scheduler = new DFSStateScheduler();
 
             Executor e = new Executor(p, scheduler);
+
+            IExecutorHandler verifier = new VerifyUnmodifiedProcedureHandler();
+            e.registerPreEventHandler(verifier);
+            e.registerPostEventHandler(verifier);
             return e;
         }
 
