@@ -1,3 +1,4 @@
+// RUN: %symbooglix %s /useInstructionPrinter 2>&1 | %OutputCheck %s
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
 // Bitvector functions
@@ -9,7 +10,9 @@ var g:bv8;
 implementation main(p1:int, p2:bv8) returns (r:bv8)
 {
     var a:bv8;
+    // CHECK: Hit break point first
     assert {:symbooglix_bp "first"} true;
     a := 1bv8;
+    // CHECK: Hit break point second
     assert {:symbooglix_bp "second"} true;
 }
