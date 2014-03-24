@@ -48,18 +48,59 @@ namespace symbooglix
             var GVs = prog.TopLevelDeclarations.OfType<GlobalVariable>();
             foreach (GlobalVariable gv in GVs)
             {
-                // Make symbolic initially
-                // FIXME: We should probably check if globals are set to constant value first
                 var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
                 initialState.mem.globals.Add(gv, s.expr);
                 initialState.symbolics.Add(s);
             }
 
-            // FIXME: Load axioms
+            // Load Constants
+            var CVs = prog.TopLevelDeclarations.OfType<Constant>();
+            var axioms = prog.TopLevelDeclarations.OfType<Axiom>();
+            var axiomsToSkip = new HashSet<Axiom>();
+            foreach (Constant cv in CVs)
+            {
+                foreach (var axiom in axioms)
+                {
+                    // See if we have constant assignments we can apply
+                    if (axiom.Expr is NAryExpr)
+                    {
+                        var naryExpr = axiom.Expr as NAryExpr;
+                        var idExpr = naryExpr.Args.OfType<IdentifierExpr>().Where(id => id.Decl == cv);
 
-            // FIXME: Initialise constants from axioms
+                        if (naryExpr.Fun is BinaryOperator && ( naryExpr.Fun as BinaryOperator ).Op == BinaryOperator.Opcode.Eq && idExpr.Count() == 1)
+                        {
+                            var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
+
+                            if (literalExpr.Count() == 1)
+                            {
+                                // FIXME: Globals may contain constant
+                                //initialState.mem.globals.Add(cv, literalExpr.First());
+                                Debug.WriteLine("Using axiom to do constant assignment " + cv + " := " + literalExpr.First());
+                                axiomsToSkip.Add(axiom);
+                                break;
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            // Add the axioms as path constraints
+            foreach (var axiom in axioms)
+            {
+                if (axiomsToSkip.Contains(axiom))
+                    continue;
+
+                initialState.cm.addConstraint(axiom.Expr);
+                Debug.WriteLine("Adding constraint : " + axiom.Expr);
+            }
+             
+
 
             hasBeenPrepared = true;
+
+            // FIXME: check constraints are consistent!
+
             return true;
         }
 
