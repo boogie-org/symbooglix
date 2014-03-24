@@ -1,3 +1,4 @@
+// RUN: %symbooglix %s 2>&1 | %OutputCheck %s
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
 // Bitvector functions
@@ -11,6 +12,9 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
     var a:bv8;
     var b:bv8;
     r := bv8add(a,b);
+    // CHECK: Assume : false
     assume false;
+    // CHECK-NOT: Assert :
     assert bv8ugt(r, 0bv8);
+    // CHECK: Finished executing
 }
