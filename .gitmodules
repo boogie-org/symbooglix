@@ -1,6 +1,3 @@
-[submodule "boogie"]
-	path = boogie
-	url = hg::https://hg.codeplex.com/forks/danliew/boogie
 [submodule "utils/OutputCheck"]
 	path = utils/OutputCheck
 	url = https://github.com/stp/OutputCheck.git
