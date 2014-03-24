@@ -1,3 +1,5 @@
+// RUN: %symbooglix %s 2>&1 | %OutputCheck %s
+
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
 // Bitvector functions
@@ -10,9 +12,15 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
 {
     var a:bv8;
     var b:bv8;
+    // CHECK: Assignment : a := 1bv8
     a := 1bv8;
+    // CHECK-NEXT: Assignment : b := 2bv8
     b := 2bv8;
+    // CHECK: Havoc : havoc a, b
+    // CHECK-NEXT: symbolic_6:bv8
+    // CHECK-NEXT: symbolic_7:bv8
     havoc a,b;
+    // CHECK: Assignment : r := bv8add\(symbolic_6, symbolic_7\)
     r := bv8add(a,b);
     assert bv8ugt(r, 0bv8);
 }
