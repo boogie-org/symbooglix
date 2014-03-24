@@ -215,12 +215,49 @@ namespace symbooglix
             // Load procedure in parameters on to stack
             if (procedureParams == null)
             {
-                // Give all parameters fresh symbolics
-                foreach (Variable v in p.InParams)
+                // Try to see if we can make constant
+                // HACK: This is absolutely disgusting! The parameters on the procedure
+                // and implementation are different instances which causes problems
+                // because requires statements refer to the procedure parameters but
+                // our executor needs to work with the implementation parameters :(
+                foreach (var v in p.Proc.InParams.Zip(p.InParams))
                 {
+                    // See if there is a <identifer> == <literal> type expression in the requires statements
+                    // if so don't make that identifier symbolic and instead give it the literal value
+                    // FIXME: We should probably refactor this
+                    bool variableIsContant = false;
+                    foreach (Requires r in p.Proc.Requires)
+                    {
+                        if (r.Condition is NAryExpr)
+                        {
+                            var naryExpr = r.Condition as NAryExpr;
+                            var idExpr = naryExpr.Args.OfType<IdentifierExpr>().Where(id => id.Decl == v.Item1);
+                            if (idExpr.Count() == 0)
+                                continue; // Try another requires expression
+
+                            if (naryExpr.Fun is BinaryOperator && (naryExpr.Fun as BinaryOperator).Op == BinaryOperator.Opcode.Eq)
+                            {
+                                Debug.Assert(idExpr.Count() == 1, "Found more than one Identifier expression matching procedure parameter");
+
+                                var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
+                                if (literalExpr.Count() > 0)
+                                {
+                                    Debug.Write("Not making parameter symbolic and instead doing " + v.Item2 + " : = " + literalExpr.First());
+                                    currentState.getCurrentStackFrame().locals.Add(v.Item2, literalExpr.First());
+                                    variableIsContant = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (variableIsContant)
+                        continue; // Already assigned
+
+                    // Give all parameters fresh symbolics
                     // Just make symbolic for now
-                    var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
-                    currentState.getCurrentStackFrame().locals.Add(v, s.expr);
+                    var s = symbolicPool.getFreshSymbolic(v.Item2.TypedIdent);
+                    currentState.getCurrentStackFrame().locals.Add(v.Item2, s.expr);
                     currentState.symbolics.Add(s);
                 }
             }
