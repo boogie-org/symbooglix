@@ -93,7 +93,7 @@ namespace symbooglix
                           where pair.Key.Name == name
                           select pair );
 
-            Debug.Assert(global.Count() == 1);
+            Debug.Assert(global.Count() == 1, "The requested global was not found");
             var kp = global.First();
             return new KeyValuePair<Variable,Expr>( (Variable) kp.Key, kp.Value);
         }

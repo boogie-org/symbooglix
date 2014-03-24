@@ -38,6 +38,9 @@
     <Compile Include="SymbolicOnEntry.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="Concretise.cs" />
+    <Compile Include="RequiresConcreteOnEntryToMain.cs">
+      <DependentUpon>SymbolicOnEntry.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -45,6 +48,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\SymbolicOnEntry.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\RequiresConcreteLocal.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\RequiresConcreteGlobal.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
