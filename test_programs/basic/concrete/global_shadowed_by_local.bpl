@@ -6,9 +6,9 @@ modifies g;
 {
     var x:bv8;
     g := 12bv8;
-    // CHECK: Calling: ov()
+    // CHECK: Calling: ov\(\)
     call x := ov();
-    // CHECK: Leaving: ov()
+    // CHECK: Leaving: ov\(\)
 
     // FIXME: Boogie cannot verify this assertion
     // CHECK-NEXT: Assert : 12bv8 != 99bv8
