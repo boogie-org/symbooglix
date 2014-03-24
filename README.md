@@ -28,25 +28,12 @@ If using Windows
 Getting started
 ===============
 
-We use [git-remote-hg](https://github.com/felipec/git/wiki/git-remote-hg) so we can treat the Mercurial Boogie
-repository just like a Git repository.
-
-This remote helper script is available in new versions of git. To use it you can do something like...
+We use several git submodules for symbooglix. Before you start you should initialise them by running
 
 ```
-$ cp /usr/share/git/remote-helpers/git-remote-hg ~/bin
-$ cd ~/bin
-$ chmod a+x git-remote-hg
-$ export PATH=$(pwd):$PATH
-```
-We use Git's submodule feature for the Boogie folder. To set things up run...
-
-```
-$ cd symboogilix/ # Root of Git repository
 $ git submodule init
 $ git submodule update
 ```
-
 Now if everthing went okay you can build Symbooglix by running
 
 ```
