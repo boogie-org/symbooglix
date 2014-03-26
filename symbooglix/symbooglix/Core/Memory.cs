@@ -10,7 +10,7 @@ namespace symbooglix
         public Memory()
         {
             stack = new List<StackFrame>();
-            globals = new Dictionary<GlobalVariable,Expr>();
+            globals = new Dictionary<Variable,Expr>();
         }
 
         public override string ToString()
@@ -44,7 +44,7 @@ namespace symbooglix
         }
 
         public List<StackFrame> stack;
-        public Dictionary<GlobalVariable,Expr> globals;
+        public Dictionary<Variable,Expr> globals;
     }
 
     public class StackFrame

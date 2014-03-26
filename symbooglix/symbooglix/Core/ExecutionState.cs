@@ -65,13 +65,12 @@ namespace symbooglix
                 return getCurrentStackFrame().locals [v];
             }
 
-            if (v is GlobalVariable)
+            if (v is GlobalVariable || v is Constant)
             {
-                GlobalVariable g = (GlobalVariable)v;
                 // If not in stackframe look through globals
-                if (mem.globals.ContainsKey(g))
+                if (mem.globals.ContainsKey(v))
                 {
-                    return mem.globals [g];
+                    return mem.globals[v];
                 }
             }
 
@@ -118,10 +117,9 @@ namespace symbooglix
             if (getCurrentStackFrame().locals.ContainsKey(v))
                 return true;
 
-            if (v is GlobalVariable)
+            if (v is GlobalVariable || v is Constant)
             {
-                GlobalVariable g = (GlobalVariable)v;
-                if (mem.globals.ContainsKey(g))
+                if (mem.globals.ContainsKey(v))
                     return true;
             }
 

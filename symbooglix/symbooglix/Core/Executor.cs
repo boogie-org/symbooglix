@@ -45,27 +45,29 @@ namespace symbooglix
             initialState = new ExecutionState();
 
             // Load Globals
-            var GVs = prog.TopLevelDeclarations.OfType<GlobalVariable>();
-            foreach (GlobalVariable gv in GVs)
-            {
-                var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
-                initialState.mem.globals.Add(gv, s.expr);
-                initialState.symbolics.Add(s);
-            }
+//            var GVs = prog.TopLevelDeclarations.OfType<GlobalVariable>();
+//            foreach (GlobalVariable gv in GVs)
+//            {
+//                var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
+//                initialState.mem.globals.Add(gv, s.expr);
+//                initialState.symbolics.Add(s);
+//            }
 
-            // Load Constants
-            var CVs = prog.TopLevelDeclarations.OfType<Constant>();
+            // Load Global Variables and Constants
+            var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
             var axioms = prog.TopLevelDeclarations.OfType<Axiom>();
             var axiomsToSkip = new HashSet<Axiom>();
-            foreach (Constant cv in CVs)
+            foreach (Variable gv in GVs)
             {
+                bool initialised = false;
                 foreach (var axiom in axioms)
                 {
                     // See if we have constant assignments we can apply
+                    // FIXME: Refactor this so it can be used elsewhere
                     if (axiom.Expr is NAryExpr)
                     {
                         var naryExpr = axiom.Expr as NAryExpr;
-                        var idExpr = naryExpr.Args.OfType<IdentifierExpr>().Where(id => id.Decl == cv);
+                        var idExpr = naryExpr.Args.OfType<IdentifierExpr>().Where(id => id.Decl == gv);
 
                         if (naryExpr.Fun is BinaryOperator && ( naryExpr.Fun as BinaryOperator ).Op == BinaryOperator.Opcode.Eq && idExpr.Count() == 1)
                         {
@@ -73,15 +75,24 @@ namespace symbooglix
 
                             if (literalExpr.Count() == 1)
                             {
-                                // FIXME: Globals may contain constant
-                                //initialState.mem.globals.Add(cv, literalExpr.First());
-                                Debug.WriteLine("Using axiom to do constant assignment " + cv + " := " + literalExpr.First());
+                                // Make concrete
+                                initialState.mem.globals.Add(gv, literalExpr.First());
+                                initialised = true;
+                                Debug.WriteLine("Using axiom to do assignment to global " + gv + " := " + literalExpr.First());
                                 axiomsToSkip.Add(axiom);
                                 break;
                             }
                         }
 
                     }
+                }
+
+                if (!initialised)
+                {
+                    // Make symbolic
+                    var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
+                    initialState.mem.globals.Add(gv, s.expr);
+                    initialState.symbolics.Add(s);
                 }
             }
 
