@@ -7,11 +7,8 @@ using System.Linq;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class GlobalConstant
+    public class GlobalConstant : SymbooglixTest
     {
-        Program p;
-        Executor e;
-
         [SetUp()]
         public void Init()
         {

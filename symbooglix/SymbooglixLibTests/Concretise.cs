@@ -8,10 +8,8 @@ using System.Linq;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class Concretise : IBreakPointHandler
+    public class Concretise : SymbooglixTest, IBreakPointHandler
     {
-        public Executor e;
-        public Program p;
         public int hits = 0;
 
         [SetUp()]

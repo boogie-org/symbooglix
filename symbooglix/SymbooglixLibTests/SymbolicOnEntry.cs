@@ -7,11 +7,8 @@ using System.Diagnostics;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class SymbolicOnEntry
+    public class SymbolicOnEntry : SymbooglixTest
     {
-        public Executor e;
-        public Program p;
-
         [SetUp()]
         public void Init()
         {

@@ -60,5 +60,11 @@ namespace SymbooglixLibTests
             return imp;
         }
     }
+
+    public abstract class SymbooglixTest
+    {
+        protected Program p;
+        protected Executor e;
+    }
 }
 

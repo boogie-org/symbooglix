@@ -5,12 +5,8 @@ using symbooglix;
 
 namespace SymbooglixLibTests
 {
-    public class RequiresConcreteOnEntryToMain
+    public class RequiresConcreteOnEntryToMain : SymbooglixTest
     {
-        public Executor e;
-        public Program p;
-
-     
         private class Handler : IBreakPointHandler
         {
             public bool reachable = false;
