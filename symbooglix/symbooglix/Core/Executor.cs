@@ -63,27 +63,16 @@ namespace symbooglix
                 foreach (var axiom in axioms)
                 {
                     // See if we have constant assignments we can apply
-                    // FIXME: Refactor this so it can be used elsewhere
-                    if (axiom.Expr is NAryExpr)
+                    LiteralExpr literal = null;
+                    if (FindLiteralAssignment.find(axiom.Expr, gv, out literal))
                     {
-                        var naryExpr = axiom.Expr as NAryExpr;
-                        var idExpr = naryExpr.Args.OfType<IdentifierExpr>().Where(id => id.Decl == gv);
-
-                        if (naryExpr.Fun is BinaryOperator && ( naryExpr.Fun as BinaryOperator ).Op == BinaryOperator.Opcode.Eq && idExpr.Count() == 1)
-                        {
-                            var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
-
-                            if (literalExpr.Count() == 1)
-                            {
-                                // Make concrete
-                                initialState.mem.globals.Add(gv, literalExpr.First());
-                                initialised = true;
-                                Debug.WriteLine("Using axiom to do assignment to global " + gv + " := " + literalExpr.First());
-                                axiomsToSkip.Add(axiom);
-                                break;
-                            }
-                        }
-
+                        Debug.Assert(literal != null);
+                        // Make concrete
+                        initialState.mem.globals.Add(gv, literal);
+                        initialised = true;
+                        Debug.WriteLine("Using axiom to do assignment to global " + gv + " := " + literal);
+                        axiomsToSkip.Add(axiom);
+                        break;
                     }
                 }
 
@@ -91,6 +80,7 @@ namespace symbooglix
                 {
                     // Make symbolic
                     var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
+                    Debug.Assert(!initialState.mem.globals.ContainsKey(gv), "Cannot insert global that is already in memory");
                     initialState.mem.globals.Add(gv, s.expr);
                     initialState.symbolics.Add(s);
                 }
@@ -276,37 +266,24 @@ namespace symbooglix
                 {
                     // See if there is a <identifer> == <literal> type expression in the requires statements
                     // if so don't make that identifier symbolic and instead give it the literal value
-                    // FIXME: We should probably refactor this
                     bool variableIsContant = false;
                     foreach (Requires r in p.Proc.Requires)
                     {
-                        if (r.Condition is NAryExpr)
+                        LiteralExpr literal = null;
+                        if (FindLiteralAssignment.find(r.Condition, v.Item1, out literal))
                         {
-                            var naryExpr = r.Condition as NAryExpr;
-                            var idExpr = naryExpr.Args.OfType<IdentifierExpr>().Where(id => id.Decl == v.Item1);
-                            if (idExpr.Count() == 0)
-                                continue; // Try another requires expression
-
-                            if (naryExpr.Fun is BinaryOperator && (naryExpr.Fun as BinaryOperator).Op == BinaryOperator.Opcode.Eq)
-                            {
-                                Debug.Assert(idExpr.Count() == 1, "Found more than one Identifier expression matching procedure parameter");
-
-                                var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
-                                if (literalExpr.Count() > 0)
-                                {
-                                    Debug.Write("Not making parameter symbolic and instead doing " + v.Item2 + " : = " + literalExpr.First());
-                                    currentState.getCurrentStackFrame().locals.Add(v.Item2, literalExpr.First());
-                                    variableIsContant = true;
-                                    break;
-                                }
-                            }
+                            Debug.Assert(literal != null);
+                            Debug.Write("Not making parameter symbolic and instead doing " + v.Item2 + " : = " + literal);
+                            currentState.getCurrentStackFrame().locals.Add(v.Item2, literal);
+                            variableIsContant = true;
+                            break;                     
                         }
                     }
 
                     if (variableIsContant)
                         continue; // Already assigned
 
-                    // Give all parameters fresh symbolics
+                    // Make parameter symbolics
                     // Just make symbolic for now
                     var s = symbolicPool.getFreshSymbolic(v.Item2.TypedIdent);
                     currentState.getCurrentStackFrame().locals.Add(v.Item2, s.expr);

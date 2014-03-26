@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{69F04878-1CD0-454C-87A6-6B155D2D4855}</ProjectGuid>
@@ -57,6 +57,7 @@
     <Compile Include="Core\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Core\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Expr\FindSymbolicsVisitor.cs" />
+    <Compile Include="Expr\FindLiteralAssignment.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
