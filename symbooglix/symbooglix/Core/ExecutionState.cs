@@ -6,12 +6,14 @@ using System.Diagnostics;
 
 namespace symbooglix
 {
-    public class ExecutionState
+    public class ExecutionState : util.IDeepClone<ExecutionState>
     {
         public Memory mem;
         private bool started = false;
         public List<SymbolicVariable> symbolics;
         public ConstraintManager cm;
+        private int id;
+        private static int newId = 0;
 
         // FIXME: Loads axioms and types
 
@@ -24,6 +26,25 @@ namespace symbooglix
             mem = new Memory();
             symbolics = new List<SymbolicVariable>();
             cm = new ConstraintManager();
+            id = newId;
+        }
+
+        public ExecutionState DeepClone()
+        {
+            ExecutionState other = (ExecutionState) this.MemberwiseClone();
+            other.mem = this.mem.DeepClone();
+
+            other.symbolics = new List<SymbolicVariable>();
+            foreach (SymbolicVariable s in this.symbolics)
+            {
+                other.symbolics.Add(s);
+            }
+
+            other.id = newId + 1;
+            ++newId;
+
+            other.cm = this.cm.DeepClone();
+            return other;
         }
 
         public bool dumpStackTrace()

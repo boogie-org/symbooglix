@@ -5,12 +5,17 @@ using Microsoft.Boogie;
 namespace symbooglix
 {
 
-    public class ConstraintManager
+    public class ConstraintManager : util.IDeepClone<ConstraintManager>
     {
         public List<Expr> constraints;
         public ConstraintManager()
         {
             constraints = new List<Expr>();
+        }
+
+        public ConstraintManager DeepClone()
+        {
+            throw new NotImplementedException();
         }
 
         public void addConstraint(Expr e)

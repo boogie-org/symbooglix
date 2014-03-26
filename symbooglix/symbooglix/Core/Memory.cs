@@ -5,12 +5,17 @@ using System.Linq;
 
 namespace symbooglix
 {
-    public class Memory
+    public class Memory : util.IDeepClone<Memory>
     {
         public Memory()
         {
             stack = new List<StackFrame>();
             globals = new Dictionary<Variable,Expr>();
+        }
+
+        public Memory DeepClone()
+        {
+            throw new System.NotImplementedException();
         }
 
         public override string ToString()

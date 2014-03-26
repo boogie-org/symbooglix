@@ -58,6 +58,7 @@
     <Compile Include="Core\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Expr\FindSymbolicsVisitor.cs" />
     <Compile Include="Expr\FindLiteralAssignment.cs" />
+    <Compile Include="Util\IDeepClone.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -77,6 +78,7 @@
     <Folder Include="Core\" />
     <Folder Include="Core\ExecutorHandlers\" />
     <Folder Include="Expr\" />
+    <Folder Include="Util\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
