@@ -19,10 +19,11 @@ namespace SymbooglixLibTests
             e = TestHelper.getExecutor(p);
         }
 
-        private class GlobalSymbolicConstantHandler : IBreakPointHandler
+        private class GlobalConstantHandler : IBreakPointHandler
         {
             private Program prog;
-            public GlobalSymbolicConstantHandler(Program p) {prog = p;}
+            private bool shouldBeSymbolic;
+            public GlobalConstantHandler(Program p, bool shouldBeSymbolic) {prog = p; this.shouldBeSymbolic = shouldBeSymbolic;}
 
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
@@ -32,7 +33,10 @@ namespace SymbooglixLibTests
 
                 Assert.IsTrue( e.currentState.isInScopeVariable(constant));
 
-                Assert.IsTrue(e.isSymbolic(constant));
+                if (shouldBeSymbolic)
+                    Assert.IsTrue(e.isSymbolic(constant));
+                else
+                    Assert.IsFalse(e.isSymbolic(constant));
 
                 return Executor.HandlerAction.CONTINUE;
             }
@@ -40,7 +44,18 @@ namespace SymbooglixLibTests
         [Test()]
         public void GlobalSymbolicConstant()
         {
-            e.registerBreakPointHandler(new GlobalSymbolicConstantHandler(p));
+            p = TestHelper.loadProgram("programs/GlobalSymbolicConstant.bpl");
+            e = TestHelper.getExecutor(p);
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, true));
+            e.run(TestHelper.getMain(p));
+        }
+
+        [Test()]
+        public void GlobalConstantWithAxiom()
+        {
+            p = TestHelper.loadProgram("programs/GlobalConstantWithAxiom.bpl");
+            e = TestHelper.getExecutor(p);
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, false));
             e.run(TestHelper.getMain(p));
         }
     }
