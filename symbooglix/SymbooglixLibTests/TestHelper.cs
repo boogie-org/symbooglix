@@ -14,7 +14,8 @@ namespace SymbooglixLibTests
         public static Program loadProgram(String path)
         {
             // Debug log output goes to standard error.
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
+            // Failing System.Diagnostics failures trigger NUnit assertion failures
+            Debug.Listeners.Add(new AssertionTextWriterTraceListener(Console.Error));
             Assert.IsTrue(File.Exists(path));
 
             // THIS IS A HACK. Boogie's methods

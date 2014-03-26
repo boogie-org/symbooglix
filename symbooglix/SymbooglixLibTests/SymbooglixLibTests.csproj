@@ -42,6 +42,7 @@
       <DependentUpon>SymbolicOnEntry.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalConstant.cs" />
+    <Compile Include="AssertionTextWriterTraceListener.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
