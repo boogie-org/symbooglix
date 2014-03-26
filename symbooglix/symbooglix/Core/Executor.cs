@@ -410,11 +410,26 @@ namespace symbooglix
 
         public HandlerAction handle(GotoCmd c, Executor executor)
         {
-            // TODO fork state per block
-            throw new NotImplementedException();
+            Debug.Assert(c.labelTargets.Count() > 0);
 
-            // TODO look ahead for assumes
-            //return HandlerAction.CONTINUE;
+            // Fast path: don't create new states
+            if (c.labelTargets.Count() == 1)
+            {
+                currentState.getCurrentStackFrame().transferToBlock(c.labelTargets[0]);
+                return HandlerAction.CONTINUE;
+            }
+
+            // Slow path: Make new states per target
+            ExecutionState newState = null;
+            foreach (Block BB in c.labelTargets)
+            {
+                // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
+                newState = currentState.DeepClone(); // FIXME: This is not memory efficient
+                newState.getCurrentStackFrame().transferToBlock(BB);
+                stateScheduler.addState(newState);
+            }
+
+            return HandlerAction.CONTINUE;
         }
 
         public HandlerAction handle(CallCmd c, Executor executor)
