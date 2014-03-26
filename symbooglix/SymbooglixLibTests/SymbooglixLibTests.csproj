@@ -41,6 +41,7 @@
     <Compile Include="RequiresConcreteOnEntryToMain.cs">
       <DependentUpon>SymbolicOnEntry.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalConstant.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -54,6 +55,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\RequiresConcreteGlobal.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GlobalSymbolicConstant.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
