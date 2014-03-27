@@ -29,16 +29,16 @@ namespace SymbooglixLibTests
             Program p = null;
             List<String> defines = null;
             errors = Parser.Parse(path, defines, out p);
-            Assert.AreEqual(errors, 0);
+            Assert.AreEqual(0, errors);
             Assert.IsNotNull(p);
 
             // Resolve
             errors = p.Resolve();
-            Assert.AreEqual(errors, 0);
+            Assert.AreEqual(0, errors);
 
             // Type check
             errors = p.Typecheck();
-            Assert.AreEqual(errors, 0);
+            Assert.AreEqual(0, errors);
 
             return p;
         }
@@ -59,7 +59,7 @@ namespace SymbooglixLibTests
         public static Implementation getMain(Program p)
         {
             var imp = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
-            Assert.AreNotEqual(imp, null);
+            Assert.AreNotEqual(null, imp);
             return imp;
         }
     }

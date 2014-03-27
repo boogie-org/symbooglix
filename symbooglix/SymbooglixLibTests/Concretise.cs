@@ -36,8 +36,8 @@ namespace SymbooglixLibTests
                 return Executor.HandlerAction.CONTINUE;
             }
 
-            Assert.AreEqual(hits, 1);
-            Assert.AreEqual(name, "now_concrete");
+            Assert.AreEqual(1, hits);
+            Assert.AreEqual("now_concrete", name);
             ++hits;
 
             // Check "a" is now concrete
@@ -61,7 +61,7 @@ namespace SymbooglixLibTests
         {
             e.registerBreakPointHandler(this);
             e.run(getMain(p));
-            Assert.AreEqual(hits, 2);
+            Assert.AreEqual(2, hits);
         }
 
 
