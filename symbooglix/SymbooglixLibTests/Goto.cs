@@ -19,11 +19,14 @@ namespace SymbooglixLibTests
                     Assert.AreEqual("anon0", e.currentState.getCurrentStackFrame().currentBlock.Label);
                     ++hits;
                 }
-
-                if (name == "reached")
+                else if (name == "reached")
                 {
                     Assert.AreEqual("NEXT", e.currentState.getCurrentStackFrame().currentBlock.Label);
                     ++hits;
+                }
+                else
+                {
+                    Assert.Fail("Unexpected break point");
                 }
 
                 return Executor.HandlerAction.CONTINUE;
