@@ -43,6 +43,7 @@
     <Compile Include="GlobalConstant.cs" />
     <Compile Include="AssertionTextWriterTraceListener.cs" />
     <Compile Include="SymbooglixTest.cs" />
+    <Compile Include="Goto.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -62,6 +63,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\GlobalConstantWithAxiom.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GotoSinglePath.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
