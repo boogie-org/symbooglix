@@ -15,7 +15,17 @@ namespace symbooglix
 
         public ConstraintManager DeepClone()
         {
-            throw new NotImplementedException();
+            ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
+            other.constraints = new List<Expr>();
+
+            var duplicator = new Duplicator();
+            foreach (var e in this.constraints)
+            {
+                var copy = (Expr) duplicator.Visit(e);
+                other.constraints.Add(copy);
+            }
+
+            return other;
         }
 
         public void addConstraint(Expr e)

@@ -15,7 +15,23 @@ namespace symbooglix
 
         public Memory DeepClone()
         {
-            throw new System.NotImplementedException();
+            Memory other = (Memory) this.MemberwiseClone();
+
+            other.stack = new List<StackFrame>();
+            foreach (var sf in this.stack)
+            {
+                other.stack.Add(sf.DeepClone());
+            }
+
+            var duplicator = new Duplicator();
+            other.globals = new Dictionary<Variable,Expr>();
+            foreach (var pair in this.globals)
+            {
+                Expr copy = (Expr) duplicator.Visit(pair.Value);
+                other.globals.Add(pair.Key, copy);
+            }
+
+            return other;
         }
 
         public override string ToString()
@@ -52,7 +68,7 @@ namespace symbooglix
         public Dictionary<Variable,Expr> globals;
     }
 
-    public class StackFrame
+    public class StackFrame : util.IDeepClone<StackFrame>
     {
         public Dictionary<Variable,Expr> locals;
         public Implementation procedure;
@@ -70,6 +86,40 @@ namespace symbooglix
         {
             get;
             private set;
+        }
+
+        public StackFrame DeepClone()
+        {
+            StackFrame other = (StackFrame) this.MemberwiseClone();
+
+            // procedure does not need to cloned
+            other.locals = new Dictionary<Variable, Expr>();
+            var duplicator = new Duplicator();
+            foreach (var pair in locals)
+            {
+                Expr copy = (Expr) duplicator.Visit(pair.Value);
+                other.locals.Add(pair.Key, copy);
+            }
+
+            // Clone instruction iterator
+            if (currentInstruction.Current is TransferCmd)
+            {
+                // We are about to transfer so be lazy so don't bother cloning instruction
+                Debug.Write("Warning: Not duplicating currentInstruction");
+            }
+            else
+            {
+                // FIXME: This is nasty. Find a better way to clone the instruction iterator!
+                other.currentInstruction = BCI.GetEnumerator(); // new iterator instance
+
+                // Walk the copy forwards until the iterator is pointing to the same instruction
+                do
+                {
+                    other.currentInstruction.MoveNext();
+                } while (other.currentInstruction.Current != this.currentInstruction.Current);
+            }
+
+            return other;
         }
 
         public override string ToString()
