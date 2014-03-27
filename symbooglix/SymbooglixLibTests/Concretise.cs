@@ -15,8 +15,8 @@ namespace SymbooglixLibTests
         [SetUp()]
         public void Init()
         {
-            p = TestHelper.loadProgram("programs/Concretise.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/Concretise.bpl");
+            e = getExecutor(p);
         }
 
         public Executor.HandlerAction handleBreakPoint(string name, Executor e)
@@ -60,7 +60,7 @@ namespace SymbooglixLibTests
         public void Run()
         {
             e.registerBreakPointHandler(this);
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
             Assert.AreEqual(hits, 2);
         }
 

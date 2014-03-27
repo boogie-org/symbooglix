@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         [SetUp()]
         public void Init()
         {
-            p = TestHelper.loadProgram("programs/GlobalSymbolicConstant.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/GlobalSymbolicConstant.bpl");
+            e = getExecutor(p);
         }
 
         private class GlobalConstantHandler : IBreakPointHandler
@@ -41,19 +41,19 @@ namespace SymbooglixLibTests
         [Test()]
         public void GlobalSymbolicConstant()
         {
-            p = TestHelper.loadProgram("programs/GlobalSymbolicConstant.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/GlobalSymbolicConstant.bpl");
+            e = getExecutor(p);
             e.registerBreakPointHandler(new GlobalConstantHandler(p, true));
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
         }
 
         [Test()]
         public void GlobalConstantWithAxiom()
         {
-            p = TestHelper.loadProgram("programs/GlobalConstantWithAxiom.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/GlobalConstantWithAxiom.bpl");
+            e = getExecutor(p);
             e.registerBreakPointHandler(new GlobalConstantHandler(p, false));
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
         }
     }
 }

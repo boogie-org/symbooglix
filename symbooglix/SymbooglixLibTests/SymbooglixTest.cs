@@ -9,8 +9,11 @@ using NUnit.Framework;
 
 namespace SymbooglixLibTests
 {
-    public class TestHelper
+    public abstract class SymbooglixTest
     {
+        protected Program p;
+        protected Executor e;
+
         public static Program loadProgram(String path)
         {
             // Debug log output goes to standard error.
@@ -59,12 +62,6 @@ namespace SymbooglixLibTests
             Assert.AreNotEqual(imp, null);
             return imp;
         }
-    }
-
-    public abstract class SymbooglixTest
-    {
-        protected Program p;
-        protected Executor e;
     }
 }
 

@@ -28,11 +28,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void concreteLocal()
         {
-            p = TestHelper.loadProgram("programs/RequiresConcreteLocal.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/RequiresConcreteLocal.bpl");
+            e = getExecutor(p);
             var handler = new Handler();
             e.registerBreakPointHandler(handler);
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
 
             Assert.IsTrue(handler.reachable); // Check the assertion passed by checkng we explore beyond it
         }
@@ -40,11 +40,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void concreteGlobal()
         {
-            p = TestHelper.loadProgram("programs/RequiresConcreteGlobal.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/RequiresConcreteGlobal.bpl");
+            e = getExecutor(p);
             var handler = new Handler();
             e.registerBreakPointHandler(handler);
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
 
             Assert.IsTrue(handler.reachable); // Check the assertion passed by checkng we explore beyond it
         }

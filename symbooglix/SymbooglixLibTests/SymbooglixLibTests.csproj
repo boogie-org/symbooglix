@@ -36,13 +36,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SymbolicOnEntry.cs" />
-    <Compile Include="TestHelper.cs" />
     <Compile Include="Concretise.cs" />
     <Compile Include="RequiresConcreteOnEntryToMain.cs">
       <DependentUpon>SymbolicOnEntry.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalConstant.cs" />
     <Compile Include="AssertionTextWriterTraceListener.cs" />
+    <Compile Include="SymbooglixTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

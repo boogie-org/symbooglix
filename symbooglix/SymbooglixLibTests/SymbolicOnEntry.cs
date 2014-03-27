@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         [SetUp()]
         public void Init()
         {
-            p = TestHelper.loadProgram("programs/SymbolicOnEntry.bpl");
-            e = TestHelper.getExecutor(p);
+            p = loadProgram("programs/SymbolicOnEntry.bpl");
+            e = getExecutor(p);
         }
 
         private class GlobalsAreSymbolicHandler : IBreakPointHandler
@@ -36,7 +36,7 @@ namespace SymbooglixLibTests
         public void GlobalsAreSymbolic()
         {
             e.registerBreakPointHandler(new GlobalsAreSymbolicHandler());
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
         }
 
         private class LocalsAreSymbolicHandler : IBreakPointHandler
@@ -59,7 +59,7 @@ namespace SymbooglixLibTests
         public void LocalsAreSymbolic()
         {
             e.registerBreakPointHandler(new LocalsAreSymbolicHandler());
-            e.run(TestHelper.getMain(p));
+            e.run(getMain(p));
         }
 
 
