@@ -12,7 +12,11 @@ namespace symbooglix
         private bool started = false;
         public List<SymbolicVariable> symbolics;
         public ConstraintManager cm;
-        private int id;
+        public int id
+        {
+            get;
+            private set;
+        }
         private static int newId = 0;
 
         // FIXME: Loads axioms and types
@@ -26,7 +30,7 @@ namespace symbooglix
             mem = new Memory();
             symbolics = new List<SymbolicVariable>();
             cm = new ConstraintManager();
-            id = newId;
+            id = newId++;
         }
 
         public ExecutionState DeepClone()
@@ -40,8 +44,7 @@ namespace symbooglix
                 other.symbolics.Add(s);
             }
 
-            other.id = newId + 1;
-            ++newId;
+            other.id = newId++;
 
             other.cm = this.cm.DeepClone();
             return other;
@@ -58,7 +61,7 @@ namespace symbooglix
             Console.WriteLine(mem);
             Console.WriteLine(cm);
         }
-
+       
         public StackFrame getCurrentStackFrame()
         {
             return mem.stack.Last();
