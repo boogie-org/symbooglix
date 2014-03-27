@@ -1,3 +1,4 @@
+using Microsoft.Boogie;
 using NUnit.Framework;
 using System;
 using symbooglix;
@@ -58,10 +59,25 @@ namespace SymbooglixLibTests
                 {
                     Assert.AreEqual("P0", e.currentState.getCurrentStackFrame().currentBlock.Label);
                     ++hits;
+
+                    var a = e.currentState.getInScopeVariableAndExprByName("a");
+                    BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
+                    Assert.AreEqual(7, aBV.Value.ToInt);
                 }
                 else if (name == "path1")
                 {
+                    var a = e.currentState.getInScopeVariableAndExprByName("a");
                     Assert.AreEqual("P1", e.currentState.getCurrentStackFrame().currentBlock.Label);
+                    BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
+                    Assert.AreEqual(8, aBV.Value.ToInt);
+                    ++hits;
+                }
+                else if (name == "path2")
+                {
+                    var a = e.currentState.getInScopeVariableAndExprByName("a");
+                    Assert.AreEqual("P2", e.currentState.getCurrentStackFrame().currentBlock.Label);
+                    BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
+                    Assert.AreEqual(9, aBV.Value.ToInt);
                     ++hits;
                 }
                 else
@@ -80,7 +96,7 @@ namespace SymbooglixLibTests
             var handler = new MultipleTargetHandler();
             e.registerBreakPointHandler(handler);
             e.run(getMain(p));
-            Assert.AreEqual(3, handler.hits);
+            Assert.AreEqual(4, handler.hits);
         }
     }
 }

@@ -62,6 +62,16 @@ namespace SymbooglixLibTests
             Assert.AreNotEqual(null, imp);
             return imp;
         }
+
+        public static BvConst getBVFromLiteral(Expr l)
+        {
+            // FIXME: Why is Boogie's API for getting literal values so lame?
+            Assert.IsTrue(l is LiteralExpr);
+            LiteralExpr litExpr = l as LiteralExpr;
+            Assert.IsTrue(litExpr.Val is BvConst);
+            BvConst literalBV = (BvConst) litExpr.Val;
+            return literalBV;
+        }
     }
 }
 

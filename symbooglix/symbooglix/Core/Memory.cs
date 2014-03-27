@@ -105,7 +105,7 @@ namespace symbooglix
             if (currentInstruction.Current is TransferCmd)
             {
                 // We are about to transfer so be lazy so don't bother cloning instruction
-                Debug.Write("Warning: Not duplicating currentInstruction");
+                Debug.WriteLine("Warning: Not duplicating currentInstruction");
             }
             else
             {
@@ -113,10 +113,10 @@ namespace symbooglix
                 other.currentInstruction = BCI.GetEnumerator(); // new iterator instance
 
                 // Walk the copy forwards until the iterator is pointing to the same instruction
-                do
+                while (other.currentInstruction.Current != this.currentInstruction.Current)
                 {
                     other.currentInstruction.MoveNext();
-                } while (other.currentInstruction.Current != this.currentInstruction.Current);
+                }
             }
 
             return other;

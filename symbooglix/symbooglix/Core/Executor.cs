@@ -161,9 +161,13 @@ namespace symbooglix
             // FIXME: handle requires
             enterProcedure(entryPoint,null, this);
 
+            var oldState = currentState;
             while (stateScheduler.getNumberOfStates() != 0)
             {
                 currentState = stateScheduler.getNextState();
+                Debug.WriteLineIf(oldState != currentState, "[Switching context]");
+                oldState = currentState;
+
                 currentState.getCurrentStackFrame().currentInstruction.MoveNext();
                 executeInstruction();
             }
@@ -412,22 +416,20 @@ namespace symbooglix
         {
             Debug.Assert(c.labelTargets.Count() > 0);
 
-            // Fast path: don't create new states
-            if (c.labelTargets.Count() == 1)
+            if (c.labelTargets.Count() > 1)
             {
-                currentState.getCurrentStackFrame().transferToBlock(c.labelTargets[0]);
-                return HandlerAction.CONTINUE;
+                ExecutionState newState = null;
+                for (int targetId = 1, tEnd = c.labelTargets.Count; targetId < tEnd; ++targetId)
+                {
+                    // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
+                    newState = currentState.DeepClone(); // FIXME: This is not memory efficient
+                    newState.getCurrentStackFrame().transferToBlock(c.labelTargets[targetId]);
+                    stateScheduler.addState(newState);
+                }
             }
 
-            // Slow path: Make new states per target
-            ExecutionState newState = null;
-            foreach (Block BB in c.labelTargets)
-            {
-                // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
-                newState = currentState.DeepClone(); // FIXME: This is not memory efficient
-                newState.getCurrentStackFrame().transferToBlock(BB);
-                stateScheduler.addState(newState);
-            }
+            // The current execution state will always take the first target
+            currentState.getCurrentStackFrame().transferToBlock(c.labelTargets[0]);
 
             return HandlerAction.CONTINUE;
         }
