@@ -9,6 +9,7 @@ procedure main()
     var index:bv8;
     var index2:bv8;
     var a:bv32;
+    assume (forall x:bv8, y:bv8 :: m[x][y] == 0bv32);
 
     a := m[0bv8][1bv8];
     assert {:symbooglix_bp "check_read"} true;

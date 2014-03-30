@@ -3,8 +3,7 @@ procedure main()
     var m:[bv8]bv32;
     var a:bv32;
     var index:bv8;
-    // FIXME: Symbooglix can't handle 'forall's properly!
-    // assume (forall x:bv8 :: m[x] == 0bv32);
+    assume (forall x:bv8 :: m[x] == 0bv32);
     a := m[0bv8];
     assert {:symbooglix_bp "check_read_map"} true;
 

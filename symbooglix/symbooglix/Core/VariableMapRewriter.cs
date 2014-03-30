@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Boogie;
 
 namespace symbooglix
@@ -6,16 +8,35 @@ namespace symbooglix
     public class VariableMapRewriter : Duplicator
     {
         private ExecutionState state;
+        private HashSet<Variable> boundVariables;
         public VariableMapRewriter(ExecutionState e)
         {
             this.state = e;
+            boundVariables = new HashSet<Variable>();
         }
 
-        public override Expr VisitIdentifierExpr (IdentifierExpr node)
+        // To support forall and exists we need to keep to track of their quantified
+        // variables so we don't try to substitute them
+        public override BinderExpr VisitBinderExpr(BinderExpr node)
+        {
+            boundVariables.UnionWith(node.Dummies);
+            BinderExpr toReturn = base.VisitBinderExpr(node);
+            boundVariables.RemoveWhere(e => node.Dummies.Contains(e));
+            return toReturn;
+        }
+
+        public override Expr VisitIdentifierExpr(IdentifierExpr node)
         {
             // Look for variables and expand them to what they map to
             // so that the map only every contains expressions involving constants
             // and symbolics
+
+            if (boundVariables.Contains(node.Decl))
+            {
+                // Variable is bound in the expression so don't replace
+                Debug.WriteLine("Variable '" + node.Decl + "' is bound, skipping");
+                return base.VisitIdentifierExpr(node);
+            }
 
             // Check our symbolics, we don't need to rewrite those
             // FIXME: Should we be doing this check, it might get slow?
