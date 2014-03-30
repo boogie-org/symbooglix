@@ -44,6 +44,7 @@
     <Compile Include="AssertionTextWriterTraceListener.cs" />
     <Compile Include="SymbooglixTest.cs" />
     <Compile Include="Goto.cs" />
+    <Compile Include="Map.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -69,6 +70,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\GotoMultiplePaths.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\2DMap.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\SimpleMap.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
