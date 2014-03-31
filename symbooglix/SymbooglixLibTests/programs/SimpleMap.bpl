@@ -7,7 +7,7 @@ procedure main()
     a := m[0bv8];
     assert {:symbooglix_bp "check_read_map"} true;
 
-    m[0bv8] := 12bv32;
+    m[3bv8] := 12bv32;
     assert {:symbooglix_bp "check_write_literal"} true;
     assert a != m[0bv8];
 

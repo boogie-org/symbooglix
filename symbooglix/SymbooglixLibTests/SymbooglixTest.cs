@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.Basetypes;
 using Microsoft.Boogie;
 using NUnit.Framework;
 
@@ -71,6 +72,24 @@ namespace SymbooglixLibTests
             Assert.IsTrue(litExpr.Val is BvConst);
             BvConst literalBV = (BvConst) litExpr.Val;
             return literalBV;
+        }
+
+        public static IdentifierExpr CheckIsSymbolicIdentifier(Expr e, ExecutionState state)
+        {
+            Assert.IsInstanceOfType(typeof(IdentifierExpr), e);
+            IdentifierExpr sym = e as IdentifierExpr;
+            Assert.IsTrue(state.symbolics.Where(s => s.expr == sym).Count() > 0);
+            return sym;
+        }
+
+        public static LiteralExpr CheckIsLiteralBVConstWithValue(Expr e, BigNum value)
+        {
+            Assert.IsInstanceOfType(typeof(LiteralExpr), e);
+            LiteralExpr lit = e as LiteralExpr;
+            Assert.IsInstanceOfType(typeof(BvConst), lit.Val);
+            BvConst litBV = lit.Val as BvConst;
+            Assert.AreEqual(value, litBV.Value);
+            return lit;
         }
     }
 }
