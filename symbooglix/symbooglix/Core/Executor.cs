@@ -365,24 +365,46 @@ namespace symbooglix
 
         public HandlerAction handle(AssignCmd c, Executor executor)
         {
-            // FIXME: Handle map assignments
-
-            VariableMapRewriter r = new VariableMapRewriter(currentState); 
+            int index=0;
+            VariableMapRewriter r = new VariableMapRewriter(currentState);
+            // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
             {
+           
+                Variable lvalue = lhsrhs.Item1.DeepAssignedVariable;
+                Expr rvalue = null;
+
                 // Check assignment allow
-                Debug.Assert(lhsrhs.Item1.DeepAssignedVariable.IsMutable);
+                Debug.Assert(lvalue.IsMutable, "lvalue is not mutable!");
 
                 // Check lhs is actually in scope
-                if (! currentState.isInScopeVariable(lhsrhs.Item1.DeepAssignedIdentifier))
+                if (! currentState.isInScopeVariable(lvalue))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
-                // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
-                var rvalue = (Expr)r.Visit(lhsrhs.Item2);
+                if (lhsrhs.Item1 is SimpleAssignLhs)
+                {
+                    // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                    rvalue = (Expr) r.Visit(lhsrhs.Item2);
+                }
+                else if (lhsrhs.Item1 is MapAssignLhs)
+                {
+                    // We need to use "AsSimleAssignCmd" so that we have a single Variable as lhs and MapStore expressions
+                    // on the right hand side
+                    var ac = c.AsSimpleAssignCmd;
+                    Debug.Assert(ac.Lhss[index].DeepAssignedVariable == lvalue, "lvalue mismatch");
+                    rvalue = ac.Rhss[index];
+                    // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                    rvalue = (Expr) r.Visit(rvalue);
+                }
+                else
+                {
+                    throw new NotSupportedException("Unknown type of assignment");
+                }
 
-                currentState.assignToVariableInScope(lhsrhs.Item1.DeepAssignedVariable, rvalue);
+                currentState.assignToVariableInScope(lvalue, rvalue);
 
-                Debug.WriteLine("Assignment : " + lhsrhs.Item1.DeepAssignedIdentifier + " := " + rvalue);
+                Debug.WriteLine("Assignment : " + lvalue + " := " + rvalue);
+                ++index;
             }
             return HandlerAction.CONTINUE;
         }
