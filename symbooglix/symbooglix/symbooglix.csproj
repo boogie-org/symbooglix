@@ -60,6 +60,7 @@
     <Compile Include="Expr\FindSymbolicsVisitor.cs" />
     <Compile Include="Expr\FindLiteralAssignment.cs" />
     <Compile Include="Util\IDeepClone.cs" />
+    <Compile Include="Expr\IExprVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
