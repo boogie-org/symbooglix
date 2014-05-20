@@ -11,5 +11,5 @@ requires a == 7bv8;
     assert {:symbooglix_bp "now_concrete"} true;
     assert a == 7bv8;
     assert bv8sub(a,x) == 0bv8;
-    assert {:symbooglix_bp "reached"} true;
+    assert {:symbooglix_bp "reachable"} true;
 }

@@ -251,6 +251,9 @@ namespace symbooglix
         // procedure is not allowed to modify passed in parameters.
         public HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
         {
+            // FIXME: We iterate over the requires statements quite a few times. It would be nice to rewrite this function
+            // to minimise the number of times we do that.
+
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
             currentState.enterProcedure(p);
@@ -339,6 +342,24 @@ namespace symbooglix
                 Expr constraint = (Expr) VR.Visit(r.Condition);
                 currentState.cm.addConstraint(constraint);
             }
+
+            // Concretise globals if explicitly set in requires statements
+            foreach (Requires r in p.Proc.Requires)
+            {
+                Variable MightBeGlobal = null;
+                LiteralExpr literal = null;
+                if (FindLiteralAssignment.findAnyVariable(r.Condition, out MightBeGlobal, out literal))
+                {
+                    if (currentState.mem.globals.ContainsKey(MightBeGlobal))
+                    {
+                        Debug.WriteLine("Concretising global '{0}'", MightBeGlobal);
+                        currentState.mem.globals[MightBeGlobal] = literal;
+
+                        // FIXME: Remove the old symbolic from the set of symbolics?
+                    }
+                }
+            }
+
             return HandlerAction.CONTINUE;
         }
 

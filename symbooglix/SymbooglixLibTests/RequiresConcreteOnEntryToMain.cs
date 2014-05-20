@@ -63,7 +63,7 @@ namespace SymbooglixLibTests
             e.registerBreakPointHandler(handler);
             e.run(getMain(p));
 
-            Assert.IsTrue(handler.reachable); // Check the assertion passed by checkng we explore beyond it
+            Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }
 
 
