@@ -19,7 +19,24 @@ namespace SymbooglixLibTests
                 }
 
                 if (name == "reachable")
+                {
                     reachable = true;
+
+                    // Check that the equality constraint has been stored
+                    bool found = false;
+                    foreach (Expr constraint in e.currentState.cm.constraints)
+                    {
+                        Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
+                        LiteralExpr literal = null;
+                        found = FindLiteralAssignment.find(constraint, v, out literal);
+                        if (found)
+                        {
+                            break;
+                            // FIXME: Check literal value.
+                        }
+                    }
+                    Assert.IsTrue(found, "Equality constraint could not be found");
+                }
 
                 return Executor.HandlerAction.CONTINUE;
             }

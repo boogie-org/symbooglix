@@ -277,7 +277,7 @@ namespace symbooglix
                         if (FindLiteralAssignment.find(r.Condition, v.Item1, out literal))
                         {
                             Debug.Assert(literal != null);
-                            Debug.Write("Not making parameter symbolic and instead doing " + v.Item2 + " : = " + literal);
+                            Debug.WriteLine("Not making parameter symbolic and instead doing " + v.Item2 + " : = " + literal);
                             currentState.getCurrentStackFrame().locals.Add(v.Item2, literal);
                             variableIsContant = true;
                             break;                     
@@ -324,6 +324,21 @@ namespace symbooglix
                 currentState.symbolics.Add(s);
             }
 
+            // Load procedure's requires statements as constraints.
+            // We need to rewrite this expression before storing it because it may refer to 
+            // procedure arguments rather than the implementation arguments which are confusingly
+            // different instances of the same object
+            var VR = new VariableRewriter();
+            foreach (var VariablePair in p.InParams.Zip(p.Proc.InParams))
+            {
+                // Map Procedure InParams to Implementation InParams
+                VR.VariableMap.Add(VariablePair.Item2, VariablePair.Item1);
+            }
+            foreach (Requires r in p.Proc.Requires)
+            {
+                Expr constraint = (Expr) VR.Visit(r.Condition);
+                currentState.cm.addConstraint(constraint);
+            }
             return HandlerAction.CONTINUE;
         }
 

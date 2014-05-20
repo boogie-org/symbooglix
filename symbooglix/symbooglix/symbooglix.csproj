@@ -61,6 +61,7 @@
     <Compile Include="Expr\FindLiteralAssignment.cs" />
     <Compile Include="Util\IDeepClone.cs" />
     <Compile Include="Expr\IExprVisitor.cs" />
+    <Compile Include="Core\VariableRewriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
