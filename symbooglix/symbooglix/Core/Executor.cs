@@ -252,7 +252,7 @@ namespace symbooglix
             Debug.Assert(currentState.isInScopeVariable(v), "Variable is not in scope");
             Expr e = currentState.getInScopeVariableExpr(v);
             Debug.Assert(e != null , "Expression for variable is NULL");
-            var fsv = new FindSymbolicsVisitor(symbolicPool);
+            var fsv = new FindSymbolicsVisitor(currentState);
             fsv.Visit(e);
             return fsv.symbolics.Count != 0;
         }

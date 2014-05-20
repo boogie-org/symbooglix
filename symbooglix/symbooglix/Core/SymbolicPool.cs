@@ -8,13 +8,6 @@ namespace symbooglix
 {
     public class SymbolicPool
     {
-        // FIXME: We are preventing garbage collection by holding on to these
-        public HashSet<SymbolicVariable> symbolics
-        {
-            get;
-            private set;
-        }
-
         public int count
         {
             get;
@@ -23,7 +16,6 @@ namespace symbooglix
 
         public SymbolicPool()
         {
-            symbolics = new HashSet<SymbolicVariable>();
             count = 0;
         }
 
@@ -32,7 +24,6 @@ namespace symbooglix
             TypedIdent modifiedT = (TypedIdent) t.Clone(); // Need a copy so we can modify its name without affecting the original source
             modifiedT.Name = "symbolic_" + count.ToString();
             var s = new SymbolicVariable(modifiedT);
-            symbolics.Add(s);
             ++count;
             Debug.WriteLine("Created new symbolic " + s);
             return s;

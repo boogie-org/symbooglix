@@ -15,17 +15,17 @@ namespace symbooglix
     public class FindSymbolicsVisitor : StandardVisitor
     {
         public List<IdentifierExpr> symbolics;
-        public SymbolicPool pool;
-        public FindSymbolicsVisitor(SymbolicPool pool)
+        public ExecutionState State;
+        public FindSymbolicsVisitor(ExecutionState State)
         {
             symbolics = new List<IdentifierExpr>();
-            this.pool = pool;
+            this.State = State;
         }
 
         public override Expr VisitIdentifierExpr(IdentifierExpr node)
         {
             Debug.Assert(node != null);
-            Debug.Assert(pool.symbolics.Where(sv => sv.expr == node).Count() == 1);
+            Debug.Assert(State.symbolics.Where(sv => sv.expr == node).Count() == 1);
             symbolics.Add(node);
             return node;
         }
