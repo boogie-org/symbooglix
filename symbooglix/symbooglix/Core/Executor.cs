@@ -233,6 +233,19 @@ namespace symbooglix
             currentState.assignToVariableInScope(v, s.expr);
         }
 
+        public void makeConcrete(Variable v, LiteralExpr literal)
+        {
+            Debug.Assert(currentState.isInScopeVariable(v));
+            Debug.Assert(isSymbolic(v), "Tried to concretise something that is already concrete!");
+            currentState.assignToVariableInScope(v, literal);
+
+            // FIXME: 
+            // We can't remove this from the ExecutionState's set
+            // of symbolic variables because it may of been propagated into other variables
+            // We need a way of knowing if a symbolic has been propagated
+            // and if not we should remove it
+        }
+
         public bool isSymbolic(Variable v)
         {
             // FIXME: Find a better way to do this?
@@ -353,9 +366,8 @@ namespace symbooglix
                     if (currentState.mem.globals.ContainsKey(MightBeGlobal))
                     {
                         Debug.WriteLine("Concretising global '{0}'", MightBeGlobal);
-                        currentState.mem.globals[MightBeGlobal] = literal;
-
-                        // FIXME: Remove the old symbolic from the set of symbolics?
+                        // currentState.mem.globals[MightBeGlobal] = literal; // FIXME: Is this faster?
+                        makeConcrete(MightBeGlobal, literal);
                     }
                 }
             }
