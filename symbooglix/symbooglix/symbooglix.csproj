@@ -63,6 +63,8 @@
     <Compile Include="Expr\IExprVisitor.cs" />
     <Compile Include="Core\VariableRewriter.cs" />
     <Compile Include="Core\BoogieExprExtensions.cs" />
+    <Compile Include="Expr\Traverser.cs" />
+    <Compile Include="Expr\ConstantFoldingTraverser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -77,6 +79,10 @@
       <Project>{9B163AA3-36BC-4AFB-88AB-79BC9E97E401}</Project>
       <Name>SMTLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\boogie\Source\Basetypes\Basetypes.csproj">
+      <Project>{43DFAD18-3E35-4558-9BE2-CAFF6B5BA8A0}</Project>
+      <Name>Basetypes</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
@@ -87,6 +93,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

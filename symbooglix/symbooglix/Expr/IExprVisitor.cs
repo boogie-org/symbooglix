@@ -1,22 +1,9 @@
 using System;
 using Microsoft.Boogie;
+using Action = symbooglix.Traverser.Action;
 
 namespace symbooglix
 {
-    public class Action
-    {
-        static Action ContinueTraversal(Expr replacement)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        static Action HaltTraversal(Expr replacement)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public interface IExprVisitor
     {
         // Visiting is simple using double dispatch
@@ -80,6 +67,8 @@ namespace symbooglix
         // bitvector extraction and concat...
         // for some reason these are their own
         // Expr class. Urghh inconsistent design :(
+
+        // Arithmetic
         Action Visit_bvadd(NAryExpr e);
         Action Visit_bvsub(NAryExpr e);
         Action Visit_bvmul(NAryExpr e);
@@ -87,9 +76,19 @@ namespace symbooglix
         Action Visit_bvurem(NAryExpr e);
         Action Visit_bvsdiv(NAryExpr e);
         Action Visit_bvsrem(NAryExpr e);
+        Action Visit_bvsmod(NAryExpr e);
         Action Visit_sign_extend(NAryExpr e);
         Action Visit_zero_extend(NAryExpr e);
 
+        // Bitwise operators
+        // Do we need to support some of the more exotic things like bvnand?
+        Action Visit_bvneg(NAryExpr e);
+        Action Visit_bvand(NAryExpr e);
+        Action Visit_bvor(NAryExpr e);
+        Action Visit_bvnot(NAryExpr e);
+        Action Visit_bvxor(NAryExpr e);
+
+        // Shifts
         Action Visit_bvshl(NAryExpr e);
         Action Visit_bvlshr(NAryExpr e);
         Action Visit_bvashr(NAryExpr e);
