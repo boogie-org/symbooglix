@@ -9,20 +9,27 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class FoldBvExtractExpr : IErrorSink
     {
-        [Test()]
-        public void Simple()
+        private BvConcatExpr ConcatFactory(int leftValue, int leftWidth, int rightValue, int rightWidth)
         {
-            const int left = 11;
-            const int right = 15;
-            var leftbv4 = new LiteralExpr(Token.NoToken, BigNum.FromInt(left), 4);
-            var rightbv4 = new LiteralExpr(Token.NoToken, BigNum.FromInt(right), 4);
-            var concat = new BvConcatExpr(Token.NoToken, leftbv4, rightbv4); // {left}bv4 ++ {right}bv4
-            Assert.IsTrue(leftbv4.Type.IsBv);
-            Assert.IsTrue(rightbv4.Type.IsBv);
+            var leftbv = new LiteralExpr(Token.NoToken, BigNum.FromInt(leftValue), leftWidth);
+            var rightbv = new LiteralExpr(Token.NoToken, BigNum.FromInt(rightValue), rightWidth);
+            var concat = new BvConcatExpr(Token.NoToken, leftbv, rightbv); // {left}bv4 ++ {right}bv4
+            Assert.IsTrue(leftbv.Type.IsBv);
+            Assert.IsTrue(rightbv.Type.IsBv);
 
             concat.Typecheck(new TypecheckingContext(this)); // Needed so the type is set.
             Assert.IsTrue(concat.Type.IsBv);
-            Assert.AreEqual(concat.Type.BvBits, ( leftbv4.Val as BvConst ).Bits + ( rightbv4.Val as BvConst ).Bits);
+            Assert.AreEqual(concat.Type.BvBits, ( leftbv.Val as BvConst ).Bits + ( rightbv.Val as BvConst ).Bits);
+            return concat;
+        }
+
+        [Test()]
+        public void Simple()
+        {
+            const int leftValue = 11;
+            const int rightValue = 15;
+            const int width = 4;
+            var concat = ConcatFactory(leftValue, width, rightValue, width);
 
             var CFT = new ConstantFoldingTraverser();
             Expr replacement = CFT.Traverse(concat);
@@ -31,7 +38,28 @@ namespace SymbooglixLibTests
             Assert.IsTrue(r.Type.IsBv);
             var rBV = r.Val as BvConst; // FIXME: Boogie's API is lame!
             Assert.AreEqual(rBV.Bits, 8);
-            Assert.IsTrue(rBV.Value == BigNum.FromInt(( left << 4 ) + right));
+            Assert.IsTrue(rBV.Value == BigNum.FromInt(( leftValue << width ) + rightValue));
+        }
+
+        [Test()]
+        public void TwoLayers()
+        {
+            const int leftValue = 11;
+            const int rightValue = 15;
+            const int width = 4;
+            var concat = ConcatFactory(leftValue, width, rightValue, width);
+            var concat2 = ConcatFactory(leftValue, width, rightValue, width);
+
+            var combined = new BvConcatExpr(Token.NoToken, concat, concat2);
+            var CFT = new ConstantFoldingTraverser();
+            Expr replacement = CFT.Traverse(combined);
+            Assert.IsTrue(replacement is LiteralExpr);
+            var r = replacement as LiteralExpr;
+            var rBV = r.Val as BvConst; // FIXME: Boogie's API is lame!
+            Assert.AreEqual(rBV.Bits, 16);
+            int childValue = ( leftValue << width ) + rightValue;
+            int expectedValue = ( childValue << ( width * 2 ) ) + childValue;
+            Assert.AreEqual(rBV.Value.ToInt, expectedValue);
         }
 
         public void Error(IToken tok, string msg)
