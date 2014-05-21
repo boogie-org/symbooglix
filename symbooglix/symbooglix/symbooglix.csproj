@@ -62,6 +62,7 @@
     <Compile Include="Util\IDeepClone.cs" />
     <Compile Include="Expr\IExprVisitor.cs" />
     <Compile Include="Core\VariableRewriter.cs" />
+    <Compile Include="Core\BoogieExprExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
