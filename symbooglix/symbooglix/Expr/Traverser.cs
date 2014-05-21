@@ -43,7 +43,7 @@ namespace symbooglix
             this.Visitor = Visitor;
         }
 
-        public abstract void Traverse(Expr root);
+        public abstract Expr Traverse(Expr root);
 
         protected Action Visit(Expr e)
         {
@@ -260,7 +260,7 @@ namespace symbooglix
             public int childNumber;
         }
 
-        public override void Traverse(Expr root)
+        public override Expr Traverse(Expr root)
         {
             // The approach we use is to compute pre-order (Right-left visiting of children)
             // DFS traversal. We also record the parent of each node so we can do tree rewritting
@@ -297,6 +297,7 @@ namespace symbooglix
             }
 
             // Phew! We can now post order traversal. Just walk the list backwards
+            Expr rootToReturn = root;
             for (int index = preOrderRL.Count - 1; index >= 0; --index)
             {
                 ExprNodeInfo nodeToVisitInfo = preOrderRL[index];
@@ -306,13 +307,23 @@ namespace symbooglix
                 {
                     // We are mutating the tree
                     Debug.WriteLine("Mutating tree: '{0}' => '{1}'", nodeToVisitInfo.node, action.ReplacementNode);
-                    nodeToVisitInfo.parent.SetChild(nodeToVisitInfo.childNumber, action.ReplacementNode);
+
+                    // Root node has no parent
+                    if (nodeToVisitInfo.parent == null)
+                    {
+                        rootToReturn = action.ReplacementNode;
+                    }
+                    else
+                    {
+                        nodeToVisitInfo.parent.SetChild(nodeToVisitInfo.childNumber, action.ReplacementNode);
+                    }
                 }
 
                 if (action.Next == Action.NextTraversalAction.HALT)
                     break;
             }
 
+            return rootToReturn;
         }
     }
 }

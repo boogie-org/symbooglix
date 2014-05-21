@@ -10,7 +10,7 @@ namespace symbooglix
     // Clients should use this.
     public class ConstantFoldingTraverser : DFSPostOrderTraverser
     {
-        ConstantFoldingTraverser() : base( new ConstantFoldingVisitor() ) { }
+        public ConstantFoldingTraverser() : base( new ConstantFoldingVisitor() ) { }
     }
 
     public class ConstantFoldingVisitor : IExprVisitor
