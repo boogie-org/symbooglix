@@ -66,6 +66,18 @@ namespace SymbooglixLibTests
             Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }
 
+        [Test()]
+        public void concreteLocalBool()
+        {
+            p = loadProgram("programs/RequiresConcreteLocalBool.bpl");
+            e = getExecutor(p);
+            var handler = new Handler();
+            e.registerBreakPointHandler(handler);
+            e.run(getMain(p));
+
+            Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
+        }
+
 
     }
 }

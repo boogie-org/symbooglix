@@ -37,19 +37,24 @@ namespace symbooglix
                     return false;
                 }
 
-                if (naryExpr.Fun is BinaryOperator && ( naryExpr.Fun as BinaryOperator ).Op == BinaryOperator.Opcode.Eq)
+                if (naryExpr.Fun is BinaryOperator)
                 {
-                    Debug.Assert(idExpr.Count() == 1, "Found more than one Identifier expression");
-
-                    var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
-                    if (literalExpr.Count() > 0)
+                    var operation = (naryExpr.Fun as BinaryOperator).Op;
+                    if ( operation == BinaryOperator.Opcode.Eq  // var == Literal
+                         || operation == BinaryOperator.Opcode.Iff // var <==> Literal (for bools)
+                       )
                     {
-                        v = idExpr.First().Decl;
-                        literal = literalExpr.First();
-                        return true;
+                        Debug.Assert(idExpr.Count() == 1, "Found more than one Identifier expression");
+
+                        var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
+                        if (literalExpr.Count() > 0)
+                        {
+                            v = idExpr.First().Decl;
+                            literal = literalExpr.First();
+                            return true;
+                        }
                     }
                 }
-
             }
 
             v = null;
