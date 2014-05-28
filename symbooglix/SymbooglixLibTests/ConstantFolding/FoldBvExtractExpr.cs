@@ -35,9 +35,8 @@ namespace SymbooglixLibTests
             Expr replacement = CFT.Traverse(concat);
             Assert.IsTrue(replacement is LiteralExpr);
             var r = replacement as LiteralExpr;
-            Assert.IsTrue(r.Type.IsBv);
-            var rBV = r.Val as BvConst; // FIXME: Boogie's API is lame!
-            Assert.AreEqual(rBV.Bits, 8);
+            Assert.IsTrue(r.isBvConst);
+            var rBV = r.asBvConst;
             Assert.IsTrue(rBV.Value == BigNum.FromInt(( leftValue << width ) + rightValue));
         }
 
@@ -55,7 +54,7 @@ namespace SymbooglixLibTests
             Expr replacement = CFT.Traverse(combined);
             Assert.IsTrue(replacement is LiteralExpr);
             var r = replacement as LiteralExpr;
-            var rBV = r.Val as BvConst; // FIXME: Boogie's API is lame!
+            var rBV = r.asBvConst; // FIXME: Boogie's API is lame!
             Assert.AreEqual(rBV.Bits, 16);
             int childValue = ( leftValue << width ) + rightValue;
             int expectedValue = ( childValue << ( width * 2 ) ) + childValue;
