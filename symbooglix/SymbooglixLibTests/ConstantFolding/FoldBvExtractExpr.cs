@@ -10,6 +10,11 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class FoldBvExtractExpr : IErrorSink
     {
+        public FoldBvExtractExpr()
+        {
+            SymbooglixTest.setupDebug();
+        }
+
         [Test()]
         public void simple()
         {

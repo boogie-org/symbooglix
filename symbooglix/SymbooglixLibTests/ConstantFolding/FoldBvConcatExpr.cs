@@ -9,6 +9,11 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class FoldBvConcatExpr : IErrorSink
     {
+        public FoldBvConcatExpr()
+        {
+            SymbooglixTest.setupDebug();
+        }
+
         private BvConcatExpr ConcatFactory(int leftValue, int leftWidth, int rightValue, int rightWidth)
         {
             var leftbv = new LiteralExpr(Token.NoToken, BigNum.FromInt(leftValue), leftWidth);

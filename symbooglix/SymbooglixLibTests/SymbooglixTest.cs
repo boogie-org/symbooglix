@@ -15,11 +15,16 @@ namespace SymbooglixLibTests
         protected Program p;
         protected Executor e;
 
-        public static Program loadProgram(String path)
+        public static void setupDebug()
         {
             // Debug log output goes to standard error.
             // Failing System.Diagnostics failures trigger NUnit assertion failures
             Debug.Listeners.Add(new AssertionTextWriterTraceListener(Console.Error));
+        }
+
+        public static Program loadProgram(String path)
+        {
+            setupDebug();
             Assert.IsTrue(File.Exists(path));
 
             // THIS IS A HACK. Boogie's methods
