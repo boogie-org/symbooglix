@@ -37,9 +37,7 @@
   <ItemGroup>
     <Compile Include="SymbolicOnEntry.cs" />
     <Compile Include="Concretise.cs" />
-    <Compile Include="RequiresConcreteOnEntryToMain.cs">
-      <DependentUpon>SymbolicOnEntry.cs</DependentUpon>
-    </Compile>
+    <Compile Include="RequiresConcreteOnEntryToMain.cs" />
     <Compile Include="GlobalConstant.cs" />
     <Compile Include="AssertionTextWriterTraceListener.cs" />
     <Compile Include="SymbooglixTest.cs" />
