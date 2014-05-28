@@ -48,12 +48,12 @@ namespace symbooglix
             {
                 var MSB = e.E0 as LiteralExpr;
                 var LSB = e.E1 as LiteralExpr;
-                Debug.Assert(MSB.Val is BvConst, "MSB is not a BvConst");
-                Debug.Assert(LSB.Val is BvConst, "LSB is not a BvConst");
+                Debug.Assert(MSB.isBvConst, "MSB is not a BvConst");
+                Debug.Assert(LSB.isBvConst, "LSB is not a BvConst");
                 Debug.WriteLine("Constant folding BvConcatExpr");
 
-                var MSBBV = MSB.Val as BvConst;
-                var LSBBV = LSB.Val as BvConst;
+                var MSBBV = MSB.asBvConst;
+                var LSBBV = LSB.asBvConst;
 
                 // Compute concatentation
                 // Note BigInteger is immutable
