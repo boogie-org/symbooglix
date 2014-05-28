@@ -53,7 +53,7 @@ namespace symbooglix
                 // Compute the bit extraction
                 BigInteger bitsBeforeStartRemoved = BV.Value.ToBigInteger >> e.Start;
                 int numberOfBitsInResult = e.End - e.Start;
-                BigInteger bitMask = new BigInteger(( 2 << numberOfBitsInResult ) - 1);
+                BigInteger bitMask = new BigInteger(( 1 << numberOfBitsInResult ) - 1);
                 BigInteger result = bitsBeforeStartRemoved & bitMask; // Mask off bits we don't want
                 BigNum resultAsBigNum = BigNum.FromBigInt(result);
                 LiteralExpr resultExpr = new LiteralExpr(Token.NoToken, resultAsBigNum, numberOfBitsInResult);

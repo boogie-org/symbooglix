@@ -7,7 +7,7 @@ using Microsoft.Basetypes;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldBvExtractExpr : IErrorSink
+    public class FoldBvConcatExpr : IErrorSink
     {
         private BvConcatExpr ConcatFactory(int leftValue, int leftWidth, int rightValue, int rightWidth)
         {
