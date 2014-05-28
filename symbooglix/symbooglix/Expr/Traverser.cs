@@ -245,7 +245,7 @@ namespace symbooglix
         }
     }
 
-    public class DFSPostOrderTraverser : Traverser
+    public class DFSPostOrderTraverser : Traverser, IErrorSink
     {
         public DFSPostOrderTraverser(IExprVisitor visitor) : base(visitor)
         {
@@ -323,8 +323,20 @@ namespace symbooglix
                     break;
             }
 
+            #if DEBUG
+            // Do type checking
+            var TC = new TypecheckingContext(this);
+            rootToReturn.Typecheck(TC);
+            #endif
+
             return rootToReturn;
         }
+
+        public void Error(IToken tok, string msg)
+        {
+            throw new Exception("TypeChecking error:" + msg);
+        }
+
     }
 }
 
