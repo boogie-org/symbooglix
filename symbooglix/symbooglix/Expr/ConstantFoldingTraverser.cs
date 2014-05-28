@@ -39,7 +39,28 @@ namespace symbooglix
 
         public Action VisitBvExtractExpr(BvExtractExpr e)
         {
-            throw new NotImplementedException();
+            if (e.Bitvector is LiteralExpr)
+            {
+                var literal = (LiteralExpr) e.Bitvector;
+                Debug.Assert(literal.isBvConst, "Bitvector is not of bitvector type in BvExtractExpr");
+                Debug.Assert(e.Start >= 0);
+                Debug.Assert(e.End > e.Start);
+                var BV = literal.asBvConst;
+
+                // ABitVector[<end>:<start>]
+                // This operation selects bits starting at <start> to <end> but not including <end>
+               
+                // Compute the bit extraction
+                BigInteger bitsBeforeStartRemoved = BV.Value.ToBigInteger >> e.Start;
+                int numberOfBitsInResult = e.End - e.Start;
+                BigInteger bitMask = new BigInteger(( 2 << numberOfBitsInResult ) - 1);
+                BigInteger result = bitsBeforeStartRemoved & bitMask; // Mask off bits we don't want
+                BigNum resultAsBigNum = BigNum.FromBigInt(result);
+                LiteralExpr resultExpr = new LiteralExpr(Token.NoToken, resultAsBigNum, numberOfBitsInResult);
+                return Traverser.Action.ContinueTraversal(resultExpr);
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitBvConcatExpr(BvConcatExpr e)

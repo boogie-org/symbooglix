@@ -43,7 +43,7 @@
     <Compile Include="SymbooglixTest.cs" />
     <Compile Include="Goto.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="ConstantFolding\FoldBvExtractExpr.cs" />
+    <Compile Include="ConstantFolding\FoldBvConcatExpr.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
