@@ -219,12 +219,14 @@ namespace symbooglix
 
         public Action VisitMapStore(NAryExpr e)
         {
-            throw new NotImplementedException();
+            // Can't do any constant folding without access execution state
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitMapSelect(NAryExpr e)
         {
-            throw new NotImplementedException();
+            // Can't do any constant folding without access execution state
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitIfThenElse(NAryExpr e)
