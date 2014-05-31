@@ -22,14 +22,19 @@ namespace SymbooglixLibTests
             Debug.Listeners.Add(new AssertionTextWriterTraceListener(Console.Error));
         }
 
+        public static void setupCmdLineParser()
+        {
+            // THIS IS A HACK. Boogie's methods
+            // depend on its command line parser being set!
+            CommandLineOptions.Install(new SymbooglixCommandLineOptions());
+        }
+
         public static Program loadProgram(String path)
         {
             setupDebug();
             Assert.IsTrue(File.Exists(path));
 
-            // THIS IS A HACK. Boogie's methods
-            // depend on its command line parser being set!
-            CommandLineOptions.Install(new SymbooglixCommandLineOptions());
+            setupCmdLineParser();
 
             int errors = 0;
             Program p = null;

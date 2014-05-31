@@ -90,12 +90,30 @@ namespace symbooglix
 
         public Action VisitForallExpr(ForallExpr e)
         {
-            throw new NotImplementedException();
+            // ∀ x : true  <==> true
+            // ∀ x : false  <==> false
+            if (e.Body is LiteralExpr)
+            {
+                var literal = (LiteralExpr) e.Body;
+                Debug.Assert(literal.isBool);
+                return Traverser.Action.ContinueTraversal(literal);
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitExistExpr(ExistsExpr e)
         {
-            throw new NotImplementedException();
+            // ∃ x : true  <==> true
+            // ∃ x : false  <==> false
+            if (e.Body is LiteralExpr)
+            {
+                var literal = (LiteralExpr) e.Body;
+                Debug.Assert(literal.isBool);
+                return Traverser.Action.ContinueTraversal(literal);
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitLambdaExpr(LambdaExpr e)

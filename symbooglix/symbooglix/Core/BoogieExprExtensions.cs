@@ -17,8 +17,12 @@ namespace symbooglix
                 return ( e as NAryExpr ).GetNumberOfChildren();
             else if (e is BvExtractExpr)
                 return ( e as BvExtractExpr ).GetNumberOfChildren();
-            else if (e is BvConcatExpr)
+            else if (e is BvConcatExpr )
                 return ( e as BvConcatExpr ).GetNumberOfChildren();
+            else if (e is ForallExpr)
+                return ( e as ForallExpr ).GetNumberOfChildren();
+            else if (e is ExistsExpr)
+                return ( e as ExistsExpr ).GetNumberOfChildren();
             else
                 throw new NotImplementedException();
         }
@@ -35,7 +39,11 @@ namespace symbooglix
             else if (e is BvExtractExpr)
                 ( e as BvExtractExpr ).SetChild(number, NewChild);
             else if (e is BvConcatExpr)
-                ( e as BvConcatExpr ).SetChild(number, NewChild);
+                ( e as BvConcatExpr).SetChild(number, NewChild);
+            else if (e is ForallExpr)
+                (e as ForallExpr).SetChild(number, NewChild);
+            else if (e is ExistsExpr)
+                (e as ExistsExpr).SetChild(number, NewChild);
             else
                 throw new NotImplementedException();
         }
@@ -52,6 +60,10 @@ namespace symbooglix
                 return ( e as BvExtractExpr ).GetChild(number);
             else if (e is BvConcatExpr)
                 return ( e as BvConcatExpr ).GetChild(number);
+            else if (e is ForallExpr)
+                return (e as ForallExpr).GetChild(number);
+            else if (e is ExistsExpr)
+                return (e as ExistsExpr).GetChild(number);
             else
                 throw new NotImplementedException();
         }
@@ -161,6 +173,66 @@ namespace symbooglix
                     return e.E1;// Least significant bytes
                 default:
                     throw new InvalidOperationException("BvConcat only has two children");
+            }
+        }
+
+        // ForallExpr
+        public static int GetNumberOfChildren(this ForallExpr e)
+        {
+            return 1;
+        }
+
+        public static void SetChild(this ForallExpr e, int number, Expr NewChild)
+        {
+            switch (number)
+            {
+            case 0:
+                e.Body = NewChild;
+                return;
+
+            default:
+                throw new InvalidOperationException("ForallExpr only has one child");
+            }
+        }
+
+        public static Expr GetChild(this ForallExpr e, int number)
+        {
+            switch (number)
+            {
+            case 0:
+                return e.Body;
+            default:
+                throw new InvalidOperationException("ForallExpr only has one child");
+            }
+        }
+
+        // ExistsExpr
+        public static int GetNumberOfChildren(this ExistsExpr e)
+        {
+            return 1;
+        }
+
+        public static void SetChild(this ExistsExpr e, int number, Expr NewChild)
+        {
+            switch (number)
+            {
+            case 0:
+                e.Body = NewChild;
+                return;
+
+            default:
+                throw new InvalidOperationException("ExistsExpr only has one child");
+            }
+        }
+
+        public static Expr GetChild(this ExistsExpr e, int number)
+        {
+            switch (number)
+            {
+            case 0:
+                return e.Body;
+            default:
+                throw new InvalidOperationException("ExistsExpr only has one child");
             }
         }
     }
