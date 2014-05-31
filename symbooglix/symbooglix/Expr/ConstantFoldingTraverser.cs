@@ -164,7 +164,15 @@ namespace symbooglix
 
         public Action VisitEq(NAryExpr e)
         {
-            throw new NotImplementedException();
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                // FIXME: We can't implement this nicely
+                // right now because equality comparision
+                // of Expr is totally broken in Boogie!
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitNeq(NAryExpr e)
