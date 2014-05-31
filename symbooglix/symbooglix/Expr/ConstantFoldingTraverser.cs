@@ -236,7 +236,11 @@ namespace symbooglix
 
         public Action VisitFunctionCall(NAryExpr e)
         {
-            throw new NotImplementedException();
+            // The executor should (at some point)
+            // make sure that Functions
+            // that can be inlined already have been so
+            // we shouldn't need to do anything.
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitTypeCoercion(NAryExpr e)
