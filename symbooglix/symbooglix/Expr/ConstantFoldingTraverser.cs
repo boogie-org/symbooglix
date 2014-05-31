@@ -118,7 +118,8 @@ namespace symbooglix
 
         public Action VisitLambdaExpr(LambdaExpr e)
         {
-            throw new NotImplementedException();
+            // We can't constant fold these.
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitNot(NAryExpr e)
