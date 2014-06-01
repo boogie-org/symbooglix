@@ -289,7 +289,21 @@ namespace symbooglix
 
         public Action VisitAnd(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBool, "arg0 is not bool");
+                Debug.Assert(arg1.isBool, "arg1 is not bool");
+
+                if (arg0.IsTrue && arg1.IsTrue)
+                    return Traverser.Action.ContinueTraversal(Expr.True);
+                else
+                    return Traverser.Action.ContinueTraversal(Expr.False);
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitOr(NAryExpr e)
