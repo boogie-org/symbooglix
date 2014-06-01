@@ -47,6 +47,7 @@
     <Compile Include="ConstantFolding\FoldBvExtractExpr.cs" />
     <Compile Include="ConstantFolding\FoldForAllExpr.cs" />
     <Compile Include="ConstantFolding\FoldExistsExpr.cs" />
+    <Compile Include="ConstantFolding\FoldNot.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

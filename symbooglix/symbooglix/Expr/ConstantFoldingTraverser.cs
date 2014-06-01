@@ -124,7 +124,18 @@ namespace symbooglix
 
         public Action VisitNot(NAryExpr e)
         {
-            throw new NotImplementedException();
+            if (e.Args[0] is LiteralExpr)
+            {
+                var literal = (LiteralExpr) e.Args[0];
+                if (literal.IsTrue)
+                    return Traverser.Action.ContinueTraversal(Expr.False);
+                else if (literal.IsFalse)
+                    return Traverser.Action.ContinueTraversal(Expr.True);
+                else
+                    throw new Exception("Invalid operand to Not");
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitNeg(NAryExpr e)
