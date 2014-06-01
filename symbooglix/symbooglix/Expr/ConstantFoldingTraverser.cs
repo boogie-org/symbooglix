@@ -140,41 +140,84 @@ namespace symbooglix
 
         public Action VisitNeg(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 1);
+            if (e.Args[0] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitAdd(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitSub(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitMul(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitDiv(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitMod(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitRealDiv(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitEq(NAryExpr e)
         {
+            Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
                 // FIXME: We can't implement this nicely
@@ -188,27 +231,60 @@ namespace symbooglix
 
         public Action VisitNeq(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                // FIXME: We can't implement this nicely
+                // right now because equality comparision
+                // of Expr is totally broken in Boogie!
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitGt(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitGe(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitLt(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitLe(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitAnd(NAryExpr e)
