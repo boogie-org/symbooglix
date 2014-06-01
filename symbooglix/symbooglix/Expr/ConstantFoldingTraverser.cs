@@ -290,6 +290,22 @@ namespace symbooglix
         public Action VisitAnd(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
+
+            // false AND <expr> == false
+            // <expr> AND false == false
+            for (int index = 0; index <= 1; ++index)
+            {
+                if (e.Args[0] is LiteralExpr)
+                {
+                    var literal = e.Args[index] as LiteralExpr;
+                    Debug.Assert(literal.isBool, "literal is not bool");
+
+                    if (literal.IsFalse)
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                }
+            }
+
+            // true and true == true
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
                 var arg0 = e.Args[0] as LiteralExpr;
@@ -299,20 +315,17 @@ namespace symbooglix
 
                 if (arg0.IsTrue && arg1.IsTrue)
                     return Traverser.Action.ContinueTraversal(Expr.True);
-                else
-                    return Traverser.Action.ContinueTraversal(Expr.False);
             }
-            else
-                return Traverser.Action.ContinueTraversal(e);
+
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitOr(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
 
-            // true OR false
-            // false OR true
-            // true OR true
+            // true OR <expr> == true
+            // <expr> OR true == true
             for (int index = 0; index <= 1; ++index)
             {
                 if (e.Args[index] is LiteralExpr)
@@ -325,7 +338,7 @@ namespace symbooglix
                 }
             }
 
-            // false OR false
+            // false OR false == false
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
                 var arg0 = e.Args[0] as LiteralExpr;
