@@ -23,6 +23,7 @@ namespace symbooglix
             preEventHandlers = new List<IExecutorHandler>();
             postEventHandlers = new List<IExecutorHandler>();
             breakPointHandlers = new List<IBreakPointHandler>();
+            terminationHandlers = new List<ITerminationHandler>();
         }
 
         private IStateScheduler stateScheduler;
@@ -36,6 +37,7 @@ namespace symbooglix
         private List<IExecutorHandler> preEventHandlers;
         private List<IExecutorHandler> postEventHandlers;
         private List<IBreakPointHandler> breakPointHandlers;
+        private List<ITerminationHandler> terminationHandlers;
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
 
@@ -142,6 +144,19 @@ namespace symbooglix
             Debug.Assert(handler != null);
             Debug.Assert(breakPointHandlers.Contains(handler));
             breakPointHandlers.Remove(handler);
+        }
+
+        public void registerTerminationHandler(ITerminationHandler handler)
+        {
+            Debug.Assert(handler != null);
+            terminationHandlers.Add(handler);
+        }
+
+        public void unregisterTerminationHandler(ITerminationHandler handler)
+        {
+            Debug.Assert(handler != null);
+            Debug.Assert(terminationHandlers.Contains(handler));
+            terminationHandlers.Remove(handler);
         }
 
         public void run(Implementation entryPoint)
@@ -398,11 +413,19 @@ namespace symbooglix
 
             }
 
+            // FIXME: Check ensures condition cannot fail! fork both ways is possible
+
             // Pop stack frame
             currentState.leaveProcedure();
 
             if (currentState.finished())
             {
+                // Notify any handlers that this state terminated without error
+                foreach (var handler in terminationHandlers)
+                {
+                    handler.handleSuccess(currentState);
+                }
+
                 stateScheduler.removeState(currentState);
             }
 

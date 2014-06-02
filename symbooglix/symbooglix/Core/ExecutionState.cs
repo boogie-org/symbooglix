@@ -10,6 +10,7 @@ namespace symbooglix
     {
         public Memory mem;
         private bool started = false;
+        private bool terminatedEarly = false;
         public List<SymbolicVariable> symbolics;
         public ConstraintManager cm;
         public int id
@@ -52,6 +53,14 @@ namespace symbooglix
 
         public void dumpState()
         {
+            Console.Write("State {0} :", this.id);
+            if (terminatedEarly)
+                Console.WriteLine("Terminated early");
+            else if (finished())
+                Console.WriteLine("Finished");
+            else
+                Console.WriteLine("Running");
+
             Console.WriteLine(mem);
             Console.WriteLine(cm);
         }
@@ -178,7 +187,25 @@ namespace symbooglix
 
         public bool finished()
         {
-            if (started && mem.stack.Count == 0)
+            if (HasTerminatedEarly() || TerminatedSuccessfuly())
+                return true;
+            else
+                return false;
+        }
+
+        public void MarkAsTerminatedEarly()
+        {
+            this.terminatedEarly = true;
+        }
+
+        public bool HasTerminatedEarly()
+        {
+            return terminatedEarly;
+        }
+
+        public bool TerminatedSuccessfuly()
+        {
+            if (started && !terminatedEarly && ( mem.stack.Count == 0 ))
                 return true;
             else
                 return false;

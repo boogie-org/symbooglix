@@ -65,6 +65,7 @@
     <Compile Include="Core\BoogieExprExtensions.cs" />
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
+    <Compile Include="Core\ExecutorHandlers\TerminationHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
