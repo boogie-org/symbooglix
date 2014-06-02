@@ -491,132 +491,290 @@ namespace symbooglix
 
         public Action Visit_bvadd(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsub(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvmul(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvudiv(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvurem(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsdiv(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsrem(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsmod(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_sign_extend(NAryExpr e)
         {
-            throw new NotImplementedException();
+            // FIXME: Do we infer the sign extend amount from the types, or is it an argument to the function?
+            Debug.Assert(e.Args.Count == 1);
+            if (e.Args[0] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_zero_extend(NAryExpr e)
         {
-            throw new NotImplementedException();
+            // FIXME: Do we infer the sign extend amount from the types, or is it an argument to the function?
+            Debug.Assert(e.Args.Count == 1);
+            if (e.Args[0] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvneg(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 1);
+            if (e.Args[0] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvand(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvor(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvnot(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 1);
+            if (e.Args[0] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvxor(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvshl(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvlshr(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvashr(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvult(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvule(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvugt(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvuge(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvslt(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsle(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsgt(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action Visit_bvsge(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                throw new NotImplementedException();
+            }
+            else
+                return Traverser.Action.ContinueTraversal(e);
         }
     }
 }
