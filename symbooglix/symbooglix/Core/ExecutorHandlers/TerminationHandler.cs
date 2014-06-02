@@ -5,8 +5,9 @@ namespace symbooglix
     public interface ITerminationHandler
     {
         void handleSuccess(ExecutionState s);
-        void handleAssertFail(ExecutionState s);
-        void handleEnsuresFail(ExecutionState s);
+        void handleFailingAssert(ExecutionState s);
+        void handleFailingEnsures(ExecutionState s);
+        void handleUnsatisfiableAssume(ExecutionState s);
     }
 }
 
