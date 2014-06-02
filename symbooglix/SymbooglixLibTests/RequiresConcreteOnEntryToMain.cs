@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using Microsoft.Boogie;
+using Microsoft.Basetypes;
 using symbooglix;
 
 namespace SymbooglixLibTests
@@ -26,14 +27,26 @@ namespace SymbooglixLibTests
                     bool found = false;
                     foreach (Expr constraint in e.currentState.cm.constraints)
                     {
-                        Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
-                        LiteralExpr literal = null;
-                        found = FindLiteralAssignment.find(constraint, v, out literal);
-                        if (found)
+                        //Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
+
+                        // FIXME: This is a hack! We need a proper way of determining the origin
+                        // of a symbolic variable.
+                        foreach (var s in e.currentState.symbolics)
                         {
-                            break;
-                            // FIXME: Check literal value.
+                            Assert.IsTrue(s.expr is IdentifierExpr);
+                            var id = s.expr as IdentifierExpr;
+                            LiteralExpr literal = null;
+                            found = FindLiteralAssignment.find(constraint, id.Decl, out literal);
+
+                            if (found)
+                            {
+                                if (literal.isBvConst && literal.asBvConst.Value == BigNum.FromInt(7)) // check its value
+                                    break;
+                                else
+                                    found = false;
+                            }
                         }
+
                     }
                     Assert.IsTrue(found, "Equality constraint could not be found");
                 }

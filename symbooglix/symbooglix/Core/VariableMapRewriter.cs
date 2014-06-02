@@ -15,10 +15,21 @@ namespace symbooglix
             set;
         }
 
+        // If an IdentifierExpr is visited this mapping can be
+        // used to change the replacement expression (normally the expr associated
+        // with the key) to the expression associated with the Value.
+        //
+        // This is useful for procedures which have different argument variable instances
+        // than the associated implementation, despite there being no good reason for this!
+        // Damn you Boogie!!
+        // FIXME: Fix boogie to remove this stupid requirement!
+        public Dictionary<Variable,Variable> preReplacementReMap;
+
         public VariableMapRewriter(ExecutionState e)
         {
             this.state = e;
             boundVariables = new HashSet<Variable>();
+            preReplacementReMap = new Dictionary<Variable,Variable>();
             this.ReplaceGlobalsOnly = false;
         }
 
@@ -38,6 +49,7 @@ namespace symbooglix
             // so that the map only every contains expressions involving constants
             // and symbolics
 
+            // Don't remap this because this internal to this class
             if (boundVariables.Contains(node.Decl))
             {
                 // Variable is bound in the expression so don't replace
@@ -53,11 +65,19 @@ namespace symbooglix
                     return (Expr) s.expr; // Don't need to duplicate these
             }
 
+            // Do a remappingif necessary
+            // FIXME: This sucks. Fix boogie instead!
+            Variable V = null;
+            if (preReplacementReMap.ContainsKey(node.Decl))
+                V = preReplacementReMap[node.Decl];
+            else
+                V = node.Decl;
+
             // Not a symbolic so we should try rewriting it.
             Expr e = null;
             if (ReplaceGlobalsOnly)
             {
-                e = state.GetGlobalVariableExpr(node.Decl);
+                e = state.GetGlobalVariableExpr(V);
                 if (e == null)
                 {
                     // Not a global variable so leave alone
@@ -66,10 +86,10 @@ namespace symbooglix
             }
             else
             {
-                e = state.getInScopeVariableExpr(node.Decl);
+                e = state.getInScopeVariableExpr(V);
 
                 if (e == null)
-                    throw new NullReferenceException("Identifier " + node.Decl + " is not is scope");
+                    throw new NullReferenceException("Identifier " + V + " is not is scope");
             }
 
             // We remove the IdentifierExpr entirely and replace it

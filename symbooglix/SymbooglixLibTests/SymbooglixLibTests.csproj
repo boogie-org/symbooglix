@@ -53,6 +53,7 @@
     <Compile Include="ConstantFolding\FoldImpl.cs" />
     <Compile Include="ConstantFolding\FoldIff.cs" />
     <Compile Include="ConstantFolding\FoldIfThenElse.cs" />
+    <Compile Include="RequiresConstrainedLocal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -90,6 +91,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\GlobalConstantWithWeakerAxiom.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\RequiresConstrainedLocal.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

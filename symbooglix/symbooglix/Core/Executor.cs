@@ -371,12 +371,15 @@ namespace symbooglix
             // Load procedure's requires statements as constraints.
             // We need to rewrite this expression before storing it because it may refer to 
             // procedure arguments rather than the implementation arguments which are confusingly
-            // different instances of the same object
-            var VR = new VariableRewriter();
+            // different instances of the same object.
+            //
+            // We also need to rewrite so that we remove any IdentifierExpr that refer to in program
+            // variables and instead replace with expressions containing symbolic variables.
+            var VR = new VariableMapRewriter(currentState);
             foreach (var VariablePair in p.InParams.Zip(p.Proc.InParams))
             {
                 // Map Procedure InParams to Implementation InParams
-                VR.VariableMap.Add(VariablePair.Item2, VariablePair.Item1);
+                VR.preReplacementReMap.Add(VariablePair.Item2, VariablePair.Item1);
             }
             foreach (Requires r in p.Proc.Requires)
             {

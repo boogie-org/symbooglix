@@ -61,7 +61,6 @@
     <Compile Include="Expr\FindLiteralAssignment.cs" />
     <Compile Include="Util\IDeepClone.cs" />
     <Compile Include="Expr\IExprVisitor.cs" />
-    <Compile Include="Core\VariableRewriter.cs" />
     <Compile Include="Core\BoogieExprExtensions.cs" />
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
