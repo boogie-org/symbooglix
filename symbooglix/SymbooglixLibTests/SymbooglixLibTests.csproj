@@ -52,6 +52,7 @@
     <Compile Include="ConstantFolding\FoldOr.cs" />
     <Compile Include="ConstantFolding\FoldImpl.cs" />
     <Compile Include="ConstantFolding\FoldIff.cs" />
+    <Compile Include="ConstantFolding\FoldIfThenElse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

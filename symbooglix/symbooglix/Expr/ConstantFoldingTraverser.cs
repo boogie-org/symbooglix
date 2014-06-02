@@ -447,7 +447,27 @@ namespace symbooglix
 
         public Action VisitIfThenElse(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 3);
+            if (e.Args[0] is LiteralExpr)
+            {
+                var literal = e.Args[0] as LiteralExpr;
+                Debug.Assert(literal.isBool);
+
+                if (literal.IsTrue)
+                {
+                    // (if true then <exprA> else <exprB> ) == <exprA>
+                    return Traverser.Action.ContinueTraversal(e.Args[1]);
+                }
+                else
+                {
+                    Debug.Assert(literal.IsFalse);
+                    // (if false then <exprA> else <exprB> ) == <exprA>
+                    return Traverser.Action.ContinueTraversal(e.Args[2]);
+                }
+            }
+
+            // we can't constant fold
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitFunctionCall(NAryExpr e)
