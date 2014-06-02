@@ -19,12 +19,6 @@ namespace symbooglix
         }
         private static int newId = 0;
 
-        // FIXME: Loads axioms and types
-
-        // FIXME: Add Path Constraints container
-
-        // FIXME: Add something to track program counter in an elegant way that handles block commands
-
         public ExecutionState()
         {
             mem = new Memory();
