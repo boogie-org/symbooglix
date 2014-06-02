@@ -374,7 +374,58 @@ namespace symbooglix
 
         public Action VisitIff(NAryExpr e)
         {
-            throw new NotImplementedException();
+
+            Debug.Assert(e.Args.Count == 2);
+
+            if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
+            {
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBool);
+                Debug.Assert(arg1.isBool);
+
+
+                if (arg0.asBool == arg1.asBool)
+                {
+                    // (true <==> true) == true
+                    // (false <==> false) == true
+                    return Traverser.Action.ContinueTraversal(Expr.True);
+                }
+                else
+                {
+                    // (true <==> false) == false
+                    // (false <==> true) == false
+                    return Traverser.Action.ContinueTraversal(Expr.False);
+                }
+            }
+
+            // Handle if only one of the args is constant
+            for (int index = 0; index <= 1; ++index)
+            {
+                if (e.Args[index] is LiteralExpr)
+                {
+                    var literal = e.Args[index] as LiteralExpr;
+                    Debug.Assert(literal.isBool);
+                    int otherIndex = (index == 0) ? 1 : 0;
+
+                    if (literal.IsTrue)
+                    {
+                        // ( true <==> <expr> ) == <expr>
+                        // ( <expr> <==> true ) == <expr>
+                        return Traverser.Action.ContinueTraversal(e.Args[otherIndex]);
+                    }
+                    else
+                    {
+                        Debug.Assert(literal.IsFalse);
+                        // (false <==> <expr>) == not <expr>
+                        // (<expr> <==> false) == not <expr>
+                        return Traverser.Action.ContinueTraversal(Expr.Not(e.Args[otherIndex]));
+                    }
+                }
+            }
+
+            // otherwise we can't constant fold
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitSubType(NAryExpr e)
