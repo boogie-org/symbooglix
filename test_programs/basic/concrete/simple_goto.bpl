@@ -1,4 +1,4 @@
-// RUN: %symbooglix %s /useInstructionPrinter 2>&1 | %OutputCheck %s
+// RUN: %symbooglix %s -disableConstantFolding -useInstructionPrinter 2>&1 | %OutputCheck %s
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
 // Bitvector functions

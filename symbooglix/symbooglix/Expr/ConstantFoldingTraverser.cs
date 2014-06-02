@@ -220,13 +220,51 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                // FIXME: We can't implement this nicely
-                // right now because equality comparision
-                // of Expr is totally broken in Boogie!
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.Type == arg1.Type);
+
+                if (arg0.isBvConst)
+                {
+                    if (arg0.asBvConst.Equals(arg1.asBvConst)) // make sure we use Equals and not ``==`` which does reference equality
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                }
+                else if (arg0.isBool)
+                {
+                    if (arg0.asBool == arg1.asBool)
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+
+                }
+                else if (arg0.isBigNum)
+                {
+                    if (arg0.asBigNum.Equals(arg1.asBigNum))
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+
+                }
+                else if (arg0.isBigDec)
+                {
+                    if (arg0.asBigDec.Equals(arg1.asBigDec))
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                }
+                else
+                    throw new NotImplementedException(); // Unreachable?
+
             }
-            else
-                return Traverser.Action.ContinueTraversal(e);
+
+            // FIXME: We should check for structural equivalence
+            // we can't do this right now because Boogie's equals operator
+            // overload is broken!
+
+            // Can't constant fold
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitNeq(NAryExpr e)
@@ -234,13 +272,51 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                // FIXME: We can't implement this nicely
-                // right now because equality comparision
-                // of Expr is totally broken in Boogie!
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.Type == arg1.Type);
+
+                if (arg0.isBvConst)
+                {
+                    if (arg0.asBvConst.Equals(arg1.asBvConst)) // make sure we use Equals and not ``==`` which does reference equality
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+                }
+                else if (arg0.isBool)
+                {
+                    if (arg0.asBool == arg1.asBool)
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+
+                }
+                else if (arg0.isBigNum)
+                {
+                    if (arg0.asBigNum.Equals(arg1.asBigNum))
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+
+                }
+                else if (arg0.isBigDec)
+                {
+                    if (arg0.asBigDec.Equals(arg1.asBigDec))
+                        return Traverser.Action.ContinueTraversal(Expr.False);
+                    else
+                        return Traverser.Action.ContinueTraversal(Expr.True);
+                }
+                else
+                    throw new NotImplementedException(); // Unreachable?
+
             }
-            else
-                return Traverser.Action.ContinueTraversal(e);
+
+            // FIXME: We should check for structural equivalence
+            // we can't do this right now because Boogie's equals operator
+            // overload is broken!
+
+            // Can't constant fold
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitGt(NAryExpr e)
@@ -494,7 +570,19 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+                Debug.Assert(arg0.asBvConst.Bits == arg1.asBvConst.Bits);
+
+                // Compute bvand
+                var MaxValuePlusOne = (new BigInteger(1)) << arg0.asBvConst.Bits ; // 2^( number of bits)
+                var arg0BI = arg0.asBvConst.Value.ToBigInteger;
+                var arg1BI = arg1.asBvConst.Value.ToBigInteger;
+                var result = ( arg0BI + arg1BI ) % MaxValuePlusOne; // Wrapping overflow
+                LiteralExpr literal = new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), arg0.asBvConst.Bits);
+                return Traverser.Action.ContinueTraversal(literal);
             }
             else
                 return Traverser.Action.ContinueTraversal(e);
@@ -505,7 +593,22 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+                Debug.Assert(arg0.asBvConst.Bits == arg1.asBvConst.Bits);
+
+                // compute bvsub
+                // (bvsub s t) abbreviates (bvadd s (bvneg t))
+                // note:  [[(bvneg s)]] := nat2bv[m](2^m - bv2nat([[s]]))
+                var MaxValuePlusOne = (new BigInteger(1)) << arg0.asBvConst.Bits ; // 2^( number of bits)
+                var arg0BI = arg0.asBvConst.Value.ToBigInteger;
+                var arg1BI = arg1.asBvConst.Value.ToBigInteger;
+                var arg1Negated = MaxValuePlusOne - arg1BI;
+                var result = ( arg0BI + arg1Negated ) % MaxValuePlusOne;
+                LiteralExpr literal = new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), arg0.asBvConst.Bits);
+                return Traverser.Action.ContinueTraversal(literal);
             }
             else
                 return Traverser.Action.ContinueTraversal(e);
@@ -713,10 +816,19 @@ namespace symbooglix
 
         public Action Visit_bvugt(NAryExpr e)
         {
+            // FIXME: How are the signed operators going to work?
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+
+                if (arg0.asBvConst.Value >= arg1.asBvConst.Value)
+                    return Traverser.Action.ContinueTraversal(Expr.True);
+                else
+                    return Traverser.Action.ContinueTraversal(Expr.False);
             }
             else
                 return Traverser.Action.ContinueTraversal(e);

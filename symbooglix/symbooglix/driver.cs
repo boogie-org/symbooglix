@@ -106,6 +106,15 @@ namespace symbooglix
                 e.registerPostEventHandler(verifyUnmodified);
             }
 
+            if (parsedArgs.useConstantFolding)
+            {
+                e.UseConstantFolding = true;
+            }
+            else
+            {
+                e.UseConstantFolding = false;
+            }
+
             // Just print a message about break points for now.
             e.registerBreakPointHandler(new BreakPointPrinter());
 

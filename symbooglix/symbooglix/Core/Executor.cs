@@ -24,6 +24,8 @@ namespace symbooglix
             postEventHandlers = new List<IExecutorHandler>();
             breakPointHandlers = new List<IBreakPointHandler>();
             terminationHandlers = new List<ITerminationHandler>();
+            CFT = new ConstantFoldingTraverser();
+            UseConstantFolding = false;
         }
 
         private IStateScheduler stateScheduler;
@@ -40,6 +42,14 @@ namespace symbooglix
         private List<ITerminationHandler> terminationHandlers;
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
+        public ConstantFoldingTraverser CFT;
+
+        public bool UseConstantFolding
+        {
+            get;
+            set;
+        }
+
 
         public bool prepare()
         {
@@ -456,6 +466,8 @@ namespace symbooglix
                 {
                     // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
                     rvalue = (Expr) r.Visit(lhsrhs.Item2);
+                    if (UseConstantFolding)
+                        rvalue = CFT.Traverse(rvalue);
                 }
                 else if (lhsrhs.Item1 is MapAssignLhs)
                 {
@@ -466,6 +478,9 @@ namespace symbooglix
                     rvalue = ac.Rhss[index];
                     // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
                     rvalue = (Expr) r.Visit(rvalue);
+
+                    if (UseConstantFolding)
+                        rvalue = CFT.Traverse(rvalue);
                 }
                 else
                 {
@@ -485,9 +500,14 @@ namespace symbooglix
             handleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(currentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
+
+            if (UseConstantFolding)
+                dupAndrw = CFT.Traverse(dupAndrw);
+
             Debug.WriteLine("Assert : " + dupAndrw);
 
             // TODO: fork with true and negated assertions and solve
+            // TODO: Notify termination handlers if necessary
 
             return HandlerAction.CONTINUE;
         }
@@ -497,9 +517,14 @@ namespace symbooglix
             handleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(currentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
+
+            if (UseConstantFolding)
+                dupAndrw = CFT.Traverse(dupAndrw);
+
             Debug.WriteLine("Assume : " + dupAndrw);
 
             // TODO: Check assumption
+            // TODO: Notify termination handlers if necessary
 
             currentState.cm.addConstraint(dupAndrw);
             return HandlerAction.CONTINUE;

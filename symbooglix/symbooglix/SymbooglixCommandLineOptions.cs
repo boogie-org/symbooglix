@@ -13,6 +13,7 @@ namespace symbooglix
         public bool useEnterLeaveStackPrinter = false;
         public bool useCallSequencePrinter = false;
         public bool useVerifyUnmodifiedProcedureHandler = true;
+        public bool useConstantFolding = true;
 
         protected override bool ParseOption(string name, CommandLineParseState ps)
         {
@@ -37,6 +38,12 @@ namespace symbooglix
             if (name == "noVerifyUMP")
             {
                 useVerifyUnmodifiedProcedureHandler = false;
+                return true;
+            }
+
+            if (name == "disableConstantFolding")
+            {
+                useConstantFolding = false;
                 return true;
             }
 
