@@ -353,7 +353,23 @@ namespace symbooglix
 
         public Action VisitImp(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 2);
+
+            if (e.Args[0] is LiteralExpr)
+            {
+                var literal = e.Args[0] as LiteralExpr;
+                Debug.Assert(literal.isBool);
+
+                // true -> <expr> == <expr>
+                if (literal.IsTrue)
+                    return Traverser.Action.ContinueTraversal(e.Args[1]);
+                // false -> <expr> == true
+                else if (literal.IsFalse)
+                    return Traverser.Action.ContinueTraversal(Expr.True);
+            }
+
+            // can't constant fold
+            return Traverser.Action.ContinueTraversal(e);
         }
 
         public Action VisitIff(NAryExpr e)
