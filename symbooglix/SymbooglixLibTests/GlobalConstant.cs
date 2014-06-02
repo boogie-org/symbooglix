@@ -9,18 +9,17 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class GlobalConstant : SymbooglixTest
     {
-        [SetUp()]
-        public void Init()
-        {
-            p = loadProgram("programs/GlobalSymbolicConstant.bpl");
-            e = getExecutor(p);
-        }
-
         private class GlobalConstantHandler : IBreakPointHandler
         {
             private Program prog;
             private bool shouldBeSymbolic;
-            public GlobalConstantHandler(Program p, bool shouldBeSymbolic) {prog = p; this.shouldBeSymbolic = shouldBeSymbolic;}
+            private bool shouldHaveConstraint;
+            public GlobalConstantHandler(Program p, bool shouldBeSymbolic, bool shouldHaveConstraint)
+            {
+                prog = p;
+                this.shouldBeSymbolic = shouldBeSymbolic;
+                this.shouldHaveConstraint = shouldHaveConstraint;
+            }
 
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
@@ -35,6 +34,16 @@ namespace SymbooglixLibTests
                 else
                     Assert.IsFalse(e.isSymbolic(constant));
 
+                if (shouldHaveConstraint)
+                {
+                    Expr symbolic_for_a= e.currentState.getInScopeVariableExpr(constant);
+                    var FSV = new FindSymbolicsVisitor(e.currentState);
+                    FSV.Visit(symbolic_for_a);
+                    Assert.IsTrue(FSV.symbolics.Count() > 0);
+                    string expected = ( symbolic_for_a as IdentifierExpr ).Name + " != 7bv8";
+                    Assert.IsTrue(e.currentState.cm.constraints[0].ToString() == expected);
+                }
+
                 return Executor.HandlerAction.CONTINUE;
             }
         }
@@ -43,7 +52,7 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalSymbolicConstant.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, true));
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, false));
             e.run(getMain(p));
         }
 
@@ -52,7 +61,16 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalConstantWithAxiom.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, false));
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, false, false));
+            e.run(getMain(p));
+        }
+
+        [Test()]
+        public void GlobalConstantWithWeakerAxiom()
+        {
+            p = loadProgram("programs/GlobalConstantWithWeakerAxiom.bpl");
+            e = getExecutor(p);
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, true));
             e.run(getMain(p));
         }
     }

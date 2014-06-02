@@ -211,6 +211,20 @@ namespace symbooglix
                 return false;
         }
 
+        public Expr GetGlobalVariableExpr(Variable GV)
+        {
+            if (GV is GlobalVariable || GV is Constant)
+            {
+                // If not in stackframe look through globals
+                if (mem.globals.ContainsKey(GV))
+                {
+                    return mem.globals[GV];
+                }
+            }
+
+            return null;
+        }
+
     }
 }
 

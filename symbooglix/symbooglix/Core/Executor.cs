@@ -104,8 +104,11 @@ namespace symbooglix
                 if (axiomsToSkip.Contains(axiom))
                     continue;
 
-                initialState.cm.addConstraint(axiom.Expr);
-                Debug.WriteLine("Adding constraint : " + axiom.Expr);
+                var VMR = new VariableMapRewriter(initialState);
+                VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
+                Expr constraint = (Expr) VMR.Visit(axiom.Expr);
+                initialState.cm.addConstraint(constraint);
+                Debug.WriteLine("Adding constraint : " + constraint);
             }
              
 

@@ -9,10 +9,17 @@ namespace symbooglix
     {
         private ExecutionState state;
         private HashSet<Variable> boundVariables;
+        public bool ReplaceGlobalsOnly
+        {
+            get;
+            set;
+        }
+
         public VariableMapRewriter(ExecutionState e)
         {
             this.state = e;
             boundVariables = new HashSet<Variable>();
+            this.ReplaceGlobalsOnly = false;
         }
 
         // To support forall and exists we need to keep to track of their quantified
@@ -47,10 +54,23 @@ namespace symbooglix
             }
 
             // Not a symbolic so we should try rewriting it.
-            Expr e = state.getInScopeVariableExpr(node.Decl);
+            Expr e = null;
+            if (ReplaceGlobalsOnly)
+            {
+                e = state.GetGlobalVariableExpr(node.Decl);
+                if (e == null)
+                {
+                    // Not a global variable so leave alone
+                    return base.VisitIdentifierExpr(node);
+                }
+            }
+            else
+            {
+                e = state.getInScopeVariableExpr(node.Decl);
 
-            if (e == null)
-                throw new NullReferenceException("Identifier " + node.Decl + " is not is scope");
+                if (e == null)
+                    throw new NullReferenceException("Identifier " + node.Decl + " is not is scope");
+            }
 
             // We remove the IdentifierExpr entirely and replace it
             // with the expression that represents this variable
