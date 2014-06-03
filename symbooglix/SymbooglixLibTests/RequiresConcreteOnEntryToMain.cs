@@ -11,6 +11,7 @@ namespace SymbooglixLibTests
         private class Handler : IBreakPointHandler
         {
             public bool reachable = false;
+            public bool isBvConst = true;
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
                 if (name == "now_concrete")
@@ -40,7 +41,9 @@ namespace SymbooglixLibTests
 
                             if (found)
                             {
-                                if (literal.isBvConst && literal.asBvConst.Value == BigNum.FromInt(7)) // check its value
+                                if (isBvConst && literal.isBvConst && literal.asBvConst.Value == BigNum.FromInt(2)) // check its value
+                                    break;
+                                else if (!isBvConst && literal.isBool && literal.IsTrue)
                                     break;
                                 else
                                     found = false;
@@ -85,6 +88,7 @@ namespace SymbooglixLibTests
             p = loadProgram("programs/RequiresConcreteLocalBool.bpl");
             e = getExecutor(p);
             var handler = new Handler();
+            handler.isBvConst = false;
             e.registerBreakPointHandler(handler);
             e.run(getMain(p));
 

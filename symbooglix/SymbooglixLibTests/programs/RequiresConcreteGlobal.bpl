@@ -4,7 +4,7 @@ var a:bv8;
 function {:bvbuiltin "bvsub"} bv8sub(bv8,bv8) returns(bv8);
 
 procedure main()
-requires a == 7bv8;
+requires a == 2bv8;
 {
     var x:bv8;
     x := 7bv8;

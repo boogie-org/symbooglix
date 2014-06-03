@@ -275,14 +275,14 @@ namespace symbooglix
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-        public HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
+        public HandlerAction enterProcedure(Implementation Impl, List<Expr> procedureParams, Executor executor)
         {
             // FIXME: We iterate over the requires statements quite a few times. It would be nice to rewrite this function
             // to minimise the number of times we do that.
 
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
-            currentState.enterProcedure(p);
+            currentState.enterProcedure(Impl);
 
             // FIXME: We should check there are no name clashes between
             // existing program variables and symbolics
@@ -290,45 +290,19 @@ namespace symbooglix
             // Load procedure in parameters on to stack
             if (procedureParams == null)
             {
-                // Try to see if we can make constant
-                // HACK: This is absolutely disgusting! The parameters on the procedure
-                // and implementation are different instances which causes problems
-                // because requires statements refer to the procedure parameters but
-                // our executor needs to work with the implementation parameters :(
-                foreach (var v in p.Proc.InParams.Zip(p.InParams))
+                foreach (var v in Impl.InParams)
                 {
-                    // See if there is a <identifer> == <literal> type expression in the requires statements
-                    // if so don't make that identifier symbolic and instead give it the literal value
-                    bool variableIsContant = false;
-                    foreach (Requires r in p.Proc.Requires)
-                    {
-                        LiteralExpr literal = null;
-                        if (FindLiteralAssignment.find(r.Condition, v.Item1, out literal))
-                        {
-                            Debug.Assert(literal != null);
-                            Debug.WriteLine("Not making parameter symbolic and instead doing " + v.Item2 + " : = " + literal);
-                            currentState.getCurrentStackFrame().locals.Add(v.Item2, literal);
-                            variableIsContant = true;
-                            break;                     
-                        }
-                    }
-
-                    if (variableIsContant)
-                        continue; // Already assigned
-
-                    // Make parameter symbolics
-                    // Just make symbolic for now
-                    var s = symbolicPool.getFreshSymbolic(v.Item2.TypedIdent);
-                    currentState.getCurrentStackFrame().locals.Add(v.Item2, s.expr);
+                    var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
+                    currentState.getCurrentStackFrame().locals.Add(v, s.expr);
                     currentState.symbolics.Add(s);
                 }
             }
             else
             {
                 // Push expr for param on to stack.
-                Debug.Assert(procedureParams.Count == p.InParams.Count);
+                Debug.Assert(procedureParams.Count == Impl.InParams.Count);
 
-                foreach (var tuple in p.InParams.Zip(procedureParams))
+                foreach (var tuple in Impl.InParams.Zip(procedureParams))
                 {
                     currentState.getCurrentStackFrame().locals.Add(tuple.Item1, tuple.Item2);
                 }
@@ -336,7 +310,7 @@ namespace symbooglix
             }
 
             // Load procedure out parameters on to stack
-            foreach(Variable v in p.OutParams)
+            foreach(Variable v in Impl.OutParams)
             {
                 // Make symbolic
                 var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
@@ -345,7 +319,7 @@ namespace symbooglix
             }
 
             // Load procedure's declared locals on to stack
-            foreach(Variable v in p.LocVars)
+            foreach(Variable v in Impl.LocVars)
             {
                 // Make symbolic
                 var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
@@ -361,32 +335,40 @@ namespace symbooglix
             // We also need to rewrite so that we remove any IdentifierExpr that refer to in program
             // variables and instead replace with expressions containing symbolic variables.
             var VR = new VariableMapRewriter(currentState);
-            foreach (var VariablePair in p.InParams.Zip(p.Proc.InParams))
+            foreach (var VariablePair in Impl.InParams.Zip(Impl.Proc.InParams))
             {
                 // Map Procedure InParams to Implementation InParams
                 VR.preReplacementReMap.Add(VariablePair.Item2, VariablePair.Item1);
             }
-            foreach (Requires r in p.Proc.Requires)
+            foreach (Requires r in Impl.Proc.Requires)
             {
                 Expr constraint = (Expr) VR.Visit(r.Condition);
                 currentState.cm.addConstraint(constraint);
             }
 
-            // Concretise globals if explicitly set in requires statements
-            foreach (Requires r in p.Proc.Requires)
+            // Concretise globals and locals if explicitly set in requires statements
+            foreach (Requires r in Impl.Proc.Requires)
             {
-                Variable MightBeGlobal = null;
+                Variable V = null;
                 LiteralExpr literal = null;
-                if (FindLiteralAssignment.findAnyVariable(r.Condition, out MightBeGlobal, out literal))
+                if (FindLiteralAssignment.findAnyVariable(r.Condition, out V, out literal))
                 {
-                    if (currentState.mem.globals.ContainsKey(MightBeGlobal))
+                    // HACK: For locals the requires statement attached to the procedure refer
+                    // to arguments attached procedure and not to the implementation. This means we
+                    // need to remap these Variables to implementation version when checking if a variable
+                    // is in scope. Eurgh... We should fix Boogie instead to not do this!
+                    if (VR.preReplacementReMap.ContainsKey(V))
+                        V = VR.preReplacementReMap[V];
+
+                    if (currentState.isInScopeVariable(V))
                     {
-                        Debug.WriteLine("Concretising global '{0}'", MightBeGlobal);
-                        // currentState.mem.globals[MightBeGlobal] = literal; // FIXME: Is this faster?
-                        makeConcrete(MightBeGlobal, literal);
+                        currentState.assignToVariableInScope(V, literal);
+                        Debug.WriteLine("Concretising  {0} := {1}", V, literal);
                     }
                 }
             }
+
+            // FIXME: Check constraints are consistent
 
             return HandlerAction.CONTINUE;
         }
