@@ -56,54 +56,25 @@ namespace symbooglix
             // Create initial execution state
             initialState = new ExecutionState();
 
-            // Load Globals
-//            var GVs = prog.TopLevelDeclarations.OfType<GlobalVariable>();
-//            foreach (GlobalVariable gv in GVs)
-//            {
-//                var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
-//                initialState.mem.globals.Add(gv, s.expr);
-//                initialState.symbolics.Add(s);
-//            }
-
             // Load Global Variables and Constants
             var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
             var axioms = prog.TopLevelDeclarations.OfType<Axiom>();
-            var axiomsToSkip = new HashSet<Axiom>();
             foreach (Variable gv in GVs)
             {
-                bool initialised = false;
-                foreach (var axiom in axioms)
-                {
-                    // See if we have constant assignments we can apply
-                    LiteralExpr literal = null;
-                    if (FindLiteralAssignment.find(axiom.Expr, gv, out literal))
-                    {
-                        Debug.Assert(literal != null);
-                        // Make concrete
-                        initialState.mem.globals.Add(gv, literal);
-                        initialised = true;
-                        Debug.WriteLine("Using axiom to do assignment to global " + gv + " := " + literal);
-                        axiomsToSkip.Add(axiom);
-                        break;
-                    }
-                }
+                // Make symbolic
+                var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
+                Debug.Assert(!initialState.mem.globals.ContainsKey(gv), "Cannot insert global that is already in memory");
+                initialState.mem.globals.Add(gv, s.expr);
+                initialState.symbolics.Add(s);
 
-                if (!initialised)
-                {
-                    // Make symbolic
-                    var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
-                    Debug.Assert(!initialState.mem.globals.ContainsKey(gv), "Cannot insert global that is already in memory");
-                    initialState.mem.globals.Add(gv, s.expr);
-                    initialState.symbolics.Add(s);
-                }
             }
 
             // Add the axioms as path constraints
+            // We must do this before concretising any variables
+            // otherwise we might end up adding constraints like
+            // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
             foreach (var axiom in axioms)
             {
-                if (axiomsToSkip.Contains(axiom))
-                    continue;
-
                 var VMR = new VariableMapRewriter(initialState);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
@@ -111,6 +82,20 @@ namespace symbooglix
                 Debug.WriteLine("Adding constraint : " + constraint);
             }
              
+
+            // See if we can concretise using the program's axioms
+            foreach (var axiom in axioms)
+            {
+                LiteralExpr literal = null;
+                Variable assignedTo = null;
+                if (FindLiteralAssignment.findAnyVariable(axiom.Expr, out assignedTo, out literal))
+                {
+                    // Axioms should only be able to refer to globals
+                    Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
+                    Debug.Assert(initialState.mem.globals.ContainsKey(assignedTo));
+                    initialState.mem.globals[assignedTo] = literal;
+                }
+            }
 
 
             hasBeenPrepared = true;

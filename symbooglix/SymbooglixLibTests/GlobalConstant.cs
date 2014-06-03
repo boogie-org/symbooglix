@@ -36,6 +36,8 @@ namespace SymbooglixLibTests
 
                 if (shouldHaveConstraint)
                 {
+                    // FIXME: This is totally broken. We need a proper way of finding
+                    // the symbolic associated with a variable.
                     Expr symbolic_for_a= e.currentState.getInScopeVariableExpr(constant);
                     var FSV = new FindSymbolicsVisitor(e.currentState);
                     FSV.Visit(symbolic_for_a);
@@ -61,7 +63,7 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalConstantWithAxiom.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, false, false));
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, false, true));
             e.run(getMain(p));
         }
 
