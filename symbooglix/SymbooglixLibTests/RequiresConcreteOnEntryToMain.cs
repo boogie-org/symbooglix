@@ -30,8 +30,6 @@ namespace SymbooglixLibTests
                     {
                         //Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
 
-                        // FIXME: This is a hack! We need a proper way of determining the origin
-                        // of a symbolic variable.
                         foreach (var s in e.currentState.symbolics)
                         {
                             Assert.IsTrue(s.expr is IdentifierExpr);
@@ -49,6 +47,9 @@ namespace SymbooglixLibTests
                                     found = false;
                             }
                         }
+
+                        if (found)
+                            break;
 
                     }
                     Assert.IsTrue(found, "Equality constraint could not be found");

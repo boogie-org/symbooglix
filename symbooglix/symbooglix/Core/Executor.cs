@@ -508,7 +508,7 @@ namespace symbooglix
 
             // TODO: fork with true and negated assertions and solve
             // TODO: Notify termination handlers if necessary
-
+            currentState.cm.addConstraint(dupAndrw);
             return HandlerAction.CONTINUE;
         }
 
