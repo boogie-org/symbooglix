@@ -480,6 +480,31 @@ namespace symbooglix
 
             Debug.WriteLine("Assert : " + dupAndrw);
 
+            // Constant Folding might let us terminate without calling solver
+            if (dupAndrw is LiteralExpr)
+            {
+                var literalAssertion = dupAndrw as LiteralExpr;
+                Debug.Assert(literalAssertion.isBool);
+
+                if (literalAssertion.IsTrue)
+                {
+                    return HandlerAction.CONTINUE;
+                }
+                else if (literalAssertion.IsFalse)
+                {
+                    currentState.MarkAsTerminatedEarly();
+                    // Notify our handlers
+                    foreach (var handler in terminationHandlers)
+                    {
+                        handler.handleFailingAssert(currentState);
+                    }
+                    stateScheduler.removeState(currentState);
+                    return HandlerAction.CONTINUE;
+                }
+                else
+                    throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our exception types
+            }
+
             // TODO: fork with true and negated assertions and solve
             // TODO: Notify termination handlers if necessary
 

@@ -118,6 +118,8 @@ namespace symbooglix
             // Just print a message about break points for now.
             e.registerBreakPointHandler(new BreakPointPrinter());
 
+            e.registerTerminationHandler(new TerminationConsoleReporter());
+
             e.run(entry);
             return 0;
         }

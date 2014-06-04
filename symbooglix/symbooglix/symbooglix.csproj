@@ -65,6 +65,7 @@
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
     <Compile Include="Core\ExecutorHandlers\TerminationHandler.cs" />
+    <Compile Include="Core\TerminationHandlers\TerminationConsoleReporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -89,6 +90,7 @@
     <Folder Include="Core\ExecutorHandlers\" />
     <Folder Include="Expr\" />
     <Folder Include="Util\" />
+    <Folder Include="Core\TerminationHandlers\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
