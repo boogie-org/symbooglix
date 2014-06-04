@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace symbooglix
 {
@@ -29,7 +30,8 @@ namespace symbooglix
         {
             string msg = "State " + s.id + " terminated with an error";
             WriteLine(ConsoleColor.Red, msg);
-            AssertCmd failingCmd = (AssertCmd) s.getCurrentStackFrame().currentInstruction.Current;
+            Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is AssertCmd);
+            var failingCmd = (AssertCmd) s.getCurrentStackFrame().currentInstruction.Current;
             msg = "The following assertion failed\n" +
                   failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
                   failingCmd.ToString();
@@ -46,7 +48,17 @@ namespace symbooglix
 
         public void handleUnsatisfiableAssume(ExecutionState s)
         {
-            throw new NotImplementedException();
+            string msg = "State " + s.id + " terminated with an error";
+            WriteLine(ConsoleColor.Red, msg);
+            Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is AssumeCmd);
+            var failingCmd = (AssumeCmd) s.getCurrentStackFrame().currentInstruction.Current;
+            msg = "The following assumption is unsatisfiable\n" +
+                  failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
+                  failingCmd.ToString();
+            WriteLine(ConsoleColor.DarkRed, msg);
+
+
+            s.dumpState();
         }
     }
 }

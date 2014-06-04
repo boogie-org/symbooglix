@@ -43,6 +43,17 @@ namespace SymbooglixLibTests
             Assert.AreEqual(successCount, 1);
         }
 
+        [Test()]
+        public void UnsatAssume()
+        {
+            ResetCounters();
+            p = loadProgram("programs/assume_false.bpl");
+            e = getExecutor(p);
+            e.registerTerminationHandler(this);
+            e.run(getMain(p));
+            Assert.AreEqual(UnsatisfiableAssumeCount, 1);
+        }
+
         public void handleSuccess(ExecutionState s)
         {
             ++successCount;

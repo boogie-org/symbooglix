@@ -523,6 +523,30 @@ namespace symbooglix
 
             Debug.WriteLine("Assume : " + dupAndrw);
 
+            // Constant folding might let us terminate early without calling solver
+            if (dupAndrw is LiteralExpr)
+            {
+                var literalAssertion = dupAndrw as LiteralExpr;
+                Debug.Assert(literalAssertion.isBool);
+
+                if (literalAssertion.IsTrue)
+                {
+                    // No need to add trivial "true" constraint
+                    return HandlerAction.CONTINUE;
+                }
+                else if (literalAssertion.IsFalse)
+                {
+                    currentState.MarkAsTerminatedEarly();
+                    // Notify our handlers
+                    foreach (var handler in terminationHandlers)
+                    {
+                        handler.handleUnsatisfiableAssume(currentState);
+                    }
+                    stateScheduler.removeState(currentState);
+                    return HandlerAction.CONTINUE;
+                }
+            }
+
             // TODO: Check assumption
             // TODO: Notify termination handlers if necessary
 
