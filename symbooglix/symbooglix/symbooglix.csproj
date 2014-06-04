@@ -66,6 +66,7 @@
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
     <Compile Include="Core\ExecutorHandlers\TerminationHandler.cs" />
     <Compile Include="Core\TerminationHandlers\TerminationConsoleReporter.cs" />
+    <Compile Include="Core\Solver\ISolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
@@ -91,6 +92,7 @@
     <Folder Include="Expr\" />
     <Folder Include="Util\" />
     <Folder Include="Core\TerminationHandlers\" />
+    <Folder Include="Core\Solver\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
