@@ -488,6 +488,7 @@ namespace symbooglix
 
                 if (literalAssertion.IsTrue)
                 {
+                    // No need to add trivial "true" constraint
                     return HandlerAction.CONTINUE;
                 }
                 else if (literalAssertion.IsFalse)
