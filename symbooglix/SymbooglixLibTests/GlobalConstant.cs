@@ -14,11 +14,13 @@ namespace SymbooglixLibTests
             private Program prog;
             private bool shouldBeSymbolic;
             private bool shouldHaveConstraint;
-            public GlobalConstantHandler(Program p, bool shouldBeSymbolic, bool shouldHaveConstraint)
+            private bool equalityConstraint;
+            public GlobalConstantHandler(Program p, bool shouldBeSymbolic, bool shouldHaveConstraint, bool equalityConstraint)
             {
                 prog = p;
                 this.shouldBeSymbolic = shouldBeSymbolic;
                 this.shouldHaveConstraint = shouldHaveConstraint;
+                this.equalityConstraint = equalityConstraint;
             }
 
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
@@ -36,14 +38,60 @@ namespace SymbooglixLibTests
 
                 if (shouldHaveConstraint)
                 {
-                    // FIXME: This is totally broken. We need a proper way of finding
-                    // the symbolic associated with a variable.
-                    Expr symbolic_for_a= e.currentState.getInScopeVariableExpr(constant);
-                    var FSV = new FindSymbolicsVisitor(e.currentState);
-                    FSV.Visit(symbolic_for_a);
-                    Assert.IsTrue(FSV.symbolics.Count() > 0);
-                    string expected = ( symbolic_for_a as IdentifierExpr ).Name + " != 7bv8";
-                    Assert.IsTrue(e.currentState.cm.constraints[0].ToString() == expected);
+                    SymbolicVariable relevantSymbolic = null;
+                    foreach (SymbolicVariable SV in e.currentState.symbolics)
+                    {
+                        // Check if it came from Variable initialisation
+                        if (SV.Origin.IsVariable)
+                        {
+                            var V = SV.Origin.AsVariable;
+                            if (V == constant)
+                            {
+                                // Found the symbolic that was created for the constant variable "a"
+                                relevantSymbolic = SV;
+                            }
+                        }
+                    }
+
+
+                    bool found = false;
+                    // FIXME: This test is getting messy, switch to delegates so the code can be an annoymous method in the test?
+                    if (equalityConstraint)
+                    {
+                        // Check for the expect equality constraint.
+                        foreach (Expr constraint in e.currentState.cm.constraints)
+                        {
+                            LiteralExpr literal = null;
+                            if (FindLiteralAssignment.find(constraint, relevantSymbolic, out literal))
+                            {
+                                found = true;
+                                Assert.IsTrue(literal.isBvConst);
+                                Assert.AreEqual(literal.asBvConst.Value.ToInt, 7);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (Expr constraint in e.currentState.cm.constraints)
+                        {
+                            if (constraint is NAryExpr)
+                            {
+                                var nary = constraint as NAryExpr;
+                                if (nary.Fun is BinaryOperator)
+                                {
+                                    var Bop = nary.Fun as BinaryOperator;
+                                    if (Bop.Op == BinaryOperator.Opcode.Neq)
+                                    {
+                                        found = true;
+                                        Assert.IsTrue(nary.Args[0] == relevantSymbolic.expr);
+                                        Assert.IsTrue(nary.Args[1] is LiteralExpr && ( nary.Args[1] as LiteralExpr ).asBvConst.Value.ToInt == 7);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Assert.IsTrue(found, "Could not find expected constraint");
                 }
 
                 return Executor.HandlerAction.CONTINUE;
@@ -54,7 +102,7 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalSymbolicConstant.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, false));
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, false, false));
             e.run(getMain(p));
         }
 
@@ -63,7 +111,7 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalConstantWithAxiom.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, false, true));
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, false, true, true));
             e.run(getMain(p));
         }
 
@@ -72,7 +120,7 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalConstantWithWeakerAxiom.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, true));
+            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, true, false));
             e.run(getMain(p));
         }
     }

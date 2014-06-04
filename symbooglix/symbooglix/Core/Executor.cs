@@ -54,7 +54,7 @@ namespace symbooglix
         public bool prepare()
         {
             // Create initial execution state
-            initialState = new ExecutionState();
+            initialState = currentState = new ExecutionState();
 
             // Load Global Variables and Constants
             var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
@@ -62,7 +62,7 @@ namespace symbooglix
             foreach (Variable gv in GVs)
             {
                 // Make symbolic
-                var s = symbolicPool.getFreshSymbolic(gv.TypedIdent);
+                var s = symbolicPool.getFreshSymbolic(gv);
                 Debug.Assert(!initialState.mem.globals.ContainsKey(gv), "Cannot insert global that is already in memory");
                 initialState.mem.globals.Add(gv, s.expr);
                 initialState.symbolics.Add(s);
@@ -238,18 +238,26 @@ namespace symbooglix
             }
         }
 
-        public void makeSymbolic(Variable v)
+        protected SymbolicVariable initialiseAsSymbolic(Variable v)
         {
             Debug.Assert(currentState.isInScopeVariable(v));
-            var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
+            var s = symbolicPool.getFreshSymbolic(v);
             currentState.symbolics.Add(s);
             currentState.assignToVariableInScope(v, s.expr);
+            return s;
+        }
+
+        public SymbolicVariable makeSymbolic(Variable v)
+        {
+            // FIXME: This needs to make a symbolic without an origin because it is a public API function
+            throw new NotImplementedException();
         }
 
         public void makeConcrete(Variable v, LiteralExpr literal)
         {
             Debug.Assert(currentState.isInScopeVariable(v));
             Debug.Assert(isSymbolic(v), "Tried to concretise something that is already concrete!");
+            Debug.WriteLine("Concretising  {0} := {1}", v, literal);
             currentState.assignToVariableInScope(v, literal);
 
             // FIXME: 
@@ -277,9 +285,6 @@ namespace symbooglix
         // procedure is not allowed to modify passed in parameters.
         public HandlerAction enterProcedure(Implementation Impl, List<Expr> procedureParams, Executor executor)
         {
-            // FIXME: We iterate over the requires statements quite a few times. It would be nice to rewrite this function
-            // to minimise the number of times we do that.
-
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
             currentState.enterProcedure(Impl);
@@ -292,9 +297,8 @@ namespace symbooglix
             {
                 foreach (var v in Impl.InParams)
                 {
-                    var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
-                    currentState.getCurrentStackFrame().locals.Add(v, s.expr);
-                    currentState.symbolics.Add(s);
+                    currentState.getCurrentStackFrame().locals.Add(v, null); // Add dummy to stack so makeSymbolic works
+                    initialiseAsSymbolic(v);
                 }
             }
             else
@@ -312,19 +316,17 @@ namespace symbooglix
             // Load procedure out parameters on to stack
             foreach(Variable v in Impl.OutParams)
             {
-                // Make symbolic
-                var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
-                currentState.getCurrentStackFrame().locals.Add(v, s.expr);
-                currentState.symbolics.Add(s);
+                // Make symbolic;
+                currentState.getCurrentStackFrame().locals.Add(v, null);
+                initialiseAsSymbolic(v);
             }
 
             // Load procedure's declared locals on to stack
             foreach(Variable v in Impl.LocVars)
             {
                 // Make symbolic
-                var s = symbolicPool.getFreshSymbolic(v.TypedIdent);
-                currentState.getCurrentStackFrame().locals.Add(v, s.expr);
-                currentState.symbolics.Add(s);
+                currentState.getCurrentStackFrame().locals.Add(v, null);
+                initialiseAsSymbolic(v);
             }
 
             // Load procedure's requires statements as constraints.
@@ -362,8 +364,7 @@ namespace symbooglix
 
                     if (currentState.isInScopeVariable(V))
                     {
-                        currentState.assignToVariableInScope(V, literal);
-                        Debug.WriteLine("Concretising  {0} := {1}", V, literal);
+                        makeConcrete(V, literal);
                     }
                 }
             }
@@ -574,9 +575,13 @@ namespace symbooglix
         public HandlerAction handle(HavocCmd c, Executor executor)
         {
             Debug.WriteLine("Havoc : " + c.ToString().TrimEnd('\n'));
-            foreach (IdentifierExpr idExpr in c.Vars)
+            for (int index=0; index < c.Vars.Count ; ++index)
             {
-                makeSymbolic(idExpr.Decl);
+                var s = symbolicPool.getFreshSymbolic(c, index);
+                Debug.Assert(currentState.isInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
+                currentState.assignToVariableInScope(c.Vars[index].Decl, s.expr);
+                currentState.symbolics.Add(s);
+
             }
             return HandlerAction.CONTINUE;
         }
