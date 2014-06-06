@@ -690,12 +690,17 @@ namespace symbooglix
 
                 // Get new size
                 int newWidth = e.Type.BvBits;
-                Debug.Assert(newWidth > literal.asBvConst.Bits);
+                Debug.Assert(newWidth >= literal.asBvConst.Bits);
+
+
+                if (newWidth == literal.asBvConst.Bits)
+                {
+                    // Not doing any extending so just return the literal
+                    return Traverser.Action.ContinueTraversal(literal);
+                }
 
                 // Check the sign of the bitvector in a two's complement representation
                 var threshold = BigInteger.Pow(2, literal.asBvConst.Bits - 1);
-
-
 
                 if (literal.asBvConst.Value.ToBigInteger < threshold)
                 {
@@ -746,7 +751,13 @@ namespace symbooglix
 
                 // Get new size
                 int newWidth = e.Type.BvBits;
-                Debug.Assert(newWidth > literal.asBvConst.Bits);
+                Debug.Assert(newWidth >= literal.asBvConst.Bits);
+
+                if (newWidth == literal.asBvConst.Bits)
+                {
+                    // Not doing any extending so just return the literal
+                    return Traverser.Action.ContinueTraversal(literal);
+                }
 
                 // Zero extend is very simple, we just make a wider bitvector with the same natural number representation
                 var newLiteral = new LiteralExpr(Token.NoToken, literal.asBvConst.Value, newWidth);
