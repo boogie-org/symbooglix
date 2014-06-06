@@ -682,11 +682,54 @@ namespace symbooglix
 
         public Action Visit_sign_extend(NAryExpr e)
         {
-            // FIXME: Do we infer the sign extend amount from the types, or is it an argument to the function?
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var literal = e.Args[0] as LiteralExpr;
+                Debug.Assert(literal.isBvConst);
+
+                // Get new size
+                int newWidth = e.Type.BvBits;
+                Debug.Assert(newWidth > literal.asBvConst.Bits);
+
+                // Check the sign of the bitvector in a two's complement representation
+                var threshold = BigInteger.Pow(2, literal.asBvConst.Bits - 1);
+
+
+
+                if (literal.asBvConst.Value.ToBigInteger < threshold)
+                {
+                    // The bitvector is a positive bitvector under two's complement interpretation
+                    // So sign extend does not change internal representation
+                    var newLiteral = new LiteralExpr(Token.NoToken, literal.asBvConst.Value, newWidth);
+                    return Traverser.Action.ContinueTraversal(newLiteral);
+                }
+                else
+                {
+                    // The bitvector is a negative bitvector under two's complement interpretation
+                    // So we need to change the internal representation
+
+                    // One way of looking at this as follows. Let x be the natural number representing
+                    // the negative bitvector where m is the original bitvector width n is the new width
+                    //
+                    // 1. Compute the positive version of the bitvector which is (2^m - x) mod m
+                    // 2. Sign extend that (which changes nothing)
+                    // 3. Now negate again
+                    //
+                    // So the natural number representation of a bitvector of length n extend from a bitvector
+                    // of length m is given by (assuming the bitvector was originally negative)
+                    //
+                    // (2^n - ((2^m -x) mod m)) mod n
+                    //
+                    // The mods are only for the case where x is zero so can drop those and have
+                    // 2^n - 2^m + x
+
+                    var maxNewPlusOne = BigInteger.Pow(2, newWidth);
+                    var maxOldPlusOne = BigInteger.Pow(2, literal.asBvConst.Bits);
+                    var result = (maxNewPlusOne - maxOldPlusOne) + literal.asBvConst.Value.ToBigInteger;
+                    var newLiteral = new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), newWidth);
+                    return Traverser.Action.ContinueTraversal(newLiteral);
+                }
             }
             else
                 return Traverser.Action.ContinueTraversal(e);
