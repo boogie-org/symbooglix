@@ -694,11 +694,20 @@ namespace symbooglix
 
         public Action Visit_zero_extend(NAryExpr e)
         {
-            // FIXME: Do we infer the sign extend amount from the types, or is it an argument to the function?
             Debug.Assert(e.Args.Count == 1);
+            Debug.Assert(e.Type.IsBv);
             if (e.Args[0] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var literal = e.Args[0] as LiteralExpr;
+                Debug.Assert(literal.isBvConst);
+
+                // Get new size
+                int newWidth = e.Type.BvBits;
+                Debug.Assert(newWidth > literal.asBvConst.Bits);
+
+                // Zero extend is very simple, we just make a wider bitvector with the same natural number representation
+                var newLiteral = new LiteralExpr(Token.NoToken, literal.asBvConst.Value, newWidth);
+                return Traverser.Action.ContinueTraversal(newLiteral);
             }
             else
                 return Traverser.Action.ContinueTraversal(e);

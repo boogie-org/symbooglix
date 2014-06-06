@@ -178,7 +178,13 @@ namespace symbooglix
 
         protected Action HandlerBvBuiltIns(NAryExpr e, string builtin)
         {
-            switch (builtin)
+            Debug.Assert(builtin.Length > 0);
+
+            // We grab for first word because the bvbuiltin
+            // might be "zeroextend 16", we don't care about the number
+            string firstWord = builtin.Split(' ')[0];
+            Debug.Assert(firstWord.Length > 0);
+            switch (firstWord)
             {
                 // arithmetic
                 case "bvadd":
@@ -240,7 +246,7 @@ namespace symbooglix
                 case "bvsge":
                     return Visitor.Visit_bvsge(e);
                 default:
-                    throw new NotImplementedException(builtin + " bvbuiltin not supported!");
+                    throw new NotImplementedException(firstWord + " bvbuiltin not supported!");
             }
         }
     }

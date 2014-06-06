@@ -55,6 +55,7 @@
     <Compile Include="ConstantFolding\FoldIfThenElse.cs" />
     <Compile Include="RequiresConstrainedLocal.cs" />
     <Compile Include="TerminationReporting.cs" />
+    <Compile Include="ConstantFolding\FoldBVzero_extend.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
