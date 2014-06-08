@@ -51,7 +51,7 @@ namespace symbooglix
         }
 
 
-        public bool prepare()
+        public bool prepareProgram()
         {
             // Create initial execution state
             initialState = currentState = new ExecutionState();
@@ -160,7 +160,7 @@ namespace symbooglix
         public void run(Implementation entryPoint)
         {
             if (!hasBeenPrepared)
-                prepare();
+                prepareProgram();
 
             // FIXME: Clone initialState so we can deal with execution at a different entry point later on
             currentState = initialState;
