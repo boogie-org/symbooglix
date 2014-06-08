@@ -650,6 +650,7 @@ namespace symbooglix
             }
 
             Solver.IAssignment unwanted; // FIXME: So we can pass null if we don't want an assignment
+            solver.SetConstraints(currentState.cm);
             Solver.Result result = solver.IsQuerySat(dupAndrw, out unwanted);
             switch (result)
             {
