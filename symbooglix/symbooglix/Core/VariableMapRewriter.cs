@@ -57,12 +57,13 @@ namespace symbooglix
                 return base.VisitIdentifierExpr(node);
             }
 
-            // Check our symbolics, we don't need to rewrite those
-            // FIXME: Should we be doing this check, it might get slow?
-            foreach (SymbolicVariable s in state.symbolics)
+
+            if (node.Decl is SymbolicVariable)
             {
-                if (s.expr == node)
-                    return (Expr) s.expr; // Don't need to duplicate these
+                // In the Expr given to us by the executor we shouldn't ever has
+                // IdentifierExpr containing Symbolics in because they aren't
+                // in the original program
+                throw new InvalidOperationException();
             }
 
             // Do a remappingif necessary
