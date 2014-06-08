@@ -628,15 +628,15 @@ namespace symbooglix
             // Constant folding might let us terminate early without calling solver
             if (dupAndrw is LiteralExpr)
             {
-                var literalAssertion = dupAndrw as LiteralExpr;
-                Debug.Assert(literalAssertion.isBool);
+                var literalAssumption = dupAndrw as LiteralExpr;
+                Debug.Assert(literalAssumption.isBool);
 
-                if (literalAssertion.IsTrue)
+                if (literalAssumption.IsTrue)
                 {
                     // No need to add trivial "true" constraint
                     return HandlerAction.CONTINUE;
                 }
-                else if (literalAssertion.IsFalse)
+                else if (literalAssumption.IsFalse)
                 {
                     currentState.MarkAsTerminatedEarly();
                     // Notify our handlers
@@ -649,10 +649,30 @@ namespace symbooglix
                 }
             }
 
-            // TODO: Check assumption
-            // TODO: Notify termination handlers if necessary
+            Solver.IAssignment unwanted; // FIXME: So we can pass null if we don't want an assignment
+            Solver.Result result = solver.IsQuerySat(dupAndrw, out unwanted);
+            switch (result)
+            {
+                case symbooglix.Solver.Result.UNSAT:
+                    currentState.MarkAsTerminatedEarly();
+                    // Notify our handlers
+                    foreach (var handler in terminationHandlers)
+                    {
+                        handler.handleUnsatisfiableAssume(currentState);
+                    }
+                    stateScheduler.removeState(currentState);
+                    break;
+                case symbooglix.Solver.Result.SAT:
+                    currentState.cm.addConstraint(dupAndrw);
+                    break;
+                case symbooglix.Solver.Result.UNKNOWN:
+                    Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
+                    currentState.cm.addConstraint(dupAndrw);
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid solver return code");
+            }
 
-            currentState.cm.addConstraint(dupAndrw);
             return HandlerAction.CONTINUE;
         }
 
