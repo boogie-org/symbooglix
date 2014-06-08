@@ -269,11 +269,13 @@ namespace symbooglix
 
         public bool isSymbolic(Variable v)
         {
-            // FIXME: Find a better way to do this?
+            // FIXME: When constant folding is fully implemented this check can be made REALLY fast
+            // because anything that isn't a LiteralExpr must be symbolic after constant folding
+
             Debug.Assert(currentState.isInScopeVariable(v), "Variable is not in scope");
             Expr e = currentState.getInScopeVariableExpr(v);
             Debug.Assert(e != null , "Expression for variable is NULL");
-            var fsv = new FindSymbolicsVisitor(currentState);
+            var fsv = new FindSymbolicsVisitor();
             fsv.Visit(e);
             return fsv.symbolics.Count != 0;
         }

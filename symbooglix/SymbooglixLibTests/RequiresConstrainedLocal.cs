@@ -21,7 +21,7 @@ namespace SymbooglixLibTests
             Variable V = pair.Key;
             Expr E = pair.Value;
 
-            var FSV = new FindSymbolicsVisitor(e.currentState);
+            var FSV = new FindSymbolicsVisitor();
             FSV.Visit(E);
             Assert.IsTrue(FSV.symbolics.Count == 1);
             Assert.IsTrue(E is IdentifierExpr);
