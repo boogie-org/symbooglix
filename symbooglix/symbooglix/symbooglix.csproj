@@ -67,6 +67,7 @@
     <Compile Include="Core\ExecutorHandlers\TerminationHandler.cs" />
     <Compile Include="Core\TerminationHandlers\TerminationConsoleReporter.cs" />
     <Compile Include="Core\Solver\ISolver.cs" />
+    <Compile Include="Core\Solver\DummySolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
