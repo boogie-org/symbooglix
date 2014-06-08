@@ -20,6 +20,7 @@ namespace symbooglix
             this.prog = prog;
             stateScheduler = scheduler;
             symbolicPool = new SymbolicPool();
+            UninterpretedOrUninlinableFunctions = new List<Function>();
             preEventHandlers = new List<IExecutorHandler>();
             postEventHandlers = new List<IExecutorHandler>();
             breakPointHandlers = new List<IBreakPointHandler>();
@@ -40,6 +41,7 @@ namespace symbooglix
         private List<IExecutorHandler> postEventHandlers;
         private List<IBreakPointHandler> breakPointHandlers;
         private List<ITerminationHandler> terminationHandlers;
+        private List<Function> UninterpretedOrUninlinableFunctions;
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
         public ConstantFoldingTraverser CFT;
@@ -55,6 +57,20 @@ namespace symbooglix
         {
             // Create initial execution state
             initialState = currentState = new ExecutionState();
+
+            // Make a list of all the functions that are uninterpreted or can't be inlined
+            var functions = prog.TopLevelDeclarations.OfType<Function>();
+            foreach (var F in functions)
+            {
+                // bvbuiltins are interpreted as SMT-LIBv2 functions
+                if (F.FindAttribute("bvbuiltin") != null)
+                    continue;
+
+                // FIXME: When we support inling, skip those functions that we would later inline
+
+                UninterpretedOrUninlinableFunctions.Add(F);
+                Debug.WriteLine("Added uninterpreted function " + F);
+            }
 
             // Load Global Variables and Constants
             var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
