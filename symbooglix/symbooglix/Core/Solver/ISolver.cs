@@ -6,9 +6,8 @@ namespace symbooglix
     public interface ISolver
     {
         void SetConstraints(ConstraintManager cm);
+        void SetFunctions(IEnumerable<Microsoft.Boogie.Function> functions);
 
-        // This can be used as a hint to the solver to destroy Constraints created internally in the solver
-        void DropConstraints();
 
         // Given the constraints is the query expression satisfiable
         // \return True iff sat
