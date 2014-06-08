@@ -74,6 +74,9 @@ namespace symbooglix
                 Debug.WriteLine("Added uninterpreted function " + F);
             }
 
+            // Inform the solver of these functions
+            solver.SetFunctions(UninterpretedOrUninlinableFunctions);
+
             // Load Global Variables and Constants
             var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
             var axioms = prog.TopLevelDeclarations.OfType<Axiom>();
@@ -526,9 +529,88 @@ namespace symbooglix
                     throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our exception types
             }
 
-            // TODO: fork with true and negated assertions and solve
-            // TODO: Notify termination handlers if necessary
-            currentState.cm.addConstraint(dupAndrw);
+            solver.SetConstraints(currentState.cm);
+            Solver.IAssignment assignment = null;
+
+            // First see if it's possible for the assertion to fail
+            Solver.Result result = solver.IsNotQuerySat(dupAndrw, out assignment);
+            bool canFail = false;
+            switch (result)
+            {
+                case Solver.Result.SAT:
+                    canFail = true;
+                    break;
+                case Solver.Result.UNKNOWN:
+                    Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                    canFail = true;
+                    break;
+                case symbooglix.Solver.Result.UNSAT:
+                    canFail = false;
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid solver return code");
+            }
+
+            // Now see if it's possible for execution to continue past the assertion
+            Solver.IAssignment successfulAssignment;
+            result = solver.IsQuerySat(dupAndrw, out successfulAssignment);
+            bool canSucceed = false;
+            switch (result)
+            {
+                case Solver.Result.SAT:
+                    canSucceed = true;
+                    break;
+                case Solver.Result.UNKNOWN:
+                    Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                    canSucceed = true;
+                    break;
+                case symbooglix.Solver.Result.UNSAT:
+                    canSucceed = false;
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid solver return code");
+            }
+
+            if (canFail && !canSucceed)
+            {
+                // This state can only fail
+                currentState.MarkAsTerminatedEarly();
+
+                // Notify
+                foreach (var handler in terminationHandlers)
+                    handler.handleFailingAssert(currentState);
+
+                stateScheduler.removeState(currentState);
+            }
+            else if (!canFail && canSucceed)
+            {
+                // This state can only succeed
+                currentState.cm.addConstraint(dupAndrw);
+            }
+            else if (canFail && canSucceed)
+            {
+                // This state can fail and suceed at the current assertion
+
+                // We need to fork and duplicate the states
+                // Or do we? Copying the state just so we can inform
+                // the handlers about it seems wasteful...
+                ExecutionState failingState = currentState.DeepClone();
+                failingState.MarkAsTerminatedEarly();
+
+                // Notify
+                foreach (var handler in terminationHandlers)
+                    handler.handleFailingAssert(failingState);
+
+                // successful state can now have assertion expr in constraints
+                currentState.cm.addConstraint(dupAndrw);
+
+            }
+            else
+            {
+                throw new InvalidProgramException("Problem with solver");
+            }
+
+
             return HandlerAction.CONTINUE;
         }
 
