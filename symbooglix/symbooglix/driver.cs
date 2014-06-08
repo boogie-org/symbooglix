@@ -69,7 +69,8 @@ namespace symbooglix
 
 
             IStateScheduler scheduler = new DFSStateScheduler();
-            Executor e = new Executor(p, scheduler);
+            Solver.ISolver solver = new Solver.DummySolver(); // FIXME: Use a real solver
+            Executor e = new Executor(p, scheduler, solver);
 
             // FIXME: Find a better way to choose entry point.
             Microsoft.Boogie.Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().FirstOrDefault();

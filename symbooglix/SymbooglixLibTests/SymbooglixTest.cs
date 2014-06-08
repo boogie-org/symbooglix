@@ -1,4 +1,5 @@
 using symbooglix;
+using symbooglix.Solver;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -54,12 +55,15 @@ namespace SymbooglixLibTests
             return p;
         }
 
-        public static Executor getExecutor(Program p, IStateScheduler scheduler = null)
+        public static Executor getExecutor(Program p, IStateScheduler scheduler = null, ISolver solver = null)
         {
             if (scheduler == null )
                 scheduler = new DFSStateScheduler();
 
-            Executor e = new Executor(p, scheduler);
+            if (solver == null)
+                solver = new DummySolver();
+
+            Executor e = new Executor(p, scheduler, solver);
 
             IExecutorHandler verifier = new VerifyUnmodifiedProcedureHandler();
             e.registerPreEventHandler(verifier);

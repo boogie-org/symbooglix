@@ -15,7 +15,7 @@ namespace symbooglix
             STOP // Do not execute any more handlers for this event
         };
         
-        public Executor(Program prog, IStateScheduler scheduler)
+        public Executor(Program prog, IStateScheduler scheduler, Solver.ISolver solver)
         { 
             this.prog = prog;
             stateScheduler = scheduler;
@@ -27,6 +27,7 @@ namespace symbooglix
             terminationHandlers = new List<ITerminationHandler>();
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
+            this.solver = solver;
         }
 
         private IStateScheduler stateScheduler;
@@ -45,6 +46,7 @@ namespace symbooglix
         private SymbolicPool symbolicPool;
         private bool hasBeenPrepared = false;
         public ConstantFoldingTraverser CFT;
+        public Solver.ISolver solver;
 
         public bool UseConstantFolding
         {
