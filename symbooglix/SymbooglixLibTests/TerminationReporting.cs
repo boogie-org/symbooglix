@@ -66,7 +66,7 @@ namespace SymbooglixLibTests
             ++failingAssertCount;
         }
 
-        public void handleFailingEnsures(ExecutionState s)
+        public void handleFailingEnsures(ExecutionState s, Microsoft.Boogie.Ensures ensuresStatement)
         {
             ++failingEnsuresCount;
         }

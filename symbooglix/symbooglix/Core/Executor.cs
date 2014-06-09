@@ -418,6 +418,120 @@ namespace symbooglix
 
         public HandlerAction handle(ReturnCmd c, Executor executor)
         {
+            // Check ensures conditions, forking if necessary
+            solver.SetConstraints(currentState.cm);
+            var VMR = new VariableMapRewriter(currentState);
+            foreach (var ensures in currentState.getCurrentStackFrame().procedure.Proc.Ensures)
+            {
+                bool canFail = false;
+                bool canSucceed = false;
+                Expr remapped = VMR.Visit(ensures.Condition) as Expr;
+
+                if (UseConstantFolding)
+                    remapped = CFT.Traverse(remapped);
+
+                // Constant folding might be able to avoid a solver call
+                if (remapped is LiteralExpr)
+                {
+                    var literal = remapped as LiteralExpr;
+                    Debug.Assert(literal.isBool, "ensures statement is not a bool!");
+
+                    if (literal.IsTrue)
+                    {
+                        // No need to add "true" to the constraints
+                        continue;
+                    }
+                    else if (literal.IsFalse)
+                    {
+                        // This state must fail
+                        foreach (var handler in terminationHandlers)
+                            handler.handleFailingEnsures(currentState, ensures);
+
+                        stateScheduler.removeState(currentState);
+                        return HandlerAction.CONTINUE;
+                    }
+                    else
+                    {
+                        throw new InvalidProgramException("unreachable??");
+                    }
+                }
+
+                // Can the ensures fail?
+                Solver.Result result = solver.IsNotQuerySat(remapped);
+                switch (result)
+                {
+                    case symbooglix.Solver.Result.SAT:
+                        canFail = true;
+                        break;
+                    case symbooglix.Solver.Result.UNSAT:
+                        // This actually implies that
+                        //
+                        // ∀X : C(X) → Q(X)
+                        // That is if the constraints are satisfiable then
+                        // the query expr is always true. However I'm not sure
+                        // if we can use this fact because we still need to check if the constraints
+                        // can be satisfied
+                        // FIXME: Do something about this!
+                        break;
+                    case symbooglix.Solver.Result.UNKNOWN:
+                        // Be conservative, may introduce false positives though.
+                        canFail = true;
+                        break;
+                }
+
+                // Can the ensures suceed?
+                result = solver.IsQuerySat(remapped);
+                switch (result)
+                {
+                    case Solver.Result.SAT:
+                        canSucceed = true;
+                        break;
+                    case Solver.Result.UNSAT:
+                        break;
+                    case Solver.Result.UNKNOWN:
+                        // Be conservative, may explore infeasible path though
+                        canSucceed = true;
+                        break;
+                }
+
+                if (canFail && !canSucceed)
+                {
+                    // This state can only fail
+                    currentState.MarkAsTerminatedEarly();
+
+                    // notify handlers
+                    foreach (var handler in terminationHandlers)
+                        handler.handleFailingEnsures(currentState, ensures);
+
+                    stateScheduler.removeState(currentState);
+                    return HandlerAction.CONTINUE;
+                }
+                else if (!canFail && canSucceed)
+                {
+                    // This state can only suceed
+                    currentState.cm.addConstraint(remapped);
+                }
+                else if (canFail && canSucceed)
+                {
+                    // This state can fail and suceed at the ensures
+                    // fork both ways
+
+                    var failedState = currentState.DeepClone();
+                    failedState.MarkAsTerminatedEarly();
+
+                    //notify handlers
+                    foreach (var handler in terminationHandlers)
+                        handler.handleFailingEnsures(failedState, ensures);
+
+                    // succesful state
+                    currentState.cm.addConstraint(remapped);
+                }
+                else
+                {
+                    throw new InvalidProgramException("Can't fail or succeed??");
+                }
+            }
+
             // Pass Parameters to Caller
             if (currentState.mem.stack.Count > 1)
             {
@@ -438,8 +552,6 @@ namespace symbooglix
                 }
 
             }
-
-            // FIXME: Check ensures condition cannot fail! fork both ways is possible
 
             // Pop stack frame
             currentState.leaveProcedure();

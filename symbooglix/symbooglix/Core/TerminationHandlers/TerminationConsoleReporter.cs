@@ -53,9 +53,18 @@ namespace symbooglix
             s.dumpState();
         }
 
-        public void handleFailingEnsures(ExecutionState s)
+        public void handleFailingEnsures (ExecutionState s, Ensures ensuresStatement)
         {
-            throw new NotImplementedException();
+            string msg = "State " + s.id + " terminated with an error";
+            WriteLine(ConsoleColor.Red, msg);
+            Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is ReturnCmd);
+            msg = "The following requires failed\n" +
+                  ensuresStatement.tok.filename + ":" + ensuresStatement.tok.line + ": " +
+                  ensuresStatement.Condition.ToString();
+            WriteLine(ConsoleColor.DarkRed, msg);
+
+
+            s.dumpState();
         }
 
         public void handleUnsatisfiableAssume(ExecutionState s)
