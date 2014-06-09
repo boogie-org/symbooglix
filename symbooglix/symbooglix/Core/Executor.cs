@@ -421,6 +421,19 @@ namespace symbooglix
             // Check ensures conditions, forking if necessary
             solver.SetConstraints(currentState.cm);
             var VMR = new VariableMapRewriter(currentState);
+
+            // FIXME: The variables attached to the procedure are not the same object instances
+            // used for the procedure. Setup the mapping. Eurgh.. Boogie you suck!
+            foreach (var tuple in currentState.getCurrentStackFrame().procedure.Proc.InParams.Zip(currentState.getCurrentStackFrame().procedure.InParams))
+            {
+                VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
+            }
+            foreach (var tuple in currentState.getCurrentStackFrame().procedure.Proc.OutParams.Zip(currentState.getCurrentStackFrame().procedure.OutParams))
+            {
+                VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
+            }
+
+            // Loop over each ensures to see if it can fail.
             foreach (var ensures in currentState.getCurrentStackFrame().procedure.Proc.Ensures)
             {
                 bool canFail = false;
