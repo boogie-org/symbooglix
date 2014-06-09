@@ -368,6 +368,25 @@ namespace symbooglix
             foreach (Requires r in Impl.Proc.Requires)
             {
                 Expr constraint = (Expr) VR.Visit(r.Condition);
+
+                // Check to see if the requires constraint is unsat
+                // FIXME: This should probably be an option.
+                solver.SetConstraints(currentState.cm);
+                Solver.Result result = solver.IsQuerySat(constraint);
+
+                if (result == Solver.Result.UNSAT)
+                {
+                    // We should not proceed because requires cannot be satisifed
+                    currentState.MarkAsTerminatedEarly();
+
+                    // notify the handlers
+                    foreach (var handler in terminationHandlers)
+                        handler.handleUnsatisfiableRequires(currentState, r);
+
+                    stateScheduler.removeState(currentState);
+                    return HandlerAction.CONTINUE; // Should we prevent other handlers from executing?
+                }
+
                 currentState.cm.addConstraint(constraint);
             }
 

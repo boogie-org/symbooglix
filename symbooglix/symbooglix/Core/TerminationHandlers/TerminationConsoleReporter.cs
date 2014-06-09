@@ -41,6 +41,18 @@ namespace symbooglix
             s.dumpState();
         }
 
+        public void handleUnsatisfiableRequires(ExecutionState s, Microsoft.Boogie.Requires requiresStatement)
+        {
+            string msg = "State " + s.id + " terminated with an error";
+            WriteLine(ConsoleColor.Red, msg);
+            msg = "The following requires statement could not be satisfied\n" +
+                  requiresStatement.tok.filename + ":" + requiresStatement.tok.line + ": " +
+                  requiresStatement.Condition.ToString();
+            WriteLine(ConsoleColor.DarkRed, msg);
+
+            s.dumpState();
+        }
+
         public void handleFailingEnsures(ExecutionState s)
         {
             throw new NotImplementedException();

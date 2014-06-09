@@ -11,6 +11,7 @@ namespace SymbooglixLibTests
         private int successCount = 0;
         private int failingEnsuresCount = 0;
         private int UnsatisfiableAssumeCount = 0;
+        private int UnsatisfiableRequiresCount = 0;
 
         public void ResetCounters()
         {
@@ -18,6 +19,7 @@ namespace SymbooglixLibTests
             successCount = 0;
             failingEnsuresCount = 0;
             UnsatisfiableAssumeCount = 0;
+            UnsatisfiableRequiresCount = 0;
         }
 
         [Test()]
@@ -72,6 +74,11 @@ namespace SymbooglixLibTests
         public void handleUnsatisfiableAssume(ExecutionState s)
         {
             ++UnsatisfiableAssumeCount;
+        }
+
+        public void handleUnsatisfiableRequires (ExecutionState s, Microsoft.Boogie.Requires requiresStatement)
+        {
+            ++UnsatisfiableRequiresCount;
         }
     }
 }
