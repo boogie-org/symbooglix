@@ -64,10 +64,10 @@
     <Compile Include="Core\BoogieExprExtensions.cs" />
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
-    <Compile Include="Core\ExecutorHandlers\TerminationHandler.cs" />
     <Compile Include="Core\TerminationHandlers\TerminationConsoleReporter.cs" />
     <Compile Include="Core\Solver\ISolver.cs" />
     <Compile Include="Core\Solver\DummySolver.cs" />
+    <Compile Include="Core\TerminationHandlers\TerminationHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
