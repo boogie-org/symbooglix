@@ -34,10 +34,22 @@ namespace symbooglix
                 return Result.SAT;
             }
 
+            public Result IsQuerySat(Expr Query)
+            {
+                IAssignment ignored;
+                return IsQuerySat(Query, out ignored);
+            }
+
             public Result IsNotQuerySat (Microsoft.Boogie.Expr Query, out IAssignment assignment)
             {
                 assignment = new DummyAssignment(0);
                 return Result.SAT;
+            }
+
+            public Result IsNotQuerySat(Expr Query)
+            {
+                IAssignment ignored;
+                return IsNotQuerySat(Query, out ignored);
             }
 
             private class DummyAssignment : IAssignment
