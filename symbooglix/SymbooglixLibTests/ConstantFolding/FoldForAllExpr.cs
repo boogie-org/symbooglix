@@ -7,13 +7,8 @@ using System.Collections.Generic;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldForAllExpr : IErrorSink
+    public class FoldForAllExpr : ConstantFoldingTest
     {
-        public FoldForAllExpr()
-        {
-           SymbooglixTest.setupDebug();
-        }
-
         [Test()]
         public void isTrue()
         {
@@ -42,11 +37,6 @@ namespace SymbooglixLibTests
             e = CFT.Traverse(e);
             Assert.AreSame(e, constantBool);
             e.Typecheck(new TypecheckingContext(this));
-        }
-
-        public void Error (IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
 
         // FIXME: Write test trying more complicated Expr. Is there a way to generate an Expr Tree from a string

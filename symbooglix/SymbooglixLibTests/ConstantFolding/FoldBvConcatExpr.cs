@@ -7,13 +7,8 @@ using Microsoft.Basetypes;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldBvConcatExpr : IErrorSink
+    public class FoldBvConcatExpr : ConstantFoldingTest
     {
-        public FoldBvConcatExpr()
-        {
-            SymbooglixTest.setupDebug();
-        }
-
         private BvConcatExpr ConcatFactory(int leftValue, int leftWidth, int rightValue, int rightWidth)
         {
             var leftbv = new LiteralExpr(Token.NoToken, BigNum.FromInt(leftValue), leftWidth);
@@ -64,11 +59,6 @@ namespace SymbooglixLibTests
             int childValue = ( leftValue << width ) + rightValue;
             int expectedValue = ( childValue << ( width * 2 ) ) + childValue;
             Assert.AreEqual(rBV.Value.ToInt, expectedValue);
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
     }
 }

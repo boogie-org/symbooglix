@@ -9,7 +9,7 @@ using Microsoft.Basetypes;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldBVzero_extend : IErrorSink
+    public class FoldBVzero_extend : ConstantFoldingTest
     {
         [Test()]
         public void Simple()
@@ -32,27 +32,6 @@ namespace SymbooglixLibTests
             Assert.IsTrue(literal.isBvConst);
             Assert.IsTrue(literal.asBvConst.Bits == 8);
             Assert.IsTrue(literal.asBvConst.Value == BigNum.FromInt(7));
-        }
-
-        public FunctionCall CreateBVBuiltIn(string Name, string Builtin, Microsoft.Boogie.Type returnType, Microsoft.Boogie.Type[] argTypes)
-        {
-            var returnVar = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "", returnType), false);
-            var vars = new List<Variable>();
-            foreach (var T in argTypes)
-            {
-                vars.Add( new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "",T), true));
-            }
-
-            // Finally build the function
-            var func = new Function(Token.NoToken, Name, vars, returnVar);
-            func.AddAttribute("bvbuiltin", new string[] { Builtin });
-            var funcCall = new FunctionCall(func);
-            return funcCall;
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
     }
 }

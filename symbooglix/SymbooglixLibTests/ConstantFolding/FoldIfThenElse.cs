@@ -7,13 +7,8 @@ using symbooglix;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldIfThenElse : IErrorSink
+    public class FoldIfThenElse : ConstantFoldingTest
     {
-        public FoldIfThenElse()
-        {
-            SymbooglixTest.setupDebug();
-        }
-
         [Test()]
         public void IfTrue()
         {
@@ -48,11 +43,6 @@ namespace SymbooglixLibTests
         {
             // FIXME: Boogie should have a static method for building these
             return new NAryExpr(Token.NoToken, new IfThenElse(Token.NoToken), new List<Expr> { condition, resultIfTrue, resultIfFalse });
-        }
-
-        public void Error (IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
     }
 }

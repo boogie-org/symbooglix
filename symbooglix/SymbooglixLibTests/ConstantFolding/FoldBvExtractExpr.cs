@@ -8,13 +8,8 @@ using System;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldBvExtractExpr : IErrorSink
+    public class FoldBvExtractExpr : ConstantFoldingTest
     {
-        public FoldBvExtractExpr()
-        {
-            SymbooglixTest.setupDebug();
-        }
-
         [Test()]
         public void simple()
         {
@@ -35,11 +30,6 @@ namespace SymbooglixLibTests
             var resultBv = replacementAsLiteralExpr.asBvConst;
             Assert.AreEqual(resultBv.Bits, 4);
             Assert.AreEqual(resultBv.Value.ToInt, 2);
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
     }
 }

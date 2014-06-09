@@ -6,13 +6,8 @@ using symbooglix;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldImpl : IErrorSink
+    public class FoldImpl : ConstantFoldingTest
     {
-        public FoldImpl()
-        {
-            SymbooglixTest.setupDebug();
-        }
-
         [Test()]
         public void simple()
         {
@@ -77,11 +72,6 @@ namespace SymbooglixLibTests
                 default:
                     return Expr.True;
             }
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
     }
 }

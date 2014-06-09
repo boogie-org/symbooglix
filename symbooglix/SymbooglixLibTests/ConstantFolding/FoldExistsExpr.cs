@@ -7,12 +7,10 @@ using System.Collections.Generic;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldExistsExpr : IErrorSink
+    public class FoldExistsExpr : ConstantFoldingTest
     {
         public FoldExistsExpr()
         {
-           SymbooglixTest.setupDebug();
-
             // Boogie hits NullPtrException if the cmdline parser
             // isn't setup when printing forallExpr. This is sooo annoying!
             SymbooglixTest.setupCmdLineParser();
@@ -41,11 +39,6 @@ namespace SymbooglixLibTests
             e = CFT.Traverse(e);
             Assert.AreSame(e, constantBool);
             e.Typecheck(new TypecheckingContext(this));
-        }
-
-        public void Error (IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
 
         // FIXME: Write test trying more complicated Expr. Is there a way to generate an Expr Tree from a string

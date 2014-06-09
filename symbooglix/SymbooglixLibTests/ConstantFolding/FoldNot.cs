@@ -6,13 +6,8 @@ using symbooglix;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class FoldNot : IErrorSink
+    public class FoldNot : ConstantFoldingTest
     {
-        public FoldNot()
-        {
-            SymbooglixTest.setupDebug();
-        }
-
         [Test()]
         public void NotTrue()
         {
@@ -34,11 +29,6 @@ namespace SymbooglixLibTests
 
             Expr result = CFT.Traverse(original);
             Assert.AreSame(result, expected);
-        }
-
-        public void Error (IToken tok, string msg)
-        {
-            Assert.Fail(msg);
         }
     }
 }
