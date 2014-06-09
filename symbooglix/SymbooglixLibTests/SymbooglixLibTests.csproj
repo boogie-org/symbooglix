@@ -57,6 +57,7 @@
     <Compile Include="TerminationReporting.cs" />
     <Compile Include="ConstantFolding\FoldBVzero_extend.cs" />
     <Compile Include="ConstantFolding\ConstantFoldingTest.cs" />
+    <Compile Include="ExprSMTLIB\Literal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -112,6 +113,7 @@
   <ItemGroup>
     <Folder Include="programs\" />
     <Folder Include="ConstantFolding\" />
+    <Folder Include="ExprSMTLIB\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\symbooglix\symbooglix.csproj">
