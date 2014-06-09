@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Boogie;
 using System.Diagnostics;
-using Action = symbooglix.Traverser.Action;
 using System.Numerics;
 using Microsoft.Basetypes;
 
@@ -15,29 +14,29 @@ namespace symbooglix
 
     public class ConstantFoldingVisitor : IExprVisitor
     {
-        public Action VisitLiteralExpr(LiteralExpr e)
+        public Expr VisitLiteralExpr(LiteralExpr e)
         {
             // Can't constant fold a literal
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitIdentifierExpr(IdentifierExpr e)
+        public Expr VisitIdentifierExpr(IdentifierExpr e)
         {
             // This is a symbolic variable so we can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitOldExpr(OldExpr e)
+        public Expr VisitOldExpr(OldExpr e)
         {
             throw new NotImplementedException();
         }
 
-        public Action VisitCodeExpr(CodeExpr e)
+        public Expr VisitCodeExpr(CodeExpr e)
         {
             throw new NotImplementedException();
         }
 
-        public Action VisitBvExtractExpr(BvExtractExpr e)
+        public Expr VisitBvExtractExpr(BvExtractExpr e)
         {
             if (e.Bitvector is LiteralExpr)
             {
@@ -57,13 +56,13 @@ namespace symbooglix
                 BigInteger result = bitsBeforeStartRemoved & bitMask; // Mask off bits we don't want
                 BigNum resultAsBigNum = BigNum.FromBigInt(result);
                 LiteralExpr resultExpr = new LiteralExpr(Token.NoToken, resultAsBigNum, numberOfBitsInResult);
-                return Traverser.Action.ContinueTraversal(resultExpr);
+                return resultExpr;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitBvConcatExpr(BvConcatExpr e)
+        public Expr VisitBvConcatExpr(BvConcatExpr e)
         {
             if (e.E0 is LiteralExpr && e.E1 is LiteralExpr)
             {
@@ -82,13 +81,13 @@ namespace symbooglix
                 BigInteger resultAsBigInt = MSBShifted + LSBBV.Value.ToBigInteger;
                 BigNum resultAsBigNum = BigNum.FromBigInt(resultAsBigInt);
                 LiteralExpr result = new LiteralExpr(Token.NoToken, resultAsBigNum, MSBBV.Bits + LSBBV.Bits);
-                return Traverser.Action.ContinueTraversal(result);
+                return result;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitForallExpr(ForallExpr e)
+        public Expr VisitForallExpr(ForallExpr e)
         {
             // ∀ x : true  <==> true
             // ∀ x : false  <==> false
@@ -96,13 +95,13 @@ namespace symbooglix
             {
                 var literal = (LiteralExpr) e.Body;
                 Debug.Assert(literal.isBool);
-                return Traverser.Action.ContinueTraversal(literal);
+                return literal;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitExistExpr(ExistsExpr e)
+        public Expr VisitExistExpr(ExistsExpr e)
         {
             // ∃ x : true  <==> true
             // ∃ x : false  <==> false
@@ -110,35 +109,35 @@ namespace symbooglix
             {
                 var literal = (LiteralExpr) e.Body;
                 Debug.Assert(literal.isBool);
-                return Traverser.Action.ContinueTraversal(literal);
+                return literal;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitLambdaExpr(LambdaExpr e)
+        public Expr VisitLambdaExpr(LambdaExpr e)
         {
             // We can't constant fold these.
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitNot(NAryExpr e)
+        public Expr VisitNot(NAryExpr e)
         {
             if (e.Args[0] is LiteralExpr)
             {
                 var literal = (LiteralExpr) e.Args[0];
                 if (literal.IsTrue)
-                    return Traverser.Action.ContinueTraversal(Expr.False);
+                    return Expr.False;
                 else if (literal.IsFalse)
-                    return Traverser.Action.ContinueTraversal(Expr.True);
+                    return Expr.True;
                 else
                     throw new Exception("Invalid operand to Not");
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitNeg(NAryExpr e)
+        public Expr VisitNeg(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
@@ -146,10 +145,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitAdd(NAryExpr e)
+        public Expr VisitAdd(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -157,10 +156,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitSub(NAryExpr e)
+        public Expr VisitSub(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -168,10 +167,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitMul(NAryExpr e)
+        public Expr VisitMul(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -179,10 +178,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitDiv(NAryExpr e)
+        public Expr VisitDiv(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -190,10 +189,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitMod(NAryExpr e)
+        public Expr VisitMod(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -201,10 +200,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitRealDiv(NAryExpr e)
+        public Expr VisitRealDiv(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -212,10 +211,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitEq(NAryExpr e)
+        public Expr VisitEq(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -227,32 +226,32 @@ namespace symbooglix
                 if (arg0.isBvConst)
                 {
                     if (arg0.asBvConst.Equals(arg1.asBvConst)) // make sure we use Equals and not ``==`` which does reference equality
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                 }
                 else if (arg0.isBool)
                 {
                     if (arg0.asBool == arg1.asBool)
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
 
                 }
                 else if (arg0.isBigNum)
                 {
                     if (arg0.asBigNum.Equals(arg1.asBigNum))
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
 
                 }
                 else if (arg0.isBigDec)
                 {
                     if (arg0.asBigDec.Equals(arg1.asBigDec))
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                 }
                 else
                     throw new NotImplementedException(); // Unreachable?
@@ -264,10 +263,10 @@ namespace symbooglix
             // overload is broken!
 
             // Can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitNeq(NAryExpr e)
+        public Expr VisitNeq(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -279,32 +278,32 @@ namespace symbooglix
                 if (arg0.isBvConst)
                 {
                     if (arg0.asBvConst.Equals(arg1.asBvConst)) // make sure we use Equals and not ``==`` which does reference equality
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                 }
                 else if (arg0.isBool)
                 {
                     if (arg0.asBool == arg1.asBool)
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
 
                 }
                 else if (arg0.isBigNum)
                 {
                     if (arg0.asBigNum.Equals(arg1.asBigNum))
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
 
                 }
                 else if (arg0.isBigDec)
                 {
                     if (arg0.asBigDec.Equals(arg1.asBigDec))
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                     else
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                 }
                 else
                     throw new NotImplementedException(); // Unreachable?
@@ -316,10 +315,10 @@ namespace symbooglix
             // overload is broken!
 
             // Can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitGt(NAryExpr e)
+        public Expr VisitGt(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -327,10 +326,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitGe(NAryExpr e)
+        public Expr VisitGe(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -338,10 +337,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitLt(NAryExpr e)
+        public Expr VisitLt(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -349,10 +348,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitLe(NAryExpr e)
+        public Expr VisitLe(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -360,10 +359,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action VisitAnd(NAryExpr e)
+        public Expr VisitAnd(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
 
@@ -377,7 +376,7 @@ namespace symbooglix
                     Debug.Assert(literal.isBool, "literal is not bool");
 
                     if (literal.IsFalse)
-                        return Traverser.Action.ContinueTraversal(Expr.False);
+                        return Expr.False;
                 }
             }
 
@@ -390,13 +389,13 @@ namespace symbooglix
                 Debug.Assert(arg1.isBool, "arg1 is not bool");
 
                 if (arg0.IsTrue && arg1.IsTrue)
-                    return Traverser.Action.ContinueTraversal(Expr.True);
+                    return Expr.True;
             }
 
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitOr(NAryExpr e)
+        public Expr VisitOr(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
 
@@ -410,7 +409,7 @@ namespace symbooglix
                     Debug.Assert(literal.isBool);
 
                     if (literal.IsTrue)
-                        return Traverser.Action.ContinueTraversal(Expr.True);
+                        return Expr.True;
                 }
             }
 
@@ -420,14 +419,14 @@ namespace symbooglix
                 var arg0 = e.Args[0] as LiteralExpr;
                 var arg1 = e.Args[1] as LiteralExpr;
                 Debug.Assert(arg0.IsFalse && arg1.IsFalse);
-                return Traverser.Action.ContinueTraversal(Expr.False);
+                return Expr.False;
             }
 
             // Can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitImp(NAryExpr e)
+        public Expr VisitImp(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
 
@@ -438,17 +437,17 @@ namespace symbooglix
 
                 // true -> <expr> == <expr>
                 if (literal.IsTrue)
-                    return Traverser.Action.ContinueTraversal(e.Args[1]);
+                    return e.Args[1];
                 // false -> <expr> == true
                 else if (literal.IsFalse)
-                    return Traverser.Action.ContinueTraversal(Expr.True);
+                    return Expr.True;
             }
 
             // can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitIff(NAryExpr e)
+        public Expr VisitIff(NAryExpr e)
         {
 
             Debug.Assert(e.Args.Count == 2);
@@ -465,13 +464,13 @@ namespace symbooglix
                 {
                     // (true <==> true) == true
                     // (false <==> false) == true
-                    return Traverser.Action.ContinueTraversal(Expr.True);
+                    return Expr.True;
                 }
                 else
                 {
                     // (true <==> false) == false
                     // (false <==> true) == false
-                    return Traverser.Action.ContinueTraversal(Expr.False);
+                    return Expr.False;
                 }
             }
 
@@ -488,40 +487,40 @@ namespace symbooglix
                     {
                         // ( true <==> <expr> ) == <expr>
                         // ( <expr> <==> true ) == <expr>
-                        return Traverser.Action.ContinueTraversal(e.Args[otherIndex]);
+                        return e.Args[otherIndex];
                     }
                     else
                     {
                         Debug.Assert(literal.IsFalse);
                         // (false <==> <expr>) == not <expr>
                         // (<expr> <==> false) == not <expr>
-                        return Traverser.Action.ContinueTraversal(Expr.Not(e.Args[otherIndex]));
+                        return Expr.Not(e.Args[otherIndex]);
                     }
                 }
             }
 
             // otherwise we can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitSubType(NAryExpr e)
+        public Expr VisitSubType(NAryExpr e)
         {
             throw new NotImplementedException();
         }
 
-        public Action VisitMapStore(NAryExpr e)
+        public Expr VisitMapStore(NAryExpr e)
         {
             // Can't do any constant folding without access execution state
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitMapSelect(NAryExpr e)
+        public Expr VisitMapSelect(NAryExpr e)
         {
             // Can't do any constant folding without access execution state
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitIfThenElse(NAryExpr e)
+        public Expr VisitIfThenElse(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 3);
             if (e.Args[0] is LiteralExpr)
@@ -532,40 +531,40 @@ namespace symbooglix
                 if (literal.IsTrue)
                 {
                     // (if true then <exprA> else <exprB> ) == <exprA>
-                    return Traverser.Action.ContinueTraversal(e.Args[1]);
+                    return e.Args[1];
                 }
                 else
                 {
                     Debug.Assert(literal.IsFalse);
                     // (if false then <exprA> else <exprB> ) == <exprA>
-                    return Traverser.Action.ContinueTraversal(e.Args[2]);
+                    return e.Args[2];
                 }
             }
 
             // we can't constant fold
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitFunctionCall(NAryExpr e)
+        public Expr VisitFunctionCall(NAryExpr e)
         {
             // The executor should (at some point)
             // make sure that Functions
             // that can be inlined already have been so
             // we shouldn't need to do anything.
-            return Traverser.Action.ContinueTraversal(e);
+            return e;
         }
 
-        public Action VisitTypeCoercion(NAryExpr e)
+        public Expr VisitTypeCoercion(NAryExpr e)
         {
             throw new NotImplementedException();
         }
 
-        public Action VisitArithmeticCoercion(NAryExpr e)
+        public Expr VisitArithmeticCoercion(NAryExpr e)
         {
             throw new NotImplementedException();
         }
 
-        public Action Visit_bvadd(NAryExpr e)
+        public Expr Visit_bvadd(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -582,13 +581,13 @@ namespace symbooglix
                 var arg1BI = arg1.asBvConst.Value.ToBigInteger;
                 var result = ( arg0BI + arg1BI ) % MaxValuePlusOne; // Wrapping overflow
                 LiteralExpr literal = new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), arg0.asBvConst.Bits);
-                return Traverser.Action.ContinueTraversal(literal);
+                return literal;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsub(NAryExpr e)
+        public Expr Visit_bvsub(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -608,13 +607,13 @@ namespace symbooglix
                 var arg1Negated = MaxValuePlusOne - arg1BI;
                 var result = ( arg0BI + arg1Negated ) % MaxValuePlusOne;
                 LiteralExpr literal = new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), arg0.asBvConst.Bits);
-                return Traverser.Action.ContinueTraversal(literal);
+                return literal;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvmul(NAryExpr e)
+        public Expr Visit_bvmul(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -622,10 +621,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvudiv(NAryExpr e)
+        public Expr Visit_bvudiv(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -633,10 +632,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvurem(NAryExpr e)
+        public Expr Visit_bvurem(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -644,10 +643,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsdiv(NAryExpr e)
+        public Expr Visit_bvsdiv(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -655,10 +654,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsrem(NAryExpr e)
+        public Expr Visit_bvsrem(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -666,10 +665,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsmod(NAryExpr e)
+        public Expr Visit_bvsmod(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -677,10 +676,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_sign_extend(NAryExpr e)
+        public Expr Visit_sign_extend(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
@@ -696,7 +695,7 @@ namespace symbooglix
                 if (newWidth == literal.asBvConst.Bits)
                 {
                     // Not doing any extending so just return the literal
-                    return Traverser.Action.ContinueTraversal(literal);
+                    return literal;
                 }
 
                 // Check the sign of the bitvector in a two's complement representation
@@ -707,7 +706,7 @@ namespace symbooglix
                     // The bitvector is a positive bitvector under two's complement interpretation
                     // So sign extend does not change internal representation
                     var newLiteral = new LiteralExpr(Token.NoToken, literal.asBvConst.Value, newWidth);
-                    return Traverser.Action.ContinueTraversal(newLiteral);
+                    return newLiteral;
                 }
                 else
                 {
@@ -733,14 +732,14 @@ namespace symbooglix
                     var maxOldPlusOne = BigInteger.Pow(2, literal.asBvConst.Bits);
                     var result = (maxNewPlusOne - maxOldPlusOne) + literal.asBvConst.Value.ToBigInteger;
                     var newLiteral = new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), newWidth);
-                    return Traverser.Action.ContinueTraversal(newLiteral);
+                    return newLiteral;
                 }
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_zero_extend(NAryExpr e)
+        public Expr Visit_zero_extend(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 1);
             Debug.Assert(e.Type.IsBv);
@@ -756,18 +755,18 @@ namespace symbooglix
                 if (newWidth == literal.asBvConst.Bits)
                 {
                     // Not doing any extending so just return the literal
-                    return Traverser.Action.ContinueTraversal(literal);
+                    return literal;
                 }
 
                 // Zero extend is very simple, we just make a wider bitvector with the same natural number representation
                 var newLiteral = new LiteralExpr(Token.NoToken, literal.asBvConst.Value, newWidth);
-                return Traverser.Action.ContinueTraversal(newLiteral);
+                return newLiteral;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvneg(NAryExpr e)
+        public Expr Visit_bvneg(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
@@ -775,10 +774,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvand(NAryExpr e)
+        public Expr Visit_bvand(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -786,10 +785,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvor(NAryExpr e)
+        public Expr Visit_bvor(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -797,10 +796,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvnot(NAryExpr e)
+        public Expr Visit_bvnot(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
@@ -808,10 +807,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvxor(NAryExpr e)
+        public Expr Visit_bvxor(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -819,10 +818,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvshl(NAryExpr e)
+        public Expr Visit_bvshl(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -830,10 +829,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvlshr(NAryExpr e)
+        public Expr Visit_bvlshr(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -841,10 +840,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvashr(NAryExpr e)
+        public Expr Visit_bvashr(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -852,10 +851,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvult(NAryExpr e)
+        public Expr Visit_bvult(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -866,15 +865,15 @@ namespace symbooglix
                 Debug.Assert(arg1.isBvConst);
 
                 if (arg0.asBvConst.Value < arg1.asBvConst.Value)
-                    return Traverser.Action.ContinueTraversal(Expr.True);
+                    return Expr.True;
                 else
-                    return Traverser.Action.ContinueTraversal(Expr.False);
+                    return Expr.False;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvule(NAryExpr e)
+        public Expr Visit_bvule(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -882,10 +881,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvugt(NAryExpr e)
+        public Expr Visit_bvugt(NAryExpr e)
         {
             // FIXME: How are the signed operators going to work?
             Debug.Assert(e.Args.Count == 2);
@@ -897,15 +896,15 @@ namespace symbooglix
                 Debug.Assert(arg1.isBvConst);
 
                 if (arg0.asBvConst.Value >= arg1.asBvConst.Value)
-                    return Traverser.Action.ContinueTraversal(Expr.True);
+                    return Expr.True;
                 else
-                    return Traverser.Action.ContinueTraversal(Expr.False);
+                    return Expr.False;
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvuge(NAryExpr e)
+        public Expr Visit_bvuge(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -913,10 +912,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvslt(NAryExpr e)
+        public Expr Visit_bvslt(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -924,10 +923,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsle(NAryExpr e)
+        public Expr Visit_bvsle(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -935,10 +934,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsgt(NAryExpr e)
+        public Expr Visit_bvsgt(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -946,10 +945,10 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
 
-        public Action Visit_bvsge(NAryExpr e)
+        public Expr Visit_bvsge(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
@@ -957,7 +956,7 @@ namespace symbooglix
                 throw new NotImplementedException();
             }
             else
-                return Traverser.Action.ContinueTraversal(e);
+                return e;
         }
     }
 }

@@ -7,35 +7,6 @@ namespace symbooglix
 {
     public abstract class Traverser
     {
-        public struct Action
-        {
-            public enum NextTraversalAction
-            {
-                CONTINUE,
-                HALT // Do replacement if supported then halt traversal
-            }
-
-            public NextTraversalAction Next;
-            public Expr ReplacementNode;
-
-            static public Action ContinueTraversal(Expr ReplacementNode)
-            {
-                Action action;
-                action.Next = NextTraversalAction.CONTINUE;
-                action.ReplacementNode = ReplacementNode;
-                return action;
-            }
-
-
-            static public Action HaltTraversal(Expr ReplacementNode)
-            {
-                Action action;
-                action.Next = NextTraversalAction.HALT;
-                action.ReplacementNode = ReplacementNode;
-                return action;
-            }
-        }
-
         protected IExprVisitor Visitor;
 
         public Traverser(IExprVisitor Visitor)
@@ -45,7 +16,7 @@ namespace symbooglix
 
         public abstract Expr Traverse(Expr root);
 
-        protected Action Visit(Expr e)
+        protected Expr Visit(Expr e)
         {
             // Handle Expressions that are of different types
             if (e is NAryExpr)
@@ -72,7 +43,7 @@ namespace symbooglix
             throw new NotImplementedException("Expr not supported!");
         }
 
-        protected Action HandleNAry(NAryExpr e)
+        protected Expr HandleNAry(NAryExpr e)
         {
             if (e.Fun is FunctionCall)
             {
@@ -176,7 +147,7 @@ namespace symbooglix
             throw new NotImplementedException("NAry not handled!");
         }
 
-        protected Action HandlerBvBuiltIns(NAryExpr e, string builtin)
+        protected Expr HandlerBvBuiltIns(NAryExpr e, string builtin)
         {
             Debug.Assert(builtin.Length > 0);
 
@@ -307,26 +278,23 @@ namespace symbooglix
             for (int index = preOrderRL.Count - 1; index >= 0; --index)
             {
                 ExprNodeInfo nodeToVisitInfo = preOrderRL[index];
-                Action action = Visit(nodeToVisitInfo.node);
+                Expr replacementNode = Visit(nodeToVisitInfo.node);
 
-                if (action.ReplacementNode != nodeToVisitInfo.node)
+                if (replacementNode != nodeToVisitInfo.node)
                 {
                     // We are mutating the tree
-                    Debug.WriteLine("Mutating tree: '{0}' => '{1}'", nodeToVisitInfo.node, action.ReplacementNode);
+                    Debug.WriteLine("Mutating tree: '{0}' => '{1}'", nodeToVisitInfo.node, replacementNode);
 
                     // Root node has no parent
                     if (nodeToVisitInfo.parent == null)
                     {
-                        rootToReturn = action.ReplacementNode;
+                        rootToReturn = replacementNode;
                     }
                     else
                     {
-                        nodeToVisitInfo.parent.SetChild(nodeToVisitInfo.childNumber, action.ReplacementNode);
+                        nodeToVisitInfo.parent.SetChild(nodeToVisitInfo.childNumber, replacementNode);
                     }
                 }
-
-                if (action.Next == Action.NextTraversalAction.HALT)
-                    break;
             }
 
             #if DEBUG
