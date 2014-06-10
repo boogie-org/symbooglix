@@ -199,7 +199,7 @@ namespace symbooglix
             while (stateScheduler.getNumberOfStates() != 0)
             {
                 currentState = stateScheduler.getNextState();
-                Debug.WriteLineIf(oldState != currentState, "[Switching context]");
+                Debug.WriteLineIf(oldState != currentState, "[Switching context " + oldState.id + " => " + currentState.id + " ]");
                 oldState = currentState;
 
                 currentState.getCurrentStackFrame().currentInstruction.MoveNext();
