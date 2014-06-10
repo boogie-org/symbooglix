@@ -69,17 +69,24 @@ namespace symbooglix
 
         public void handleUnsatisfiableAssume(ExecutionState s)
         {
-            string msg = "State " + s.id + " terminated with an error";
-            WriteLine(ConsoleColor.Red, msg);
-            Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is AssumeCmd);
-            var failingCmd = (AssumeCmd) s.getCurrentStackFrame().currentInstruction.Current;
-            msg = "The following assumption is unsatisfiable\n" +
-                  failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
-                  failingCmd.ToString();
-            WriteLine(ConsoleColor.DarkRed, msg);
+            AssumeCmd assumeCmd = (AssumeCmd) s.getCurrentStackFrame().currentInstruction.Current;
+
+            // Most of the time we should inform about failing assumes, this hack prevents
+            // emitting messages about assumes related to control flow.
+            if (QKeyValue.FindBoolAttribute(assumeCmd.Attributes, "partition") == false)
+            {
+                string msg = "State " + s.id + " terminated";
+                WriteLine(ConsoleColor.DarkMagenta, msg);
+                Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is AssumeCmd);
+                var failingCmd = (AssumeCmd) s.getCurrentStackFrame().currentInstruction.Current;
+                msg = "The following assumption is unsatisfiable\n" +
+                failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
+                failingCmd.ToString();
+                WriteLine(ConsoleColor.DarkMagenta, msg);
 
 
-            s.dumpState();
+                s.dumpState();
+            }
         }
     }
 }
