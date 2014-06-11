@@ -69,7 +69,7 @@
     <Compile Include="Core\Solver\DummySolver.cs" />
     <Compile Include="Core\TerminationHandlers\TerminationHandler.cs" />
     <Compile Include="Expr\DFSPostOrderTraverser.cs" />
-    <Compile Include="Expr\ExprSMTLIBPrinter.cs" />
+    <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">

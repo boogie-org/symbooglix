@@ -33,7 +33,7 @@ namespace SymbooglixLibTests
         {
             using (var writer = new StringWriter())
             {
-                var printer = new ExprSMTLIBPrinter(writer);
+                var printer = new SMTLIBQueryPrinter(writer);
                 printer.Traverse(e);
                 Assert.IsTrue(writer.ToString() == expected);
             }
