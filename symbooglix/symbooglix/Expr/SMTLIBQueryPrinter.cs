@@ -11,6 +11,7 @@ namespace symbooglix
         private ExprSMTLIBPrinter P = null;
         private HashSet<SymbolicVariable> symbolicsToDeclare = null;
         private HashSet<Microsoft.Boogie.Function> functionsToDeclare = null;
+        private FindSymbolicsVisitor FSV = null;
 
         public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true) : base(new ExprSMTLIBPrinter(TW, humanReadable))
         {
@@ -19,6 +20,7 @@ namespace symbooglix
 
             symbolicsToDeclare = new HashSet<SymbolicVariable>();
             functionsToDeclare = new HashSet<Function>();
+            FSV = new FindSymbolicsVisitor(symbolicsToDeclare); // Have the visitor use our container
         }
 
         public void clearDeclarations()
@@ -29,7 +31,8 @@ namespace symbooglix
 
         public void addDeclarations(Expr e)
         {
-            // TODO
+            FSV.Visit(e);
+            // TODO Add FindFunctionsVisitor
         }
 
         public enum Logic
@@ -37,6 +40,65 @@ namespace symbooglix
             QF_BV,
             QF_ABV,
             Q_ALL
+        }
+
+        public void printVariableDeclarations()
+        {
+            if (P.humanReadable)
+                P.TW.WriteLine("; Start variable declarations");
+
+            foreach (var symbolic in symbolicsToDeclare)
+            {
+                P.TW.Write("(declare-fun () " + symbolic.Name + " " + getSMTLIBType(symbolic.TypedIdent.Type));
+                P.TW.Write(")");
+
+                if (P.humanReadable)
+                    P.TW.Write(" ; Origin: " + symbolic.Origin);
+
+                P.TW.Write(P.TW.NewLine);
+            }
+
+            if (P.humanReadable)
+                P.TW.WriteLine("; End variable declarations");
+        }
+
+        public void printFunctionDeclarations()
+        {
+            // TODO
+        }
+
+        public static string getSMTLIBType(Microsoft.Boogie.Type T)
+        {
+            if (T is BvType)
+            {
+                var BVT = T as BvType;
+                return "(_ BitVec " + BVT.Bits + ")";
+            }
+            else if (T is BasicType)
+            {
+                var ST = ( T as BasicType ).T;
+                switch (ST)
+                {
+                    case SimpleType.Bool:
+                        return "(Bool)";
+                    case SimpleType.Int:
+                        return "(Int)";
+                    case SimpleType.Real:
+                        return "(Real)";
+                    default:
+                        throw new NotImplementedException("Unsupported SimpleType");
+                }
+            }
+            else if (T is MapType)
+            {
+                var MT = T as MapType;
+                // FIXME: How do I interpret Arguments of a map type
+                throw new NotImplementedException("MapType (" + MT.ToString() + ") not supported yet");
+            }
+            else
+            {
+                throw new NotImplementedException("The type " + T.ToString() + " is not supported");
+            }
         }
 
         public void printSetLogic(Logic L)

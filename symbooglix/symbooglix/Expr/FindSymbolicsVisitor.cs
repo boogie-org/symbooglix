@@ -8,10 +8,18 @@ namespace symbooglix
 {
     public class FindSymbolicsVisitor : StandardVisitor
     {
-        public List<IdentifierExpr> symbolics;
+        public ICollection<SymbolicVariable> symbolics;
+
+        // Internal container
         public FindSymbolicsVisitor()
         {
-            symbolics = new List<IdentifierExpr>();
+            symbolics = new List<SymbolicVariable>();
+        }
+
+        // Use external container
+        public FindSymbolicsVisitor(ICollection<SymbolicVariable> externalContainer)
+        {
+            symbolics = externalContainer;
         }
 
         public override Expr VisitIdentifierExpr(IdentifierExpr node)
@@ -21,7 +29,7 @@ namespace symbooglix
             if (node.Decl is SymbolicVariable)
             {
                 Debug.Assert(node == ( node.Decl as SymbolicVariable ).expr, "Different instances for IdentiferExpr");
-                symbolics.Add(node);
+                symbolics.Add(node.Decl as SymbolicVariable);
             }
             return node;
         }

@@ -156,6 +156,16 @@ namespace symbooglix
                     return null;
             }
         }
+
+        public override string ToString()
+        {
+            if (IsVariable)
+                return "[Variable] " + AsVariable.ToString();
+            else if (IsCmd)
+                return "[Cmd] " + AsCmd.ToString();
+            else
+                return "unknown";
+        }
     }
 }
 
