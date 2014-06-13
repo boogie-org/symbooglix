@@ -322,7 +322,7 @@ namespace symbooglix
 
             public Expr VisitEq (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("=", e);
             }
 
             public Expr VisitNeq (NAryExpr e)
