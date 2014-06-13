@@ -94,7 +94,7 @@ namespace symbooglix
                     case SimpleType.Real:
                         return "(Real)";
                     default:
-                        throw new NotImplementedException("Unsupported SimpleType");
+                        throw new NotImplementedException("Unsupported SimpleType " + ST.ToString());
                 }
             }
             else if (T is MapType)
