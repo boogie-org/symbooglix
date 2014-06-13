@@ -1,16 +1,73 @@
 using System;
 using Microsoft.Boogie;
 using System.IO;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 
 namespace symbooglix
 {
     public class SMTLIBQueryPrinter : Traverser
     {
-        private TextWriter TW = null;
-        public SMTLIBQueryPrinter(TextWriter TW) : base(new ExprSMTLIBPrinter(TW))
+        private ExprSMTLIBPrinter P = null;
+        private HashSet<SymbolicVariable> symbolicsToDeclare = null;
+        private HashSet<Microsoft.Boogie.Function> functionsToDeclare = null;
+
+        public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true) : base(new ExprSMTLIBPrinter(TW, humanReadable))
         {
-            this.TW = TW;
+            // Do the cast once so we don't need to keep doing it
+            P = this.Visitor as ExprSMTLIBPrinter;
+
+            symbolicsToDeclare = new HashSet<SymbolicVariable>();
+            functionsToDeclare = new HashSet<Function>();
         }
+
+        public void clearDeclarations()
+        {
+            symbolicsToDeclare.Clear();
+            functionsToDeclare.Clear();
+        }
+
+        public void addDeclarations(Expr e)
+        {
+            // TODO
+        }
+
+        public enum Logic
+        {
+            QF_BV,
+            QF_ABV,
+            Q_ALL
+        }
+
+        public void printSetLogic(Logic L)
+        {
+            P.TW.WriteLine("(set-logic " + L.ToString() + " )");
+        }
+
+        public void printAssert(Expr e)
+        {
+            P.TW.Write("(assert");
+            P.pushIndent();
+            Traverse(e);
+            P.popIndent();
+            P.TW.WriteLine(")");
+        }
+
+        public void printCheckSat()
+        {
+            P.TW.WriteLine("(check-sat)");
+        }
+
+        public void printExit()
+        {
+            P.TW.WriteLine("(exit)");
+        }
+
+        public void printSetOption(string option)
+        {
+            P.TW.WriteLine("(set-option :" + option + ")");
+        }
+
 
         /// <summary>
         /// Print the expression to the TextWriter in
@@ -28,8 +85,46 @@ namespace symbooglix
         // This class handles printing of Expr
         private class ExprSMTLIBPrinter : IExprVisitor
         {
-            private TextWriter TW = null;
-            public ExprSMTLIBPrinter(TextWriter TW) { this.TW = TW;}
+            public TextWriter TW = null;
+            public bool humanReadable;
+            private int indent = 4;
+            public ExprSMTLIBPrinter(TextWriter TW, bool humanReadable)
+            {
+                this.humanReadable = humanReadable;
+                if (humanReadable)
+                {
+                    this.TW = new IndentedTextWriter(TW);
+                    // don't modify the indent here.
+                }
+                else
+                    this.TW = TW;
+            }
+
+            public void pushIndent()
+            {
+                if (humanReadable)
+                {
+                    ( this.TW as IndentedTextWriter ).Indent += this.indent;
+                    TW.Write(TW.NewLine);
+                }
+                else
+                {
+                    TW.Write(" ");
+                }
+            }
+
+            public void popIndent()
+            {
+                if (humanReadable)
+                {
+                    ( this.TW as IndentedTextWriter ).Indent -= this.indent;
+                    TW.Write(TW.NewLine);
+                }
+                else
+                {
+                    TW.Write(" ");
+                }
+            }
 
             public Expr VisitLiteralExpr(LiteralExpr e)
             {
