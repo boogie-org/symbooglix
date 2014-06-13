@@ -69,7 +69,10 @@ namespace symbooglix
 
 
             IStateScheduler scheduler = new DFSStateScheduler();
-            Solver.ISolver solver = new Solver.DummySolver(); // FIXME: Use a real solver
+            // HACK: Get rid of this ASAP!
+            Solver.ISolver solver = new Solver.SMTLIBQueryLoggingSolver(new Solver.DummySolver(), 
+                                                                        new StreamWriter(Console.OpenStandardOutput()),
+                                                                        true); // FIXME: Use a real solver
             Executor e = new Executor(p, scheduler, solver);
 
             // FIXME: Find a better way to choose entry point.
