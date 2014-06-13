@@ -45,7 +45,7 @@ namespace symbooglix
         public void printVariableDeclarations()
         {
             if (P.humanReadable)
-                P.TW.WriteLine("; Start variable declarations");
+                printCommentLine("Start variable declarations");
 
             foreach (var symbolic in symbolicsToDeclare)
             {
@@ -53,18 +53,26 @@ namespace symbooglix
                 P.TW.Write(")");
 
                 if (P.humanReadable)
-                    P.TW.Write(" ; Origin: " + symbolic.Origin);
+                    printCommentLine("Origin: " + symbolic.Origin, false);
 
                 P.TW.Write(P.TW.NewLine);
             }
 
             if (P.humanReadable)
-                P.TW.WriteLine("; End variable declarations");
+                printCommentLine("End variable declarations");
         }
 
         public void printFunctionDeclarations()
         {
             // TODO
+        }
+
+        public void printCommentLine(string comment, bool AddEndOfLineCharacter = true)
+        {
+            P.TW.Write("; " + comment);
+
+            if (AddEndOfLineCharacter)
+                P.TW.Write(P.TW.NewLine);
         }
 
         public static string getSMTLIBType(Microsoft.Boogie.Type T)
