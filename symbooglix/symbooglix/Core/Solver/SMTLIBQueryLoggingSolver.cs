@@ -25,7 +25,8 @@ namespace symbooglix
                 if (useCounter > 0)
                 {
                     Printer.printExit();
-                    Printer.printCommentLine("");
+                    Printer.clearDeclarations();
+                    Printer.printCommentLine("End of Query " + (useCounter -1));
                 }
                 Printer.printCommentLine("Query " + useCounter + " Begin");
 
@@ -38,7 +39,7 @@ namespace symbooglix
                 UnderlyingSolver.SetConstraints(cm);
             }
 
-            private void printConstraints()
+            private void printDeclarationsAndConstraints()
             {
                 Printer.printCommentLine("Variable declarations");
                 Printer.printVariableDeclarations();
@@ -66,7 +67,8 @@ namespace symbooglix
             public Result IsQuerySat(Expr Query)
             {
                 ++useCounter;
-                printConstraints();
+                Printer.addDeclarations(Query);
+                printDeclarationsAndConstraints();
                 Printer.printCommentLine("IsQuerySat()");
                 Printer.printAssert(Query);
                 Printer.printCheckSat();
@@ -82,7 +84,8 @@ namespace symbooglix
             public Result IsNotQuerySat(Expr Query)
             {
                 ++useCounter;
-                printConstraints();
+                Printer.addDeclarations(Query);
+                printDeclarationsAndConstraints();
                 Printer.printCommentLine("IsNotQuerySat");
                 Expr notExpr = Expr.Not(Query);
                 Printer.printAssert(notExpr);

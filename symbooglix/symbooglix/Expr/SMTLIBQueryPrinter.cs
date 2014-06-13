@@ -13,8 +13,10 @@ namespace symbooglix
         private HashSet<Microsoft.Boogie.Function> functionsToDeclare = null;
         private FindSymbolicsVisitor FSV = null;
 
-        public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true) : base(new ExprSMTLIBPrinter(TW, humanReadable))
+        public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true) : base(null)
         {
+            this.Visitor = new ExprSMTLIBPrinter(TW, this, humanReadable);
+
             // Do the cast once so we don't need to keep doing it
             P = this.Visitor as ExprSMTLIBPrinter;
 
@@ -72,7 +74,7 @@ namespace symbooglix
             P.TW.Write("; " + comment);
 
             if (AddEndOfLineCharacter)
-                P.TW.Write(P.TW.NewLine);
+                P.TW.WriteLine("");
         }
 
         public static string getSMTLIBType(Microsoft.Boogie.Type T)
@@ -118,14 +120,17 @@ namespace symbooglix
         {
             P.TW.Write("(assert");
             P.pushIndent();
-            Traverse(e);
+            P.printSeperator();
+            Visit(e);
             P.popIndent();
+            P.printSeperator();
             P.TW.WriteLine(")");
         }
 
         public void printCheckSat()
         {
             P.TW.WriteLine("(check-sat)");
+            P.TW.Flush();
         }
 
         public void printExit()
@@ -157,9 +162,11 @@ namespace symbooglix
         {
             public TextWriter TW = null;
             public bool humanReadable;
-            private int indent = 4;
-            public ExprSMTLIBPrinter(TextWriter TW, bool humanReadable)
+            private int indent = 2;
+            public SMTLIBQueryPrinter SQP = null;
+            public ExprSMTLIBPrinter(TextWriter TW, SMTLIBQueryPrinter SQP ,bool humanReadable)
             {
+                this.SQP = SQP;
                 this.humanReadable = humanReadable;
                 if (humanReadable)
                 {
@@ -174,25 +181,25 @@ namespace symbooglix
             {
                 if (humanReadable)
                 {
-                    ( this.TW as IndentedTextWriter ).Indent += this.indent;
-                    TW.Write(TW.NewLine);
+                    var IDT = this.TW as IndentedTextWriter;
+                    IDT.Indent += this.indent;
                 }
+            }
+
+            public void printSeperator()
+            {
+                if (humanReadable)
+                    TW.WriteLine("");
                 else
-                {
                     TW.Write(" ");
-                }
             }
 
             public void popIndent()
             {
                 if (humanReadable)
                 {
-                    ( this.TW as IndentedTextWriter ).Indent -= this.indent;
-                    TW.Write(TW.NewLine);
-                }
-                else
-                {
-                    TW.Write(" ");
+                    var IDT = this.TW as IndentedTextWriter;
+                    IDT.Indent -= this.indent;
                 }
             }
 
@@ -224,7 +231,11 @@ namespace symbooglix
 
             public Expr VisitIdentifierExpr (IdentifierExpr e)
             {
-                throw new NotImplementedException ();
+                if (!( e.Decl is SymbolicVariable ))
+                    throw new InvalidDataException("non symbolic found in Expr"); //FIXME: Add our own Expr types
+
+                TW.Write(e.Name);
+                return e;
             }
 
             public Expr VisitOldExpr (OldExpr e)
@@ -262,9 +273,16 @@ namespace symbooglix
                 throw new NotImplementedException ();
             }
 
-            public Expr VisitNot (NAryExpr e)
+            public Expr VisitNot(NAryExpr e)
             {
-                throw new NotImplementedException ();
+                TW.Write("(not");
+                printSeperator();
+                pushIndent();
+                SQP.Visit(e.Args[0]);
+                popIndent();
+                printSeperator();
+                TW.WriteLine(")");
+                return e;
             }
 
             public Expr VisitNeg (NAryExpr e)
@@ -387,44 +405,44 @@ namespace symbooglix
                 throw new NotImplementedException ();
             }
 
-            public Expr Visit_bvadd (NAryExpr e)
+            public Expr Visit_bvadd(NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvadd", e);
             }
 
-            public Expr Visit_bvsub (NAryExpr e)
+            public Expr Visit_bvsub(NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsub", e);
             }
 
-            public Expr Visit_bvmul (NAryExpr e)
+            public Expr Visit_bvmul(NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvmul", e);
             }
 
             public Expr Visit_bvudiv (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvudiv", e);
             }
 
             public Expr Visit_bvurem (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvrem", e);
             }
 
             public Expr Visit_bvsdiv (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsdiv", e);
             }
 
             public Expr Visit_bvsrem (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsrem", e);
             }
 
             public Expr Visit_bvsmod (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsmod", e);
             }
 
             public Expr Visit_sign_extend (NAryExpr e)
@@ -439,17 +457,17 @@ namespace symbooglix
 
             public Expr Visit_bvneg (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvneg", e);
             }
 
             public Expr Visit_bvand (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvand", e);
             }
 
             public Expr Visit_bvor (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvor", e);
             }
 
             public Expr Visit_bvnot (NAryExpr e)
@@ -459,7 +477,7 @@ namespace symbooglix
 
             public Expr Visit_bvxor (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvxor", e);
             }
 
             public Expr Visit_bvshl (NAryExpr e)
@@ -479,42 +497,61 @@ namespace symbooglix
 
             public Expr Visit_bvult (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvult", e);
             }
 
             public Expr Visit_bvule (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvule", e);
             }
 
             public Expr Visit_bvugt (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvugt", e);
             }
 
             public Expr Visit_bvuge (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvuge", e);
             }
 
             public Expr Visit_bvslt (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvslt", e);
             }
 
             public Expr Visit_bvsle (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsle", e);
             }
 
             public Expr Visit_bvsgt (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsgt", e);
             }
 
             public Expr Visit_bvsge (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvsge", e);
+            }
+
+            // We go to a lot of effort in the Traverser to read the
+            // string bvbuiltin to call the right method in IExprVisitor
+            // but then we delegate back a single function for printing
+            // binary operators using only the string name.
+            // A bit inefficient...
+            private Expr printBinaryOperator(string name, NAryExpr e)
+            {
+                TW.Write("(" + name);
+                pushIndent();
+                printSeperator();
+                SQP.Visit(e.Args[0]);
+                printSeperator();
+                SQP.Visit(e.Args[1]);
+                popIndent();
+                printSeperator();
+                TW.WriteLine(")");
+                return e;
             }
 
         }
