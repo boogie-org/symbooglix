@@ -674,10 +674,10 @@ namespace symbooglix
             }
 
             solver.SetConstraints(currentState.cm);
-            Solver.IAssignment assignment = null;
+
 
             // First see if it's possible for the assertion to fail
-            Solver.Result result = solver.IsNotQuerySat(dupAndrw, out assignment);
+            Solver.Result result = solver.IsNotQuerySat(dupAndrw);
             bool canFail = false;
             switch (result)
             {
@@ -696,8 +696,7 @@ namespace symbooglix
             }
 
             // Now see if it's possible for execution to continue past the assertion
-            Solver.IAssignment successfulAssignment;
-            result = solver.IsQuerySat(dupAndrw, out successfulAssignment);
+            result = solver.IsQuerySat(dupAndrw);
             bool canSucceed = false;
             switch (result)
             {
