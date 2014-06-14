@@ -23,11 +23,6 @@ namespace symbooglix
                 // The dummy solver doesn't care about these 
             }
 
-            public void SetFunctions (System.Collections.Generic.IEnumerable<Microsoft.Boogie.Function> functions)
-            {
-                // The dummy solver doesn't care about these 
-            }
-
             public Result IsQuerySat (Microsoft.Boogie.Expr Query, out IAssignment assignment)
             {
                 assignment = new DummyAssignment(0);

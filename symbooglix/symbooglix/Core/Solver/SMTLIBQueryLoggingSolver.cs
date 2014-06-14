@@ -52,12 +52,6 @@ namespace symbooglix
                 }
             }
 
-            public void SetFunctions(IEnumerable<Function> functions)
-            {
-                // FIXME: Do we really want this in the interface at all?
-                UnderlyingSolver.SetFunctions(functions);
-            }
-
             public Result IsQuerySat(Expr Query, out IAssignment assignment)
             {
                 ++useCounter;

@@ -10,8 +10,6 @@ namespace symbooglix
         public interface ISolver
         {
             void SetConstraints(ConstraintManager cm);
-            void SetFunctions(IEnumerable<Microsoft.Boogie.Function> functions);
-
 
             // Given the constraints is the query expression satisfiable
             // \return True iff sat

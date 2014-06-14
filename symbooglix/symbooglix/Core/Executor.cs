@@ -74,8 +74,7 @@ namespace symbooglix
                 Debug.WriteLine("Added uninterpreted function " + F);
             }
 
-            // Inform the solver of these functions
-            solver.SetFunctions(UninterpretedOrUninlinableFunctions);
+            // Perhaps inform the solver of these functions in the future?
 
             // Load Global Variables and Constants
             var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
