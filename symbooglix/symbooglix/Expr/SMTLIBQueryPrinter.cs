@@ -51,7 +51,7 @@ namespace symbooglix
 
             foreach (var symbolic in symbolicsToDeclare)
             {
-                P.TW.Write("(declare-fun () " + symbolic.Name + " " + getSMTLIBType(symbolic.TypedIdent.Type));
+                P.TW.Write("(declare-fun " + symbolic.Name + " () " + getSMTLIBType(symbolic.TypedIdent.Type));
                 P.TW.Write(")");
 
                 if (P.humanReadable)
@@ -136,6 +136,7 @@ namespace symbooglix
         public void printExit()
         {
             P.TW.WriteLine("(exit)");
+            P.TW.Flush();
         }
 
         public void printSetOption(string option)

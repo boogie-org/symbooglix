@@ -22,12 +22,6 @@ namespace symbooglix
 
             public void SetConstraints(ConstraintManager cm)
             {
-                if (useCounter > 0)
-                {
-                    Printer.printExit();
-                    Printer.clearDeclarations();
-                    Printer.printCommentLine("End of Query " + (useCounter -1));
-                }
                 Printer.printCommentLine("Query " + useCounter + " Begin");
 
                 // Let the printer find the declarations
@@ -41,11 +35,9 @@ namespace symbooglix
 
             private void printDeclarationsAndConstraints()
             {
-                Printer.printCommentLine("Variable declarations");
                 Printer.printVariableDeclarations();
-                Printer.printCommentLine("Function declarations");
                 Printer.printFunctionDeclarations();
-                Printer.printCommentLine("Constraints");
+                Printer.printCommentLine(currentConstraints.constraints.Count.ToString() +  " Constraints");
                 foreach (var constraint in currentConstraints.constraints)
                 {
                     Printer.printAssert(constraint);
@@ -54,38 +46,44 @@ namespace symbooglix
 
             public Result IsQuerySat(Expr Query, out IAssignment assignment)
             {
-                ++useCounter;
                 throw new NotImplementedException();
             }
 
             public Result IsQuerySat(Expr Query)
             {
-                ++useCounter;
-                Printer.addDeclarations(Query);
-                printDeclarationsAndConstraints();
-                Printer.printCommentLine("IsQuerySat()");
-                Printer.printAssert(Query);
-                Printer.printCheckSat();
-                return UnderlyingSolver.IsQuerySat(Query);
+                return doQuery(Query, Query, UnderlyingSolver.IsQuerySat, "IsQuerySat");
             }
 
             public Result IsNotQuerySat(Expr Query, out IAssignment assignment)
             {
-                ++useCounter;
                 throw new NotImplementedException();
             }
 
             public Result IsNotQuerySat(Expr Query)
             {
-                ++useCounter;
-                Printer.addDeclarations(Query);
-                printDeclarationsAndConstraints();
-                Printer.printCommentLine("IsNotQuerySat");
-                Expr notExpr = Expr.Not(Query);
-                Printer.printAssert(notExpr);
-                Printer.printCheckSat();
-                return UnderlyingSolver.IsQuerySat(notExpr);
+                // At every layer we'll be creating a NotExpr, this isn't great, perhaps we should
+                // forward to a SolverImpl class that only supports isQuerySat and only create the NotExpr
+                // at the first layer?
+                return doQuery(Expr.Not(Query), Query, UnderlyingSolver.IsNotQuerySat, "IsNotQuerySat");
             }
+
+            private delegate Result QueryOperation(Expr Query);
+            private Result doQuery(Expr QueryToPrint, Expr QueryToUnderlyingSolver, QueryOperation handler, string commentLine)
+            {
+                Printer.addDeclarations(QueryToPrint);
+                printDeclarationsAndConstraints();
+                Printer.printCommentLine(commentLine);
+                Printer.printAssert(QueryToPrint);
+                Printer.printCheckSat();
+                Result result = handler(QueryToUnderlyingSolver);
+                Printer.printCommentLine("Result : " + result);
+                Printer.printExit();
+                Printer.clearDeclarations();
+                Printer.printCommentLine("End of Query " + (useCounter));
+                ++useCounter;
+                return result;
+            }
+
         }
     }
 }
