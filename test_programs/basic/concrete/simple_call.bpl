@@ -1,4 +1,4 @@
-// RUN: %symbooglix %s -useCallSequencePrinter -disableConstantFolding 2>&1 | %OutputCheck %s
+// RUN: %symbooglix %s --print-call-seq --fold-constants=0 2>&1 | %OutputCheck %s
 
 function {:bvbuiltin "bvadd"} bv16add(bv16,bv16) returns(bv16);
 

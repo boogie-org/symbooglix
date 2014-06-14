@@ -27,7 +27,7 @@ namespace SymbooglixLibTests
         {
             // THIS IS A HACK. Boogie's methods
             // depend on its command line parser being set!
-            CommandLineOptions.Install(new SymbooglixCommandLineOptions());
+            CommandLineOptions.Install(new Microsoft.Boogie.CommandLineOptions());
         }
 
         public static Program loadProgram(String path)

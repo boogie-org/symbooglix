@@ -47,7 +47,6 @@
     <Compile Include="Core\BlockCmdIterator.cs" />
     <Compile Include="Core\SymbolicPool.cs" />
     <Compile Include="Core\VariableMapRewriter.cs" />
-    <Compile Include="SymbooglixCommandLineOptions.cs" />
     <Compile Include="Core\ConstraintManager.cs" />
     <Compile Include="Core\BoogieCmdExtensions.cs" />
     <Compile Include="Core\ExecutorHandlers\IExecutorHandler.cs" />
@@ -88,6 +87,10 @@
     <ProjectReference Include="..\..\boogie\Source\Basetypes\Basetypes.csproj">
       <Project>{43DFAD18-3E35-4558-9BE2-CAFF6B5BA8A0}</Project>
       <Name>Basetypes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ExternalLibs\CommandLine\src\libcmdline\CommandLine.csproj">
+      <Project>{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}</Project>
+      <Name>CommandLine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

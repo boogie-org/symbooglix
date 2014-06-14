@@ -1,4 +1,4 @@
-// RUN: %symbooglix %s /useInstructionPrinter 2>&1 | %OutputCheck %s
+// RUN: %symbooglix %s --print-instr 2>&1 | %OutputCheck %s
 procedure main(p1:bool, p2:bool) returns (r:bool)
 // CHECK-L: Concretising  p1 := true
 // CHECK-L: Concretising  p2 := false

@@ -4,3 +4,6 @@
 [submodule "boogie"]
 	path = boogie
 	url = https://github.com/delcypher/boogie-mirror.git
+[submodule "ExternalLibs/CommandLine"]
+	path = ExternalLibs/CommandLine
+	url = git://github.com/delcypher/commandline.git

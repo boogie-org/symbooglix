@@ -1,4 +1,4 @@
-// RUN: %symbooglix %s -useCallSequencePrinter 2>&1 | %OutputCheck %s
+// RUN: %symbooglix %s --print-call-seq 2>&1 | %OutputCheck %s
 var g:bv8;
 
 procedure main()
