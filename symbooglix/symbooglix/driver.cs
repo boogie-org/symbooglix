@@ -14,7 +14,7 @@ namespace symbooglix
 {
     public class driver
     {
-        class CmdLineOpts
+        public class CmdLineOpts
         {
             [Option('e', "entry-point", DefaultValue = "main", HelpText = "Use Constant folding during execution")]
             public string entryPoint { get; set; }
@@ -22,6 +22,12 @@ namespace symbooglix
             // FIXME: Booleans can't be disabled in the CommandLine library so use ints instead
             [Option("fold-constants", DefaultValue = 1, HelpText = "Use Constant folding during execution")]
             public int useConstantFolding { get; set; }
+
+            [Option("human-readable-smtlib", DefaultValue = 1, HelpText = "When writing SMTLIBv2 queries make them more readable by using indentation and comments")]
+            public int humanReadable { get; set ;}
+
+            [Option("log-queries", DefaultValue = "", HelpText= "Path to file to log queries to. Blank means logging is disabled.")]
+            public string queryLogPath { get; set; }
 
             [Option("print-instr", DefaultValue = false, HelpText = "Print instructions during execution")]
             public bool useInstructionPrinter { get; set; }
@@ -143,7 +149,7 @@ namespace symbooglix
                                                                         new StreamWriter(Console.OpenStandardOutput()),
                                                                         true); // FIXME: Use a real solver
             */
-            Solver.ISolver solver = new Solver.DummySolver(); // But back so tests can pass.
+            Solver.ISolver solver = BuildSolverChain(options);
 
             Executor e = new Executor(p, scheduler, solver);
 
@@ -203,6 +209,20 @@ namespace symbooglix
 
             e.run(entry);
             return 0;
+        }
+
+        public static Solver.ISolver BuildSolverChain(CmdLineOpts options)
+        {
+            Solver.ISolver solver = new Solver.DummySolver(); // FIXME: Replace with real solver
+
+            if (options.queryLogPath.Length > 0)
+            {
+                // FIXME: How are we going to ensure this file gets closed properly?
+                StreamWriter QueryLogFile = new StreamWriter(options.queryLogPath, /*append=*/true);
+                solver = new Solver.SMTLIBQueryLoggingSolver(solver, QueryLogFile, options.humanReadable > 0);
+            }
+
+            return solver;
         }
     }
 }
