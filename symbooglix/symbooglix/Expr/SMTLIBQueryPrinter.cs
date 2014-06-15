@@ -255,12 +255,37 @@ namespace symbooglix
 
             public Expr VisitBvExtractExpr (BvExtractExpr e)
             {
-                throw new NotImplementedException ();
+                // SMTLIBv2 semantics
+                // ((_ extract i j) (_ BitVec m) (_ BitVec n))
+                // - extraction of bits i down to j from a bitvector of size m to yield a
+                // new bitvector of size n, where n = i - j + 1
+
+                // Boogie semantics
+                // ABitVector[<end>:<start>]
+                // This operation selects bits starting at <start> to <end> but not including <end>
+                Debug.Assert(( e.End - 1 ) >= ( e.Start ), "Wrong extract bits for BvExtractExpr");
+                TW.Write("((_ extract " + (e.End -1) + " " + e.Start + ")");
+                pushIndent();
+                printSeperator();
+                SQP.Visit(e.Bitvector);
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return e;
             }
 
             public Expr VisitBvConcatExpr (BvConcatExpr e)
             {
-                throw new NotImplementedException ();
+                TW.Write("(concat");
+                pushIndent();
+                printSeperator();
+                SQP.Visit(e.E0);
+                printSeperator();
+                SQP.Visit(e.E1);
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return e;
             }
 
             public Expr VisitForallExpr (ForallExpr e)
