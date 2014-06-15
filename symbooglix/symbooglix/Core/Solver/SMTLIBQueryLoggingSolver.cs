@@ -22,8 +22,6 @@ namespace symbooglix
 
             public void SetConstraints(ConstraintManager cm)
             {
-                Printer.printCommentLine("Query " + useCounter + " Begin");
-
                 // Let the printer find the declarations
                 currentConstraints = cm;
                 foreach (var constraint in cm.constraints)
@@ -71,6 +69,7 @@ namespace symbooglix
             private Result doQuery(Expr QueryToPrint, Expr QueryToUnderlyingSolver, QueryOperation handler, string commentLine)
             {
                 Printer.addDeclarations(QueryToPrint);
+                Printer.printCommentLine("Query " + useCounter + " Begin");
                 printDeclarationsAndConstraints();
                 Printer.printCommentLine(commentLine);
                 Printer.printAssert(QueryToPrint);

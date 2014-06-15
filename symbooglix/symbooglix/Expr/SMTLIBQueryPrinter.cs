@@ -282,7 +282,7 @@ namespace symbooglix
                 SQP.Visit(e.Args[0]);
                 popIndent();
                 printSeperator();
-                TW.WriteLine(")");
+                TW.Write(")");
                 return e;
             }
 
@@ -551,7 +551,7 @@ namespace symbooglix
                 SQP.Visit(e.Args[1]);
                 popIndent();
                 printSeperator();
-                TW.WriteLine(")");
+                TW.Write(")");
                 return e;
             }
 
