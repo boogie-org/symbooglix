@@ -71,10 +71,13 @@ namespace symbooglix
 
         public void printCommentLine(string comment, bool AddEndOfLineCharacter = true)
         {
-            P.TW.Write("; " + comment);
+            if (P.humanReadable)
+            {
+                P.TW.Write("; " + comment);
 
-            if (AddEndOfLineCharacter)
-                P.TW.WriteLine("");
+                if (AddEndOfLineCharacter)
+                    P.TW.WriteLine("");
+            }
         }
 
         public static string getSMTLIBType(Microsoft.Boogie.Type T)
@@ -276,14 +279,7 @@ namespace symbooglix
 
             public Expr VisitNot(NAryExpr e)
             {
-                TW.Write("(not");
-                printSeperator();
-                pushIndent();
-                SQP.Visit(e.Args[0]);
-                popIndent();
-                printSeperator();
-                TW.Write(")");
-                return e;
+                return printUnaryOperator("not", e);
             }
 
             public Expr VisitNeg (NAryExpr e)
@@ -473,7 +469,7 @@ namespace symbooglix
 
             public Expr Visit_bvnot (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printUnaryOperator("bvnot", e);
             }
 
             public Expr Visit_bvxor (NAryExpr e)
@@ -549,6 +545,18 @@ namespace symbooglix
                 SQP.Visit(e.Args[0]);
                 printSeperator();
                 SQP.Visit(e.Args[1]);
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return e;
+            }
+
+            private Expr printUnaryOperator(string name, NAryExpr e)
+            {
+                TW.Write("(" + name);
+                pushIndent();
+                printSeperator();
+                SQP.Visit(e.Args[0]);
                 popIndent();
                 printSeperator();
                 TW.Write(")");
