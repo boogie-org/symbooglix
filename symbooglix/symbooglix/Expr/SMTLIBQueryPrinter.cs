@@ -3,6 +3,7 @@ using Microsoft.Boogie;
 using System.IO;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace symbooglix
 {
@@ -284,37 +285,39 @@ namespace symbooglix
 
             public Expr VisitNeg (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printUnaryOperator("-", e);
             }
 
             public Expr VisitAdd (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("+", e);
             }
 
             public Expr VisitSub (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("-", e);
             }
 
             public Expr VisitMul (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("*", e);
             }
 
             public Expr VisitDiv (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                Debug.Assert(( e.Args[0] as Expr ).Type.IsInt && ( e.Args[1] as Expr ).Type.IsInt, "wrong types given to div!");
+                return printBinaryOperator("div", e);
             }
 
             public Expr VisitMod (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("mod", e);
             }
 
             public Expr VisitRealDiv (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                Debug.Assert(( e.Args[0] as Expr ).Type.IsReal && ( e.Args[1] as Expr ).Type.IsReal, "wrong types given to div!");
+                return printBinaryOperator("/", e);
             }
 
             public Expr VisitEq (NAryExpr e)
@@ -324,47 +327,53 @@ namespace symbooglix
 
             public Expr VisitNeq (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                // There isn't a != operator in SMTLIBv2 so construct the equivalent
+                Expr temp = Expr.Not(Expr.Eq(e.Args[0], e.Args[1]));
+                SQP.Visit(temp);
+                return e;
             }
 
             public Expr VisitGt (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator(">", e);
             }
 
             public Expr VisitGe (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator(">=", e);
             }
 
             public Expr VisitLt (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("<", e);
             }
 
             public Expr VisitLe (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("<=", e);
             }
 
             public Expr VisitAnd (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("and", e);
             }
 
             public Expr VisitOr (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("or", e);
             }
 
             public Expr VisitImp (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("=>", e);
             }
 
             public Expr VisitIff (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                // There is not <==> operator in SMTLIBv2 so construct its equivalent
+                Expr temp = Expr.And(Expr.Imp(e.Args[0], e.Args[1]), Expr.Imp(e.Args[1], e.Args[0]));
+                SQP.Visit(temp);
+                return e;
             }
 
             public Expr VisitSubType (NAryExpr e)
@@ -384,7 +393,18 @@ namespace symbooglix
 
             public Expr VisitIfThenElse (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                TW.Write("(ite");
+                pushIndent();
+                printSeperator();
+                SQP.Visit(e.Args[0]);
+                printSeperator();
+                SQP.Visit(e.Args[1]);
+                printSeperator();
+                SQP.Visit(e.Args[2]);
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return e;
             }
 
             public Expr VisitFunctionCall (NAryExpr e)
