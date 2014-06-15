@@ -16,6 +16,9 @@ namespace symbooglix
     {
         public class CmdLineOpts
         {
+            [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
+            public int appendLoggedQueries { get; set; }
+
             [Option('e', "entry-point", DefaultValue = "main", HelpText = "Use Constant folding during execution")]
             public string entryPoint { get; set; }
 
@@ -218,7 +221,7 @@ namespace symbooglix
             if (options.queryLogPath.Length > 0)
             {
                 // FIXME: How are we going to ensure this file gets closed properly?
-                StreamWriter QueryLogFile = new StreamWriter(options.queryLogPath, /*append=*/true);
+                StreamWriter QueryLogFile = new StreamWriter(options.queryLogPath, /*append=*/ options.appendLoggedQueries > 0);
                 solver = new Solver.SMTLIBQueryLoggingSolver(solver, QueryLogFile, options.humanReadable > 0);
             }
 
