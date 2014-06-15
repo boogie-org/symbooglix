@@ -499,17 +499,17 @@ namespace symbooglix
 
             public Expr Visit_bvshl (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvshl", e);
             }
 
             public Expr Visit_bvlshr (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvlshr", e);
             }
 
             public Expr Visit_bvashr (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("bvashr", e);
             }
 
             public Expr Visit_bvult (NAryExpr e)
@@ -559,6 +559,7 @@ namespace symbooglix
             // A bit inefficient...
             private Expr printBinaryOperator(string name, NAryExpr e)
             {
+                Debug.Assert(e.Args.Count == 2, "Incorrect number of arguments");
                 TW.Write("(" + name);
                 pushIndent();
                 printSeperator();
@@ -573,6 +574,7 @@ namespace symbooglix
 
             private Expr printUnaryOperator(string name, NAryExpr e)
             {
+                Debug.Assert(e.Args.Count == 1, "Incorrect number of arguments");
                 TW.Write("(" + name);
                 pushIndent();
                 printSeperator();
