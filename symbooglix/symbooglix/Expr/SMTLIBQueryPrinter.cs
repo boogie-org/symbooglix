@@ -353,7 +353,10 @@ namespace symbooglix
             public Expr VisitNeq (NAryExpr e)
             {
                 // There isn't a != operator in SMTLIBv2 so construct the equivalent
-                Expr temp = Expr.Not(Expr.Eq(e.Args[0], e.Args[1]));
+
+                // We can't use Expr.Not here because it rewrites  Expr.Not(Expr.Eq(e.Args[0], e.Args[1]))
+                // into the same expr as "e" which will cause infinite recursion.
+                Expr temp = Expr.Unary(Token.NoToken, UnaryOperator.Opcode.Not, Expr.Eq(e.Args[0], e.Args[1]));
                 SQP.Visit(temp);
                 return e;
             }
