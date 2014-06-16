@@ -23,6 +23,11 @@ namespace symbooglix
                 // The dummy solver doesn't care about these 
             }
 
+            public void SetTimeout(int seconds)
+            {
+                // The dummy solver doesn't care about this
+            }
+
             public Result IsQuerySat (Microsoft.Boogie.Expr Query, out IAssignment assignment)
             {
                 assignment = new DummyAssignment(0);

@@ -11,6 +11,8 @@ namespace symbooglix
         {
             void SetConstraints(ConstraintManager cm);
 
+            void SetTimeout(int seconds);
+
             // Given the constraints is the query expression satisfiable
             // \return True iff sat
             // if sat the assignment will be set to an assignment object

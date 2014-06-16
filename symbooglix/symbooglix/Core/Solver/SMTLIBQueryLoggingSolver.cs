@@ -31,6 +31,11 @@ namespace symbooglix
                 UnderlyingSolver.SetConstraints(cm);
             }
 
+            public void SetTimeout(int seconds)
+            {
+                UnderlyingSolver.SetTimeout(seconds);
+            }
+
             private void printDeclarationsAndConstraints()
             {
                 Printer.printVariableDeclarations();
