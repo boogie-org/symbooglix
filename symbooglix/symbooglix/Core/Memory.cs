@@ -23,7 +23,7 @@ namespace symbooglix
                 other.stack.Add(sf.DeepClone());
             }
 
-            var duplicator = new Duplicator();
+            var duplicator = new NonSymbolicDuplicator();
             other.globals = new Dictionary<Variable,Expr>();
             foreach (var pair in this.globals)
             {
@@ -94,7 +94,7 @@ namespace symbooglix
 
             // procedure does not need to cloned
             other.locals = new Dictionary<Variable, Expr>();
-            var duplicator = new Duplicator();
+            var duplicator = new NonSymbolicDuplicator();
             foreach (var pair in locals)
             {
                 Expr copy = (Expr) duplicator.Visit(pair.Value);
