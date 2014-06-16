@@ -90,8 +90,7 @@ namespace symbooglix
         public static int Main(String[] args)
         {
             // Debug log output goes to standard error.
-            // FIXME: We should throw exceptions when assertions fail.
-            Debug.Listeners.Add(new TextWriterTraceListener(Console.Error));
+            Debug.Listeners.Add(new ExceptionThrowingTextWritierTraceListener(Console.Error));
 
             // FIXME: Urgh... we are forced to use Boogie's command line
             // parser becaue the Boogie program resolver/type checker

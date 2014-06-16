@@ -73,6 +73,7 @@
     <Compile Include="Expr\FindFunctionsVisitor.cs" />
     <Compile Include="Core\Solver\SimpleSMTLIBSolver.cs" />
     <Compile Include="Expr\NonSymbolicDuplicator.cs" />
+    <Compile Include="Util\ExceptionThrowingTextWriterTraceListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
