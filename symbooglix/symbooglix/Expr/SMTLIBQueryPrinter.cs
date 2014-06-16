@@ -132,8 +132,23 @@ namespace symbooglix
             else if (T is MapType)
             {
                 var MT = T as MapType;
-                // FIXME: How do I interpret Arguments of a map type
-                throw new NotImplementedException("MapType (" + MT.ToString() + ") not supported yet");
+                // We are using Z3's Native ArrayTheory (allows for Arrays of Arrays) here. I don't know if other Solvers support this.
+                Debug.Assert(MT.Arguments.Count >= 1, "MapType has too few arguments");
+                string mapTypeAsString = "";
+                foreach (var domainType in MT.Arguments)
+                {
+                    mapTypeAsString += "(Array " + getSMTLIBType(domainType) + " ";
+                }
+
+                // Now print the final result from the map (the codomain)
+                mapTypeAsString += getSMTLIBType(MT.Result) + " ";
+
+                // Now add closing braces
+                for (int index = 0; index < MT.Arguments.Count; ++index)
+                {
+                    mapTypeAsString += ")";
+                }
+                return mapTypeAsString;
             }
             else
             {
@@ -467,30 +482,20 @@ namespace symbooglix
                 throw new NotImplementedException ();
             }
 
-            public Expr VisitMapStore (NAryExpr e)
+            public Expr VisitMapStore(NAryExpr e)
             {
-                throw new NotImplementedException ();
+                // FIXME: Can we assert that we match the SMT-LIB order of args?
+                return printTernaryOperator("store", e);
             }
 
-            public Expr VisitMapSelect (NAryExpr e)
+            public Expr VisitMapSelect(NAryExpr e)
             {
-                throw new NotImplementedException ();
+                return printBinaryOperator("select", e);
             }
 
             public Expr VisitIfThenElse (NAryExpr e)
             {
-                TW.Write("(ite");
-                pushIndent();
-                printSeperator();
-                SQP.Visit(e.Args[0]);
-                printSeperator();
-                SQP.Visit(e.Args[1]);
-                printSeperator();
-                SQP.Visit(e.Args[2]);
-                popIndent();
-                printSeperator();
-                TW.Write(")");
-                return e;
+                return printTernaryOperator("ite", e);
             }
 
             public Expr VisitFunctionCall (NAryExpr e)
@@ -693,6 +698,23 @@ namespace symbooglix
                 pushIndent();
                 printSeperator();
                 SQP.Visit(e.Args[0]);
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return e;
+            }
+
+            private Expr printTernaryOperator(string name, NAryExpr e)
+            {
+                Debug.Assert(e.Args.Count == 3, "Incorrect number of arguments");
+                TW.Write("(" + name);
+                pushIndent();
+                printSeperator();
+                SQP.Visit(e.Args[0]);
+                printSeperator();
+                SQP.Visit(e.Args[1]);
+                printSeperator();
+                SQP.Visit(e.Args[2]);
                 popIndent();
                 printSeperator();
                 TW.Write(")");
