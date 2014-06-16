@@ -4,6 +4,7 @@ using System.IO;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace symbooglix
 {
@@ -13,6 +14,7 @@ namespace symbooglix
         private HashSet<SymbolicVariable> symbolicsToDeclare = null;
         private HashSet<Microsoft.Boogie.Function> functionsToDeclare = null;
         private FindSymbolicsVisitor FSV = null;
+        private FindFunctionsVisitor FFV = null;
 
         public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true) : base(null)
         {
@@ -24,6 +26,7 @@ namespace symbooglix
             symbolicsToDeclare = new HashSet<SymbolicVariable>();
             functionsToDeclare = new HashSet<Function>();
             FSV = new FindSymbolicsVisitor(symbolicsToDeclare); // Have the visitor use our container
+            FFV = new FindFunctionsVisitor(functionsToDeclare); // Have the visitor use our container
         }
 
         public void clearDeclarations()
@@ -35,7 +38,7 @@ namespace symbooglix
         public void addDeclarations(Expr e)
         {
             FSV.Visit(e);
-            // TODO Add FindFunctionsVisitor
+            FFV.Visit(e);
         }
 
         public enum Logic
@@ -67,7 +70,30 @@ namespace symbooglix
 
         public void printFunctionDeclarations()
         {
-            // TODO
+            if (P.humanReadable)
+                printCommentLine("Start function declarations");
+
+            foreach (var function in functionsToDeclare)
+            {
+                if (function.Body != null)
+                    throw new NotSupportedException("Can't handle function bodies yet");
+
+                P.TW.Write("(declare-fun " + function.Name + " (");
+                foreach (var type in function.InParams.Select( x => x.TypedIdent.Type ))
+                {
+                    P.TW.Write(getSMTLIBType(type) + " ");
+                }
+                P.TW.Write(") ");
+
+                if (function.OutParams.Count != 1)
+                    throw new NotSupportedException("Only single parameters are supported!");
+
+                P.TW.Write(getSMTLIBType(function.OutParams[0].TypedIdent.Type) + ")");
+                P.TW.Write(P.TW.NewLine);
+            }
+
+            if (P.humanReadable)
+                printCommentLine("End function declarations");
         }
 
         public void printCommentLine(string comment, bool AddEndOfLineCharacter = true)
@@ -437,7 +463,19 @@ namespace symbooglix
 
             public Expr VisitFunctionCall (NAryExpr e)
             {
-                throw new NotImplementedException ();
+                var FC = e.Fun as FunctionCall;
+                TW.Write("(" + FC.Func.Name);
+                pushIndent();
+                printSeperator();
+                foreach (var param in e.Args)
+                {
+                    SQP.Visit(param);
+                    printSeperator(); // FIXME: There shouldn't be one on the last param
+                }
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return e;
             }
 
             public Expr VisitTypeCoercion (NAryExpr e)

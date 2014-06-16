@@ -70,6 +70,7 @@
     <Compile Include="Expr\DFSPostOrderTraverser.cs" />
     <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
     <Compile Include="Core\Solver\SMTLIBQueryLoggingSolver.cs" />
+    <Compile Include="Expr\FindFunctionsVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">
