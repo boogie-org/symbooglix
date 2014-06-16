@@ -565,17 +565,7 @@ namespace symbooglix
 
             public Expr Visit_sign_extend(NAryExpr e)
             {
-                // ((_ sign_extend i) (_ BitVec m) (_ BitVec m+i))
-                // ((_ sign_extend i) x) means extend x to the (signed) equivalent bitvector
-                // of size m+i
-                Debug.Assert(e.Args.Count == 1);
-                Debug.Assert(e.Args[0].Type.IsBv, "Not a bitvector!");
-                Debug.Assert(e.Type.IsBv, "Out is not a bitvector!");
-
-                // Work out extension amount
-                int numberOfBitsToAdd = ( e.Type.BvBits - e.Args[0].Type.BvBits );
-                Debug.Assert(numberOfBitsToAdd >= 0, "Number of bits to add calculation is incorrect"); // FIXME: Throw exception instead
-                return printUnaryOperator("(_ sign_extend " + numberOfBitsToAdd + ")", e);
+                return printSignExtend(e, "sign_extend");
             }
 
             public Expr Visit_zero_extend(NAryExpr e)
@@ -583,6 +573,12 @@ namespace symbooglix
                 //  ((_ zero_extend i) (_ BitVec m) (_ BitVec m+i))
                 // ((_ zero_extend i) x) means extend x with zeroes to the (unsigned)
                 // equivalent bitvector of size m+i
+                return printSignExtend(e, "zero_extend");
+            }
+
+            private Expr printSignExtend(NAryExpr e, string extensionType)
+            {
+                Debug.Assert(extensionType == "zero_extend" || extensionType == "sign_extend");
                 Debug.Assert(e.Args.Count == 1);
                 Debug.Assert(e.Args[0].Type.IsBv, "Not a bitvector!");
                 Debug.Assert(e.Type.IsBv, "Out is not a bitvector!");
@@ -590,7 +586,7 @@ namespace symbooglix
                 // Work out extension amount
                 int numberOfBitsToAdd = ( e.Type.BvBits - e.Args[0].Type.BvBits );
                 Debug.Assert(numberOfBitsToAdd >= 0, "Number of bits to add calculation is incorrect"); // FIXME: Throw exception instead
-                return printUnaryOperator("(_ zero_extend " + numberOfBitsToAdd + ")", e);
+                return printUnaryOperator("(_ " + extensionType + " " + numberOfBitsToAdd + ")", e);
             }
 
             public Expr Visit_bvneg (NAryExpr e)
