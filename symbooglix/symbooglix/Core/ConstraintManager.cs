@@ -18,7 +18,7 @@ namespace symbooglix
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
             other.constraints = new List<Expr>();
 
-            var duplicator = new Duplicator();
+            var duplicator = new NonSymbolicDuplicator();
             foreach (var e in this.constraints)
             {
                 var copy = (Expr) duplicator.Visit(e);
