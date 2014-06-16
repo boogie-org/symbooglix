@@ -41,6 +41,9 @@ namespace symbooglix
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
+            [Option("solver", DefaultValue = "", HelpText = "Path to the SMTLIBv2 solver")]
+            public string pathToSolver { get; set; }
+
             [Option("verify-unmodified-impl", DefaultValue = true, HelpText = "Verify that implementation commands aren't accidently modified during execution")]
             public bool useVerifyUnmodifiedProcedureHandler { get; set; }
 
@@ -146,12 +149,6 @@ namespace symbooglix
 
 
             IStateScheduler scheduler = new DFSStateScheduler();
-            // HACK: Get rid of this ASAP!
-            /*
-            Solver.ISolver solver = new Solver.SMTLIBQueryLoggingSolver(new Solver.DummySolver(), 
-                                                                        new StreamWriter(Console.OpenStandardOutput()),
-                                                                        true); // FIXME: Use a real solver
-            */
             Solver.ISolver solver = BuildSolverChain(options);
 
             Executor e = new Executor(p, scheduler, solver);
@@ -216,7 +213,7 @@ namespace symbooglix
 
         public static Solver.ISolver BuildSolverChain(CmdLineOpts options)
         {
-            Solver.ISolver solver = new Solver.DummySolver(); // FIXME: Replace with real solver
+            Solver.ISolver solver = new Solver.SimpleSMTLIBSolver(options.pathToSolver);
 
             if (options.queryLogPath.Length > 0)
             {
