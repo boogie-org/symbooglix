@@ -7,7 +7,7 @@ function {:bvbuiltin "bvugt"} BVUGT(bv8,bv8) returns (bool);
 procedure main(a:bv8) returns (b:bv8)
 requires BVUGT(10bv8,a);
 // CHECK-L: State 0 terminated with an error
-// CHECK-L: The following requires failed
+// CHECK-L: The following ensures failed
 // CHECK-L: ${CHECKFILE_NAME}:${LINE:+1}: BVUGT(g, b)
 ensures BVUGT(g,b);
 modifies g;

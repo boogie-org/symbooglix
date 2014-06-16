@@ -58,7 +58,7 @@ namespace symbooglix
             string msg = "State " + s.id + " terminated with an error";
             WriteLine(ConsoleColor.Red, msg);
             Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is ReturnCmd);
-            msg = "The following requires failed\n" +
+            msg = "The following ensures failed\n" +
                   ensuresStatement.tok.filename + ":" + ensuresStatement.tok.line + ": " +
                   ensuresStatement.Condition.ToString();
             WriteLine(ConsoleColor.DarkRed, msg);
