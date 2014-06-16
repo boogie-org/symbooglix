@@ -262,8 +262,11 @@ namespace symbooglix
 
             public Expr VisitIdentifierExpr (IdentifierExpr e)
             {
-                if (!( e.Decl is SymbolicVariable ))
-                    throw new InvalidDataException("non symbolic found in Expr"); //FIXME: Add our own Expr types
+                // FIXME: This test fails in the presence of quantifier expression
+                // We need to keep track of bound variables
+                //if (!( e.Decl is SymbolicVariable ))
+                //    throw new InvalidDataException("non symbolic found in Expr"); //FIXME: Add our own Expr types
+
 
                 TW.Write(e.Name);
                 return e;
@@ -314,14 +317,46 @@ namespace symbooglix
                 return e;
             }
 
-            public Expr VisitForallExpr (ForallExpr e)
+            public Expr VisitForallExpr(ForallExpr e)
             {
-                throw new NotImplementedException ();
+                return printQuantifierExpr(e);
             }
 
-            public Expr VisitExistExpr (ExistsExpr e)
+            public Expr VisitExistExpr(ExistsExpr e)
             {
-                throw new NotImplementedException ();
+                return printQuantifierExpr(e);
+            }
+
+            private Expr printQuantifierExpr(QuantifierExpr QE)
+            {
+                if (QE is ExistsExpr)
+                    TW.Write("(exists");
+                else if (QE is ForallExpr)
+                    TW.Write("(forall");
+                else
+                    throw new NotSupportedException("Unsupported quantifier expr");
+
+                pushIndent();
+                printSeperator();
+                TW.Write("(");
+                pushIndent();
+                printSeperator();
+
+                // FIXME: We need to keep track of bound variables for checks in VisitIdentifierExpr
+                foreach (var boundVar in QE.Dummies)
+                {
+                    printSeperator();
+                    TW.Write("(" + boundVar.Name + " " + getSMTLIBType(boundVar.TypedIdent.Type) + ")");
+                }
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                printSeperator();
+                SQP.Visit(QE.Body);
+                popIndent();
+                printSeperator();
+                TW.Write(")");
+                return QE;
             }
 
             public Expr VisitLambdaExpr (LambdaExpr e)
