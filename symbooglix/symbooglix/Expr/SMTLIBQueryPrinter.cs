@@ -48,6 +48,12 @@ namespace symbooglix
             Q_ALL
         }
 
+        public void changeOutput(TextWriter newTW)
+        {
+            Debug.Assert(newTW != null, "New output cannot be null!");
+            P.TW = newTW;
+        }
+
         public void printVariableDeclarations()
         {
             if (P.humanReadable)

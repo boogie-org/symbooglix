@@ -71,6 +71,7 @@
     <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
     <Compile Include="Core\Solver\SMTLIBQueryLoggingSolver.cs" />
     <Compile Include="Expr\FindFunctionsVisitor.cs" />
+    <Compile Include="Core\Solver\SimpleSMTLIBSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\boogie\Source\Core\Core.csproj">

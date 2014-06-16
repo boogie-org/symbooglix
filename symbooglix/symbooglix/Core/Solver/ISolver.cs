@@ -40,6 +40,11 @@ namespace symbooglix
         {
             Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV);
         }
+
+        public class InvalidSolverTimeoutException : Exception
+        {
+
+        }
     }
 }
 
