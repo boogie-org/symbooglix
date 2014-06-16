@@ -262,11 +262,9 @@ namespace symbooglix
 
             public Expr VisitIdentifierExpr (IdentifierExpr e)
             {
-                // FIXME: This test fails in the presence of quantifier expression
-                // We need to keep track of bound variables
-                //if (!( e.Decl is SymbolicVariable ))
-                //    throw new InvalidDataException("non symbolic found in Expr"); //FIXME: Add our own Expr types
-
+                // Should we make this check better by recording what variables are currently bound?
+                if (!( ( e.Decl is SymbolicVariable ) || (e.Decl is BoundVariable )))
+                    throw new InvalidDataException("non symbolic/BoundVariable found in Expr"); //FIXME: Add our own Expr types
 
                 TW.Write(e.Name);
                 return e;
@@ -342,7 +340,6 @@ namespace symbooglix
                 pushIndent();
                 printSeperator();
 
-                // FIXME: We need to keep track of bound variables for checks in VisitIdentifierExpr
                 foreach (var boundVar in QE.Dummies)
                 {
                     printSeperator();
