@@ -4,7 +4,7 @@ using Microsoft.Boogie;
 using symbooglix;
 using System.Collections.Generic;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldExistsExpr : ConstantFoldingTest
@@ -13,7 +13,7 @@ namespace SymbooglixLibTests
         {
             // Boogie hits NullPtrException if the cmdline parser
             // isn't setup when printing forallExpr. This is sooo annoying!
-            SymbooglixTest.setupCmdLineParser();
+            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
         }
 
         [Test()]

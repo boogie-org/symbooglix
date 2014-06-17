@@ -5,7 +5,7 @@ using symbooglix;
 using System;
 
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldBvExtractExpr : ConstantFoldingTest

@@ -4,13 +4,13 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Microsoft.Basetypes;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     public class ConstantFoldingTest : IErrorSink
     {
         public ConstantFoldingTest()
         {
-            SymbooglixTest.setupDebug();
+            SymbooglixLibTests.SymbooglixTest.setupDebug();
         }
 
         public void Error (IToken tok, string msg)

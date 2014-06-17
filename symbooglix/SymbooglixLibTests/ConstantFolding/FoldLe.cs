@@ -5,7 +5,7 @@ using Microsoft.Basetypes;
 using symbooglix;
 
 // FIXME: Change namespace so constant folding tests are in different namespace.
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldLe : ConstantFoldingTest

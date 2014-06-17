@@ -4,7 +4,7 @@ using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using symbooglix;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldGe : ConstantFoldingTest

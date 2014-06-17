@@ -6,11 +6,18 @@ using System.Collections.Generic;
 using Microsoft.Basetypes;
 
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldBVzero_extend : ConstantFoldingTest
     {
+        public FoldBVzero_extend()
+        {
+            // Boogie hits NullPtrException if the cmdline parser
+            // isn't setup. This is sooo annoying!
+            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
+        }
+
         [Test()]
         public void Simple()
         {

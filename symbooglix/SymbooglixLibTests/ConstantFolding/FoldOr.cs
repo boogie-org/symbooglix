@@ -3,7 +3,7 @@ using System;
 using Microsoft.Boogie;
 using symbooglix;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldOr : ConstantFoldingTest

@@ -4,7 +4,7 @@ using symbooglix;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldBvConcatExpr : ConstantFoldingTest

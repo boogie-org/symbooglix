@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Boogie;
 using symbooglix;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldIfThenElse : ConstantFoldingTest

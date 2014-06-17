@@ -4,7 +4,7 @@ using Microsoft.Boogie;
 using symbooglix;
 using System.Collections.Generic;
 
-namespace SymbooglixLibTests
+namespace ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldForAllExpr : ConstantFoldingTest
@@ -26,7 +26,7 @@ namespace SymbooglixLibTests
             // Boogie hits NullPtrException if the cmdline parser
             // isn't setup when printing forallExpr. This is sooo dumb!
             // FIXME:
-            SymbooglixTest.setupCmdLineParser();
+            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
 
             Assert.IsInstanceOfType(typeof(LiteralExpr), constantBool);
             var boundVars = new List<Variable>();
