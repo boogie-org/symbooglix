@@ -6,8 +6,8 @@ namespace symbooglix
 {
     public interface IStateScheduler
     {
-        ExecutionState getNextState(); // FIXME: Return reference
-        bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove); //FIXME: pass by ref
+        ExecutionState getNextState();
+        bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove);
         bool addState(ExecutionState toAdd);
         bool removeState(ExecutionState toRemove);
         void removeAll(Predicate<ExecutionState> p);
@@ -27,12 +27,11 @@ namespace symbooglix
             if (states.Count == 0)
                 return null;
 
-            return states[0];    
+            return states[0];
         }
 
         public bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove)
         {
-            // FIXME: How do we comparisions with refs??
             foreach(ExecutionState e in toRemove)
             {
                 Debug.Assert(states.Contains(e));
