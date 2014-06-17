@@ -8,7 +8,7 @@ using System;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBvExtractExpr : ConstantFoldingTest
+    public class FoldBvExtractExpr : TestBase
     {
         [Test()]
         public void simple()

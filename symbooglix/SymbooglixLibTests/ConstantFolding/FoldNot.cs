@@ -6,7 +6,7 @@ using symbooglix;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldNot : ConstantFoldingTest
+    public class FoldNot : TestBase
     {
         [Test()]
         public void NotTrue()

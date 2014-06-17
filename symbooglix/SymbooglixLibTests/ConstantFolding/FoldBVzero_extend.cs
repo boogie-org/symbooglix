@@ -9,7 +9,7 @@ using Microsoft.Basetypes;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBVzero_extend : ConstantFoldingTest
+    public class FoldBVzero_extend : TestBase
     {
         public FoldBVzero_extend()
         {

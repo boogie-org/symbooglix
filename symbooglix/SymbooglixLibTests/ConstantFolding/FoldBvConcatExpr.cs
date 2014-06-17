@@ -7,7 +7,7 @@ using Microsoft.Basetypes;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBvConcatExpr : ConstantFoldingTest
+    public class FoldBvConcatExpr : TestBase
     {
         private BvConcatExpr ConcatFactory(int leftValue, int leftWidth, int rightValue, int rightWidth)
         {

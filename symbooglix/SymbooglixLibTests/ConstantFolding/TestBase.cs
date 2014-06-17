@@ -6,9 +6,9 @@ using Microsoft.Basetypes;
 
 namespace ConstantFoldingTests
 {
-    public class ConstantFoldingTest : IErrorSink
+    public class TestBase : IErrorSink
     {
-        public ConstantFoldingTest()
+        public TestBase()
         {
             SymbooglixLibTests.SymbooglixTest.setupDebug();
         }

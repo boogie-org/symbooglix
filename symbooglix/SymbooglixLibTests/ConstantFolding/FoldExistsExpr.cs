@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldExistsExpr : ConstantFoldingTest
+    public class FoldExistsExpr : TestBase
     {
         public FoldExistsExpr()
         {

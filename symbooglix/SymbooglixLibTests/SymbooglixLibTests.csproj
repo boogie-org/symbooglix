@@ -56,12 +56,12 @@
     <Compile Include="RequiresConstrainedLocal.cs" />
     <Compile Include="TerminationReporting.cs" />
     <Compile Include="ConstantFolding\FoldBVzero_extend.cs" />
-    <Compile Include="ConstantFolding\ConstantFoldingTest.cs" />
     <Compile Include="ExprSMTLIB\Literal.cs" />
     <Compile Include="ConstantFolding\FoldLe.cs" />
     <Compile Include="ConstantFolding\FoldLt.cs" />
     <Compile Include="ConstantFolding\FoldGe.cs" />
     <Compile Include="ConstantFolding\FoldGt.cs" />
+    <Compile Include="ConstantFolding\TestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
