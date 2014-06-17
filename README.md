@@ -13,6 +13,7 @@ Common dependencies
 -------------------
 
 - Git
+- Python
 
 If using Linux
 --------------
@@ -43,4 +44,39 @@ $ xbuild
 Alternatively you can load the ``symbooglix/symbooglix.sln`` file into Visual
 Studio or Monodevelop and build from there.
 
-Have fun!
+Testing
+=======
+
+There are two forms of testing used for Symbooglix
+
+NUnit tests
+===========
+
+[NUnit](https://github.com/nunit) is used for unit testing. This comes preinstalled
+in mono 3.2 (and probably other versions). I'm not sure about Windows users.
+
+These tests are easy to run from within monodevelop.
+
+However you can run these tests from the console on Linux. To do so run
+the following.
+
+```
+$ ./nunitconsole.sh symbooglix/SymbooglixLibTests/SymbooglixLibTests.csproj
+$ ./nunitconsole.sh symbooglix/BoogieTests/BoogieTests.csproj
+```
+
+Driver tests
+============
+
+Install the lit and OutputCheck tools
+
+```
+$ pip install lit
+$ pip install OutputCheck
+```
+
+Now to run the tests run
+
+```
+$ lit -s test_programs/
+```
