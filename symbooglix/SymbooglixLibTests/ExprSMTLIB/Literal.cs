@@ -5,14 +5,14 @@ using Microsoft.Basetypes;
 using System.IO;
 using symbooglix;
 
-namespace SymbooglixLibTests
+namespace ExprSMTLIBTest
 {
     [TestFixture()]
     public class Literal
     {
         public Literal()
         {
-            SymbooglixTest.setupDebug();
+            SymbooglixLibTests.SymbooglixTest.setupDebug();
         }
 
         [Test()]
