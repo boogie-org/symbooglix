@@ -58,6 +58,10 @@
     <Compile Include="ConstantFolding\FoldBVzero_extend.cs" />
     <Compile Include="ConstantFolding\ConstantFoldingTest.cs" />
     <Compile Include="ExprSMTLIB\Literal.cs" />
+    <Compile Include="ConstantFolding\FoldLe.cs" />
+    <Compile Include="ConstantFolding\FoldLt.cs" />
+    <Compile Include="ConstantFolding\FoldGe.cs" />
+    <Compile Include="ConstantFolding\FoldGt.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

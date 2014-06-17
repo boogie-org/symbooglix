@@ -2,6 +2,7 @@ using System;
 using Microsoft.Boogie;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Microsoft.Basetypes;
 
 namespace SymbooglixLibTests
 {
@@ -31,6 +32,16 @@ namespace SymbooglixLibTests
             func.AddAttribute("bvbuiltin", new string[] { Builtin });
             var funcCall = new FunctionCall(func);
             return funcCall;
+        }
+
+        public static LiteralExpr getConstantInt(int value)
+        {
+            return new LiteralExpr(Token.NoToken, BigNum.FromInt(value));
+        }
+
+        public static LiteralExpr getConstantReal(string value)
+        {
+            return new LiteralExpr(Token.NoToken, BigDec.FromString(value));
         }
 
     }

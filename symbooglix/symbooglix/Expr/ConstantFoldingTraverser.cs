@@ -323,7 +323,27 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var LHS = e.Args[0] as LiteralExpr;
+                var RHS = e.Args[1] as LiteralExpr;
+                Debug.Assert(LHS.Type == RHS.Type, "Mismatching types");
+                if (LHS.isBigNum && RHS.isBigNum)
+                {
+                    // Int
+                    if (LHS.asBigNum > RHS.asBigNum)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else if (LHS.isBigDec && RHS.isBigDec)
+                {
+                    // Real
+                    if (LHS.asBigDec > RHS.asBigDec)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else
+                    throw new NotSupportedException("Unsupported types in >  constant fold");
             }
             else
                 return e;
@@ -334,7 +354,27 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var LHS = e.Args[0] as LiteralExpr;
+                var RHS = e.Args[1] as LiteralExpr;
+                Debug.Assert(LHS.Type == RHS.Type, "Mismatching types");
+                if (LHS.isBigNum && RHS.isBigNum)
+                {
+                    // Int
+                    if (LHS.asBigNum >= RHS.asBigNum)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else if (LHS.isBigDec && RHS.isBigDec)
+                {
+                    // Real
+                    if (LHS.asBigDec >= RHS.asBigDec)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else
+                    throw new NotSupportedException("Unsupported types in >=  constant fold");
             }
             else
                 return e;
@@ -345,7 +385,27 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var LHS = e.Args[0] as LiteralExpr;
+                var RHS = e.Args[1] as LiteralExpr;
+                Debug.Assert(LHS.Type == RHS.Type, "Mismatching types");
+                if (LHS.isBigNum && RHS.isBigNum)
+                {
+                    // Int
+                    if (LHS.asBigNum < RHS.asBigNum)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else if (LHS.isBigDec && RHS.isBigDec)
+                {
+                    // Real
+                    if (LHS.asBigDec < RHS.asBigDec)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else
+                    throw new NotSupportedException("Unsupported types in <  constant fold");
             }
             else
                 return e;
@@ -356,7 +416,27 @@ namespace symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var LHS = e.Args[0] as LiteralExpr;
+                var RHS = e.Args[1] as LiteralExpr;
+                Debug.Assert(LHS.Type == RHS.Type, "Mismatching types");
+                if (LHS.isBigNum && RHS.isBigNum)
+                {
+                    // Int
+                    if (LHS.asBigNum <= RHS.asBigNum)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else if (LHS.isBigDec && RHS.isBigDec)
+                {
+                    // Real
+                    if (LHS.asBigDec <= RHS.asBigDec)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else
+                    throw new NotSupportedException("Unsupported types in <=  constant fold");
             }
             else
                 return e;
