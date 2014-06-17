@@ -13,7 +13,6 @@ Common dependencies
 -------------------
 
 - Git
-- Mercurial
 
 If using Linux
 --------------
