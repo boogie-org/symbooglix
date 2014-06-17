@@ -20,4 +20,5 @@ requires N == 10bv8;
     assert r == 20bv8;
 }
 
-// CHECK-L: State 0 terminated without error
+// FIXME: All this unnecessary forking is less than ideal
+// CHECK-L: State 10 terminated without error
