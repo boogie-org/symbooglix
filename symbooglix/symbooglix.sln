@@ -5,23 +5,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "symbooglix", "symbooglix\sy
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Boogie", "Boogie", "{DA58A461-5C93-47CE-90F3-8782F573B9C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "..\boogie\Source\Core\Core.csproj", "{B230A69C-C466-4065-B9C1-84D80E76D802}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "..\ExternalLibs\Boogie\Source\Core\Core.csproj", "{B230A69C-C466-4065-B9C1-84D80E76D802}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basetypes", "..\boogie\Source\Basetypes\Basetypes.csproj", "{43DFAD18-3E35-4558-9BE2-CAFF6B5BA8A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basetypes", "..\ExternalLibs\Boogie\Source\Basetypes\Basetypes.csproj", "{43DFAD18-3E35-4558-9BE2-CAFF6B5BA8A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeContractsExtender", "..\boogie\Source\CodeContractsExtender\CodeContractsExtender.csproj", "{ACCC0156-0921-43ED-8F67-AD8BDC8CDE31}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeContractsExtender", "..\ExternalLibs\Boogie\Source\CodeContractsExtender\CodeContractsExtender.csproj", "{ACCC0156-0921-43ED-8F67-AD8BDC8CDE31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph", "..\boogie\Source\Graph\Graph.csproj", "{69A2B0B8-BCAC-4101-AE7A-556FCC58C06E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph", "..\ExternalLibs\Boogie\Source\Graph\Graph.csproj", "{69A2B0B8-BCAC-4101-AE7A-556FCC58C06E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserHelper", "..\boogie\Source\ParserHelper\ParserHelper.csproj", "{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserHelper", "..\ExternalLibs\Boogie\Source\ParserHelper\ParserHelper.csproj", "{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTLib", "..\boogie\Source\Provers\SMTLib\SMTLib.csproj", "{9B163AA3-36BC-4AFB-88AB-79BC9E97E401}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTLib", "..\ExternalLibs\Boogie\Source\Provers\SMTLib\SMTLib.csproj", "{9B163AA3-36BC-4AFB-88AB-79BC9E97E401}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCExpr", "..\boogie\Source\VCExpr\VCExpr.csproj", "{56FFDBCA-7D14-43B8-A6CA-22A20E417EE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCExpr", "..\ExternalLibs\Boogie\Source\VCExpr\VCExpr.csproj", "{56FFDBCA-7D14-43B8-A6CA-22A20E417EE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCGeneration", "..\boogie\Source\VCGeneration\VCGeneration.csproj", "{E1F10180-C7B9-4147-B51F-FA1B701966DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCGeneration", "..\ExternalLibs\Boogie\Source\VCGeneration\VCGeneration.csproj", "{E1F10180-C7B9-4147-B51F-FA1B701966DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "..\boogie\Source\Model\Model.csproj", "{ACEF88D5-DADD-46DA-BAE1-2144D63F4C83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "..\ExternalLibs\Boogie\Source\Model\Model.csproj", "{ACEF88D5-DADD-46DA-BAE1-2144D63F4C83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoogieTests", "BoogieTests\BoogieTests.csproj", "{C79BC529-CCCB-465A-ADF3-FB34683C3133}"
 EndProject

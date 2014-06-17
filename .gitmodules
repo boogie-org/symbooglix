@@ -2,7 +2,7 @@
 	path = utils/OutputCheck
 	url = https://github.com/stp/OutputCheck.git
 [submodule "boogie"]
-	path = boogie
+	path = ExternalLibs/Boogie
 	url = https://github.com/delcypher/boogie-mirror.git
 [submodule "ExternalLibs/CommandLine"]
 	path = ExternalLibs/CommandLine
