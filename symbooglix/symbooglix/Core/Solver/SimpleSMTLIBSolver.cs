@@ -146,7 +146,6 @@ namespace symbooglix
                 }
 
                 Printer.printExit();
-                ( sendingProcess as Process ).StandardInput.Close();
             }
 
             private void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)
