@@ -40,40 +40,40 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Compile Include="driver.cs" />
-    <Compile Include="Core\Executor.cs" />
-    <Compile Include="Core\Memory.cs" />
-    <Compile Include="Core\ExecutionState.cs" />
-    <Compile Include="Core\StateScheduler.cs" />
-    <Compile Include="Core\BlockCmdIterator.cs" />
-    <Compile Include="Core\SymbolicPool.cs" />
-    <Compile Include="Core\VariableMapRewriter.cs" />
-    <Compile Include="Core\ConstraintManager.cs" />
-    <Compile Include="Core\BoogieCmdExtensions.cs" />
-    <Compile Include="Core\ExecutorHandlers\IExecutorHandler.cs" />
-    <Compile Include="Core\ExecutorHandlers\DummyHandlers.cs" />
-    <Compile Include="Core\ExecutorHandlers\InstructionPrinter.cs" />
-    <Compile Include="Core\ExecutorHandlers\EnterAndLeaveStackPrinter.cs" />
-    <Compile Include="Core\ExecutorHandlers\CallSequencePrinter.cs" />
-    <Compile Include="Core\ExecutorHandlers\BreakPointHandler.cs" />
-    <Compile Include="Core\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Expr\FindSymbolicsVisitor.cs" />
     <Compile Include="Expr\FindLiteralAssignment.cs" />
     <Compile Include="Util\IDeepClone.cs" />
     <Compile Include="Expr\IExprVisitor.cs" />
-    <Compile Include="Core\BoogieExprExtensions.cs" />
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
-    <Compile Include="Core\TerminationHandlers\TerminationConsoleReporter.cs" />
-    <Compile Include="Core\Solver\ISolver.cs" />
-    <Compile Include="Core\Solver\DummySolver.cs" />
-    <Compile Include="Core\TerminationHandlers\TerminationHandler.cs" />
     <Compile Include="Expr\DFSPostOrderTraverser.cs" />
     <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
-    <Compile Include="Core\Solver\SMTLIBQueryLoggingSolver.cs" />
     <Compile Include="Expr\FindFunctionsVisitor.cs" />
-    <Compile Include="Core\Solver\SimpleSMTLIBSolver.cs" />
     <Compile Include="Expr\NonSymbolicDuplicator.cs" />
     <Compile Include="Util\ExceptionThrowingTextWriterTraceListener.cs" />
+    <Compile Include="Solver\DummySolver.cs" />
+    <Compile Include="Solver\ISolver.cs" />
+    <Compile Include="Solver\SimpleSMTLIBSolver.cs" />
+    <Compile Include="Solver\SMTLIBQueryLoggingSolver.cs" />
+    <Compile Include="Executor\Executor.cs" />
+    <Compile Include="Executor\Memory.cs" />
+    <Compile Include="Executor\ExecutionState.cs" />
+    <Compile Include="Executor\StateScheduler.cs" />
+    <Compile Include="Executor\BlockCmdIterator.cs" />
+    <Compile Include="Executor\SymbolicPool.cs" />
+    <Compile Include="Executor\VariableMapRewriter.cs" />
+    <Compile Include="Executor\ConstraintManager.cs" />
+    <Compile Include="Executor\BoogieCmdExtensions.cs" />
+    <Compile Include="Executor\ExecutorHandlers\IExecutorHandler.cs" />
+    <Compile Include="Executor\ExecutorHandlers\DummyHandlers.cs" />
+    <Compile Include="Executor\ExecutorHandlers\InstructionPrinter.cs" />
+    <Compile Include="Executor\ExecutorHandlers\EnterAndLeaveStackPrinter.cs" />
+    <Compile Include="Executor\ExecutorHandlers\CallSequencePrinter.cs" />
+    <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
+    <Compile Include="Executor\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
+    <Compile Include="Executor\BoogieExprExtensions.cs" />
+    <Compile Include="Executor\TerminationHandlers\TerminationConsoleReporter.cs" />
+    <Compile Include="Executor\TerminationHandlers\TerminationHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
@@ -98,12 +98,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Core\" />
-    <Folder Include="Core\ExecutorHandlers\" />
     <Folder Include="Expr\" />
     <Folder Include="Util\" />
-    <Folder Include="Core\TerminationHandlers\" />
-    <Folder Include="Core\Solver\" />
+    <Folder Include="Executor\" />
+    <Folder Include="Executor\ExecutorHandlers\" />
+    <Folder Include="Executor\TerminationHandlers\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
