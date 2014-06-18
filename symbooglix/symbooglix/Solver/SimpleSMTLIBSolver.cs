@@ -8,12 +8,12 @@ namespace symbooglix
     namespace Solver
     {
         // FIXME: Refactor this and SMTLIBQueryLoggingSolver
-        public class SimpleSMTLIBSolver : ISolver
+        public abstract class SimpleSMTLIBSolver : ISolver
         {
             public int Timeout { get; private set;}
-            private SMTLIBQueryPrinter Printer = null;
-            private ConstraintManager currentConstraints = null;
-            private ProcessStartInfo startInfo;
+            protected SMTLIBQueryPrinter Printer = null;
+            protected ConstraintManager currentConstraints = null;
+            protected ProcessStartInfo startInfo;
             private Result solverResult = Result.UNKNOWN;
             private bool receivedResult = false;
 
@@ -22,11 +22,13 @@ namespace symbooglix
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
 
-                startInfo = new ProcessStartInfo(PathToSolverExecutable, "-in -smt2"); // FIXME: This is Z3 specific
+                startInfo = new ProcessStartInfo(PathToSolverExecutable);
                 startInfo.RedirectStandardInput = true; // Neccessary so we can send our query
                 startInfo.RedirectStandardOutput = true; // Necessary so we can read the output
                 startInfo.RedirectStandardError = true;
                 startInfo.UseShellExecute = false; // C# docs say this is required
+
+                // Subclasses should set the process arguments
 
                 // We need to be careful to not print anything until we associate a TextWriter with the printer!
                 Printer = new SMTLIBQueryPrinter(null, /*humanReadable=*/ false);
@@ -101,7 +103,7 @@ namespace symbooglix
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
 
-                // FIXME: Set logic
+                SetSolverOptions();
                 printDeclarationsAndConstraints();
                 Printer.printAssert(QueryToPrint);
                 Printer.printCheckSat();
@@ -119,7 +121,7 @@ namespace symbooglix
                 return solverResult;
             }
 
-            private void OutputHandler(object sendingProcess, DataReceivedEventArgs stdoutLine)
+            protected virtual void OutputHandler(object sendingProcess, DataReceivedEventArgs stdoutLine)
             {
                 // The event handler might get called more than once.
                 // In fact for Z3 we get called twice, first with the result
@@ -148,10 +150,15 @@ namespace symbooglix
                 Printer.printExit();
             }
 
-            private void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)
+            protected virtual void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)
             {
-                Console.Error.WriteLine("Solver error received: out is length is" + stderrLine.Data.Length);
-                Console.Write(stderrLine.Data);
+                Console.Error.WriteLine("Solver error received:");
+                Console.Error.WriteLine(stderrLine.Data);
+            }
+
+            protected virtual void SetSolverOptions()
+            {
+                // Subclasses to implement
             }
         }
 

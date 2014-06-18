@@ -74,6 +74,8 @@
     <Compile Include="Executor\BoogieExprExtensions.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationConsoleReporter.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationHandler.cs" />
+    <Compile Include="Solver\Z3SMTLIBSolver.cs" />
+    <Compile Include="Solver\CVC4SMTLIBSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

@@ -44,7 +44,18 @@ namespace symbooglix
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
-            [Option("solver", DefaultValue = "", HelpText = "Path to the SMTLIBv2 solver")]
+            public enum Solver
+            {
+                CVC4,
+                DUMMY,
+                Z3
+            }
+
+            // FIXME: The command line library should tell the user what are the valid values
+            [Option("solver", DefaultValue = Solver.Z3, HelpText = "Solver to use (valid values CVC4, DUMMY, Z3)")]
+            public Solver solver { get; set; }
+
+            [Option("solver-path", DefaultValue = "", HelpText = "Path to the SMTLIBv2 solver")]
             public string pathToSolver { get; set; }
 
             [Option("verify-unmodified-impl", DefaultValue = true, HelpText = "Verify that implementation commands aren't accidently modified during execution")]
@@ -219,7 +230,22 @@ namespace symbooglix
 
         public static Solver.ISolver BuildSolverChain(CmdLineOpts options)
         {
-            Solver.ISolver solver = new Solver.SimpleSMTLIBSolver(options.pathToSolver);
+            Solver.ISolver solver = null;
+
+            switch (options.solver)
+            {
+                case CmdLineOpts.Solver.CVC4:
+                    solver = new Solver.CVC4SMTLIBSolver(options.pathToSolver);
+                    break;
+                case CmdLineOpts.Solver.Z3:
+                    solver = new Solver.Z3SMTLIBSolver(options.pathToSolver);
+                    break;
+                case CmdLineOpts.Solver.DUMMY:
+                    solver = new Solver.DummySolver();
+                    break;
+                default:
+                    throw new NotSupportedException("Unhandled solver type");
+            }
 
             if (options.queryLogPath.Length > 0)
             {

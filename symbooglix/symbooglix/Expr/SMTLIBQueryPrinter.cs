@@ -45,7 +45,7 @@ namespace symbooglix
         {
             QF_BV,
             QF_ABV,
-            Q_ALL
+            ALL_SUPPORTED // CVC4 specific
         }
 
         public void changeOutput(TextWriter newTW)
