@@ -19,6 +19,9 @@ namespace symbooglix
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
+            [OptionList('D', "defines",Separator = ',', HelpText="Add defines to the Boogie parser. Each define should be seperated by a comma.")]
+            public List<string> Defines { get; set; }
+
             [Option('e', "entry-point", DefaultValue = "main", HelpText = "Implementation to use as the entry point for execution")]
             public string entryPoint { get; set; }
 
@@ -120,9 +123,13 @@ namespace symbooglix
            
             Program p = null;
 
-            // FIXME: Provide command line option for this
-            var defines = new List<String> { "FILE_0" }; // WTF??
-            int errors = Parser.Parse (options.boogieProgramPath, defines, out p);
+            if (options.Defines != null)
+            {
+                foreach (var define in options.Defines)
+                    Console.WriteLine("Adding define \"" + define + "\" to Boogie parser");
+            }
+
+            int errors = Parser.Parse(options.boogieProgramPath, options.Defines, out p);
 
             if (errors != 0)
             {
