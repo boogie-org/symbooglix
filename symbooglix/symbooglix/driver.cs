@@ -19,7 +19,7 @@ namespace symbooglix
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
-            [Option('e', "entry-point", DefaultValue = "main", HelpText = "Implementation to use the entry point for execution")]
+            [Option('e', "entry-point", DefaultValue = "main", HelpText = "Implementation to use as the entry point for execution")]
             public string entryPoint { get; set; }
 
             // FIXME: Booleans can't be disabled in the CommandLine library so use ints instead
