@@ -126,11 +126,11 @@ namespace symbooglix
                 switch (ST)
                 {
                     case SimpleType.Bool:
-                        return "(Bool)";
+                        return "Bool";
                     case SimpleType.Int:
-                        return "(Int)";
+                        return "Int";
                     case SimpleType.Real:
-                        return "(Real)";
+                        return "Real";
                     default:
                         throw new NotImplementedException("Unsupported SimpleType " + ST.ToString());
                 }

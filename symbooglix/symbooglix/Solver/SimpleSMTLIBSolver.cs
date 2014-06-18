@@ -152,8 +152,11 @@ namespace symbooglix
 
             protected virtual void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)
             {
-                Console.Error.WriteLine("Solver error received:");
-                Console.Error.WriteLine(stderrLine.Data);
+                if (stderrLine.Data.Length > 0)
+                {
+                    Console.Error.WriteLine("Solver error received:");
+                    Console.Error.WriteLine(stderrLine.Data);
+                }
             }
 
             protected virtual void SetSolverOptions()
