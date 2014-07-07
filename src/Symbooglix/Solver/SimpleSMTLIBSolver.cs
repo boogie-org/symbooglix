@@ -8,8 +8,7 @@ namespace Symbooglix
     namespace Solver
     {
         // FIXME: Refactor this and SMTLIBQueryLoggingSolver
-        // FIXME: This should not be an abstract class!
-        public abstract class SimpleSMTLIBSolver : ISolver
+        public class SimpleSMTLIBSolver : ISolver
         {
             public int Timeout { get; private set;}
             protected SMTLIBQueryPrinter Printer = null;
@@ -17,22 +16,44 @@ namespace Symbooglix
             protected ProcessStartInfo StartInfo;
             private Result solverResult = Result.UNKNOWN;
             private bool receivedResult = false;
+            private Process TheProcess = null;
 
-            public SimpleSMTLIBSolver(string PathToSolverExecutable)
+            protected SimpleSMTLIBSolver(string PathToSolverExecutable, string solverArguments)
             {
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
 
                 StartInfo = new ProcessStartInfo(PathToSolverExecutable);
+                StartInfo.Arguments = solverArguments;
                 StartInfo.RedirectStandardInput = true; // Neccessary so we can send our query
                 StartInfo.RedirectStandardOutput = true; // Necessary so we can read the output
                 StartInfo.RedirectStandardError = true;
                 StartInfo.UseShellExecute = false; // C# docs say this is required
 
-                // Subclasses should set the process arguments
+                // We create the process early so the printer has access to the TextWriter
+                CreateNewProcess();
 
-                // We need to be careful to not print anything until we associate a TextWriter with the printer!
-                Printer = new SMTLIBQueryPrinter(null, /*humanReadable=*/ false);
+                Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*humanReadable=*/ false);
+            }
+
+            private void CreateNewProcess()
+            {
+                if (TheProcess != null)
+                    TheProcess.Close();
+
+                this.TheProcess = Process.Start(StartInfo);
+
+                if (Printer == null)
+                    Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*humanReadable=*/ false);
+                else
+                    Printer.changeOutput(TheProcess.StandardInput);
+
+
+                // Register for asynchronous callbacks
+                TheProcess.OutputDataReceived += OutputHandler;
+                TheProcess.ErrorDataReceived += ErrorHandler;
+                TheProcess.BeginOutputReadLine();
+                TheProcess.BeginErrorReadLine();
             }
 
             public void SetConstraints(ConstraintManager cm)
@@ -93,31 +114,21 @@ namespace Symbooglix
 
                 Printer.addDeclarations(QueryToPrint);
 
-                // Create Process
-                var proc = Process.Start(StartInfo);
-
-                Printer.changeOutput(proc.StandardInput);
-
-                // Register for asynchronous callback
-                proc.OutputDataReceived += OutputHandler;
-                proc.ErrorDataReceived += ErrorHandler;
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
-
+                // Assume the process has already been setup
                 SetSolverOptions();
                 PrintDeclarationsAndConstraints();
                 Printer.printAssert(QueryToPrint);
                 Printer.printCheckSat();
 
                 if (Timeout > 0)
-                    proc.WaitForExit(Timeout * 1000);
+                    TheProcess.WaitForExit(Timeout * 1000);
                 else
-                    proc.WaitForExit();
+                    TheProcess.WaitForExit();
 
                 if (!receivedResult)
                     throw new NoSolverResultException("Failed to get solver result!");
 
-                proc.Close();
+                CreateNewProcess(); // For next invocation
 
                 return solverResult;
             }
