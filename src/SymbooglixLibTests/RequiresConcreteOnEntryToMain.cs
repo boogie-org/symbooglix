@@ -26,7 +26,7 @@ namespace SymbooglixLibTests
 
                     // Check that the equality constraint has been stored
                     bool found = false;
-                    foreach (Expr constraint in e.currentState.Constraints.constraints)
+                    foreach (Expr constraint in e.currentState.Constraints.Constraints)
                     {
                         //Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
 

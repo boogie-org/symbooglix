@@ -98,7 +98,7 @@ namespace Symbooglix
                 var VMR = new VariableMapRewriter(initialState);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
-                initialState.Constraints.addConstraint(constraint);
+                initialState.Constraints.AddConstraint(constraint);
                 Debug.WriteLine("Adding constraint : " + constraint);
             }
              
@@ -386,7 +386,7 @@ namespace Symbooglix
                     return HandlerAction.CONTINUE; // Should we prevent other handlers from executing?
                 }
 
-                currentState.Constraints.addConstraint(constraint);
+                currentState.Constraints.AddConstraint(constraint);
             }
 
             // Concretise globals and locals if explicitly set in requires statements
@@ -521,7 +521,7 @@ namespace Symbooglix
                 else if (!canFail && canSucceed)
                 {
                     // This state can only suceed
-                    currentState.Constraints.addConstraint(remapped);
+                    currentState.Constraints.AddConstraint(remapped);
                 }
                 else if (canFail && canSucceed)
                 {
@@ -536,7 +536,7 @@ namespace Symbooglix
                         handler.handleFailingEnsures(failedState, ensures);
 
                     // succesful state
-                    currentState.Constraints.addConstraint(remapped);
+                    currentState.Constraints.AddConstraint(remapped);
                 }
                 else
                 {
@@ -727,7 +727,7 @@ namespace Symbooglix
             else if (!canFail && canSucceed)
             {
                 // This state can only succeed
-                currentState.Constraints.addConstraint(dupAndrw);
+                currentState.Constraints.AddConstraint(dupAndrw);
             }
             else if (canFail && canSucceed)
             {
@@ -744,7 +744,7 @@ namespace Symbooglix
                     handler.handleFailingAssert(failingState);
 
                 // successful state can now have assertion expr in constraints
-                currentState.Constraints.addConstraint(dupAndrw);
+                currentState.Constraints.AddConstraint(dupAndrw);
 
             }
             else
@@ -805,11 +805,11 @@ namespace Symbooglix
                     stateScheduler.removeState(currentState);
                     break;
                 case Symbooglix.Solver.Result.SAT:
-                    currentState.Constraints.addConstraint(dupAndrw);
+                    currentState.Constraints.AddConstraint(dupAndrw);
                     break;
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
-                    currentState.Constraints.addConstraint(dupAndrw);
+                    currentState.Constraints.AddConstraint(dupAndrw);
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");

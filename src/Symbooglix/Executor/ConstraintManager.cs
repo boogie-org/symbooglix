@@ -7,38 +7,38 @@ namespace Symbooglix
 
     public class ConstraintManager : Util.IDeepClone<ConstraintManager>
     {
-        public List<Expr> constraints;
+        public List<Expr> Constraints;
         public ConstraintManager()
         {
-            constraints = new List<Expr>();
+            Constraints = new List<Expr>();
         }
 
         public ConstraintManager DeepClone()
         {
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
-            other.constraints = new List<Expr>();
+            other.Constraints = new List<Expr>();
 
             var duplicator = new NonSymbolicDuplicator();
-            foreach (var e in this.constraints)
+            foreach (var e in this.Constraints)
             {
                 var copy = (Expr) duplicator.Visit(e);
-                other.constraints.Add(copy);
+                other.Constraints.Add(copy);
             }
 
             return other;
         }
 
-        public void addConstraint(Expr e)
+        public void AddConstraint(Expr e)
         {
-            constraints.Add(e);
+            Constraints.Add(e);
         }
 
         public override string ToString()
         {
             string d = "[Constraints]\n";
-            d += constraints.Count + " constraint(s)\n\n";
+            d += Constraints.Count + " constraint(s)\n\n";
 
-            foreach (Expr e in constraints)
+            foreach (Expr e in Constraints)
                 d += e + "\n";
 
             return d;

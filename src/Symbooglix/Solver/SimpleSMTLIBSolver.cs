@@ -40,7 +40,7 @@ namespace Symbooglix
 
                 // Let the printer find the declarations
                 currentConstraints = cm;
-                foreach (var constraint in cm.constraints)
+                foreach (var constraint in cm.Constraints)
                 {
                     Printer.addDeclarations(constraint);
                 }
@@ -58,8 +58,8 @@ namespace Symbooglix
             {
                 Printer.printVariableDeclarations();
                 Printer.printFunctionDeclarations();
-                Printer.printCommentLine(currentConstraints.constraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in currentConstraints.constraints)
+                Printer.printCommentLine(currentConstraints.Constraints.Count.ToString() +  " Constraints");
+                foreach (var constraint in currentConstraints.Constraints)
                 {
                     Printer.printAssert(constraint);
                 }
