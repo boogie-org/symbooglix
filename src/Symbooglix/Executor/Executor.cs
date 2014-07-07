@@ -309,7 +309,7 @@ namespace Symbooglix
         {
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
-            currentState.enterImplementation(Impl);
+            currentState.EnterImplementation(Impl);
 
             // FIXME: We should check there are no name clashes between
             // existing program variables and symbolics

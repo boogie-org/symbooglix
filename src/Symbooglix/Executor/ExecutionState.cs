@@ -75,7 +75,7 @@ namespace Symbooglix
             return GetCurrentStackFrame().CurrentBlock;
         }
 
-        public void enterImplementation(Implementation impl)
+        public void EnterImplementation(Implementation impl)
         {
             Started = true;
             StackFrame s = new StackFrame(impl);
