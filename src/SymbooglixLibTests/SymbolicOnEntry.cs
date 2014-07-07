@@ -23,7 +23,7 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(name == "entry");
                 e.currentState.dumpStackTrace();
                 // Check that all globals are symbolic
-                foreach (GlobalVariable GV in e.currentState.mem.globals.Keys)
+                foreach (GlobalVariable GV in e.currentState.mem.Globals.Keys)
                 {
                     Assert.IsTrue(e.isSymbolic(GV));
                 }
@@ -46,7 +46,7 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(name == "entry");
                 e.currentState.dumpStackTrace();
                 // Check that all locals are symbolic
-                foreach (Variable LV in e.currentState.getCurrentStackFrame().locals.Keys)
+                foreach (Variable LV in e.currentState.getCurrentStackFrame().Locals.Keys)
                 {
                     Assert.IsTrue(e.isSymbolic(LV));
                 }

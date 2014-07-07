@@ -26,11 +26,11 @@ namespace SymbooglixLibTests
                 ++hits;
 
                 // Check globals are symbolic
-                foreach (Variable V in e.currentState.mem.globals.Keys)
+                foreach (Variable V in e.currentState.mem.Globals.Keys)
                     Assert.IsTrue(e.isSymbolic(V));
 
                 // Check globals are symbolic
-                foreach (Variable V in e.currentState.getCurrentStackFrame().locals.Keys)
+                foreach (Variable V in e.currentState.getCurrentStackFrame().Locals.Keys)
                     Assert.IsTrue(e.isSymbolic(V));
 
                 return Executor.HandlerAction.CONTINUE;

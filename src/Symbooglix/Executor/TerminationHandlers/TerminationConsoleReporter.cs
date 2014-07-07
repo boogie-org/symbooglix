@@ -30,8 +30,8 @@ namespace Symbooglix
         {
             string msg = "State " + s.id + " terminated with an error";
             WriteLine(ConsoleColor.Red, msg);
-            Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is AssertCmd);
-            var failingCmd = (AssertCmd) s.getCurrentStackFrame().currentInstruction.Current;
+            Debug.Assert(s.getCurrentStackFrame().CurrentInstruction.Current is AssertCmd);
+            var failingCmd = (AssertCmd) s.getCurrentStackFrame().CurrentInstruction.Current;
             msg = "The following assertion failed\n" +
                   failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
                   failingCmd.ToString();
@@ -57,7 +57,7 @@ namespace Symbooglix
         {
             string msg = "State " + s.id + " terminated with an error";
             WriteLine(ConsoleColor.Red, msg);
-            Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is ReturnCmd);
+            Debug.Assert(s.getCurrentStackFrame().CurrentInstruction.Current is ReturnCmd);
             msg = "The following ensures failed\n" +
                   ensuresStatement.tok.filename + ":" + ensuresStatement.tok.line + ": " +
                   ensuresStatement.Condition.ToString();
@@ -69,7 +69,7 @@ namespace Symbooglix
 
         public void handleUnsatisfiableAssume(ExecutionState s)
         {
-            AssumeCmd assumeCmd = (AssumeCmd) s.getCurrentStackFrame().currentInstruction.Current;
+            AssumeCmd assumeCmd = (AssumeCmd) s.getCurrentStackFrame().CurrentInstruction.Current;
 
             // Most of the time we should inform about failing assumes, this hack prevents
             // emitting messages about assumes related to control flow.
@@ -77,8 +77,8 @@ namespace Symbooglix
             {
                 string msg = "State " + s.id + " terminated";
                 WriteLine(ConsoleColor.DarkMagenta, msg);
-                Debug.Assert(s.getCurrentStackFrame().currentInstruction.Current is AssumeCmd);
-                var failingCmd = (AssumeCmd) s.getCurrentStackFrame().currentInstruction.Current;
+                Debug.Assert(s.getCurrentStackFrame().CurrentInstruction.Current is AssumeCmd);
+                var failingCmd = (AssumeCmd) s.getCurrentStackFrame().CurrentInstruction.Current;
                 msg = "The following assumption is unsatisfiable\n" +
                 failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
                 failingCmd.ToString();

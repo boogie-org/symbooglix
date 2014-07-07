@@ -67,19 +67,19 @@ namespace Symbooglix
        
         public StackFrame getCurrentStackFrame()
         {
-            return mem.stack.Last();
+            return mem.Stack.Last();
         }
 
         public Block getCurrentBlock()
         {
-            return getCurrentStackFrame().currentBlock;
+            return getCurrentStackFrame().CurrentBlock;
         }
 
         public void enterProcedure(Implementation p)
         {
             started = true;
             StackFrame s = new StackFrame(p);
-            mem.stack.Add(s);
+            mem.Stack.Add(s);
         }
 
         // Returns variable Expr if in scope, otherwise
@@ -87,17 +87,17 @@ namespace Symbooglix
         public Expr getInScopeVariableExpr(Variable v)
         {
             // Only the current stackframe is in scope
-            if (getCurrentStackFrame().locals.ContainsKey(v))
+            if (getCurrentStackFrame().Locals.ContainsKey(v))
             {
-                return getCurrentStackFrame().locals [v];
+                return getCurrentStackFrame().Locals [v];
             }
 
             if (v is GlobalVariable || v is Constant)
             {
                 // If not in stackframe look through globals
-                if (mem.globals.ContainsKey(v))
+                if (mem.Globals.ContainsKey(v))
                 {
-                    return mem.globals[v];
+                    return mem.Globals[v];
                 }
             }
 
@@ -106,7 +106,7 @@ namespace Symbooglix
 
         public KeyValuePair<Variable,Expr> getInScopeVariableAndExprByName(string name)
         {
-            var local = ( from pair in getCurrentStackFrame().locals
+            var local = ( from pair in getCurrentStackFrame().Locals
                          where pair.Key.Name == name
                          select pair );
             if (local.Count() != 0)
@@ -115,7 +115,7 @@ namespace Symbooglix
                 return local.First();
             }
 
-            var global = ( from pair in mem.globals
+            var global = ( from pair in mem.Globals
                           where pair.Key.Name == name
                           select pair );
 
@@ -127,11 +127,11 @@ namespace Symbooglix
   
         public bool assignToVariableInStack(StackFrame s, Variable v, Expr value)
         {
-            Debug.Assert(mem.stack.Contains(s));
+            Debug.Assert(mem.Stack.Contains(s));
 
-            if (s.locals.ContainsKey(v))
+            if (s.Locals.ContainsKey(v))
             {
-                s.locals [v] = value;
+                s.Locals [v] = value;
                 return true;
             }
 
@@ -141,12 +141,12 @@ namespace Symbooglix
 
         public bool isInScopeVariable(Variable v)
         {
-            if (getCurrentStackFrame().locals.ContainsKey(v))
+            if (getCurrentStackFrame().Locals.ContainsKey(v))
                 return true;
 
             if (v is GlobalVariable || v is Constant)
             {
-                if (mem.globals.ContainsKey(v))
+                if (mem.Globals.ContainsKey(v))
                     return true;
             }
 
@@ -166,9 +166,9 @@ namespace Symbooglix
             if (v is GlobalVariable)
             {
                 var g = v as GlobalVariable;
-                if (mem.globals.ContainsKey(g))
+                if (mem.Globals.ContainsKey(g))
                 {
-                    mem.globals [g] = value;
+                    mem.Globals [g] = value;
                     return;
                 }
             }
@@ -182,7 +182,7 @@ namespace Symbooglix
             if (finished())
                 throw new InvalidOperationException("Not currently in procedure");
 
-            mem.popStackFrame();
+            mem.PopStackFrame();
         }
 
         public bool finished()
@@ -205,7 +205,7 @@ namespace Symbooglix
 
         public bool TerminatedSuccessfuly()
         {
-            if (started && !terminatedEarly && ( mem.stack.Count == 0 ))
+            if (started && !terminatedEarly && ( mem.Stack.Count == 0 ))
                 return true;
             else
                 return false;
@@ -215,9 +215,9 @@ namespace Symbooglix
         {
             if (GV is GlobalVariable || GV is Constant)
             {
-                if (mem.globals.ContainsKey(GV))
+                if (mem.Globals.ContainsKey(GV))
                 {
-                    return mem.globals[GV];
+                    return mem.Globals[GV];
                 }
             }
 

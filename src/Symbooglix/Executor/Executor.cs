@@ -83,8 +83,8 @@ namespace Symbooglix
             {
                 // Make symbolic
                 var s = symbolicPool.getFreshSymbolic(gv);
-                Debug.Assert(!initialState.mem.globals.ContainsKey(gv), "Cannot insert global that is already in memory");
-                initialState.mem.globals.Add(gv, s.expr);
+                Debug.Assert(!initialState.mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
+                initialState.mem.Globals.Add(gv, s.expr);
                 initialState.symbolics.Add(s);
 
             }
@@ -112,8 +112,8 @@ namespace Symbooglix
                 {
                     // Axioms should only be able to refer to globals
                     Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
-                    Debug.Assert(initialState.mem.globals.ContainsKey(assignedTo));
-                    initialState.mem.globals[assignedTo] = literal;
+                    Debug.Assert(initialState.mem.Globals.ContainsKey(assignedTo));
+                    initialState.mem.Globals[assignedTo] = literal;
                 }
             }
 
@@ -201,7 +201,7 @@ namespace Symbooglix
                 Debug.WriteLineIf(oldState != currentState, "[Switching context " + oldState.id + " => " + currentState.id + " ]");
                 oldState = currentState;
 
-                currentState.getCurrentStackFrame().currentInstruction.MoveNext();
+                currentState.getCurrentStackFrame().CurrentInstruction.MoveNext();
                 executeInstruction();
             }
             Console.WriteLine("Finished executing all states");
@@ -218,7 +218,7 @@ namespace Symbooglix
 
         private void executeInstruction()
         {
-            Absy currentInstruction = currentState.getCurrentStackFrame().currentInstruction.Current;
+            Absy currentInstruction = currentState.getCurrentStackFrame().CurrentInstruction.Current;
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
@@ -319,7 +319,7 @@ namespace Symbooglix
             {
                 foreach (var v in Impl.InParams)
                 {
-                    currentState.getCurrentStackFrame().locals.Add(v, null); // Add dummy to stack so makeSymbolic works
+                    currentState.getCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
                     initialiseAsSymbolic(v);
                 }
             }
@@ -330,7 +330,7 @@ namespace Symbooglix
 
                 foreach (var tuple in Impl.InParams.Zip(procedureParams))
                 {
-                    currentState.getCurrentStackFrame().locals.Add(tuple.Item1, tuple.Item2);
+                    currentState.getCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
                 }
 
             }
@@ -339,7 +339,7 @@ namespace Symbooglix
             foreach(Variable v in Impl.OutParams)
             {
                 // Make symbolic;
-                currentState.getCurrentStackFrame().locals.Add(v, null);
+                currentState.getCurrentStackFrame().Locals.Add(v, null);
                 initialiseAsSymbolic(v);
             }
 
@@ -347,7 +347,7 @@ namespace Symbooglix
             foreach(Variable v in Impl.LocVars)
             {
                 // Make symbolic
-                currentState.getCurrentStackFrame().locals.Add(v, null);
+                currentState.getCurrentStackFrame().Locals.Add(v, null);
                 initialiseAsSymbolic(v);
             }
 
@@ -423,17 +423,17 @@ namespace Symbooglix
 
             // FIXME: The variables attached to the procedure are not the same object instances
             // used for the procedure. Setup the mapping. Eurgh.. Boogie you suck!
-            foreach (var tuple in currentState.getCurrentStackFrame().procedure.Proc.InParams.Zip(currentState.getCurrentStackFrame().procedure.InParams))
+            foreach (var tuple in currentState.getCurrentStackFrame().Impl.Proc.InParams.Zip(currentState.getCurrentStackFrame().Impl.InParams))
             {
                 VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
             }
-            foreach (var tuple in currentState.getCurrentStackFrame().procedure.Proc.OutParams.Zip(currentState.getCurrentStackFrame().procedure.OutParams))
+            foreach (var tuple in currentState.getCurrentStackFrame().Impl.Proc.OutParams.Zip(currentState.getCurrentStackFrame().Impl.OutParams))
             {
                 VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
             }
 
             // Loop over each ensures to see if it can fail.
-            foreach (var ensures in currentState.getCurrentStackFrame().procedure.Proc.Ensures)
+            foreach (var ensures in currentState.getCurrentStackFrame().Impl.Proc.Ensures)
             {
                 bool canFail = false;
                 bool canSucceed = false;
@@ -545,15 +545,15 @@ namespace Symbooglix
             }
 
             // Pass Parameters to Caller
-            if (currentState.mem.stack.Count > 1)
+            if (currentState.mem.Stack.Count > 1)
             {
-                StackFrame callingSF = currentState.mem.stack.ElementAt(currentState.mem.stack.Count - 2);
-                CallCmd caller = (CallCmd) callingSF.currentInstruction.Current;
+                StackFrame callingSF = currentState.mem.Stack.ElementAt(currentState.mem.Stack.Count - 2);
+                CallCmd caller = (CallCmd) callingSF.CurrentInstruction.Current;
                 Debug.Assert(caller is CallCmd);
 
                 // Assign return parameters
                 Debug.Assert(caller.Proc.OutParams.Count == caller.Outs.Count);
-                foreach (var tuple in caller.Outs.Zip(currentState.getCurrentStackFrame().procedure.OutParams))
+                foreach (var tuple in caller.Outs.Zip(currentState.getCurrentStackFrame().Impl.OutParams))
                 {
                     // Get return value
                     Expr value = currentState.getInScopeVariableExpr(tuple.Item2);
@@ -829,13 +829,13 @@ namespace Symbooglix
                 {
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
                     newState = currentState.DeepClone(); // FIXME: This is not memory efficient
-                    newState.getCurrentStackFrame().transferToBlock(c.labelTargets[targetId]);
+                    newState.getCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
                     stateScheduler.addState(newState);
                 }
             }
 
             // The current execution state will always take the first target
-            currentState.getCurrentStackFrame().transferToBlock(c.labelTargets[0]);
+            currentState.getCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
 
             return HandlerAction.CONTINUE;
         }
