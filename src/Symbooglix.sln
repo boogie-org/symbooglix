@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symbooglix", "symbooglix\Symbooglix.csproj", "{69F04878-1CD0-454C-87A6-6B155D2D4855}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symbooglix", "Symbooglix\Symbooglix.csproj", "{69F04878-1CD0-454C-87A6-6B155D2D4855}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Boogie", "Boogie", "{DA58A461-5C93-47CE-90F3-8782F573B9C1}"
 EndProject
@@ -181,7 +181,7 @@ Global
 		{ACEF88D5-DADD-46DA-BAE1-2144D63F4C83} = {DA58A461-5C93-47CE-90F3-8782F573B9C1}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = symbooglix\Symbooglix.csproj
+		StartupItem = Symbooglix\Symbooglix.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.FileWidth = 120

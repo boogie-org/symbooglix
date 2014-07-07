@@ -136,7 +136,7 @@
       <Project>{9B163AA3-36BC-4AFB-88AB-79BC9E97E401}</Project>
       <Name>SMTLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\symbooglix\Symbooglix.csproj">
+    <ProjectReference Include="..\Symbooglix\Symbooglix.csproj">
       <Project>{69F04878-1CD0-454C-87A6-6B155D2D4855}</Project>
       <Name>Symbooglix</Name>
     </ProjectReference>
