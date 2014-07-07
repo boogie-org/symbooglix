@@ -8,7 +8,7 @@
     <ProjectGuid>{69F04878-1CD0-454C-87A6-6B155D2D4855}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Symbooglix</RootNamespace>
-    <AssemblyName>Symbooglix</AssemblyName>
+    <AssemblyName>symbooglix</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
