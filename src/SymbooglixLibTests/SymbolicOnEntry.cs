@@ -21,9 +21,9 @@ namespace SymbooglixLibTests
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
                 Assert.IsTrue(name == "entry");
-                e.currentState.dumpStackTrace();
+                e.currentState.DumpStackTrace();
                 // Check that all globals are symbolic
-                foreach (GlobalVariable GV in e.currentState.mem.Globals.Keys)
+                foreach (GlobalVariable GV in e.currentState.Mem.Globals.Keys)
                 {
                     Assert.IsTrue(e.isSymbolic(GV));
                 }
@@ -44,9 +44,9 @@ namespace SymbooglixLibTests
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
                 Assert.IsTrue(name == "entry");
-                e.currentState.dumpStackTrace();
+                e.currentState.DumpStackTrace();
                 // Check that all locals are symbolic
-                foreach (Variable LV in e.currentState.getCurrentStackFrame().Locals.Keys)
+                foreach (Variable LV in e.currentState.GetCurrentStackFrame().Locals.Keys)
                 {
                     Assert.IsTrue(e.isSymbolic(LV));
                 }

@@ -83,9 +83,9 @@ namespace Symbooglix
             {
                 // Make symbolic
                 var s = symbolicPool.getFreshSymbolic(gv);
-                Debug.Assert(!initialState.mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
-                initialState.mem.Globals.Add(gv, s.expr);
-                initialState.symbolics.Add(s);
+                Debug.Assert(!initialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
+                initialState.Mem.Globals.Add(gv, s.expr);
+                initialState.Symbolics.Add(s);
 
             }
 
@@ -98,7 +98,7 @@ namespace Symbooglix
                 var VMR = new VariableMapRewriter(initialState);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
-                initialState.cm.addConstraint(constraint);
+                initialState.Constraints.addConstraint(constraint);
                 Debug.WriteLine("Adding constraint : " + constraint);
             }
              
@@ -112,8 +112,8 @@ namespace Symbooglix
                 {
                     // Axioms should only be able to refer to globals
                     Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
-                    Debug.Assert(initialState.mem.Globals.ContainsKey(assignedTo));
-                    initialState.mem.Globals[assignedTo] = literal;
+                    Debug.Assert(initialState.Mem.Globals.ContainsKey(assignedTo));
+                    initialState.Mem.Globals[assignedTo] = literal;
                 }
             }
 
@@ -198,10 +198,10 @@ namespace Symbooglix
             while (stateScheduler.getNumberOfStates() != 0)
             {
                 currentState = stateScheduler.getNextState();
-                Debug.WriteLineIf(oldState != currentState, "[Switching context " + oldState.id + " => " + currentState.id + " ]");
+                Debug.WriteLineIf(oldState != currentState, "[Switching context " + oldState.Id + " => " + currentState.Id + " ]");
                 oldState = currentState;
 
-                currentState.getCurrentStackFrame().CurrentInstruction.MoveNext();
+                currentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
                 executeInstruction();
             }
             Console.WriteLine("Finished executing all states");
@@ -218,7 +218,7 @@ namespace Symbooglix
 
         private void executeInstruction()
         {
-            Absy currentInstruction = currentState.getCurrentStackFrame().CurrentInstruction.Current;
+            Absy currentInstruction = currentState.GetCurrentStackFrame().CurrentInstruction.Current;
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
@@ -260,10 +260,10 @@ namespace Symbooglix
 
         protected SymbolicVariable initialiseAsSymbolic(Variable v)
         {
-            Debug.Assert(currentState.isInScopeVariable(v));
+            Debug.Assert(currentState.IsInScopeVariable(v));
             var s = symbolicPool.getFreshSymbolic(v);
-            currentState.symbolics.Add(s);
-            currentState.assignToVariableInScope(v, s.expr);
+            currentState.Symbolics.Add(s);
+            currentState.AssignToVariableInScope(v, s.expr);
             return s;
         }
 
@@ -275,10 +275,10 @@ namespace Symbooglix
 
         public void makeConcrete(Variable v, LiteralExpr literal)
         {
-            Debug.Assert(currentState.isInScopeVariable(v));
+            Debug.Assert(currentState.IsInScopeVariable(v));
             Debug.Assert(isSymbolic(v), "Tried to concretise something that is already concrete!");
             Debug.WriteLine("Concretising  {0} := {1}", v, literal);
-            currentState.assignToVariableInScope(v, literal);
+            currentState.AssignToVariableInScope(v, literal);
 
             // FIXME: 
             // We can't remove this from the ExecutionState's set
@@ -292,8 +292,8 @@ namespace Symbooglix
             // FIXME: When constant folding is fully implemented this check can be made REALLY fast
             // because anything that isn't a LiteralExpr must be symbolic after constant folding
 
-            Debug.Assert(currentState.isInScopeVariable(v), "Variable is not in scope");
-            Expr e = currentState.getInScopeVariableExpr(v);
+            Debug.Assert(currentState.IsInScopeVariable(v), "Variable is not in scope");
+            Expr e = currentState.GetInScopeVariableExpr(v);
             Debug.Assert(e != null , "Expression for variable is NULL");
             var fsv = new FindSymbolicsVisitor();
             fsv.Visit(e);
@@ -309,7 +309,7 @@ namespace Symbooglix
         {
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
-            currentState.enterProcedure(Impl);
+            currentState.enterImplementation(Impl);
 
             // FIXME: We should check there are no name clashes between
             // existing program variables and symbolics
@@ -319,7 +319,7 @@ namespace Symbooglix
             {
                 foreach (var v in Impl.InParams)
                 {
-                    currentState.getCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
+                    currentState.GetCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
                     initialiseAsSymbolic(v);
                 }
             }
@@ -330,7 +330,7 @@ namespace Symbooglix
 
                 foreach (var tuple in Impl.InParams.Zip(procedureParams))
                 {
-                    currentState.getCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
+                    currentState.GetCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
                 }
 
             }
@@ -339,7 +339,7 @@ namespace Symbooglix
             foreach(Variable v in Impl.OutParams)
             {
                 // Make symbolic;
-                currentState.getCurrentStackFrame().Locals.Add(v, null);
+                currentState.GetCurrentStackFrame().Locals.Add(v, null);
                 initialiseAsSymbolic(v);
             }
 
@@ -347,7 +347,7 @@ namespace Symbooglix
             foreach(Variable v in Impl.LocVars)
             {
                 // Make symbolic
-                currentState.getCurrentStackFrame().Locals.Add(v, null);
+                currentState.GetCurrentStackFrame().Locals.Add(v, null);
                 initialiseAsSymbolic(v);
             }
 
@@ -370,7 +370,7 @@ namespace Symbooglix
 
                 // Check to see if the requires constraint is unsat
                 // FIXME: This should probably be an option.
-                solver.SetConstraints(currentState.cm);
+                solver.SetConstraints(currentState.Constraints);
                 Solver.Result result = solver.IsQuerySat(constraint);
 
                 if (result == Solver.Result.UNSAT)
@@ -386,7 +386,7 @@ namespace Symbooglix
                     return HandlerAction.CONTINUE; // Should we prevent other handlers from executing?
                 }
 
-                currentState.cm.addConstraint(constraint);
+                currentState.Constraints.addConstraint(constraint);
             }
 
             // Concretise globals and locals if explicitly set in requires statements
@@ -403,7 +403,7 @@ namespace Symbooglix
                     if (VR.preReplacementReMap.ContainsKey(V))
                         V = VR.preReplacementReMap[V];
 
-                    if (currentState.isInScopeVariable(V))
+                    if (currentState.IsInScopeVariable(V))
                     {
                         makeConcrete(V, literal);
                     }
@@ -418,22 +418,22 @@ namespace Symbooglix
         public HandlerAction handle(ReturnCmd c, Executor executor)
         {
             // Check ensures conditions, forking if necessary
-            solver.SetConstraints(currentState.cm);
+            solver.SetConstraints(currentState.Constraints);
             var VMR = new VariableMapRewriter(currentState);
 
             // FIXME: The variables attached to the procedure are not the same object instances
             // used for the procedure. Setup the mapping. Eurgh.. Boogie you suck!
-            foreach (var tuple in currentState.getCurrentStackFrame().Impl.Proc.InParams.Zip(currentState.getCurrentStackFrame().Impl.InParams))
+            foreach (var tuple in currentState.GetCurrentStackFrame().Impl.Proc.InParams.Zip(currentState.GetCurrentStackFrame().Impl.InParams))
             {
                 VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
             }
-            foreach (var tuple in currentState.getCurrentStackFrame().Impl.Proc.OutParams.Zip(currentState.getCurrentStackFrame().Impl.OutParams))
+            foreach (var tuple in currentState.GetCurrentStackFrame().Impl.Proc.OutParams.Zip(currentState.GetCurrentStackFrame().Impl.OutParams))
             {
                 VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
             }
 
             // Loop over each ensures to see if it can fail.
-            foreach (var ensures in currentState.getCurrentStackFrame().Impl.Proc.Ensures)
+            foreach (var ensures in currentState.GetCurrentStackFrame().Impl.Proc.Ensures)
             {
                 bool canFail = false;
                 bool canSucceed = false;
@@ -521,7 +521,7 @@ namespace Symbooglix
                 else if (!canFail && canSucceed)
                 {
                     // This state can only suceed
-                    currentState.cm.addConstraint(remapped);
+                    currentState.Constraints.addConstraint(remapped);
                 }
                 else if (canFail && canSucceed)
                 {
@@ -536,7 +536,7 @@ namespace Symbooglix
                         handler.handleFailingEnsures(failedState, ensures);
 
                     // succesful state
-                    currentState.cm.addConstraint(remapped);
+                    currentState.Constraints.addConstraint(remapped);
                 }
                 else
                 {
@@ -545,30 +545,30 @@ namespace Symbooglix
             }
 
             // Pass Parameters to Caller
-            if (currentState.mem.Stack.Count > 1)
+            if (currentState.Mem.Stack.Count > 1)
             {
-                StackFrame callingSF = currentState.mem.Stack.ElementAt(currentState.mem.Stack.Count - 2);
+                StackFrame callingSF = currentState.Mem.Stack.ElementAt(currentState.Mem.Stack.Count - 2);
                 CallCmd caller = (CallCmd) callingSF.CurrentInstruction.Current;
                 Debug.Assert(caller is CallCmd);
 
                 // Assign return parameters
                 Debug.Assert(caller.Proc.OutParams.Count == caller.Outs.Count);
-                foreach (var tuple in caller.Outs.Zip(currentState.getCurrentStackFrame().Impl.OutParams))
+                foreach (var tuple in caller.Outs.Zip(currentState.GetCurrentStackFrame().Impl.OutParams))
                 {
                     // Get return value
-                    Expr value = currentState.getInScopeVariableExpr(tuple.Item2);
+                    Expr value = currentState.GetInScopeVariableExpr(tuple.Item2);
                     Debug.Assert(value != null);
 
                     // Assign
-                    currentState.assignToVariableInStack(callingSF, tuple.Item1.Decl, value);
+                    currentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
                 }
 
             }
 
             // Pop stack frame
-            currentState.leaveProcedure();
+            currentState.LeaveImplementation();
 
-            if (currentState.finished())
+            if (currentState.Finished())
             {
                 // Notify any handlers that this state terminated without error
                 foreach (var handler in terminationHandlers)
@@ -599,7 +599,7 @@ namespace Symbooglix
                 Debug.Assert(lvalue.IsMutable, "lvalue is not mutable!");
 
                 // Check lhs is actually in scope
-                if (! currentState.isInScopeVariable(lvalue))
+                if (! currentState.IsInScopeVariable(lvalue))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
                 if (lhsrhs.Item1 is SimpleAssignLhs)
@@ -627,7 +627,7 @@ namespace Symbooglix
                     throw new NotSupportedException("Unknown type of assignment");
                 }
 
-                currentState.assignToVariableInScope(lvalue, rvalue);
+                currentState.AssignToVariableInScope(lvalue, rvalue);
 
                 Debug.WriteLine("Assignment : " + lvalue + " := " + rvalue);
                 ++index;
@@ -672,7 +672,7 @@ namespace Symbooglix
                     throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our exception types
             }
 
-            solver.SetConstraints(currentState.cm);
+            solver.SetConstraints(currentState.Constraints);
 
 
             // First see if it's possible for the assertion to fail
@@ -727,7 +727,7 @@ namespace Symbooglix
             else if (!canFail && canSucceed)
             {
                 // This state can only succeed
-                currentState.cm.addConstraint(dupAndrw);
+                currentState.Constraints.addConstraint(dupAndrw);
             }
             else if (canFail && canSucceed)
             {
@@ -744,7 +744,7 @@ namespace Symbooglix
                     handler.handleFailingAssert(failingState);
 
                 // successful state can now have assertion expr in constraints
-                currentState.cm.addConstraint(dupAndrw);
+                currentState.Constraints.addConstraint(dupAndrw);
 
             }
             else
@@ -791,7 +791,7 @@ namespace Symbooglix
                 }
             }
 
-            solver.SetConstraints(currentState.cm);
+            solver.SetConstraints(currentState.Constraints);
             Solver.Result result = solver.IsQuerySat(dupAndrw);
             switch (result)
             {
@@ -805,11 +805,11 @@ namespace Symbooglix
                     stateScheduler.removeState(currentState);
                     break;
                 case Symbooglix.Solver.Result.SAT:
-                    currentState.cm.addConstraint(dupAndrw);
+                    currentState.Constraints.addConstraint(dupAndrw);
                     break;
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
-                    currentState.cm.addConstraint(dupAndrw);
+                    currentState.Constraints.addConstraint(dupAndrw);
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");
@@ -829,13 +829,13 @@ namespace Symbooglix
                 {
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
                     newState = currentState.DeepClone(); // FIXME: This is not memory efficient
-                    newState.getCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
+                    newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
                     stateScheduler.addState(newState);
                 }
             }
 
             // The current execution state will always take the first target
-            currentState.getCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
+            currentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
 
             return HandlerAction.CONTINUE;
         }
@@ -892,9 +892,9 @@ namespace Symbooglix
             for (int index=0; index < c.Vars.Count ; ++index)
             {
                 var s = symbolicPool.getFreshSymbolic(c, index);
-                Debug.Assert(currentState.isInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
-                currentState.assignToVariableInScope(c.Vars[index].Decl, s.expr);
-                currentState.symbolics.Add(s);
+                Debug.Assert(currentState.IsInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
+                currentState.AssignToVariableInScope(c.Vars[index].Decl, s.expr);
+                currentState.Symbolics.Add(s);
 
             }
             return HandlerAction.CONTINUE;

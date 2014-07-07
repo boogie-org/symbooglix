@@ -17,12 +17,12 @@ namespace SymbooglixLibTests
                 if (name == "entry")
                 {
                     // FIXME: This is fragile, find a way to name the entry block
-                    Assert.AreEqual("anon0", e.currentState.getCurrentStackFrame().CurrentBlock.Label);
+                    Assert.AreEqual("anon0", e.currentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
                 }
                 else if (name == "reached")
                 {
-                    Assert.AreEqual("NEXT", e.currentState.getCurrentStackFrame().CurrentBlock.Label);
+                    Assert.AreEqual("NEXT", e.currentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
                 }
                 else
@@ -52,30 +52,30 @@ namespace SymbooglixLibTests
             {
                 if (name == "entry")
                 {
-                    Assert.AreEqual("anon0", e.currentState.getCurrentStackFrame().CurrentBlock.Label);
+                    Assert.AreEqual("anon0", e.currentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
                 }
                 else if (name == "path0")
                 {
-                    Assert.AreEqual("P0", e.currentState.getCurrentStackFrame().CurrentBlock.Label);
+                    Assert.AreEqual("P0", e.currentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
 
-                    var a = e.currentState.getInScopeVariableAndExprByName("a");
+                    var a = e.currentState.GetInScopeVariableAndExprByName("a");
                     BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(7, aBV.Value.ToInt);
                 }
                 else if (name == "path1")
                 {
-                    var a = e.currentState.getInScopeVariableAndExprByName("a");
-                    Assert.AreEqual("P1", e.currentState.getCurrentStackFrame().CurrentBlock.Label);
+                    var a = e.currentState.GetInScopeVariableAndExprByName("a");
+                    Assert.AreEqual("P1", e.currentState.GetCurrentStackFrame().CurrentBlock.Label);
                     BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(8, aBV.Value.ToInt);
                     ++hits;
                 }
                 else if (name == "path2")
                 {
-                    var a = e.currentState.getInScopeVariableAndExprByName("a");
-                    Assert.AreEqual("P2", e.currentState.getCurrentStackFrame().CurrentBlock.Label);
+                    var a = e.currentState.GetInScopeVariableAndExprByName("a");
+                    Assert.AreEqual("P2", e.currentState.GetCurrentStackFrame().CurrentBlock.Label);
                     BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(9, aBV.Value.ToInt);
                     ++hits;

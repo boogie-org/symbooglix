@@ -16,7 +16,7 @@ namespace SymbooglixLibTests
             {
                 if (name == "now_concrete")
                 {
-                    Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
+                    Variable v = e.currentState.GetInScopeVariableAndExprByName("a").Key;
                     Assert.IsFalse(e.isSymbolic(v));
                 }
 
@@ -26,11 +26,11 @@ namespace SymbooglixLibTests
 
                     // Check that the equality constraint has been stored
                     bool found = false;
-                    foreach (Expr constraint in e.currentState.cm.constraints)
+                    foreach (Expr constraint in e.currentState.Constraints.constraints)
                     {
                         //Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
 
-                        foreach (var s in e.currentState.symbolics)
+                        foreach (var s in e.currentState.Symbolics)
                         {
                             Assert.IsTrue(s.expr is IdentifierExpr);
                             var id = s.expr as IdentifierExpr;

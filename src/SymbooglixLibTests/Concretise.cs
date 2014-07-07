@@ -26,11 +26,11 @@ namespace SymbooglixLibTests
                 ++hits;
 
                 // Check globals are symbolic
-                foreach (Variable V in e.currentState.mem.Globals.Keys)
+                foreach (Variable V in e.currentState.Mem.Globals.Keys)
                     Assert.IsTrue(e.isSymbolic(V));
 
                 // Check globals are symbolic
-                foreach (Variable V in e.currentState.getCurrentStackFrame().Locals.Keys)
+                foreach (Variable V in e.currentState.GetCurrentStackFrame().Locals.Keys)
                     Assert.IsTrue(e.isSymbolic(V));
 
                 return Executor.HandlerAction.CONTINUE;
@@ -41,15 +41,15 @@ namespace SymbooglixLibTests
             ++hits;
 
             // Check "a" is now concrete
-            Variable varA = e.currentState.getInScopeVariableAndExprByName("a").Key;
+            Variable varA = e.currentState.GetInScopeVariableAndExprByName("a").Key;
             Assert.IsFalse(e.isSymbolic(varA));
 
             // Check "x" is now concrete
-            Variable varX = e.currentState.getInScopeVariableAndExprByName("x").Key;
+            Variable varX = e.currentState.GetInScopeVariableAndExprByName("x").Key;
             Assert.IsFalse(e.isSymbolic(varX));
 
             // Check "y" is still symbolic
-            Variable varY = e.currentState.getInScopeVariableAndExprByName("y").Key;
+            Variable varY = e.currentState.GetInScopeVariableAndExprByName("y").Key;
             Assert.IsTrue(e.isSymbolic(varY));
 
             return Executor.HandlerAction.STOP;

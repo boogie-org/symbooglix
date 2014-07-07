@@ -87,7 +87,7 @@ namespace Symbooglix
             }
             else
             {
-                e = state.getInScopeVariableExpr(V);
+                e = state.GetInScopeVariableExpr(V);
 
                 if (e == null)
                     throw new NullReferenceException("Identifier " + V + " is not is scope");

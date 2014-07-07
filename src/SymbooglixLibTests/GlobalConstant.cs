@@ -29,7 +29,7 @@ namespace SymbooglixLibTests
                 var constant = prog.TopLevelDeclarations.OfType<Constant>().Where( c => c.Name == "a").First();
                 Assert.IsTrue(constant is Constant);
 
-                Assert.IsTrue( e.currentState.isInScopeVariable(constant));
+                Assert.IsTrue( e.currentState.IsInScopeVariable(constant));
 
                 if (shouldBeSymbolic)
                     Assert.IsTrue(e.isSymbolic(constant));
@@ -39,7 +39,7 @@ namespace SymbooglixLibTests
                 if (shouldHaveConstraint)
                 {
                     SymbolicVariable relevantSymbolic = null;
-                    foreach (SymbolicVariable SV in e.currentState.symbolics)
+                    foreach (SymbolicVariable SV in e.currentState.Symbolics)
                     {
                         // Check if it came from Variable initialisation
                         if (SV.Origin.IsVariable)
@@ -59,7 +59,7 @@ namespace SymbooglixLibTests
                     if (equalityConstraint)
                     {
                         // Check for the expect equality constraint.
-                        foreach (Expr constraint in e.currentState.cm.constraints)
+                        foreach (Expr constraint in e.currentState.Constraints.constraints)
                         {
                             LiteralExpr literal = null;
                             if (FindLiteralAssignment.find(constraint, relevantSymbolic, out literal))
@@ -72,7 +72,7 @@ namespace SymbooglixLibTests
                     }
                     else
                     {
-                        foreach (Expr constraint in e.currentState.cm.constraints)
+                        foreach (Expr constraint in e.currentState.Constraints.constraints)
                         {
                             if (constraint is NAryExpr)
                             {

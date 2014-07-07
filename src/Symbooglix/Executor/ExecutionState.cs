@@ -8,105 +8,105 @@ namespace Symbooglix
 {
     public class ExecutionState : Util.IDeepClone<ExecutionState>
     {
-        public Memory mem;
-        private bool started = false;
-        private bool terminatedEarly = false;
-        public List<SymbolicVariable> symbolics;
-        public ConstraintManager cm;
-        public int id
+        public Memory Mem;
+        private bool Started = false;
+        private bool TerminatedEarly = false;
+        public List<SymbolicVariable> Symbolics;
+        public ConstraintManager Constraints;
+        public int Id
         {
             get;
             private set;
         }
-        private static int newId = 0;
+        private static int NewId = 0;
 
         public ExecutionState()
         {
-            mem = new Memory();
-            symbolics = new List<SymbolicVariable>();
-            cm = new ConstraintManager();
-            id = newId++;
+            Mem = new Memory();
+            Symbolics = new List<SymbolicVariable>();
+            Constraints = new ConstraintManager();
+            Id = NewId++;
         }
 
         public ExecutionState DeepClone()
         {
             ExecutionState other = (ExecutionState) this.MemberwiseClone();
-            other.mem = this.mem.DeepClone();
+            other.Mem = this.Mem.DeepClone();
 
-            other.symbolics = new List<SymbolicVariable>();
-            foreach (SymbolicVariable s in this.symbolics)
+            other.Symbolics = new List<SymbolicVariable>();
+            foreach (SymbolicVariable s in this.Symbolics)
             {
-                other.symbolics.Add(s);
+                other.Symbolics.Add(s);
             }
 
-            other.id = newId++;
+            other.Id = NewId++;
 
-            other.cm = this.cm.DeepClone();
+            other.Constraints = this.Constraints.DeepClone();
             return other;
         }
 
-        public bool dumpStackTrace()
+        public bool DumpStackTrace()
         {
             // TODO
             return true;
         }
 
-        public void dumpState()
+        public void DumpState()
         {
-            Console.Write("State {0} :", this.id);
-            if (terminatedEarly)
+            Console.Write("State {0} :", this.Id);
+            if (TerminatedEarly)
                 Console.WriteLine("Terminated early");
-            else if (finished())
+            else if (Finished())
                 Console.WriteLine("Finished");
             else
                 Console.WriteLine("Running");
 
-            Console.WriteLine(mem);
-            Console.WriteLine(cm);
+            Console.WriteLine(Mem);
+            Console.WriteLine(Constraints);
         }
        
-        public StackFrame getCurrentStackFrame()
+        public StackFrame GetCurrentStackFrame()
         {
-            return mem.Stack.Last();
+            return Mem.Stack.Last();
         }
 
-        public Block getCurrentBlock()
+        public Block GetCurrentBlock()
         {
-            return getCurrentStackFrame().CurrentBlock;
+            return GetCurrentStackFrame().CurrentBlock;
         }
 
-        public void enterProcedure(Implementation p)
+        public void enterImplementation(Implementation impl)
         {
-            started = true;
-            StackFrame s = new StackFrame(p);
-            mem.Stack.Add(s);
+            Started = true;
+            StackFrame s = new StackFrame(impl);
+            Mem.Stack.Add(s);
         }
 
         // Returns variable Expr if in scope, otherwise
         // return null
-        public Expr getInScopeVariableExpr(Variable v)
+        public Expr GetInScopeVariableExpr(Variable v)
         {
             // Only the current stackframe is in scope
-            if (getCurrentStackFrame().Locals.ContainsKey(v))
+            if (GetCurrentStackFrame().Locals.ContainsKey(v))
             {
-                return getCurrentStackFrame().Locals [v];
+                return GetCurrentStackFrame().Locals [v];
             }
 
             if (v is GlobalVariable || v is Constant)
             {
                 // If not in stackframe look through globals
-                if (mem.Globals.ContainsKey(v))
+                if (Mem.Globals.ContainsKey(v))
                 {
-                    return mem.Globals[v];
+                    return Mem.Globals[v];
                 }
             }
 
             return null;
         }
 
-        public KeyValuePair<Variable,Expr> getInScopeVariableAndExprByName(string name)
+        public KeyValuePair<Variable,Expr> GetInScopeVariableAndExprByName(string name)
         {
-            var local = ( from pair in getCurrentStackFrame().Locals
+            var local = ( from pair in GetCurrentStackFrame().Locals
                          where pair.Key.Name == name
                          select pair );
             if (local.Count() != 0)
@@ -115,7 +115,7 @@ namespace Symbooglix
                 return local.First();
             }
 
-            var global = ( from pair in mem.Globals
+            var global = ( from pair in Mem.Globals
                           where pair.Key.Name == name
                           select pair );
 
@@ -125,9 +125,9 @@ namespace Symbooglix
         }
 
   
-        public bool assignToVariableInStack(StackFrame s, Variable v, Expr value)
+        public bool AssignToVariableInStack(StackFrame s, Variable v, Expr value)
         {
-            Debug.Assert(mem.Stack.Contains(s));
+            Debug.Assert(Mem.Stack.Contains(s));
 
             if (s.Locals.ContainsKey(v))
             {
@@ -139,36 +139,36 @@ namespace Symbooglix
 
         }
 
-        public bool isInScopeVariable(Variable v)
+        public bool IsInScopeVariable(Variable v)
         {
-            if (getCurrentStackFrame().Locals.ContainsKey(v))
+            if (GetCurrentStackFrame().Locals.ContainsKey(v))
                 return true;
 
             if (v is GlobalVariable || v is Constant)
             {
-                if (mem.Globals.ContainsKey(v))
+                if (Mem.Globals.ContainsKey(v))
                     return true;
             }
 
             return false;
         }
 
-        public bool isInScopeVariable(IdentifierExpr i)
+        public bool IsInScopeVariable(IdentifierExpr i)
         {
-            return isInScopeVariable(i.Decl);
+            return IsInScopeVariable(i.Decl);
         }
 
-        public void assignToVariableInScope(Variable v, Expr value)
+        public void AssignToVariableInScope(Variable v, Expr value)
         {
-            if (assignToVariableInStack(getCurrentStackFrame(), v, value))
+            if (AssignToVariableInStack(GetCurrentStackFrame(), v, value))
                 return;
 
             if (v is GlobalVariable)
             {
                 var g = v as GlobalVariable;
-                if (mem.Globals.ContainsKey(g))
+                if (Mem.Globals.ContainsKey(g))
                 {
-                    mem.Globals [g] = value;
+                    Mem.Globals [g] = value;
                     return;
                 }
             }
@@ -177,15 +177,15 @@ namespace Symbooglix
 
         }
 
-        public void leaveProcedure()
+        public void LeaveImplementation()
         {
-            if (finished())
-                throw new InvalidOperationException("Not currently in procedure");
+            if (Finished())
+                throw new InvalidOperationException("Not currently in Implementation");
 
-            mem.PopStackFrame();
+            Mem.PopStackFrame();
         }
 
-        public bool finished()
+        public bool Finished()
         {
             if (HasTerminatedEarly() || TerminatedSuccessfuly())
                 return true;
@@ -195,17 +195,17 @@ namespace Symbooglix
 
         public void MarkAsTerminatedEarly()
         {
-            this.terminatedEarly = true;
+            this.TerminatedEarly = true;
         }
 
         public bool HasTerminatedEarly()
         {
-            return terminatedEarly;
+            return TerminatedEarly;
         }
 
         public bool TerminatedSuccessfuly()
         {
-            if (started && !terminatedEarly && ( mem.Stack.Count == 0 ))
+            if (Started && !TerminatedEarly && ( Mem.Stack.Count == 0 ))
                 return true;
             else
                 return false;
@@ -215,9 +215,9 @@ namespace Symbooglix
         {
             if (GV is GlobalVariable || GV is Constant)
             {
-                if (mem.Globals.ContainsKey(GV))
+                if (Mem.Globals.ContainsKey(GV))
                 {
-                    return mem.Globals[GV];
+                    return Mem.Globals[GV];
                 }
             }
 
