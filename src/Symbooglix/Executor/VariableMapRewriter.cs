@@ -7,8 +7,8 @@ namespace Symbooglix
 {
     public class VariableMapRewriter : Duplicator
     {
-        private ExecutionState state;
-        private HashSet<Variable> boundVariables;
+        private ExecutionState State;
+        private HashSet<Variable> BoundVariables;
         public bool ReplaceGlobalsOnly
         {
             get;
@@ -27,8 +27,8 @@ namespace Symbooglix
 
         public VariableMapRewriter(ExecutionState e)
         {
-            this.state = e;
-            boundVariables = new HashSet<Variable>();
+            this.State = e;
+            BoundVariables = new HashSet<Variable>();
             preReplacementReMap = new Dictionary<Variable,Variable>();
             this.ReplaceGlobalsOnly = false;
         }
@@ -37,9 +37,9 @@ namespace Symbooglix
         // variables so we don't try to substitute them
         public override BinderExpr VisitBinderExpr(BinderExpr node)
         {
-            boundVariables.UnionWith(node.Dummies);
+            BoundVariables.UnionWith(node.Dummies);
             BinderExpr toReturn = base.VisitBinderExpr(node);
-            boundVariables.RemoveWhere(e => node.Dummies.Contains(e));
+            BoundVariables.RemoveWhere(e => node.Dummies.Contains(e));
             return toReturn;
         }
 
@@ -50,7 +50,7 @@ namespace Symbooglix
             // and symbolics
 
             // Don't remap this because this internal to this class
-            if (boundVariables.Contains(node.Decl))
+            if (BoundVariables.Contains(node.Decl))
             {
                 // Variable is bound in the expression so don't replace
                 Debug.WriteLine("Variable '" + node.Decl + "' is bound, skipping");
@@ -78,7 +78,7 @@ namespace Symbooglix
             Expr e = null;
             if (ReplaceGlobalsOnly)
             {
-                e = state.GetGlobalVariableExpr(V);
+                e = State.GetGlobalVariableExpr(V);
                 if (e == null)
                 {
                     // Not a global variable so leave alone
@@ -87,7 +87,7 @@ namespace Symbooglix
             }
             else
             {
-                e = state.GetInScopeVariableExpr(V);
+                e = State.GetInScopeVariableExpr(V);
 
                 if (e == null)
                     throw new NullReferenceException("Identifier " + V + " is not is scope");
