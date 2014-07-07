@@ -16,8 +16,8 @@ namespace SymbooglixLibTests
             {
                 if (name == "now_concrete")
                 {
-                    Variable v = e.currentState.GetInScopeVariableAndExprByName("a").Key;
-                    Assert.IsFalse(e.isSymbolic(v));
+                    Variable v = e.CurrentState.GetInScopeVariableAndExprByName("a").Key;
+                    Assert.IsFalse(e.IsSymbolic(v));
                 }
 
                 if (name == "reachable")
@@ -26,11 +26,11 @@ namespace SymbooglixLibTests
 
                     // Check that the equality constraint has been stored
                     bool found = false;
-                    foreach (Expr constraint in e.currentState.Constraints.Constraints)
+                    foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
                     {
                         //Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
 
-                        foreach (var s in e.currentState.Symbolics)
+                        foreach (var s in e.CurrentState.Symbolics)
                         {
                             Assert.IsTrue(s.Expr is IdentifierExpr);
                             var id = s.Expr as IdentifierExpr;
@@ -65,8 +65,8 @@ namespace SymbooglixLibTests
             p = loadProgram("programs/RequiresConcreteLocal.bpl");
             e = getExecutor(p);
             var handler = new Handler();
-            e.registerBreakPointHandler(handler);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(handler);
+            e.Run(getMain(p));
 
             Assert.IsTrue(handler.reachable); // Check the assertion passed by checkng we explore beyond it
         }
@@ -77,8 +77,8 @@ namespace SymbooglixLibTests
             p = loadProgram("programs/RequiresConcreteGlobal.bpl");
             e = getExecutor(p);
             var handler = new Handler();
-            e.registerBreakPointHandler(handler);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(handler);
+            e.Run(getMain(p));
 
             Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }
@@ -90,8 +90,8 @@ namespace SymbooglixLibTests
             e = getExecutor(p);
             var handler = new Handler();
             handler.isBvConst = false;
-            e.registerBreakPointHandler(handler);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(handler);
+            e.Run(getMain(p));
 
             Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }

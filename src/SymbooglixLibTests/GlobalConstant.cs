@@ -29,17 +29,17 @@ namespace SymbooglixLibTests
                 var constant = prog.TopLevelDeclarations.OfType<Constant>().Where( c => c.Name == "a").First();
                 Assert.IsTrue(constant is Constant);
 
-                Assert.IsTrue( e.currentState.IsInScopeVariable(constant));
+                Assert.IsTrue( e.CurrentState.IsInScopeVariable(constant));
 
                 if (shouldBeSymbolic)
-                    Assert.IsTrue(e.isSymbolic(constant));
+                    Assert.IsTrue(e.IsSymbolic(constant));
                 else
-                    Assert.IsFalse(e.isSymbolic(constant));
+                    Assert.IsFalse(e.IsSymbolic(constant));
 
                 if (shouldHaveConstraint)
                 {
                     SymbolicVariable relevantSymbolic = null;
-                    foreach (SymbolicVariable SV in e.currentState.Symbolics)
+                    foreach (SymbolicVariable SV in e.CurrentState.Symbolics)
                     {
                         // Check if it came from Variable initialisation
                         if (SV.Origin.IsVariable)
@@ -59,7 +59,7 @@ namespace SymbooglixLibTests
                     if (equalityConstraint)
                     {
                         // Check for the expect equality constraint.
-                        foreach (Expr constraint in e.currentState.Constraints.Constraints)
+                        foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
                         {
                             LiteralExpr literal = null;
                             if (FindLiteralAssignment.find(constraint, relevantSymbolic, out literal))
@@ -72,7 +72,7 @@ namespace SymbooglixLibTests
                     }
                     else
                     {
-                        foreach (Expr constraint in e.currentState.Constraints.Constraints)
+                        foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
                         {
                             if (constraint is NAryExpr)
                             {
@@ -102,8 +102,8 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalSymbolicConstant.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, false, false));
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(new GlobalConstantHandler(p, true, false, false));
+            e.Run(getMain(p));
         }
 
         [Test()]
@@ -111,8 +111,8 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalConstantWithAxiom.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, false, true, true));
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(new GlobalConstantHandler(p, false, true, true));
+            e.Run(getMain(p));
         }
 
         [Test()]
@@ -120,8 +120,8 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/GlobalConstantWithWeakerAxiom.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(new GlobalConstantHandler(p, true, true, false));
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(new GlobalConstantHandler(p, true, true, false));
+            e.Run(getMain(p));
         }
     }
 }

@@ -183,31 +183,31 @@ namespace Symbooglix
             if (options.useVerifyUnmodifiedProcedureHandler)
             {
                 verifyUnmodified = new VerifyUnmodifiedProcedureHandler();
-                e.registerPreEventHandler(verifyUnmodified);
+                e.RegisterPreEventHandler(verifyUnmodified);
             }
 
             if (options.useInstructionPrinter)
             {
                 Console.WriteLine("Installing instruction printer");
-                e.registerPreEventHandler(new InstructionPrinter());
+                e.RegisterPreEventHandler(new InstructionPrinter());
             }
 
             if (options.useEnterLeaveStackPrinter)
             {
                 Console.WriteLine("Installing Entering and Leaving stack printer");
-                e.registerPreEventHandler(new EnterAndLeaveStackPrinter());
+                e.RegisterPreEventHandler(new EnterAndLeaveStackPrinter());
             }
 
             if (options.useCallSequencePrinter)
             {
                 Console.WriteLine("Installing call sequence printer");
-                e.registerPreEventHandler(new CallSequencePrinter());
+                e.RegisterPreEventHandler(new CallSequencePrinter());
             }
 
             if (options.useVerifyUnmodifiedProcedureHandler)
             {
                 // This debugging handler should be registered last
-                e.registerPostEventHandler(verifyUnmodified);
+                e.RegisterPostEventHandler(verifyUnmodified);
             }
 
             if (options.useConstantFolding > 0)
@@ -220,11 +220,11 @@ namespace Symbooglix
             }
 
             // Just print a message about break points for now.
-            e.registerBreakPointHandler(new BreakPointPrinter());
+            e.RegisterBreakPointHandler(new BreakPointPrinter());
 
-            e.registerTerminationHandler(new TerminationConsoleReporter());
+            e.RegisterTerminationHandler(new TerminationConsoleReporter());
 
-            e.run(entry);
+            e.Run(entry);
             return 0;
         }
 

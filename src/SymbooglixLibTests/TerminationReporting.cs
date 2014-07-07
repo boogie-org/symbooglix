@@ -28,8 +28,8 @@ namespace SymbooglixLibTests
             ResetCounters();
             p = loadProgram("programs/assert_false.bpl");
             e = getExecutor(p);
-            e.registerTerminationHandler(this);
-            e.run(getMain(p));
+            e.RegisterTerminationHandler(this);
+            e.Run(getMain(p));
             Assert.AreEqual(failingAssertCount, 1);
         }
 
@@ -39,8 +39,8 @@ namespace SymbooglixLibTests
             ResetCounters();
             p = loadProgram("programs/assert_true.bpl");
             e = getExecutor(p);
-            e.registerTerminationHandler(this);
-            e.run(getMain(p));
+            e.RegisterTerminationHandler(this);
+            e.Run(getMain(p));
             Assert.AreEqual(failingAssertCount, 0);
             Assert.AreEqual(successCount, 1);
         }
@@ -51,8 +51,8 @@ namespace SymbooglixLibTests
             ResetCounters();
             p = loadProgram("programs/assume_false.bpl");
             e = getExecutor(p);
-            e.registerTerminationHandler(this);
-            e.run(getMain(p));
+            e.RegisterTerminationHandler(this);
+            e.Run(getMain(p));
             Assert.AreEqual(UnsatisfiableAssumeCount, 1);
         }
 

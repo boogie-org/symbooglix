@@ -14,7 +14,7 @@ namespace Symbooglix
 
         public override Executor.HandlerAction Handle(ReturnCmd c, Executor executor)
         {
-            Console.WriteLine("Leaving: " + executor.currentState.GetCurrentStackFrame().Impl.Name + "()");
+            Console.WriteLine("Leaving: " + executor.CurrentState.GetCurrentStackFrame().Impl.Name + "()");
             return Executor.HandlerAction.CONTINUE;
         }
 

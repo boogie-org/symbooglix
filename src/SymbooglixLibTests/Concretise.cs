@@ -26,12 +26,12 @@ namespace SymbooglixLibTests
                 ++hits;
 
                 // Check globals are symbolic
-                foreach (Variable V in e.currentState.Mem.Globals.Keys)
-                    Assert.IsTrue(e.isSymbolic(V));
+                foreach (Variable V in e.CurrentState.Mem.Globals.Keys)
+                    Assert.IsTrue(e.IsSymbolic(V));
 
                 // Check globals are symbolic
-                foreach (Variable V in e.currentState.GetCurrentStackFrame().Locals.Keys)
-                    Assert.IsTrue(e.isSymbolic(V));
+                foreach (Variable V in e.CurrentState.GetCurrentStackFrame().Locals.Keys)
+                    Assert.IsTrue(e.IsSymbolic(V));
 
                 return Executor.HandlerAction.CONTINUE;
             }
@@ -41,16 +41,16 @@ namespace SymbooglixLibTests
             ++hits;
 
             // Check "a" is now concrete
-            Variable varA = e.currentState.GetInScopeVariableAndExprByName("a").Key;
-            Assert.IsFalse(e.isSymbolic(varA));
+            Variable varA = e.CurrentState.GetInScopeVariableAndExprByName("a").Key;
+            Assert.IsFalse(e.IsSymbolic(varA));
 
             // Check "x" is now concrete
-            Variable varX = e.currentState.GetInScopeVariableAndExprByName("x").Key;
-            Assert.IsFalse(e.isSymbolic(varX));
+            Variable varX = e.CurrentState.GetInScopeVariableAndExprByName("x").Key;
+            Assert.IsFalse(e.IsSymbolic(varX));
 
             // Check "y" is still symbolic
-            Variable varY = e.currentState.GetInScopeVariableAndExprByName("y").Key;
-            Assert.IsTrue(e.isSymbolic(varY));
+            Variable varY = e.CurrentState.GetInScopeVariableAndExprByName("y").Key;
+            Assert.IsTrue(e.IsSymbolic(varY));
 
             return Executor.HandlerAction.STOP;
         }
@@ -59,8 +59,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void Run()
         {
-            e.registerBreakPointHandler(this);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(this);
+            e.Run(getMain(p));
             Assert.AreEqual(2, hits);
         }
 

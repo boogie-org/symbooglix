@@ -17,7 +17,7 @@ namespace SymbooglixLibTests
         public Executor.HandlerAction handleBreakPoint(string name, Executor e)
         {
             // Find the "a" local variable
-            var pair = e.currentState.GetInScopeVariableAndExprByName("a");
+            var pair = e.CurrentState.GetInScopeVariableAndExprByName("a");
             Variable V = pair.Key;
             Expr E = pair.Value;
 
@@ -27,8 +27,8 @@ namespace SymbooglixLibTests
 
             // Check we have the expected constraint
             string expected = "bv8ugt(" + id.Name + ", 2bv8)";
-            Assert.AreEqual(e.currentState.Constraints.Constraints.Count, 1);
-            Assert.IsTrue(e.currentState.Constraints.Constraints[0].ToString() == expected);
+            Assert.AreEqual(e.CurrentState.Constraints.Constraints.Count, 1);
+            Assert.IsTrue(e.CurrentState.Constraints.Constraints[0].ToString() == expected);
 
             return Executor.HandlerAction.CONTINUE;
 
@@ -39,8 +39,8 @@ namespace SymbooglixLibTests
         {
             p = loadProgram("programs/RequiresConstrainedLocal.bpl");
             e = getExecutor(p);
-            e.registerBreakPointHandler(this);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(this);
+            e.Run(getMain(p));
         }
     }
 }

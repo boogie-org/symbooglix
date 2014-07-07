@@ -21,11 +21,11 @@ namespace SymbooglixLibTests
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
                 Assert.IsTrue(name == "entry");
-                e.currentState.DumpStackTrace();
+                e.CurrentState.DumpStackTrace();
                 // Check that all globals are symbolic
-                foreach (GlobalVariable GV in e.currentState.Mem.Globals.Keys)
+                foreach (GlobalVariable GV in e.CurrentState.Mem.Globals.Keys)
                 {
-                    Assert.IsTrue(e.isSymbolic(GV));
+                    Assert.IsTrue(e.IsSymbolic(GV));
                 }
 
                 return Executor.HandlerAction.STOP;
@@ -35,8 +35,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void GlobalsAreSymbolic()
         {
-            e.registerBreakPointHandler(new GlobalsAreSymbolicHandler());
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(new GlobalsAreSymbolicHandler());
+            e.Run(getMain(p));
         }
 
         private class LocalsAreSymbolicHandler : IBreakPointHandler
@@ -44,11 +44,11 @@ namespace SymbooglixLibTests
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
                 Assert.IsTrue(name == "entry");
-                e.currentState.DumpStackTrace();
+                e.CurrentState.DumpStackTrace();
                 // Check that all locals are symbolic
-                foreach (Variable LV in e.currentState.GetCurrentStackFrame().Locals.Keys)
+                foreach (Variable LV in e.CurrentState.GetCurrentStackFrame().Locals.Keys)
                 {
-                    Assert.IsTrue(e.isSymbolic(LV));
+                    Assert.IsTrue(e.IsSymbolic(LV));
                 }
 
                 return Executor.HandlerAction.STOP;
@@ -58,8 +58,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void LocalsAreSymbolic()
         {
-            e.registerBreakPointHandler(new LocalsAreSymbolicHandler());
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(new LocalsAreSymbolicHandler());
+            e.Run(getMain(p));
         }
 
 

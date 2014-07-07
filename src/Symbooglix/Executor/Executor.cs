@@ -15,38 +15,38 @@ namespace Symbooglix
             STOP // Do not execute any more handlers for this event
         };
         
-        public Executor(Program prog, IStateScheduler scheduler, Solver.ISolver solver)
+        public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver)
         { 
-            this.prog = prog;
-            stateScheduler = scheduler;
-            symbolicPool = new SymbolicPool();
+            this.TheProgram = program;
+            StateScheduler = scheduler;
+            SymbolicPool = new SymbolicPool();
             UninterpretedOrUninlinableFunctions = new List<Function>();
-            preEventHandlers = new List<IExecutorHandler>();
-            postEventHandlers = new List<IExecutorHandler>();
-            breakPointHandlers = new List<IBreakPointHandler>();
-            terminationHandlers = new List<ITerminationHandler>();
+            PreEventHandlers = new List<IExecutorHandler>();
+            PostEventHandlers = new List<IExecutorHandler>();
+            BreakPointHandlers = new List<IBreakPointHandler>();
+            TerminationHandlers = new List<ITerminationHandler>();
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
-            this.solver = solver;
+            this.TheSolver = solver;
         }
 
-        private IStateScheduler stateScheduler;
-        public  ExecutionState currentState
+        private IStateScheduler StateScheduler;
+        public  ExecutionState CurrentState
         {
             get;
             private set;
         }
-        private Program prog;
-        private ExecutionState initialState; // Represents a state that has not entered any procedures
-        private List<IExecutorHandler> preEventHandlers;
-        private List<IExecutorHandler> postEventHandlers;
-        private List<IBreakPointHandler> breakPointHandlers;
-        private List<ITerminationHandler> terminationHandlers;
+        private Program TheProgram;
+        private ExecutionState InitialState; // Represents a state that has not entered any procedures
+        private List<IExecutorHandler> PreEventHandlers;
+        private List<IExecutorHandler> PostEventHandlers;
+        private List<IBreakPointHandler> BreakPointHandlers;
+        private List<ITerminationHandler> TerminationHandlers;
         private List<Function> UninterpretedOrUninlinableFunctions;
-        private SymbolicPool symbolicPool;
-        private bool hasBeenPrepared = false;
+        private SymbolicPool SymbolicPool;
+        private bool HasBeenPrepared = false;
         public ConstantFoldingTraverser CFT;
-        public Solver.ISolver solver;
+        public Solver.ISolver TheSolver;
 
         public bool UseConstantFolding
         {
@@ -55,13 +55,13 @@ namespace Symbooglix
         }
 
 
-        public bool prepareProgram()
+        public bool PrepareProgram()
         {
             // Create initial execution state
-            initialState = currentState = new ExecutionState();
+            InitialState = CurrentState = new ExecutionState();
 
             // Make a list of all the functions that are uninterpreted or can't be inlined
-            var functions = prog.TopLevelDeclarations.OfType<Function>();
+            var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
             foreach (var F in functions)
             {
                 // bvbuiltins are interpreted as SMT-LIBv2 functions
@@ -77,15 +77,15 @@ namespace Symbooglix
             // Perhaps inform the solver of these functions in the future?
 
             // Load Global Variables and Constants
-            var GVs = prog.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
-            var axioms = prog.TopLevelDeclarations.OfType<Axiom>();
+            var GVs = TheProgram.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
+            var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
             foreach (Variable gv in GVs)
             {
                 // Make symbolic
-                var s = symbolicPool.getFreshSymbolic(gv);
-                Debug.Assert(!initialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
-                initialState.Mem.Globals.Add(gv, s.Expr);
-                initialState.Symbolics.Add(s);
+                var s = SymbolicPool.getFreshSymbolic(gv);
+                Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
+                InitialState.Mem.Globals.Add(gv, s.Expr);
+                InitialState.Symbolics.Add(s);
 
             }
 
@@ -95,10 +95,10 @@ namespace Symbooglix
             // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
             foreach (var axiom in axioms)
             {
-                var VMR = new VariableMapRewriter(initialState);
+                var VMR = new VariableMapRewriter(InitialState);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
-                initialState.Constraints.AddConstraint(constraint);
+                InitialState.Constraints.AddConstraint(constraint);
                 Debug.WriteLine("Adding constraint : " + constraint);
             }
              
@@ -112,80 +112,80 @@ namespace Symbooglix
                 {
                     // Axioms should only be able to refer to globals
                     Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
-                    Debug.Assert(initialState.Mem.Globals.ContainsKey(assignedTo));
-                    initialState.Mem.Globals[assignedTo] = literal;
+                    Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo));
+                    InitialState.Mem.Globals[assignedTo] = literal;
                 }
             }
 
 
-            hasBeenPrepared = true;
+            HasBeenPrepared = true;
 
             // FIXME: check constraints are consistent!
 
             return true;
         }
 
-        public void registerPreEventHandler(IExecutorHandler handler)
+        public void RegisterPreEventHandler(IExecutorHandler handler)
         {
             Debug.Assert(handler != null);
-            preEventHandlers.Add(handler);
+            PreEventHandlers.Add(handler);
         }
 
-        public void unregisterPreEventHandler(IExecutorHandler handler)
+        public void UnregisterPreEventHandler(IExecutorHandler handler)
         {
             Debug.Assert(handler != null);
-            Debug.Assert(preEventHandlers.Contains(handler));
-            preEventHandlers.Remove(handler);
+            Debug.Assert(PreEventHandlers.Contains(handler));
+            PreEventHandlers.Remove(handler);
         }
 
-        public void registerPostEventHandler(IExecutorHandler handler)
+        public void RegisterPostEventHandler(IExecutorHandler handler)
         {
             Debug.Assert(handler != null);
-            postEventHandlers.Add(handler);
+            PostEventHandlers.Add(handler);
         }
 
-        public void unregisterPostEventHandler(IExecutorHandler handler)
+        public void UnregisterPostEventHandler(IExecutorHandler handler)
         {
             Debug.Assert(handler != null);
-            Debug.Assert(postEventHandlers.Contains(handler));
-            postEventHandlers.Remove(handler);
+            Debug.Assert(PostEventHandlers.Contains(handler));
+            PostEventHandlers.Remove(handler);
         }
 
-        public void registerBreakPointHandler(IBreakPointHandler handler)
+        public void RegisterBreakPointHandler(IBreakPointHandler handler)
         {
             Debug.Assert(handler != null);
-            breakPointHandlers.Add(handler);
+            BreakPointHandlers.Add(handler);
         }
 
-        public void unregisterBreakPointHandler(IBreakPointHandler handler)
+        public void UnregisterBreakPointHandler(IBreakPointHandler handler)
         {
             Debug.Assert(handler != null);
-            Debug.Assert(breakPointHandlers.Contains(handler));
-            breakPointHandlers.Remove(handler);
+            Debug.Assert(BreakPointHandlers.Contains(handler));
+            BreakPointHandlers.Remove(handler);
         }
 
-        public void registerTerminationHandler(ITerminationHandler handler)
+        public void RegisterTerminationHandler(ITerminationHandler handler)
         {
             Debug.Assert(handler != null);
-            terminationHandlers.Add(handler);
+            TerminationHandlers.Add(handler);
         }
 
-        public void unregisterTerminationHandler(ITerminationHandler handler)
+        public void UnregisterTerminationHandler(ITerminationHandler handler)
         {
             Debug.Assert(handler != null);
-            Debug.Assert(terminationHandlers.Contains(handler));
-            terminationHandlers.Remove(handler);
+            Debug.Assert(TerminationHandlers.Contains(handler));
+            TerminationHandlers.Remove(handler);
         }
 
-        public void run(Implementation entryPoint)
+        public void Run(Implementation entryPoint)
         {
-            if (!hasBeenPrepared)
-                prepareProgram();
+            if (!HasBeenPrepared)
+                PrepareProgram();
 
             // FIXME: Clone initialState so we can deal with execution at a different entry point later on
-            currentState = initialState;
+            CurrentState = InitialState;
 
-            stateScheduler.AddState(currentState);
+            StateScheduler.AddState(CurrentState);
             
             // FIXME: Check entry point is in prog?
 
@@ -194,37 +194,37 @@ namespace Symbooglix
             // FIXME: handle requires
             EnterImplementation(entryPoint,null, this);
 
-            var oldState = currentState;
-            while (stateScheduler.GetNumberOfStates() != 0)
+            var oldState = CurrentState;
+            while (StateScheduler.GetNumberOfStates() != 0)
             {
-                currentState = stateScheduler.GetNextState();
-                Debug.WriteLineIf(oldState != currentState, "[Switching context " + oldState.Id + " => " + currentState.Id + " ]");
-                oldState = currentState;
+                CurrentState = StateScheduler.GetNextState();
+                Debug.WriteLineIf(oldState != CurrentState, "[Switching context " + oldState.Id + " => " + CurrentState.Id + " ]");
+                oldState = CurrentState;
 
-                currentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
-                executeInstruction();
+                CurrentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
+                ExecuteInstruction();
             }
             Console.WriteLine("Finished executing all states");
 
         }
 
-        public void terminate()
+        public void Terminate()
         {
             Console.WriteLine("Terminating early");
             Console.WriteLine("FIXME: Save state information");
-            stateScheduler.RemoveAll(s => true);
-            Debug.Assert(stateScheduler.GetNumberOfStates() == 0);
+            StateScheduler.RemoveAll(s => true);
+            Debug.Assert(StateScheduler.GetNumberOfStates() == 0);
         }
 
-        private void executeInstruction()
+        private void ExecuteInstruction()
         {
-            Absy currentInstruction = currentState.GetCurrentStackFrame().CurrentInstruction.Current;
+            Absy currentInstruction = CurrentState.GetCurrentStackFrame().CurrentInstruction.Current;
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
             HandlerAction action = HandlerAction.CONTINUE;
             // Invoke pre-event handlers
-            foreach (IExecutorHandler h in preEventHandlers)
+            foreach (IExecutorHandler h in PreEventHandlers)
             {
                 action = currentInstruction.visitCmd(h, this);
                 if (action == HandlerAction.STOP)
@@ -235,7 +235,7 @@ namespace Symbooglix
             currentInstruction.visitCmd(this, this); // Use double dispatch
 
             // Invoke post-event handlers
-            foreach (IExecutorHandler h in postEventHandlers)
+            foreach (IExecutorHandler h in PostEventHandlers)
             {
                 action = currentInstruction.visitCmd(h, this);
                 if (action == HandlerAction.STOP)
@@ -243,14 +243,14 @@ namespace Symbooglix
             }
         }
 
-        protected void handleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
+        protected void HandleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
         {
             string breakPointName = QKeyValue.FindStringAttribute(cmd.Attributes, "symbooglix_bp");
             if (breakPointName == null)
                 return;
 
             HandlerAction action = HandlerAction.CONTINUE;
-            foreach (IBreakPointHandler h in breakPointHandlers)
+            foreach (IBreakPointHandler h in BreakPointHandlers)
             {
                 action = h.handleBreakPoint(breakPointName, this);
                 if (action == HandlerAction.STOP)
@@ -258,27 +258,27 @@ namespace Symbooglix
             }
         }
 
-        protected SymbolicVariable initialiseAsSymbolic(Variable v)
+        protected SymbolicVariable InitialiseAsSymbolic(Variable v)
         {
-            Debug.Assert(currentState.IsInScopeVariable(v));
-            var s = symbolicPool.getFreshSymbolic(v);
-            currentState.Symbolics.Add(s);
-            currentState.AssignToVariableInScope(v, s.Expr);
+            Debug.Assert(CurrentState.IsInScopeVariable(v));
+            var s = SymbolicPool.getFreshSymbolic(v);
+            CurrentState.Symbolics.Add(s);
+            CurrentState.AssignToVariableInScope(v, s.Expr);
             return s;
         }
 
-        public SymbolicVariable makeSymbolic(Variable v)
+        public SymbolicVariable MakeSymbolic(Variable v)
         {
             // FIXME: This needs to make a symbolic without an origin because it is a public API function
             throw new NotImplementedException();
         }
 
-        public void makeConcrete(Variable v, LiteralExpr literal)
+        public void MakeConcrete(Variable v, LiteralExpr literal)
         {
-            Debug.Assert(currentState.IsInScopeVariable(v));
-            Debug.Assert(isSymbolic(v), "Tried to concretise something that is already concrete!");
+            Debug.Assert(CurrentState.IsInScopeVariable(v));
+            Debug.Assert(IsSymbolic(v), "Tried to concretise something that is already concrete!");
             Debug.WriteLine("Concretising  {0} := {1}", v, literal);
-            currentState.AssignToVariableInScope(v, literal);
+            CurrentState.AssignToVariableInScope(v, literal);
 
             // FIXME: 
             // We can't remove this from the ExecutionState's set
@@ -287,13 +287,13 @@ namespace Symbooglix
             // and if not we should remove it
         }
 
-        public bool isSymbolic(Variable v)
+        public bool IsSymbolic(Variable v)
         {
             // FIXME: When constant folding is fully implemented this check can be made REALLY fast
             // because anything that isn't a LiteralExpr must be symbolic after constant folding
 
-            Debug.Assert(currentState.IsInScopeVariable(v), "Variable is not in scope");
-            Expr e = currentState.GetInScopeVariableExpr(v);
+            Debug.Assert(CurrentState.IsInScopeVariable(v), "Variable is not in scope");
+            Expr e = CurrentState.GetInScopeVariableExpr(v);
             Debug.Assert(e != null , "Expression for variable is NULL");
             var fsv = new FindSymbolicsVisitor();
             fsv.Visit(e);
@@ -309,7 +309,7 @@ namespace Symbooglix
         {
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
-            currentState.EnterImplementation(Impl);
+            CurrentState.EnterImplementation(Impl);
 
             // FIXME: We should check there are no name clashes between
             // existing program variables and symbolics
@@ -319,8 +319,8 @@ namespace Symbooglix
             {
                 foreach (var v in Impl.InParams)
                 {
-                    currentState.GetCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
-                    initialiseAsSymbolic(v);
+                    CurrentState.GetCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
+                    InitialiseAsSymbolic(v);
                 }
             }
             else
@@ -330,7 +330,7 @@ namespace Symbooglix
 
                 foreach (var tuple in Impl.InParams.Zip(procedureParams))
                 {
-                    currentState.GetCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
+                    CurrentState.GetCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
                 }
 
             }
@@ -339,16 +339,16 @@ namespace Symbooglix
             foreach(Variable v in Impl.OutParams)
             {
                 // Make symbolic;
-                currentState.GetCurrentStackFrame().Locals.Add(v, null);
-                initialiseAsSymbolic(v);
+                CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
+                InitialiseAsSymbolic(v);
             }
 
             // Load procedure's declared locals on to stack
             foreach(Variable v in Impl.LocVars)
             {
                 // Make symbolic
-                currentState.GetCurrentStackFrame().Locals.Add(v, null);
-                initialiseAsSymbolic(v);
+                CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
+                InitialiseAsSymbolic(v);
             }
 
             // Load procedure's requires statements as constraints.
@@ -358,7 +358,7 @@ namespace Symbooglix
             //
             // We also need to rewrite so that we remove any IdentifierExpr that refer to in program
             // variables and instead replace with expressions containing symbolic variables.
-            var VR = new VariableMapRewriter(currentState);
+            var VR = new VariableMapRewriter(CurrentState);
             foreach (var VariablePair in Impl.InParams.Zip(Impl.Proc.InParams))
             {
                 // Map Procedure InParams to Implementation InParams
@@ -370,23 +370,23 @@ namespace Symbooglix
 
                 // Check to see if the requires constraint is unsat
                 // FIXME: This should probably be an option.
-                solver.SetConstraints(currentState.Constraints);
-                Solver.Result result = solver.IsQuerySat(constraint);
+                TheSolver.SetConstraints(CurrentState.Constraints);
+                Solver.Result result = TheSolver.IsQuerySat(constraint);
 
                 if (result == Solver.Result.UNSAT)
                 {
                     // We should not proceed because requires cannot be satisifed
-                    currentState.MarkAsTerminatedEarly();
+                    CurrentState.MarkAsTerminatedEarly();
 
                     // notify the handlers
-                    foreach (var handler in terminationHandlers)
-                        handler.handleUnsatisfiableRequires(currentState, r);
+                    foreach (var handler in TerminationHandlers)
+                        handler.handleUnsatisfiableRequires(CurrentState, r);
 
-                    stateScheduler.RemoveState(currentState);
+                    StateScheduler.RemoveState(CurrentState);
                     return HandlerAction.CONTINUE; // Should we prevent other handlers from executing?
                 }
 
-                currentState.Constraints.AddConstraint(constraint);
+                CurrentState.Constraints.AddConstraint(constraint);
             }
 
             // Concretise globals and locals if explicitly set in requires statements
@@ -403,9 +403,9 @@ namespace Symbooglix
                     if (VR.preReplacementReMap.ContainsKey(V))
                         V = VR.preReplacementReMap[V];
 
-                    if (currentState.IsInScopeVariable(V))
+                    if (CurrentState.IsInScopeVariable(V))
                     {
-                        makeConcrete(V, literal);
+                        MakeConcrete(V, literal);
                     }
                 }
             }
@@ -418,22 +418,22 @@ namespace Symbooglix
         public HandlerAction Handle(ReturnCmd c, Executor executor)
         {
             // Check ensures conditions, forking if necessary
-            solver.SetConstraints(currentState.Constraints);
-            var VMR = new VariableMapRewriter(currentState);
+            TheSolver.SetConstraints(CurrentState.Constraints);
+            var VMR = new VariableMapRewriter(CurrentState);
 
             // FIXME: The variables attached to the procedure are not the same object instances
             // used for the procedure. Setup the mapping. Eurgh.. Boogie you suck!
-            foreach (var tuple in currentState.GetCurrentStackFrame().Impl.Proc.InParams.Zip(currentState.GetCurrentStackFrame().Impl.InParams))
+            foreach (var tuple in CurrentState.GetCurrentStackFrame().Impl.Proc.InParams.Zip(CurrentState.GetCurrentStackFrame().Impl.InParams))
             {
                 VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
             }
-            foreach (var tuple in currentState.GetCurrentStackFrame().Impl.Proc.OutParams.Zip(currentState.GetCurrentStackFrame().Impl.OutParams))
+            foreach (var tuple in CurrentState.GetCurrentStackFrame().Impl.Proc.OutParams.Zip(CurrentState.GetCurrentStackFrame().Impl.OutParams))
             {
                 VMR.preReplacementReMap.Add(tuple.Item1, tuple.Item2);
             }
 
             // Loop over each ensures to see if it can fail.
-            foreach (var ensures in currentState.GetCurrentStackFrame().Impl.Proc.Ensures)
+            foreach (var ensures in CurrentState.GetCurrentStackFrame().Impl.Proc.Ensures)
             {
                 bool canFail = false;
                 bool canSucceed = false;
@@ -456,10 +456,10 @@ namespace Symbooglix
                     else if (literal.IsFalse)
                     {
                         // This state must fail
-                        foreach (var handler in terminationHandlers)
-                            handler.handleFailingEnsures(currentState, ensures);
+                        foreach (var handler in TerminationHandlers)
+                            handler.handleFailingEnsures(CurrentState, ensures);
 
-                        stateScheduler.RemoveState(currentState);
+                        StateScheduler.RemoveState(CurrentState);
                         return HandlerAction.CONTINUE;
                     }
                     else
@@ -469,7 +469,7 @@ namespace Symbooglix
                 }
 
                 // Can the ensures fail?
-                Solver.Result result = solver.IsNotQuerySat(remapped);
+                Solver.Result result = TheSolver.IsNotQuerySat(remapped);
                 switch (result)
                 {
                     case Symbooglix.Solver.Result.SAT:
@@ -492,7 +492,7 @@ namespace Symbooglix
                 }
 
                 // Can the ensures suceed?
-                result = solver.IsQuerySat(remapped);
+                result = TheSolver.IsQuerySat(remapped);
                 switch (result)
                 {
                     case Solver.Result.SAT:
@@ -509,34 +509,34 @@ namespace Symbooglix
                 if (canFail && !canSucceed)
                 {
                     // This state can only fail
-                    currentState.MarkAsTerminatedEarly();
+                    CurrentState.MarkAsTerminatedEarly();
 
                     // notify handlers
-                    foreach (var handler in terminationHandlers)
-                        handler.handleFailingEnsures(currentState, ensures);
+                    foreach (var handler in TerminationHandlers)
+                        handler.handleFailingEnsures(CurrentState, ensures);
 
-                    stateScheduler.RemoveState(currentState);
+                    StateScheduler.RemoveState(CurrentState);
                     return HandlerAction.CONTINUE;
                 }
                 else if (!canFail && canSucceed)
                 {
                     // This state can only suceed
-                    currentState.Constraints.AddConstraint(remapped);
+                    CurrentState.Constraints.AddConstraint(remapped);
                 }
                 else if (canFail && canSucceed)
                 {
                     // This state can fail and suceed at the ensures
                     // fork both ways
 
-                    var failedState = currentState.DeepClone();
+                    var failedState = CurrentState.DeepClone();
                     failedState.MarkAsTerminatedEarly();
 
                     //notify handlers
-                    foreach (var handler in terminationHandlers)
+                    foreach (var handler in TerminationHandlers)
                         handler.handleFailingEnsures(failedState, ensures);
 
                     // succesful state
-                    currentState.Constraints.AddConstraint(remapped);
+                    CurrentState.Constraints.AddConstraint(remapped);
                 }
                 else
                 {
@@ -545,38 +545,38 @@ namespace Symbooglix
             }
 
             // Pass Parameters to Caller
-            if (currentState.Mem.Stack.Count > 1)
+            if (CurrentState.Mem.Stack.Count > 1)
             {
-                StackFrame callingSF = currentState.Mem.Stack.ElementAt(currentState.Mem.Stack.Count - 2);
+                StackFrame callingSF = CurrentState.Mem.Stack.ElementAt(CurrentState.Mem.Stack.Count - 2);
                 CallCmd caller = (CallCmd) callingSF.CurrentInstruction.Current;
                 Debug.Assert(caller is CallCmd);
 
                 // Assign return parameters
                 Debug.Assert(caller.Proc.OutParams.Count == caller.Outs.Count);
-                foreach (var tuple in caller.Outs.Zip(currentState.GetCurrentStackFrame().Impl.OutParams))
+                foreach (var tuple in caller.Outs.Zip(CurrentState.GetCurrentStackFrame().Impl.OutParams))
                 {
                     // Get return value
-                    Expr value = currentState.GetInScopeVariableExpr(tuple.Item2);
+                    Expr value = CurrentState.GetInScopeVariableExpr(tuple.Item2);
                     Debug.Assert(value != null);
 
                     // Assign
-                    currentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
+                    CurrentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
                 }
 
             }
 
             // Pop stack frame
-            currentState.LeaveImplementation();
+            CurrentState.LeaveImplementation();
 
-            if (currentState.Finished())
+            if (CurrentState.Finished())
             {
                 // Notify any handlers that this state terminated without error
-                foreach (var handler in terminationHandlers)
+                foreach (var handler in TerminationHandlers)
                 {
-                    handler.handleSuccess(currentState);
+                    handler.handleSuccess(CurrentState);
                 }
 
-                stateScheduler.RemoveState(currentState);
+                StateScheduler.RemoveState(CurrentState);
             }
 
             return HandlerAction.CONTINUE;
@@ -587,7 +587,7 @@ namespace Symbooglix
         public HandlerAction Handle(AssignCmd c, Executor executor)
         {
             int index=0;
-            VariableMapRewriter r = new VariableMapRewriter(currentState);
+            VariableMapRewriter r = new VariableMapRewriter(CurrentState);
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
             {
@@ -599,7 +599,7 @@ namespace Symbooglix
                 Debug.Assert(lvalue.IsMutable, "lvalue is not mutable!");
 
                 // Check lhs is actually in scope
-                if (! currentState.IsInScopeVariable(lvalue))
+                if (! CurrentState.IsInScopeVariable(lvalue))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
                 if (lhsrhs.Item1 is SimpleAssignLhs)
@@ -627,7 +627,7 @@ namespace Symbooglix
                     throw new NotSupportedException("Unknown type of assignment");
                 }
 
-                currentState.AssignToVariableInScope(lvalue, rvalue);
+                CurrentState.AssignToVariableInScope(lvalue, rvalue);
 
                 Debug.WriteLine("Assignment : " + lvalue + " := " + rvalue);
                 ++index;
@@ -637,8 +637,8 @@ namespace Symbooglix
 
         public HandlerAction Handle(AssertCmd c, Executor executor)
         {
-            handleBreakPoints(c);
-            VariableMapRewriter r = new VariableMapRewriter(currentState);
+            HandleBreakPoints(c);
+            VariableMapRewriter r = new VariableMapRewriter(CurrentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
 
             if (UseConstantFolding)
@@ -659,24 +659,24 @@ namespace Symbooglix
                 }
                 else if (literalAssertion.IsFalse)
                 {
-                    currentState.MarkAsTerminatedEarly();
+                    CurrentState.MarkAsTerminatedEarly();
                     // Notify our handlers
-                    foreach (var handler in terminationHandlers)
+                    foreach (var handler in TerminationHandlers)
                     {
-                        handler.handleFailingAssert(currentState);
+                        handler.handleFailingAssert(CurrentState);
                     }
-                    stateScheduler.RemoveState(currentState);
+                    StateScheduler.RemoveState(CurrentState);
                     return HandlerAction.CONTINUE;
                 }
                 else
                     throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our exception types
             }
 
-            solver.SetConstraints(currentState.Constraints);
+            TheSolver.SetConstraints(CurrentState.Constraints);
 
 
             // First see if it's possible for the assertion to fail
-            Solver.Result result = solver.IsNotQuerySat(dupAndrw);
+            Solver.Result result = TheSolver.IsNotQuerySat(dupAndrw);
             bool canFail = false;
             switch (result)
             {
@@ -695,7 +695,7 @@ namespace Symbooglix
             }
 
             // Now see if it's possible for execution to continue past the assertion
-            result = solver.IsQuerySat(dupAndrw);
+            result = TheSolver.IsQuerySat(dupAndrw);
             bool canSucceed = false;
             switch (result)
             {
@@ -716,18 +716,18 @@ namespace Symbooglix
             if (canFail && !canSucceed)
             {
                 // This state can only fail
-                currentState.MarkAsTerminatedEarly();
+                CurrentState.MarkAsTerminatedEarly();
 
                 // Notify
-                foreach (var handler in terminationHandlers)
-                    handler.handleFailingAssert(currentState);
+                foreach (var handler in TerminationHandlers)
+                    handler.handleFailingAssert(CurrentState);
 
-                stateScheduler.RemoveState(currentState);
+                StateScheduler.RemoveState(CurrentState);
             }
             else if (!canFail && canSucceed)
             {
                 // This state can only succeed
-                currentState.Constraints.AddConstraint(dupAndrw);
+                CurrentState.Constraints.AddConstraint(dupAndrw);
             }
             else if (canFail && canSucceed)
             {
@@ -736,15 +736,15 @@ namespace Symbooglix
                 // We need to fork and duplicate the states
                 // Or do we? Copying the state just so we can inform
                 // the handlers about it seems wasteful...
-                ExecutionState failingState = currentState.DeepClone();
+                ExecutionState failingState = CurrentState.DeepClone();
                 failingState.MarkAsTerminatedEarly();
 
                 // Notify
-                foreach (var handler in terminationHandlers)
+                foreach (var handler in TerminationHandlers)
                     handler.handleFailingAssert(failingState);
 
                 // successful state can now have assertion expr in constraints
-                currentState.Constraints.AddConstraint(dupAndrw);
+                CurrentState.Constraints.AddConstraint(dupAndrw);
 
             }
             else
@@ -758,8 +758,8 @@ namespace Symbooglix
 
         public HandlerAction Handle(AssumeCmd c, Executor executor)
         {
-            handleBreakPoints(c);
-            VariableMapRewriter r = new VariableMapRewriter(currentState);
+            HandleBreakPoints(c);
+            VariableMapRewriter r = new VariableMapRewriter(CurrentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
 
             if (UseConstantFolding)
@@ -780,36 +780,36 @@ namespace Symbooglix
                 }
                 else if (literalAssumption.IsFalse)
                 {
-                    currentState.MarkAsTerminatedEarly();
+                    CurrentState.MarkAsTerminatedEarly();
                     // Notify our handlers
-                    foreach (var handler in terminationHandlers)
+                    foreach (var handler in TerminationHandlers)
                     {
-                        handler.handleUnsatisfiableAssume(currentState);
+                        handler.handleUnsatisfiableAssume(CurrentState);
                     }
-                    stateScheduler.RemoveState(currentState);
+                    StateScheduler.RemoveState(CurrentState);
                     return HandlerAction.CONTINUE;
                 }
             }
 
-            solver.SetConstraints(currentState.Constraints);
-            Solver.Result result = solver.IsQuerySat(dupAndrw);
+            TheSolver.SetConstraints(CurrentState.Constraints);
+            Solver.Result result = TheSolver.IsQuerySat(dupAndrw);
             switch (result)
             {
                 case Symbooglix.Solver.Result.UNSAT:
-                    currentState.MarkAsTerminatedEarly();
+                    CurrentState.MarkAsTerminatedEarly();
                     // Notify our handlers
-                    foreach (var handler in terminationHandlers)
+                    foreach (var handler in TerminationHandlers)
                     {
-                        handler.handleUnsatisfiableAssume(currentState);
+                        handler.handleUnsatisfiableAssume(CurrentState);
                     }
-                    stateScheduler.RemoveState(currentState);
+                    StateScheduler.RemoveState(CurrentState);
                     break;
                 case Symbooglix.Solver.Result.SAT:
-                    currentState.Constraints.AddConstraint(dupAndrw);
+                    CurrentState.Constraints.AddConstraint(dupAndrw);
                     break;
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
-                    currentState.Constraints.AddConstraint(dupAndrw);
+                    CurrentState.Constraints.AddConstraint(dupAndrw);
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");
@@ -828,14 +828,14 @@ namespace Symbooglix
                 for (int targetId = 1, tEnd = c.labelTargets.Count; targetId < tEnd; ++targetId)
                 {
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
-                    newState = currentState.DeepClone(); // FIXME: This is not memory efficient
+                    newState = CurrentState.DeepClone(); // FIXME: This is not memory efficient
                     newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
-                    stateScheduler.AddState(newState);
+                    StateScheduler.AddState(newState);
                 }
             }
 
             // The current execution state will always take the first target
-            currentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
+            CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
 
             return HandlerAction.CONTINUE;
         }
@@ -843,10 +843,10 @@ namespace Symbooglix
         public HandlerAction Handle(CallCmd c, Executor executor)
         {
             var args = new List<Expr>();
-            var reWritter = new VariableMapRewriter(currentState);
+            var reWritter = new VariableMapRewriter(CurrentState);
 
             // Find corresponding implementation
-            var implementations = prog.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Proc == c.Proc);
+            var implementations = TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Proc == c.Proc);
             Debug.Assert(implementations.Count() == 1);
             Implementation imp = implementations.First();
 
@@ -856,7 +856,7 @@ namespace Symbooglix
             }
 
             HandlerAction action = HandlerAction.CONTINUE;
-            foreach (IExecutorHandler h in preEventHandlers)
+            foreach (IExecutorHandler h in PreEventHandlers)
             {
                 action = h.EnterImplementation(imp, args, this);
                 if (action == HandlerAction.STOP)
@@ -865,7 +865,7 @@ namespace Symbooglix
 
             // We have slightly different semantics here to the handle() methods. Clients cannot block enterProcedure()
             EnterImplementation(imp, args, this);
-            foreach (IExecutorHandler h in postEventHandlers)
+            foreach (IExecutorHandler h in PostEventHandlers)
             {
                 action = h.EnterImplementation(imp, args, this);
                 if (action == HandlerAction.STOP)
@@ -891,10 +891,10 @@ namespace Symbooglix
             Debug.WriteLine("Havoc : " + c.ToString().TrimEnd('\n'));
             for (int index=0; index < c.Vars.Count ; ++index)
             {
-                var s = symbolicPool.getFreshSymbolic(c, index);
-                Debug.Assert(currentState.IsInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
-                currentState.AssignToVariableInScope(c.Vars[index].Decl, s.Expr);
-                currentState.Symbolics.Add(s);
+                var s = SymbolicPool.getFreshSymbolic(c, index);
+                Debug.Assert(CurrentState.IsInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
+                CurrentState.AssignToVariableInScope(c.Vars[index].Decl, s.Expr);
+                CurrentState.Symbolics.Add(s);
 
             }
             return HandlerAction.CONTINUE;

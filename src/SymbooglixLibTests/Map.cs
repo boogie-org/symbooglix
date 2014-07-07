@@ -18,28 +18,28 @@ namespace SymbooglixLibTests
             {
                 if (name == "check_read_map")
                 {
-                    var a = e.currentState.GetInScopeVariableAndExprByName("a"); // a := symbolic_0[0bv8]
+                    var a = e.CurrentState.GetInScopeVariableAndExprByName("a"); // a := symbolic_0[0bv8]
                     Assert.IsInstanceOfType(typeof(NAryExpr), a.Value);
                     NAryExpr mapSelect = a.Value as NAryExpr;
                     Assert.IsInstanceOfType(typeof(MapSelect), mapSelect.Fun);
                     Assert.AreEqual(2, mapSelect.Args.Count);
 
                     // [0] should be map Identifier
-                    CheckIsSymbolicIdentifier(mapSelect.Args[0], e.currentState);
+                    CheckIsSymbolicIdentifier(mapSelect.Args[0], e.CurrentState);
 
                     // [1] should be offset
                     CheckIsLiteralBVConstWithValue(mapSelect.Args[1], BigNum.FromInt(0));
                 }
                 else if (name == "check_write_literal")
                 {
-                    var m = e.currentState.GetInScopeVariableAndExprByName("m"); // m := symbolic_0[3bv8 := 12bv32]
+                    var m = e.CurrentState.GetInScopeVariableAndExprByName("m"); // m := symbolic_0[3bv8 := 12bv32]
                     Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
                     Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun);
                     Assert.AreEqual(3, mapStore.Args.Count);
 
                     // [0] should be map Identifier
-                    CheckIsSymbolicIdentifier(mapStore.Args[0], e.currentState);
+                    CheckIsSymbolicIdentifier(mapStore.Args[0], e.CurrentState);
 
                     // [1] should be write offset
                     CheckIsLiteralBVConstWithValue(mapStore.Args[1], BigNum.FromInt(3));
@@ -50,7 +50,7 @@ namespace SymbooglixLibTests
                 }
                 else if (name == "check_write_from_map")
                 {
-                    var m = e.currentState.GetInScopeVariableAndExprByName("m");
+                    var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
                     intermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
                     Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
@@ -65,7 +65,7 @@ namespace SymbooglixLibTests
 
                     {
                         // [0] should be map Identifier
-                        CheckIsSymbolicIdentifier(writtenTo.Args[0], e.currentState);
+                        CheckIsSymbolicIdentifier(writtenTo.Args[0], e.CurrentState);
 
                         // [1] should be write offset
                         CheckIsLiteralBVConstWithValue(writtenTo.Args[1], BigNum.FromInt(3));
@@ -85,7 +85,7 @@ namespace SymbooglixLibTests
 
                     {
                         // [0] should be map Identifier
-                        CheckIsSymbolicIdentifier(WrittenValue.Args[0], e.currentState);
+                        CheckIsSymbolicIdentifier(WrittenValue.Args[0], e.CurrentState);
 
                         // [1] should be offset
                         CheckIsLiteralBVConstWithValue(WrittenValue.Args[1], BigNum.FromInt(0));
@@ -94,7 +94,7 @@ namespace SymbooglixLibTests
                 else if (name == "check_write_symbolic_index")
                 {
                     // Expecting m := symbolic_0[3bv8 := 12bv32][1bv8 := symbolic_0[0bv8]][symbolic_2 := 7bv32]
-                    var m = e.currentState.GetInScopeVariableAndExprByName("m");
+                    var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
                     Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
                     Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
@@ -105,7 +105,7 @@ namespace SymbooglixLibTests
                     //Assert.IsTrue(intermediate.Equals(mapStore.Args[0])); // FIXME: Structual equality is broken in Boogie!
 
                     // [1] Write offset which should be symbolic (symbolic_2)
-                    CheckIsSymbolicIdentifier(mapStore.Args[1], e.currentState);
+                    CheckIsSymbolicIdentifier(mapStore.Args[1], e.CurrentState);
 
                     // [2] Value to write (7bv32)
                     CheckIsLiteralBVConstWithValue(mapStore.Args[2], BigNum.FromInt(7));
@@ -125,8 +125,8 @@ namespace SymbooglixLibTests
             p = loadProgram("programs/SimpleMap.bpl");
             e = getExecutor(p);
             var handler = new SimpleMapHandler();
-            e.registerBreakPointHandler(handler);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(handler);
+            e.Run(getMain(p));
             Assert.AreEqual(4, handler.hits);
 
         }
@@ -144,8 +144,8 @@ namespace SymbooglixLibTests
             p = loadProgram("programs/2DMap.bpl");
             e = getExecutor(p);
             var handler = new TwoDMapHandler();
-            e.registerBreakPointHandler(handler);
-            e.run(getMain(p));
+            e.RegisterBreakPointHandler(handler);
+            e.Run(getMain(p));
 
         }
     }
