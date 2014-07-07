@@ -192,7 +192,7 @@ namespace Symbooglix
 
             // Push entry point onto stack frame
             // FIXME: handle requires
-            enterProcedure(entryPoint,null, this);
+            EnterImplementation(entryPoint,null, this);
 
             var oldState = currentState;
             while (stateScheduler.getNumberOfStates() != 0)
@@ -305,7 +305,7 @@ namespace Symbooglix
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-        public HandlerAction enterProcedure(Implementation Impl, List<Expr> procedureParams, Executor executor)
+        public HandlerAction EnterImplementation(Implementation Impl, List<Expr> procedureParams, Executor executor)
         {
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
@@ -415,7 +415,7 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(ReturnCmd c, Executor executor)
+        public HandlerAction Handle(ReturnCmd c, Executor executor)
         {
             // Check ensures conditions, forking if necessary
             solver.SetConstraints(currentState.Constraints);
@@ -584,7 +584,7 @@ namespace Symbooglix
         }
 
 
-        public HandlerAction handle(AssignCmd c, Executor executor)
+        public HandlerAction Handle(AssignCmd c, Executor executor)
         {
             int index=0;
             VariableMapRewriter r = new VariableMapRewriter(currentState);
@@ -635,7 +635,7 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(AssertCmd c, Executor executor)
+        public HandlerAction Handle(AssertCmd c, Executor executor)
         {
             handleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(currentState);
@@ -756,7 +756,7 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(AssumeCmd c, Executor executor)
+        public HandlerAction Handle(AssumeCmd c, Executor executor)
         {
             handleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(currentState);
@@ -818,7 +818,7 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(GotoCmd c, Executor executor)
+        public HandlerAction Handle(GotoCmd c, Executor executor)
         {
             Debug.Assert(c.labelTargets.Count() > 0);
 
@@ -840,7 +840,7 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(CallCmd c, Executor executor)
+        public HandlerAction Handle(CallCmd c, Executor executor)
         {
             var args = new List<Expr>();
             var reWritter = new VariableMapRewriter(currentState);
@@ -858,35 +858,35 @@ namespace Symbooglix
             HandlerAction action = HandlerAction.CONTINUE;
             foreach (IExecutorHandler h in preEventHandlers)
             {
-                action = h.enterProcedure(imp, args, this);
+                action = h.EnterImplementation(imp, args, this);
                 if (action == HandlerAction.STOP)
                     break;
             }
 
             // We have slightly different semantics here to the handle() methods. Clients cannot block enterProcedure()
-            enterProcedure(imp, args, this);
+            EnterImplementation(imp, args, this);
             foreach (IExecutorHandler h in postEventHandlers)
             {
-                action = h.enterProcedure(imp, args, this);
+                action = h.EnterImplementation(imp, args, this);
                 if (action == HandlerAction.STOP)
                     break;
             }
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(AssertEnsuresCmd c, Executor executor)
+        public HandlerAction Handle(AssertEnsuresCmd c, Executor executor)
         {
             throw new NotImplementedException ();
             //return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(AssertRequiresCmd c, Executor executor)
+        public HandlerAction Handle(AssertRequiresCmd c, Executor executor)
         {
             throw new NotImplementedException ();
             //return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(HavocCmd c, Executor executor)
+        public HandlerAction Handle(HavocCmd c, Executor executor)
         {
             Debug.WriteLine("Havoc : " + c.ToString().TrimEnd('\n'));
             for (int index=0; index < c.Vars.Count ; ++index)
@@ -900,7 +900,7 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction handle(YieldCmd c, Executor executor)
+        public HandlerAction Handle(YieldCmd c, Executor executor)
         {
             throw new NotImplementedException ();
             //return HandlerAction.CONTINUE;

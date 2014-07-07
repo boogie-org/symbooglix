@@ -9,7 +9,7 @@ namespace Symbooglix
         public static Symbooglix.Executor.HandlerAction visitCmd<T>(this T cmd, IExecutorHandler handler, Executor e) where T: Absy
         {
             // use of "dynamic" might hinder performance. If a problem then manually implement the visitCmd extension methods by hand
-            return handler.handle(cmd as dynamic, e);
+            return handler.Handle(cmd as dynamic, e);
         }
     }
 }

@@ -12,15 +12,15 @@ namespace Symbooglix
         {
         }
 
-        public override Executor.HandlerAction handle(ReturnCmd c, Executor executor)
+        public override Executor.HandlerAction Handle(ReturnCmd c, Executor executor)
         {
             Console.WriteLine("Leaving: " + executor.currentState.GetCurrentStackFrame().Impl.Name + "()");
             return Executor.HandlerAction.CONTINUE;
         }
 
-        public override Executor.HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
+        public override Executor.HandlerAction EnterImplementation(Implementation impl, List<Expr> procedureParams, Executor executor)
         {
-            Console.Write("Calling: " + p.Name + "(");
+            Console.Write("Calling: " + impl.Name + "(");
 
             for (int argidx = 0; argidx < procedureParams.Count; ++argidx)
             {

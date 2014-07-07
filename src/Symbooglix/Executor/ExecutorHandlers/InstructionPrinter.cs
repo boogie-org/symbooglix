@@ -7,57 +7,57 @@ namespace Symbooglix
 {
     public class InstructionPrinter : IExecutorHandler
     {
-        public Executor.HandlerAction handle(AssertCmd c, Executor executor)
+        public Executor.HandlerAction Handle(AssertCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(AssignCmd c, Executor executor)
+        public Executor.HandlerAction Handle(AssignCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(AssumeCmd c, Executor executor)
+        public Executor.HandlerAction Handle(AssumeCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(AssertEnsuresCmd c, Executor executor)
+        public Executor.HandlerAction Handle(AssertEnsuresCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(AssertRequiresCmd c, Executor executor)
+        public Executor.HandlerAction Handle(AssertRequiresCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(CallCmd c, Executor executor)
+        public Executor.HandlerAction Handle(CallCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(GotoCmd c, Executor executor)
+        public Executor.HandlerAction Handle(GotoCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(HavocCmd c, Executor executor)
+        public Executor.HandlerAction Handle(HavocCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(ReturnCmd c, Executor executor)
+        public Executor.HandlerAction Handle(ReturnCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction handle(YieldCmd c, Executor executor)
+        public Executor.HandlerAction Handle(YieldCmd c, Executor executor)
         {
             return print(c);
         }
 
-        public Executor.HandlerAction enterProcedure(Implementation p, List<Expr> procedureParams, Executor executor)
+        public Executor.HandlerAction EnterImplementation(Implementation impl, List<Expr> procedureParams, Executor executor)
         {
             // This isn't an actual instruction so do nothing
             return Executor.HandlerAction.CONTINUE;
