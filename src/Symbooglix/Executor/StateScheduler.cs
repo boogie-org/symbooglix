@@ -6,65 +6,61 @@ namespace Symbooglix
 {
     public interface IStateScheduler
     {
-        ExecutionState getNextState();
-        bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove);
-        bool addState(ExecutionState toAdd);
-        bool removeState(ExecutionState toRemove);
-        void removeAll(Predicate<ExecutionState> p);
-        int getNumberOfStates();
+        ExecutionState GetNextState();
+        void UpdateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove);
+        void AddState(ExecutionState toAdd);
+        void RemoveState(ExecutionState toRemove);
+        void RemoveAll(Predicate<ExecutionState> p);
+        int GetNumberOfStates();
     }
 
     public class DFSStateScheduler : IStateScheduler
     {
-        private List<ExecutionState> states;
+        private List<ExecutionState> States;
         public DFSStateScheduler() 
         { 
-            states = new List<ExecutionState>();
+            States = new List<ExecutionState>();
         }
 
-        public ExecutionState getNextState() 
+        public ExecutionState GetNextState() 
         { 
-            if (states.Count == 0)
+            if (States.Count == 0)
                 return null;
 
-            return states[0];
+            return States[0];
         }
 
-        public bool updateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove)
+        public void UpdateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove)
         {
             foreach(ExecutionState e in toRemove)
             {
-                Debug.Assert(states.Contains(e));
-                states.Remove(e);
+                Debug.Assert(States.Contains(e));
+                States.Remove(e);
             }
 
             // Add to end of List
             foreach(ExecutionState e in toAdd)
             {
-                states.Add(e);
+                States.Add(e);
             }
-
-            return true; // FIXME : Can we fail?
         }
 
-        public int getNumberOfStates() { return states.Count;}
+        public int GetNumberOfStates() { return States.Count;}
 
-        public bool addState (ExecutionState toAdd)
+        public void AddState (ExecutionState toAdd)
         {
-            states.Add(toAdd);
-            return true;
+            States.Add(toAdd);
         }
 
-        public bool removeState (ExecutionState toRemove)
+        public void RemoveState(ExecutionState toRemove)
         {
-            Debug.Assert(states.Contains(toRemove));
-            states.Remove(toRemove);
-            return true;
+            Debug.Assert(States.Contains(toRemove));
+            States.Remove(toRemove);
         }
 
-        public void removeAll(Predicate<ExecutionState> p)
+        public void RemoveAll(Predicate<ExecutionState> p)
         {
-            states.RemoveAll(p);
+            States.RemoveAll(p);
         }
 
     }

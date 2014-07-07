@@ -185,7 +185,7 @@ namespace Symbooglix
             // FIXME: Clone initialState so we can deal with execution at a different entry point later on
             currentState = initialState;
 
-            stateScheduler.addState(currentState);
+            stateScheduler.AddState(currentState);
             
             // FIXME: Check entry point is in prog?
 
@@ -195,9 +195,9 @@ namespace Symbooglix
             EnterImplementation(entryPoint,null, this);
 
             var oldState = currentState;
-            while (stateScheduler.getNumberOfStates() != 0)
+            while (stateScheduler.GetNumberOfStates() != 0)
             {
-                currentState = stateScheduler.getNextState();
+                currentState = stateScheduler.GetNextState();
                 Debug.WriteLineIf(oldState != currentState, "[Switching context " + oldState.Id + " => " + currentState.Id + " ]");
                 oldState = currentState;
 
@@ -212,8 +212,8 @@ namespace Symbooglix
         {
             Console.WriteLine("Terminating early");
             Console.WriteLine("FIXME: Save state information");
-            stateScheduler.removeAll(s => true);
-            Debug.Assert(stateScheduler.getNumberOfStates() == 0);
+            stateScheduler.RemoveAll(s => true);
+            Debug.Assert(stateScheduler.GetNumberOfStates() == 0);
         }
 
         private void executeInstruction()
@@ -382,7 +382,7 @@ namespace Symbooglix
                     foreach (var handler in terminationHandlers)
                         handler.handleUnsatisfiableRequires(currentState, r);
 
-                    stateScheduler.removeState(currentState);
+                    stateScheduler.RemoveState(currentState);
                     return HandlerAction.CONTINUE; // Should we prevent other handlers from executing?
                 }
 
@@ -459,7 +459,7 @@ namespace Symbooglix
                         foreach (var handler in terminationHandlers)
                             handler.handleFailingEnsures(currentState, ensures);
 
-                        stateScheduler.removeState(currentState);
+                        stateScheduler.RemoveState(currentState);
                         return HandlerAction.CONTINUE;
                     }
                     else
@@ -515,7 +515,7 @@ namespace Symbooglix
                     foreach (var handler in terminationHandlers)
                         handler.handleFailingEnsures(currentState, ensures);
 
-                    stateScheduler.removeState(currentState);
+                    stateScheduler.RemoveState(currentState);
                     return HandlerAction.CONTINUE;
                 }
                 else if (!canFail && canSucceed)
@@ -576,7 +576,7 @@ namespace Symbooglix
                     handler.handleSuccess(currentState);
                 }
 
-                stateScheduler.removeState(currentState);
+                stateScheduler.RemoveState(currentState);
             }
 
             return HandlerAction.CONTINUE;
@@ -665,7 +665,7 @@ namespace Symbooglix
                     {
                         handler.handleFailingAssert(currentState);
                     }
-                    stateScheduler.removeState(currentState);
+                    stateScheduler.RemoveState(currentState);
                     return HandlerAction.CONTINUE;
                 }
                 else
@@ -722,7 +722,7 @@ namespace Symbooglix
                 foreach (var handler in terminationHandlers)
                     handler.handleFailingAssert(currentState);
 
-                stateScheduler.removeState(currentState);
+                stateScheduler.RemoveState(currentState);
             }
             else if (!canFail && canSucceed)
             {
@@ -786,7 +786,7 @@ namespace Symbooglix
                     {
                         handler.handleUnsatisfiableAssume(currentState);
                     }
-                    stateScheduler.removeState(currentState);
+                    stateScheduler.RemoveState(currentState);
                     return HandlerAction.CONTINUE;
                 }
             }
@@ -802,7 +802,7 @@ namespace Symbooglix
                     {
                         handler.handleUnsatisfiableAssume(currentState);
                     }
-                    stateScheduler.removeState(currentState);
+                    stateScheduler.RemoveState(currentState);
                     break;
                 case Symbooglix.Solver.Result.SAT:
                     currentState.Constraints.AddConstraint(dupAndrw);
@@ -830,7 +830,7 @@ namespace Symbooglix
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
                     newState = currentState.DeepClone(); // FIXME: This is not memory efficient
                     newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
-                    stateScheduler.addState(newState);
+                    stateScheduler.AddState(newState);
                 }
             }
 
