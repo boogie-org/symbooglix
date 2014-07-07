@@ -2,7 +2,7 @@ using Microsoft.Boogie;
 using System;
 using System.Collections.Generic;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public interface IExecutorHandler
     {

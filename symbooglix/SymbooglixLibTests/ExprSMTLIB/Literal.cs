@@ -3,7 +3,7 @@ using System;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using System.IO;
-using symbooglix;
+using Symbooglix;
 
 namespace ExprSMTLIBTest
 {

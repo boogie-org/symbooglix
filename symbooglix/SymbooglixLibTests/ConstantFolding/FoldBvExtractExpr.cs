@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using Microsoft.Basetypes;
 using Microsoft.Boogie;
-using symbooglix;
+using Symbooglix;
 using System;
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Boogie;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class VariableMapRewriter : Duplicator
     {

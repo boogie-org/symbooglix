@@ -1,5 +1,5 @@
-using symbooglix;
-using symbooglix.Solver;
+using Symbooglix;
+using Symbooglix.Solver;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

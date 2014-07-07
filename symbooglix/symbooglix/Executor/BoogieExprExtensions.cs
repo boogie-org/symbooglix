@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Boogie;
 
-namespace symbooglix
+namespace Symbooglix
 {
     // This is a hack. Really this needs to go into upstream Boogie
     // as virtual methods. We manually dispatch by hand (eurgh...) to simulate virtual methods

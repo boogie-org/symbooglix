@@ -3,7 +3,7 @@ using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public abstract class Traverser
     {

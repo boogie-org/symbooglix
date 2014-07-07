@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
-using symbooglix;
+using Symbooglix;
 
-namespace symbooglix
+namespace Symbooglix
 {
     // This Handler is for debugging and should be registered as a pre-event and post-event handler.
     // On being called as a pre-event handler it records properties about the executed command

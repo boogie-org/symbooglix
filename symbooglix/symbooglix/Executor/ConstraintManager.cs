@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Boogie;
 
-namespace symbooglix
+namespace Symbooglix
 {
 
-    public class ConstraintManager : util.IDeepClone<ConstraintManager>
+    public class ConstraintManager : Util.IDeepClone<ConstraintManager>
     {
         public List<Expr> constraints;
         public ConstraintManager()

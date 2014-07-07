@@ -2,7 +2,7 @@ using System;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 
-namespace symbooglix
+namespace Symbooglix
 {   
     namespace Solver
     {

@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class FindLiteralAssignment
     {

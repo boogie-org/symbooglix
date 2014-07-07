@@ -4,7 +4,7 @@ using Microsoft.Boogie;
 using System.Linq;
 using System.Diagnostics;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class FindSymbolicsVisitor : StandardVisitor
     {

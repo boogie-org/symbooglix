@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Boogie;
 using System.IO;
 
-namespace symbooglix
+namespace Symbooglix
 {
     namespace Solver
     {

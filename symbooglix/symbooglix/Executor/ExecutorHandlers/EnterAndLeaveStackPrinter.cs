@@ -1,9 +1,9 @@
 using System;
-using symbooglix;
+using Symbooglix;
 using Microsoft.Boogie;
 using System.Collections.Generic;
 
-namespace symbooglix
+namespace Symbooglix
 {
     // This should be installed as a pre-event handler to work correctly
     public class EnterAndLeaveStackPrinter : ContinuingHandler

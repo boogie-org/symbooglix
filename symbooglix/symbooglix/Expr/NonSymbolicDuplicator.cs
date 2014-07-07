@@ -2,7 +2,7 @@ using System;
 using Microsoft.Boogie;
 using System.Diagnostics;
 
-namespace symbooglix
+namespace Symbooglix
 {
     /// <summary>
     /// This duplicates Expr accept the identifier expr attached to symbolics

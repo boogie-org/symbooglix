@@ -1,7 +1,7 @@
 using System;
-using symbooglix;
+using Symbooglix;
 
-namespace symbooglix
+namespace Symbooglix
 {
     // Handy class that clients can override if they only want to handle a few events
     public class ContinuingHandler : IExecutorHandler

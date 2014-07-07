@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Microsoft.Basetypes;
 
-namespace symbooglix
+namespace Symbooglix
 {
     // Clients should use this.
     public class ConstantFoldingTraverser : DFSPostOrderTraverser

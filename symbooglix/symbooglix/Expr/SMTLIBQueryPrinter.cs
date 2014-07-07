@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class SMTLIBQueryPrinter : Traverser
     {

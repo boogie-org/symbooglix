@@ -1,8 +1,8 @@
 using System;
 
-namespace symbooglix
+namespace Symbooglix
 {
-    namespace util
+    namespace Util
     {
         public interface IDeepClone<T>
         {

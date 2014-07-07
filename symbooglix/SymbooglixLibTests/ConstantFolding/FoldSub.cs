@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using Microsoft.Basetypes;
 using Microsoft.Boogie;
-using symbooglix;
+using Symbooglix;
 
 namespace ConstantFoldingTests
 {

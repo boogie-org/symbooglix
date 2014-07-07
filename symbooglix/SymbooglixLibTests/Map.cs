@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using System;
-using symbooglix;
+using Symbooglix;
 using Microsoft.Basetypes;
 using Microsoft.Boogie;
 using System.Linq;

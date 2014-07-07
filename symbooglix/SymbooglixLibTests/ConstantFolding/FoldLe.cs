@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
-using symbooglix;
+using Symbooglix;
 
 // FIXME: Change namespace so constant folding tests are in different namespace.
 namespace ConstantFoldingTests

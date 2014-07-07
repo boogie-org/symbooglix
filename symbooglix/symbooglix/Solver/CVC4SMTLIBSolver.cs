@@ -1,7 +1,7 @@
 using System;
-using symbooglix.Solver;
+using Symbooglix.Solver;
 
-namespace symbooglix
+namespace Symbooglix
 {
     namespace Solver
     {

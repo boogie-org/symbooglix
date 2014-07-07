@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
-using symbooglix;
+using Symbooglix;
 
 namespace SymbooglixLibTests
 {

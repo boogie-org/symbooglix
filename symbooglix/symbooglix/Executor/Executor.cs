@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace symbooglix
+namespace Symbooglix
 {
 
     public class Executor : IExecutorHandler
@@ -472,10 +472,10 @@ namespace symbooglix
                 Solver.Result result = solver.IsNotQuerySat(remapped);
                 switch (result)
                 {
-                    case symbooglix.Solver.Result.SAT:
+                    case Symbooglix.Solver.Result.SAT:
                         canFail = true;
                         break;
-                    case symbooglix.Solver.Result.UNSAT:
+                    case Symbooglix.Solver.Result.UNSAT:
                         // This actually implies that
                         //
                         // ∀X : C(X) → Q(X)
@@ -485,7 +485,7 @@ namespace symbooglix
                         // can be satisfied
                         // FIXME: Do something about this!
                         break;
-                    case symbooglix.Solver.Result.UNKNOWN:
+                    case Symbooglix.Solver.Result.UNKNOWN:
                         // Be conservative, may introduce false positives though.
                         canFail = true;
                         break;
@@ -687,7 +687,7 @@ namespace symbooglix
                     Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
                     canFail = true;
                     break;
-                case symbooglix.Solver.Result.UNSAT:
+                case Symbooglix.Solver.Result.UNSAT:
                     canFail = false;
                     break;
                 default:
@@ -706,7 +706,7 @@ namespace symbooglix
                     Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
                     canSucceed = true;
                     break;
-                case symbooglix.Solver.Result.UNSAT:
+                case Symbooglix.Solver.Result.UNSAT:
                     canSucceed = false;
                     break;
                 default:
@@ -795,7 +795,7 @@ namespace symbooglix
             Solver.Result result = solver.IsQuerySat(dupAndrw);
             switch (result)
             {
-                case symbooglix.Solver.Result.UNSAT:
+                case Symbooglix.Solver.Result.UNSAT:
                     currentState.MarkAsTerminatedEarly();
                     // Notify our handlers
                     foreach (var handler in terminationHandlers)
@@ -804,10 +804,10 @@ namespace symbooglix
                     }
                     stateScheduler.removeState(currentState);
                     break;
-                case symbooglix.Solver.Result.SAT:
+                case Symbooglix.Solver.Result.SAT:
                     currentState.cm.addConstraint(dupAndrw);
                     break;
-                case symbooglix.Solver.Result.UNKNOWN:
+                case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
                     currentState.cm.addConstraint(dupAndrw);
                     break;

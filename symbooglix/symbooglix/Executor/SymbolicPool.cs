@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class SymbolicPool
     {

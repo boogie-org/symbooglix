@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace symbooglix
+namespace Symbooglix
 {
     namespace Solver
     {

@@ -3,9 +3,9 @@ using Microsoft.Boogie;
 using System.Diagnostics;
 using System.Linq;
 
-namespace symbooglix
+namespace Symbooglix
 {
-    public class Memory : util.IDeepClone<Memory>
+    public class Memory : Util.IDeepClone<Memory>
     {
         public Memory()
         {
@@ -68,7 +68,7 @@ namespace symbooglix
         public Dictionary<Variable,Expr> globals;
     }
 
-    public class StackFrame : util.IDeepClone<StackFrame>
+    public class StackFrame : Util.IDeepClone<StackFrame>
     {
         public Dictionary<Variable,Expr> locals;
         public Implementation procedure;

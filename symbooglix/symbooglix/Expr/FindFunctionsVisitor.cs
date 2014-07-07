@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Boogie;
 using System.Diagnostics;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class FindFunctionsVisitor : StandardVisitor
     {

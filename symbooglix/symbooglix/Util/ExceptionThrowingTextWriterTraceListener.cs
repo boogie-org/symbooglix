@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public class ExceptionThrowingTextWritierTraceListener : TextWriterTraceListener
     {

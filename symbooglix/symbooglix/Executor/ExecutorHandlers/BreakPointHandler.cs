@@ -1,8 +1,8 @@
 using System;
-using symbooglix;
+using Symbooglix;
 using Microsoft.Boogie;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public interface IBreakPointHandler
     {

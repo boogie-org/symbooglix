@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Boogie;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public interface IExprVisitor
     {

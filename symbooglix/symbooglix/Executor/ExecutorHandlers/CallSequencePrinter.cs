@@ -1,9 +1,9 @@
 using System;
-using symbooglix;
+using Symbooglix;
 using System.Collections.Generic;
 using Microsoft.Boogie;
 
-namespace symbooglix
+namespace Symbooglix
 {
     // This should be used a pre-event handler
     public class CallSequencePrinter : ContinuingHandler

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 
-namespace symbooglix
+namespace Symbooglix
 {
-    public class ExecutionState : util.IDeepClone<ExecutionState>
+    public class ExecutionState : Util.IDeepClone<ExecutionState>
     {
         public Memory mem;
         private bool started = false;

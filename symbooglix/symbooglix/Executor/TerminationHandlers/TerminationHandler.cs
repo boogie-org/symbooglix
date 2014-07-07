@@ -1,6 +1,6 @@
 using System;
 
-namespace symbooglix
+namespace Symbooglix
 {
     public interface ITerminationHandler
     {
