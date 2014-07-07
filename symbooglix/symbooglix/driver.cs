@@ -232,6 +232,37 @@ namespace symbooglix
         {
             Solver.ISolver solver = null;
 
+            // Try to guess the location of executable. This is just for convenience
+            if (options.pathToSolver.Length == 0 && options.solver != CmdLineOpts.Solver.DUMMY)
+            {
+                Console.WriteLine("Path to SMT solver not specified. Guessing location");
+
+                // Look in the directory of the currently running executable for other solvers
+                var pathToSolver = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+                                                options.solver.ToString().ToLower());
+
+                if (File.Exists(pathToSolver))
+                {
+                    Console.WriteLine("Found \"{0}\"", pathToSolver);
+                    options.pathToSolver = pathToSolver;
+                }
+                else
+                {
+                    // Try with ".exe" appended
+                    pathToSolver = pathToSolver + ".exe";
+                    if (File.Exists(pathToSolver))
+                    {
+                        Console.WriteLine("Found \"{0}\"", pathToSolver);
+                        options.pathToSolver = pathToSolver;
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine("Could not find \"{0}\" (also without .exe)", pathToSolver);
+                        System.Environment.Exit(1);
+                    }
+                }
+            }
+
             switch (options.solver)
             {
                 case CmdLineOpts.Solver.CVC4:
