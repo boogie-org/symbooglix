@@ -8,7 +8,7 @@ namespace Symbooglix
 {
     public class SymbolicPool
     {
-        public int count
+        public int Count
         {
             get;
             private set;
@@ -16,17 +16,17 @@ namespace Symbooglix
 
         public SymbolicPool()
         {
-            count = 0;
+            Count = 0;
         }
 
         public SymbolicVariable getFreshSymbolic(Variable Origin)
         {
-            return new SymbolicVariable("symbolic_" + (count++).ToString(), Origin);
+            return new SymbolicVariable("symbolic_" + (Count++).ToString(), Origin);
         }
 
         public SymbolicVariable getFreshSymbolic(HavocCmd cmd, int VarsIndex)
         {
-            return new SymbolicVariable("symbolic_" + (count++).ToString(), cmd, VarsIndex);
+            return new SymbolicVariable("symbolic_" + (Count++).ToString(), cmd, VarsIndex);
         }
 
     }
@@ -40,7 +40,7 @@ namespace Symbooglix
         }
         // FIXME: Need a location in the executiontrace too
 
-        public Microsoft.Boogie.IdentifierExpr expr
+        public Microsoft.Boogie.IdentifierExpr Expr
         {
             get;
             private set;
@@ -48,7 +48,7 @@ namespace Symbooglix
 
         public SymbolicVariable(string Name, Variable Origin) : base(Token.NoToken, CopyAndRename(Origin.TypedIdent, Name))
         {
-            expr = new IdentifierExpr(Token.NoToken, this);
+            Expr = new IdentifierExpr(Token.NoToken, this);
             this.Origin = new ProgramLocation(Origin);
             this.Name = Name;
             Debug.WriteLine("Creating Symbolic " + this);
@@ -56,7 +56,7 @@ namespace Symbooglix
 
         public SymbolicVariable(string Name, HavocCmd Origin, int VarsIndex) : base(Token.NoToken, CopyAndRename(Origin.Vars[VarsIndex].Decl.TypedIdent, Name))
         {
-            expr = new IdentifierExpr(Token.NoToken, this);
+            Expr = new IdentifierExpr(Token.NoToken, this);
             this.Origin = new ProgramLocation(Origin);
             this.Name = Name;
             Debug.WriteLine("Creating Symbolic " + this);
@@ -111,23 +111,23 @@ namespace Symbooglix
 
     public class ProgramLocation
     {
-        private Object location;
+        private Object Location;
 
         // The location is where this variable is declared
         public ProgramLocation(Variable V)
         {
-            location = (Object) V;
+            Location = (Object) V;
         }
 
         // The location is where this cmd is executed
         public ProgramLocation(Cmd cmd)
         {
-            location = (Object) cmd;
+            Location = (Object) cmd;
         }
 
         public bool IsVariable
         {
-            get { return location is Variable; }
+            get { return Location is Variable; }
         }
 
         public Variable AsVariable
@@ -135,7 +135,7 @@ namespace Symbooglix
             get
             {
                 if (IsVariable)
-                    return location as Variable;
+                    return Location as Variable;
                 else
                     return null;
             }
@@ -143,7 +143,7 @@ namespace Symbooglix
 
         public bool IsCmd
         {
-            get { return location is Cmd; }
+            get { return Location is Cmd; }
         }
 
         public Cmd AsCmd
@@ -151,7 +151,7 @@ namespace Symbooglix
             get
             {
                 if (IsCmd)
-                    return location as Cmd;
+                    return Location as Cmd;
                 else
                     return null;
             }

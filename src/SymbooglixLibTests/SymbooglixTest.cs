@@ -91,7 +91,7 @@ namespace SymbooglixLibTests
         {
             Assert.IsInstanceOfType(typeof(IdentifierExpr), e);
             IdentifierExpr sym = e as IdentifierExpr;
-            Assert.IsTrue(state.Symbolics.Where(s => s.expr == sym).Count() > 0);
+            Assert.IsTrue(state.Symbolics.Where(s => s.Expr == sym).Count() > 0);
             return sym;
         }
 

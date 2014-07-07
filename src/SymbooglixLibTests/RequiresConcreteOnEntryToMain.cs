@@ -32,8 +32,8 @@ namespace SymbooglixLibTests
 
                         foreach (var s in e.currentState.Symbolics)
                         {
-                            Assert.IsTrue(s.expr is IdentifierExpr);
-                            var id = s.expr as IdentifierExpr;
+                            Assert.IsTrue(s.Expr is IdentifierExpr);
+                            var id = s.Expr as IdentifierExpr;
                             LiteralExpr literal = null;
                             found = FindLiteralAssignment.find(constraint, id.Decl, out literal);
 

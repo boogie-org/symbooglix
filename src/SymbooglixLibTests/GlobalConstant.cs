@@ -83,7 +83,7 @@ namespace SymbooglixLibTests
                                     if (Bop.Op == BinaryOperator.Opcode.Neq)
                                     {
                                         found = true;
-                                        Assert.IsTrue(nary.Args[0] == relevantSymbolic.expr);
+                                        Assert.IsTrue(nary.Args[0] == relevantSymbolic.Expr);
                                         Assert.IsTrue(nary.Args[1] is LiteralExpr && ( nary.Args[1] as LiteralExpr ).asBvConst.Value.ToInt == 7);
                                     }
                                 }

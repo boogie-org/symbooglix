@@ -17,8 +17,8 @@ namespace Symbooglix
         {
             if (node.Decl is SymbolicVariable)
             {
-                Debug.Assert(node == ( node.Decl as SymbolicVariable ).expr, "Mismatched Symbolic IdentifierExpr");
-                if (node != ( node.Decl as SymbolicVariable ).expr)
+                Debug.Assert(node == ( node.Decl as SymbolicVariable ).Expr, "Mismatched Symbolic IdentifierExpr");
+                if (node != ( node.Decl as SymbolicVariable ).Expr)
                     throw new Exception("FIXME");
                 return node;
             }

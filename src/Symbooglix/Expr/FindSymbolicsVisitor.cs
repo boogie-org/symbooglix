@@ -28,7 +28,7 @@ namespace Symbooglix
 
             if (node.Decl is SymbolicVariable)
             {
-                Debug.Assert(node == ( node.Decl as SymbolicVariable ).expr, "Different instances for IdentiferExpr");
+                Debug.Assert(node == ( node.Decl as SymbolicVariable ).Expr, "Different instances for IdentiferExpr");
                 symbolics.Add(node.Decl as SymbolicVariable);
             }
             return node;
