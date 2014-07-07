@@ -37,7 +37,7 @@ $ git submodule update
 Now if everthing went okay you can build Symbooglix by running
 
 ```
-$ cd symbooglix/ # A symboolgix.sln file should be in this directory
+$ cd src/ # A symboolgix.sln file should be in this directory
 $ xbuild
 ```
 
