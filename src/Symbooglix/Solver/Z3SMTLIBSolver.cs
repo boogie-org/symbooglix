@@ -9,7 +9,7 @@ namespace Symbooglix
         {
             public Z3SMTLIBSolver(string pathToSolver) : base(pathToSolver)
             {
-                this.startInfo.Arguments = "-in -smt2"; // Z3 specific command line flags
+                this.StartInfo.Arguments = "-in -smt2"; // Z3 specific command line flags
             }
         }
     }

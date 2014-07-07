@@ -9,7 +9,7 @@ namespace Symbooglix
         {
             public CVC4SMTLIBSolver(string pathToSolver) : base(pathToSolver)
             {
-                this.startInfo.Arguments = "--lang smt2"; // CVC4 specific command line flags
+                this.StartInfo.Arguments = "--lang smt2"; // CVC4 specific command line flags
             }
 
             protected override void SetSolverOptions()

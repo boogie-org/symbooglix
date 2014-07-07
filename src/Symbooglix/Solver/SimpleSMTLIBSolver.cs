@@ -8,12 +8,13 @@ namespace Symbooglix
     namespace Solver
     {
         // FIXME: Refactor this and SMTLIBQueryLoggingSolver
+        // FIXME: This should not be an abstract class!
         public abstract class SimpleSMTLIBSolver : ISolver
         {
             public int Timeout { get; private set;}
             protected SMTLIBQueryPrinter Printer = null;
             protected ConstraintManager currentConstraints = null;
-            protected ProcessStartInfo startInfo;
+            protected ProcessStartInfo StartInfo;
             private Result solverResult = Result.UNKNOWN;
             private bool receivedResult = false;
 
@@ -22,11 +23,11 @@ namespace Symbooglix
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
 
-                startInfo = new ProcessStartInfo(PathToSolverExecutable);
-                startInfo.RedirectStandardInput = true; // Neccessary so we can send our query
-                startInfo.RedirectStandardOutput = true; // Necessary so we can read the output
-                startInfo.RedirectStandardError = true;
-                startInfo.UseShellExecute = false; // C# docs say this is required
+                StartInfo = new ProcessStartInfo(PathToSolverExecutable);
+                StartInfo.RedirectStandardInput = true; // Neccessary so we can send our query
+                StartInfo.RedirectStandardOutput = true; // Necessary so we can read the output
+                StartInfo.RedirectStandardError = true;
+                StartInfo.UseShellExecute = false; // C# docs say this is required
 
                 // Subclasses should set the process arguments
 
@@ -54,7 +55,7 @@ namespace Symbooglix
                 Timeout = seconds;
             }
 
-            private void printDeclarationsAndConstraints()
+            private void PrintDeclarationsAndConstraints()
             {
                 Printer.printVariableDeclarations();
                 Printer.printFunctionDeclarations();
@@ -93,7 +94,7 @@ namespace Symbooglix
                 Printer.addDeclarations(QueryToPrint);
 
                 // Create Process
-                var proc = Process.Start(startInfo);
+                var proc = Process.Start(StartInfo);
 
                 Printer.changeOutput(proc.StandardInput);
 
@@ -104,7 +105,7 @@ namespace Symbooglix
                 proc.BeginErrorReadLine();
 
                 SetSolverOptions();
-                printDeclarationsAndConstraints();
+                PrintDeclarationsAndConstraints();
                 Printer.printAssert(QueryToPrint);
                 Printer.printCheckSat();
 
