@@ -21,6 +21,7 @@ namespace Symbooglix
 
         public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true, int indent=2)
         {
+            this.humanReadable = humanReadable; // Must be set before output is set
             changeOutput(TW);
             this.indent = indent;
 
