@@ -12,8 +12,8 @@ namespace Symbooglix
         {
             private ISolver UnderlyingSolver;
             private SMTLIBQueryPrinter Printer;
-            private int useCounter=0;
-            private ConstraintManager currentConstraints = null;
+            private int UseCounter=0;
+            private ConstraintManager CurrentConstraints = null;
             public SMTLIBQueryLoggingSolver(ISolver UnderlyingSolver, TextWriter TW, bool humanReadable)
             {
                 this.UnderlyingSolver = UnderlyingSolver;
@@ -23,7 +23,7 @@ namespace Symbooglix
             public void SetConstraints(ConstraintManager cm)
             {
                 // Let the printer find the declarations
-                currentConstraints = cm;
+                CurrentConstraints = cm;
                 foreach (var constraint in cm.Constraints)
                 {
                     Printer.addDeclarations(constraint);
@@ -36,12 +36,12 @@ namespace Symbooglix
                 UnderlyingSolver.SetTimeout(seconds);
             }
 
-            private void printDeclarationsAndConstraints()
+            private void PrintDeclarationsAndConstraints()
             {
                 Printer.printVariableDeclarations();
                 Printer.printFunctionDeclarations();
-                Printer.printCommentLine(currentConstraints.Constraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in currentConstraints.Constraints)
+                Printer.printCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
+                foreach (var constraint in CurrentConstraints.Constraints)
                 {
                     Printer.printAssert(constraint);
                 }
@@ -54,7 +54,7 @@ namespace Symbooglix
 
             public Result IsQuerySat(Expr Query)
             {
-                return doQuery(Query, Query, UnderlyingSolver.IsQuerySat, "IsQuerySat");
+                return DoQuery(Query, Query, UnderlyingSolver.IsQuerySat, "IsQuerySat");
             }
 
             public Result IsNotQuerySat(Expr Query, out IAssignment assignment)
@@ -67,15 +67,15 @@ namespace Symbooglix
                 // At every layer we'll be creating a NotExpr, this isn't great, perhaps we should
                 // forward to a SolverImpl class that only supports isQuerySat and only create the NotExpr
                 // at the first layer?
-                return doQuery(Expr.Not(Query), Query, UnderlyingSolver.IsNotQuerySat, "IsNotQuerySat");
+                return DoQuery(Expr.Not(Query), Query, UnderlyingSolver.IsNotQuerySat, "IsNotQuerySat");
             }
 
             private delegate Result QueryOperation(Expr Query);
-            private Result doQuery(Expr QueryToPrint, Expr QueryToUnderlyingSolver, QueryOperation handler, string commentLine)
+            private Result DoQuery(Expr QueryToPrint, Expr QueryToUnderlyingSolver, QueryOperation handler, string commentLine)
             {
                 Printer.addDeclarations(QueryToPrint);
-                Printer.printCommentLine("Query " + useCounter + " Begin");
-                printDeclarationsAndConstraints();
+                Printer.printCommentLine("Query " + UseCounter + " Begin");
+                PrintDeclarationsAndConstraints();
                 Printer.printCommentLine(commentLine);
                 Printer.printAssert(QueryToPrint);
                 Printer.printCheckSat();
@@ -83,8 +83,8 @@ namespace Symbooglix
                 Printer.printCommentLine("Result : " + result);
                 Printer.printExit();
                 Printer.clearDeclarations();
-                Printer.printCommentLine("End of Query " + (useCounter));
-                ++useCounter;
+                Printer.printCommentLine("End of Query " + (UseCounter));
+                ++UseCounter;
                 return result;
             }
 
