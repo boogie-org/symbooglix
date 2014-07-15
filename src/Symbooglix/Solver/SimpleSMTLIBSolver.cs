@@ -46,7 +46,7 @@ namespace Symbooglix
                 if (Printer == null)
                     Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*humanReadable=*/ false);
                 else
-                    Printer.changeOutput(TheProcess.StandardInput);
+                    Printer.ChangeOutput(TheProcess.StandardInput);
 
 
                 // Register for asynchronous callbacks
@@ -58,13 +58,13 @@ namespace Symbooglix
 
             public void SetConstraints(ConstraintManager cm)
             {
-                Printer.clearDeclarations();
+                Printer.ClearDeclarations();
 
                 // Let the printer find the declarations
                 CurrentConstraints = cm;
                 foreach (var constraint in cm.Constraints)
                 {
-                    Printer.addDeclarations(constraint);
+                    Printer.AddDeclarations(constraint);
                 }
             }
 
@@ -78,12 +78,12 @@ namespace Symbooglix
 
             private void PrintDeclarationsAndConstraints()
             {
-                Printer.printVariableDeclarations();
-                Printer.printFunctionDeclarations();
-                Printer.printCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
+                Printer.PrintVariableDeclarations();
+                Printer.PrintFunctionDeclarations();
+                Printer.PrintCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
                 foreach (var constraint in CurrentConstraints.Constraints)
                 {
-                    Printer.printAssert(constraint);
+                    Printer.PrintAssert(constraint);
                 }
             }
 
@@ -112,13 +112,13 @@ namespace Symbooglix
             {
                 ReceivedResult = false;
 
-                Printer.addDeclarations(QueryToPrint);
+                Printer.AddDeclarations(QueryToPrint);
 
                 // Assume the process has already been setup
                 SetSolverOptions();
                 PrintDeclarationsAndConstraints();
-                Printer.printAssert(QueryToPrint);
-                Printer.printCheckSat();
+                Printer.PrintAssert(QueryToPrint);
+                Printer.PrintCheckSat();
 
                 if (Timeout > 0)
                     TheProcess.WaitForExit(Timeout * 1000);
@@ -159,7 +159,7 @@ namespace Symbooglix
                         break;
                 }
 
-                Printer.printExit();
+                Printer.PrintExit();
             }
 
             protected virtual void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)

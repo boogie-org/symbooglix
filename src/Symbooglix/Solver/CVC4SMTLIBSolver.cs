@@ -13,7 +13,7 @@ namespace Symbooglix
 
             protected override void SetSolverOptions()
             {
-                Printer.printSetLogic(SMTLIBQueryPrinter.Logic.ALL_SUPPORTED); // Non standard
+                Printer.PrintSetLogic(SMTLIBQueryPrinter.Logic.ALL_SUPPORTED); // Non standard
             }
         }
     }

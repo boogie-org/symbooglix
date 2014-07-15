@@ -26,7 +26,7 @@ namespace Symbooglix
                 CurrentConstraints = cm;
                 foreach (var constraint in cm.Constraints)
                 {
-                    Printer.addDeclarations(constraint);
+                    Printer.AddDeclarations(constraint);
                 }
                 UnderlyingSolver.SetConstraints(cm);
             }
@@ -38,12 +38,12 @@ namespace Symbooglix
 
             private void PrintDeclarationsAndConstraints()
             {
-                Printer.printVariableDeclarations();
-                Printer.printFunctionDeclarations();
-                Printer.printCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
+                Printer.PrintVariableDeclarations();
+                Printer.PrintFunctionDeclarations();
+                Printer.PrintCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
                 foreach (var constraint in CurrentConstraints.Constraints)
                 {
-                    Printer.printAssert(constraint);
+                    Printer.PrintAssert(constraint);
                 }
             }
 
@@ -73,17 +73,17 @@ namespace Symbooglix
             private delegate Result QueryOperation(Expr Query);
             private Result DoQuery(Expr QueryToPrint, Expr QueryToUnderlyingSolver, QueryOperation handler, string commentLine)
             {
-                Printer.addDeclarations(QueryToPrint);
-                Printer.printCommentLine("Query " + UseCounter + " Begin");
+                Printer.AddDeclarations(QueryToPrint);
+                Printer.PrintCommentLine("Query " + UseCounter + " Begin");
                 PrintDeclarationsAndConstraints();
-                Printer.printCommentLine(commentLine);
-                Printer.printAssert(QueryToPrint);
-                Printer.printCheckSat();
+                Printer.PrintCommentLine(commentLine);
+                Printer.PrintAssert(QueryToPrint);
+                Printer.PrintCheckSat();
                 Result result = handler(QueryToUnderlyingSolver);
-                Printer.printCommentLine("Result : " + result);
-                Printer.printExit();
-                Printer.clearDeclarations();
-                Printer.printCommentLine("End of Query " + (UseCounter));
+                Printer.PrintCommentLine("Result : " + result);
+                Printer.PrintExit();
+                Printer.ClearDeclarations();
+                Printer.PrintCommentLine("End of Query " + (UseCounter));
                 ++UseCounter;
                 return result;
             }

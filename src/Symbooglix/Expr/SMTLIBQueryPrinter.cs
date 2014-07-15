@@ -16,14 +16,14 @@ namespace Symbooglix
         private FindFunctionsVisitor FFV = null;
         private TextWriter TW = null;
         private Traverser TheTraverser = null;
-        public bool humanReadable;
-        private int indent;
+        public bool HumanReadable;
+        private int Indent;
 
         public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true, int indent=2)
         {
-            this.humanReadable = humanReadable; // Must be set before output is set
-            changeOutput(TW);
-            this.indent = indent;
+            this.HumanReadable = humanReadable; // Must be set before output is set
+            ChangeOutput(TW);
+            this.Indent = indent;
 
             symbolicsToDeclare = new HashSet<SymbolicVariable>();
             functionsToDeclare = new HashSet<Function>();
@@ -50,13 +50,13 @@ namespace Symbooglix
             TheTraverser.Traverse(root);
         }
 
-        public void clearDeclarations()
+        public void ClearDeclarations()
         {
             symbolicsToDeclare.Clear();
             functionsToDeclare.Clear();
         }
 
-        public void addDeclarations(Expr e)
+        public void AddDeclarations(Expr e)
         {
             FSV.Visit(e);
             FFV.Visit(e);
@@ -69,10 +69,10 @@ namespace Symbooglix
             ALL_SUPPORTED // CVC4 specific
         }
 
-        public void changeOutput(TextWriter newTW)
+        public void ChangeOutput(TextWriter newTW)
         {
             Debug.Assert(newTW != null, "New output cannot be null!");
-            if (humanReadable)
+            if (HumanReadable)
             {
                 this.TW = new IndentedTextWriter(newTW);
             }
@@ -80,30 +80,30 @@ namespace Symbooglix
                 this.TW = newTW;
         }
 
-        public void printVariableDeclarations()
+        public void PrintVariableDeclarations()
         {
-            if (humanReadable)
-                printCommentLine("Start variable declarations");
+            if (HumanReadable)
+                PrintCommentLine("Start variable declarations");
 
             foreach (var symbolic in symbolicsToDeclare)
             {
-                TW.Write("(declare-fun " + symbolic.Name + " () " + getSMTLIBType(symbolic.TypedIdent.Type));
+                TW.Write("(declare-fun " + symbolic.Name + " () " + GetSMTLIBType(symbolic.TypedIdent.Type));
                 TW.Write(")");
 
-                if (humanReadable)
-                    printCommentLine("Origin: " + symbolic.Origin, false);
+                if (HumanReadable)
+                    PrintCommentLine("Origin: " + symbolic.Origin, false);
 
                 TW.Write(TW.NewLine);
             }
 
-            if (humanReadable)
-                printCommentLine("End variable declarations");
+            if (HumanReadable)
+                PrintCommentLine("End variable declarations");
         }
 
-        public void printFunctionDeclarations()
+        public void PrintFunctionDeclarations()
         {
-            if (humanReadable)
-                printCommentLine("Start function declarations");
+            if (HumanReadable)
+                PrintCommentLine("Start function declarations");
 
             foreach (var function in functionsToDeclare)
             {
@@ -113,24 +113,24 @@ namespace Symbooglix
                 TW.Write("(declare-fun " + function.Name + " (");
                 foreach (var type in function.InParams.Select( x => x.TypedIdent.Type ))
                 {
-                    TW.Write(getSMTLIBType(type) + " ");
+                    TW.Write(GetSMTLIBType(type) + " ");
                 }
                 TW.Write(") ");
 
                 if (function.OutParams.Count != 1)
                     throw new NotSupportedException("Only single parameters are supported!");
 
-                TW.Write(getSMTLIBType(function.OutParams[0].TypedIdent.Type) + ")");
+                TW.Write(GetSMTLIBType(function.OutParams[0].TypedIdent.Type) + ")");
                 TW.Write(TW.NewLine);
             }
 
-            if (humanReadable)
-                printCommentLine("End function declarations");
+            if (HumanReadable)
+                PrintCommentLine("End function declarations");
         }
 
-        public void printCommentLine(string comment, bool AddEndOfLineCharacter = true)
+        public void PrintCommentLine(string comment, bool AddEndOfLineCharacter = true)
         {
-            if (humanReadable)
+            if (HumanReadable)
             {
                 TW.Write("; " + comment);
 
@@ -139,7 +139,7 @@ namespace Symbooglix
             }
         }
 
-        public static string getSMTLIBType(Microsoft.Boogie.Type T)
+        public static string GetSMTLIBType(Microsoft.Boogie.Type T)
         {
             if (T is BvType)
             {
@@ -169,11 +169,11 @@ namespace Symbooglix
                 string mapTypeAsString = "";
                 foreach (var domainType in MT.Arguments)
                 {
-                    mapTypeAsString += "(Array " + getSMTLIBType(domainType) + " ";
+                    mapTypeAsString += "(Array " + GetSMTLIBType(domainType) + " ";
                 }
 
                 // Now print the final result from the map (the codomain)
-                mapTypeAsString += getSMTLIBType(MT.Result) + " ";
+                mapTypeAsString += GetSMTLIBType(MT.Result) + " ";
 
                 // Now add closing braces
                 for (int index = 0; index < MT.Arguments.Count; ++index)
@@ -188,64 +188,64 @@ namespace Symbooglix
             }
         }
 
-        public void printSetLogic(Logic L)
+        public void PrintSetLogic(Logic L)
         {
             TW.WriteLine("(set-logic " + L.ToString() + " )");
         }
 
-        public void printAssert(Expr e)
+        public void PrintAssert(Expr e)
         {
             TW.Write("(assert");
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             PrintExpr(e);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.WriteLine(")");
         }
 
-        public void printCheckSat()
+        public void PrintCheckSat()
         {
             TW.WriteLine("(check-sat)");
             TW.Flush();
         }
 
-        public void printExit()
+        public void PrintExit()
         {
             TW.WriteLine("(exit)");
             TW.Flush();
         }
 
-        public void printSetOption(string option)
+        public void PrintSetOption(string option)
         {
             TW.WriteLine("(set-option :" + option + ")");
         }
 
 
 
-        private void pushIndent()
+        private void PushIndent()
         {
-            if (humanReadable)
+            if (HumanReadable)
             {
                 var IDT = this.TW as IndentedTextWriter;
-                IDT.Indent += this.indent;
+                IDT.Indent += this.Indent;
             }
         }
 
-        private void printSeperator()
+        private void PrintSeperator()
         {
-            if (humanReadable)
+            if (HumanReadable)
                 TW.WriteLine("");
             else
                 TW.Write(" ");
         }
 
-        private void popIndent()
+        private void PopIndent()
         {
-            if (humanReadable)
+            if (HumanReadable)
             {
                 var IDT = this.TW as IndentedTextWriter;
-                IDT.Indent -= this.indent;
+                IDT.Indent -= this.Indent;
             }
         }
 
@@ -275,7 +275,7 @@ namespace Symbooglix
             return e;
         }
 
-        public Expr VisitIdentifierExpr (IdentifierExpr e)
+        public Expr VisitIdentifierExpr(IdentifierExpr e)
         {
             // Should we make this check better by recording what variables are currently bound?
             if (!( ( e.Decl is SymbolicVariable ) || (e.Decl is BoundVariable )))
@@ -285,17 +285,17 @@ namespace Symbooglix
             return e;
         }
 
-        public Expr VisitOldExpr (OldExpr e)
+        public Expr VisitOldExpr(OldExpr e)
         {
             throw new NotImplementedException ();
         }
 
-        public Expr VisitCodeExpr (CodeExpr e)
+        public Expr VisitCodeExpr(CodeExpr e)
         {
             throw new NotImplementedException ();
         }
 
-        public Expr VisitBvExtractExpr (BvExtractExpr e)
+        public Expr VisitBvExtractExpr(BvExtractExpr e)
         {
             // SMTLIBv2 semantics
             // ((_ extract i j) (_ BitVec m) (_ BitVec n))
@@ -307,40 +307,40 @@ namespace Symbooglix
             // This operation selects bits starting at <start> to <end> but not including <end>
             Debug.Assert(( e.End - 1 ) >= ( e.Start ), "Wrong extract bits for BvExtractExpr");
             TW.Write("((_ extract " + (e.End -1) + " " + e.Start + ")");
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             PrintExpr(e.Bitvector);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return e;
         }
 
-        public Expr VisitBvConcatExpr (BvConcatExpr e)
+        public Expr VisitBvConcatExpr(BvConcatExpr e)
         {
             TW.Write("(concat");
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             PrintExpr(e.E0);
-            printSeperator();
+            PrintSeperator();
             PrintExpr(e.E1);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return e;
         }
 
         public Expr VisitForallExpr(ForallExpr e)
         {
-            return printQuantifierExpr(e);
+            return PrintQuantifierExpr(e);
         }
 
         public Expr VisitExistExpr(ExistsExpr e)
         {
-            return printQuantifierExpr(e);
+            return PrintQuantifierExpr(e);
         }
 
-        private Expr printQuantifierExpr(QuantifierExpr QE)
+        private Expr PrintQuantifierExpr(QuantifierExpr QE)
         {
             if (QE is ExistsExpr)
                 TW.Write("(exists");
@@ -349,81 +349,81 @@ namespace Symbooglix
             else
                 throw new NotSupportedException("Unsupported quantifier expr");
 
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             TW.Write("(");
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
 
             foreach (var boundVar in QE.Dummies)
             {
-                printSeperator();
-                TW.Write("(" + boundVar.Name + " " + getSMTLIBType(boundVar.TypedIdent.Type) + ")");
+                PrintSeperator();
+                TW.Write("(" + boundVar.Name + " " + GetSMTLIBType(boundVar.TypedIdent.Type) + ")");
             }
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
-            printSeperator();
+            PrintSeperator();
             PrintExpr(QE.Body);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return QE;
         }
 
-        public Expr VisitLambdaExpr (LambdaExpr e)
+        public Expr VisitLambdaExpr(LambdaExpr e)
         {
             throw new NotImplementedException ();
         }
 
         public Expr VisitNot(NAryExpr e)
         {
-            return printUnaryOperator("not", e);
+            return PrintUnaryOperator("not", e);
         }
 
-        public Expr VisitNeg (NAryExpr e)
+        public Expr VisitNeg(NAryExpr e)
         {
-            return printUnaryOperator("-", e);
+            return PrintUnaryOperator("-", e);
         }
 
-        public Expr VisitAdd (NAryExpr e)
+        public Expr VisitAdd(NAryExpr e)
         {
-            return printBinaryOperator("+", e);
+            return PrintBinaryOperator("+", e);
         }
 
-        public Expr VisitSub (NAryExpr e)
+        public Expr VisitSub(NAryExpr e)
         {
-            return printBinaryOperator("-", e);
+            return PrintBinaryOperator("-", e);
         }
 
-        public Expr VisitMul (NAryExpr e)
+        public Expr VisitMul(NAryExpr e)
         {
-            return printBinaryOperator("*", e);
+            return PrintBinaryOperator("*", e);
         }
 
-        public Expr VisitDiv (NAryExpr e)
+        public Expr VisitDiv(NAryExpr e)
         {
             Debug.Assert(( e.Args[0] as Expr ).Type.IsInt && ( e.Args[1] as Expr ).Type.IsInt, "wrong types given to div!");
-            return printBinaryOperator("div", e);
+            return PrintBinaryOperator("div", e);
         }
 
-        public Expr VisitMod (NAryExpr e)
+        public Expr VisitMod(NAryExpr e)
         {
-            return printBinaryOperator("mod", e);
+            return PrintBinaryOperator("mod", e);
         }
 
-        public Expr VisitRealDiv (NAryExpr e)
+        public Expr VisitRealDiv(NAryExpr e)
         {
             Debug.Assert(( e.Args[0] as Expr ).Type.IsReal && ( e.Args[1] as Expr ).Type.IsReal, "wrong types given to div!");
-            return printBinaryOperator("/", e);
+            return PrintBinaryOperator("/", e);
         }
 
-        public Expr VisitEq (NAryExpr e)
+        public Expr VisitEq(NAryExpr e)
         {
-            return printBinaryOperator("=", e);
+            return PrintBinaryOperator("=", e);
         }
 
-        public Expr VisitNeq (NAryExpr e)
+        public Expr VisitNeq(NAryExpr e)
         {
             // There isn't a != operator in SMTLIBv2 so construct the equivalent
 
@@ -434,42 +434,42 @@ namespace Symbooglix
             return e;
         }
 
-        public Expr VisitGt (NAryExpr e)
+        public Expr VisitGt(NAryExpr e)
         {
-            return printBinaryOperator(">", e);
+            return PrintBinaryOperator(">", e);
         }
 
-        public Expr VisitGe (NAryExpr e)
+        public Expr VisitGe(NAryExpr e)
         {
-            return printBinaryOperator(">=", e);
+            return PrintBinaryOperator(">=", e);
         }
 
-        public Expr VisitLt (NAryExpr e)
+        public Expr VisitLt(NAryExpr e)
         {
-            return printBinaryOperator("<", e);
+            return PrintBinaryOperator("<", e);
         }
 
-        public Expr VisitLe (NAryExpr e)
+        public Expr VisitLe(NAryExpr e)
         {
-            return printBinaryOperator("<=", e);
+            return PrintBinaryOperator("<=", e);
         }
 
         public Expr VisitAnd (NAryExpr e)
         {
-            return printBinaryOperator("and", e);
+            return PrintBinaryOperator("and", e);
         }
 
-        public Expr VisitOr (NAryExpr e)
+        public Expr VisitOr(NAryExpr e)
         {
-            return printBinaryOperator("or", e);
+            return PrintBinaryOperator("or", e);
         }
 
-        public Expr VisitImp (NAryExpr e)
+        public Expr VisitImp(NAryExpr e)
         {
-            return printBinaryOperator("=>", e);
+            return PrintBinaryOperator("=>", e);
         }
 
-        public Expr VisitIff (NAryExpr e)
+        public Expr VisitIff(NAryExpr e)
         {
             // There is not <==> operator in SMTLIBv2 so construct its equivalent
             Expr temp = Expr.And(Expr.Imp(e.Args[0], e.Args[1]), Expr.Imp(e.Args[1], e.Args[0]));
@@ -477,7 +477,7 @@ namespace Symbooglix
             return e;
         }
 
-        public Expr VisitSubType (NAryExpr e)
+        public Expr VisitSubType(NAryExpr e)
         {
             throw new NotImplementedException ();
         }
@@ -485,89 +485,89 @@ namespace Symbooglix
         public Expr VisitMapStore(NAryExpr e)
         {
             // FIXME: Can we assert that we match the SMT-LIB order of args?
-            return printTernaryOperator("store", e);
+            return PrintTernaryOperator("store", e);
         }
 
         public Expr VisitMapSelect(NAryExpr e)
         {
-            return printBinaryOperator("select", e);
+            return PrintBinaryOperator("select", e);
         }
 
-        public Expr VisitIfThenElse (NAryExpr e)
+        public Expr VisitIfThenElse(NAryExpr e)
         {
-            return printTernaryOperator("ite", e);
+            return PrintTernaryOperator("ite", e);
         }
 
-        public Expr VisitFunctionCall (NAryExpr e)
+        public Expr VisitFunctionCall(NAryExpr e)
         {
             var FC = e.Fun as FunctionCall;
             TW.Write("(" + FC.Func.Name);
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             foreach (var param in e.Args)
             {
                 PrintExpr(param);
-                printSeperator(); // FIXME: There shouldn't be one on the last param
+                PrintSeperator(); // FIXME: There shouldn't be one on the last param
             }
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return e;
         }
 
-        public Expr VisitTypeCoercion (NAryExpr e)
+        public Expr VisitTypeCoercion(NAryExpr e)
         {
             throw new NotImplementedException ();
         }
 
-        public Expr VisitArithmeticCoercion (NAryExpr e)
+        public Expr VisitArithmeticCoercion(NAryExpr e)
         {
             throw new NotImplementedException ();
         }
 
         public Expr Visit_bvadd(NAryExpr e)
         {
-            return printBinaryOperator("bvadd", e);
+            return PrintBinaryOperator("bvadd", e);
         }
 
         public Expr Visit_bvsub(NAryExpr e)
         {
-            return printBinaryOperator("bvsub", e);
+            return PrintBinaryOperator("bvsub", e);
         }
 
         public Expr Visit_bvmul(NAryExpr e)
         {
-            return printBinaryOperator("bvmul", e);
+            return PrintBinaryOperator("bvmul", e);
         }
 
-        public Expr Visit_bvudiv (NAryExpr e)
+        public Expr Visit_bvudiv(NAryExpr e)
         {
-            return printBinaryOperator("bvudiv", e);
+            return PrintBinaryOperator("bvudiv", e);
         }
 
-        public Expr Visit_bvurem (NAryExpr e)
+        public Expr Visit_bvurem(NAryExpr e)
         {
-            return printBinaryOperator("bvrem", e);
+            return PrintBinaryOperator("bvrem", e);
         }
 
-        public Expr Visit_bvsdiv (NAryExpr e)
+        public Expr Visit_bvsdiv(NAryExpr e)
         {
-            return printBinaryOperator("bvsdiv", e);
+            return PrintBinaryOperator("bvsdiv", e);
         }
 
-        public Expr Visit_bvsrem (NAryExpr e)
+        public Expr Visit_bvsrem(NAryExpr e)
         {
-            return printBinaryOperator("bvsrem", e);
+            return PrintBinaryOperator("bvsrem", e);
         }
 
-        public Expr Visit_bvsmod (NAryExpr e)
+        public Expr Visit_bvsmod(NAryExpr e)
         {
-            return printBinaryOperator("bvsmod", e);
+            return PrintBinaryOperator("bvsmod", e);
         }
 
         public Expr Visit_sign_extend(NAryExpr e)
         {
-            return printSignExtend(e, "sign_extend");
+            return PrintSignExtend(e, "sign_extend");
         }
 
         public Expr Visit_zero_extend(NAryExpr e)
@@ -575,10 +575,10 @@ namespace Symbooglix
             //  ((_ zero_extend i) (_ BitVec m) (_ BitVec m+i))
             // ((_ zero_extend i) x) means extend x with zeroes to the (unsigned)
             // equivalent bitvector of size m+i
-            return printSignExtend(e, "zero_extend");
+            return PrintSignExtend(e, "zero_extend");
         }
 
-        private Expr printSignExtend(NAryExpr e, string extensionType)
+        private Expr PrintSignExtend(NAryExpr e, string extensionType)
         {
             Debug.Assert(extensionType == "zero_extend" || extensionType == "sign_extend");
             Debug.Assert(e.Args.Count == 1);
@@ -588,87 +588,87 @@ namespace Symbooglix
             // Work out extension amount
             int numberOfBitsToAdd = ( e.Type.BvBits - e.Args[0].Type.BvBits );
             Debug.Assert(numberOfBitsToAdd >= 0, "Number of bits to add calculation is incorrect"); // FIXME: Throw exception instead
-            return printUnaryOperator("(_ " + extensionType + " " + numberOfBitsToAdd + ")", e);
+            return PrintUnaryOperator("(_ " + extensionType + " " + numberOfBitsToAdd + ")", e);
         }
 
-        public Expr Visit_bvneg (NAryExpr e)
+        public Expr Visit_bvneg(NAryExpr e)
         {
-            return printBinaryOperator("bvneg", e);
+            return PrintBinaryOperator("bvneg", e);
         }
 
-        public Expr Visit_bvand (NAryExpr e)
+        public Expr Visit_bvand(NAryExpr e)
         {
-            return printBinaryOperator("bvand", e);
+            return PrintBinaryOperator("bvand", e);
         }
 
-        public Expr Visit_bvor (NAryExpr e)
+        public Expr Visit_bvor(NAryExpr e)
         {
-            return printBinaryOperator("bvor", e);
+            return PrintBinaryOperator("bvor", e);
         }
 
-        public Expr Visit_bvnot (NAryExpr e)
+        public Expr Visit_bvnot(NAryExpr e)
         {
-            return printUnaryOperator("bvnot", e);
+            return PrintUnaryOperator("bvnot", e);
         }
 
-        public Expr Visit_bvxor (NAryExpr e)
+        public Expr Visit_bvxor(NAryExpr e)
         {
-            return printBinaryOperator("bvxor", e);
+            return PrintBinaryOperator("bvxor", e);
         }
 
         public Expr Visit_bvshl (NAryExpr e)
         {
-            return printBinaryOperator("bvshl", e);
+            return PrintBinaryOperator("bvshl", e);
         }
 
-        public Expr Visit_bvlshr (NAryExpr e)
+        public Expr Visit_bvlshr(NAryExpr e)
         {
-            return printBinaryOperator("bvlshr", e);
+            return PrintBinaryOperator("bvlshr", e);
         }
 
-        public Expr Visit_bvashr (NAryExpr e)
+        public Expr Visit_bvashr(NAryExpr e)
         {
-            return printBinaryOperator("bvashr", e);
+            return PrintBinaryOperator("bvashr", e);
         }
 
-        public Expr Visit_bvult (NAryExpr e)
+        public Expr Visit_bvult(NAryExpr e)
         {
-            return printBinaryOperator("bvult", e);
+            return PrintBinaryOperator("bvult", e);
         }
 
-        public Expr Visit_bvule (NAryExpr e)
+        public Expr Visit_bvule(NAryExpr e)
         {
-            return printBinaryOperator("bvule", e);
+            return PrintBinaryOperator("bvule", e);
         }
 
-        public Expr Visit_bvugt (NAryExpr e)
+        public Expr Visit_bvugt(NAryExpr e)
         {
-            return printBinaryOperator("bvugt", e);
+            return PrintBinaryOperator("bvugt", e);
         }
 
-        public Expr Visit_bvuge (NAryExpr e)
+        public Expr Visit_bvuge(NAryExpr e)
         {
-            return printBinaryOperator("bvuge", e);
+            return PrintBinaryOperator("bvuge", e);
         }
 
-        public Expr Visit_bvslt (NAryExpr e)
+        public Expr Visit_bvslt(NAryExpr e)
         {
-            return printBinaryOperator("bvslt", e);
+            return PrintBinaryOperator("bvslt", e);
         }
 
-        public Expr Visit_bvsle (NAryExpr e)
+        public Expr Visit_bvsle(NAryExpr e)
         {
-            return printBinaryOperator("bvsle", e);
+            return PrintBinaryOperator("bvsle", e);
         }
 
         public Expr Visit_bvsgt (NAryExpr e)
         {
-            return printBinaryOperator("bvsgt", e);
+            return PrintBinaryOperator("bvsgt", e);
         }
 
-        public Expr Visit_bvsge (NAryExpr e)
+        public Expr Visit_bvsge(NAryExpr e)
         {
-            return printBinaryOperator("bvsge", e);
+            return PrintBinaryOperator("bvsge", e);
         }
 
         // We go to a lot of effort in the Traverser to read the
@@ -676,47 +676,47 @@ namespace Symbooglix
         // but then we delegate back a single function for printing
         // binary operators using only the string name.
         // A bit inefficient...
-        private Expr printBinaryOperator(string name, NAryExpr e)
+        private Expr PrintBinaryOperator(string name, NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2, "Incorrect number of arguments");
             TW.Write("(" + name);
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             PrintExpr(e.Args[0]);
-            printSeperator();
+            PrintSeperator();
             PrintExpr(e.Args[1]);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return e;
         }
 
-        private Expr printUnaryOperator(string name, NAryExpr e)
+        private Expr PrintUnaryOperator(string name, NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 1, "Incorrect number of arguments");
             TW.Write("(" + name);
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             PrintExpr(e.Args[0]);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return e;
         }
 
-        private Expr printTernaryOperator(string name, NAryExpr e)
+        private Expr PrintTernaryOperator(string name, NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 3, "Incorrect number of arguments");
             TW.Write("(" + name);
-            pushIndent();
-            printSeperator();
+            PushIndent();
+            PrintSeperator();
             PrintExpr(e.Args[0]);
-            printSeperator();
+            PrintSeperator();
             PrintExpr(e.Args[1]);
-            printSeperator();
+            PrintSeperator();
             PrintExpr(e.Args[2]);
-            popIndent();
-            printSeperator();
+            PopIndent();
+            PrintSeperator();
             TW.Write(")");
             return e;
         }
