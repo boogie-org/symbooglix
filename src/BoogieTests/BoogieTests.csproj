@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="Duplicator.cs" />
     <Compile Include="BigDecParseFromString.cs" />
+    <Compile Include="BadTokenLocations.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -62,4 +63,12 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="programs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="programs\locations.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
