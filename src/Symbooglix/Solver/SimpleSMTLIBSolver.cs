@@ -12,10 +12,10 @@ namespace Symbooglix
         {
             public int Timeout { get; private set;}
             protected SMTLIBQueryPrinter Printer = null;
-            protected ConstraintManager currentConstraints = null;
+            protected ConstraintManager CurrentConstraints = null;
             protected ProcessStartInfo StartInfo;
-            private Result solverResult = Result.UNKNOWN;
-            private bool receivedResult = false;
+            private Result SolverResult = Result.UNKNOWN;
+            private bool ReceivedResult = false;
             private Process TheProcess = null;
 
             protected SimpleSMTLIBSolver(string PathToSolverExecutable, string solverArguments)
@@ -61,7 +61,7 @@ namespace Symbooglix
                 Printer.clearDeclarations();
 
                 // Let the printer find the declarations
-                currentConstraints = cm;
+                CurrentConstraints = cm;
                 foreach (var constraint in cm.Constraints)
                 {
                     Printer.addDeclarations(constraint);
@@ -80,8 +80,8 @@ namespace Symbooglix
             {
                 Printer.printVariableDeclarations();
                 Printer.printFunctionDeclarations();
-                Printer.printCommentLine(currentConstraints.Constraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in currentConstraints.Constraints)
+                Printer.printCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
+                foreach (var constraint in CurrentConstraints.Constraints)
                 {
                     Printer.printAssert(constraint);
                 }
@@ -94,7 +94,7 @@ namespace Symbooglix
 
             public Result IsQuerySat(Expr Query)
             {
-                return doQuery(Query);
+                return DoQuery(Query);
             }
 
             public Result IsNotQuerySat(Expr Query, out IAssignment assignment)
@@ -104,13 +104,13 @@ namespace Symbooglix
 
             public Result IsNotQuerySat(Expr Query)
             {
-                return doQuery(Expr.Not(Query));
+                return DoQuery(Expr.Not(Query));
             }
 
             // This is not thread safe!
-            private Result doQuery(Expr QueryToPrint)
+            private Result DoQuery(Expr QueryToPrint)
             {
-                receivedResult = false;
+                ReceivedResult = false;
 
                 Printer.addDeclarations(QueryToPrint);
 
@@ -125,12 +125,12 @@ namespace Symbooglix
                 else
                     TheProcess.WaitForExit();
 
-                if (!receivedResult)
+                if (!ReceivedResult)
                     throw new NoSolverResultException("Failed to get solver result!");
 
                 CreateNewProcess(); // For next invocation
 
-                return solverResult;
+                return SolverResult;
             }
 
             protected virtual void OutputHandler(object sendingProcess, DataReceivedEventArgs stdoutLine)
@@ -138,23 +138,23 @@ namespace Symbooglix
                 // The event handler might get called more than once.
                 // In fact for Z3 we get called twice, first with the result
                 // and then again with a blank line (why?)
-                if (stdoutLine.Data.Length == 0 || receivedResult)
+                if (stdoutLine.Data.Length == 0 || ReceivedResult)
                     return;
 
-                receivedResult = true;
+                ReceivedResult = true;
                 switch (stdoutLine.Data)
                 {
                     case "sat":
-                        solverResult = Result.SAT;
+                        SolverResult = Result.SAT;
                         break;
                     case "unsat":
-                        solverResult = Result.UNSAT;
+                        SolverResult = Result.UNSAT;
                         break;
                     case "unknown":
-                        solverResult = Result.UNKNOWN;
+                        SolverResult = Result.UNKNOWN;
                         break;
                     default:
-                        solverResult = Result.UNKNOWN;
+                        SolverResult = Result.UNKNOWN;
                         Console.Error.WriteLine("ERROR: Solver output \"" + stdoutLine.Data + "\" not parsed correctly");
                         break;
                 }
