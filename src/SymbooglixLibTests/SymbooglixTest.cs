@@ -55,6 +55,33 @@ namespace SymbooglixLibTests
             return p;
         }
 
+        public static ISolver GetSolver()
+        {
+            // FIXME: Allow control over which solver is used
+
+            // FIXME: Relative paths are fragile!
+            // Look in the directory of the symbooglix binaries for solver
+            var pathToSolver = Path.GetFullPath("../../../" + 
+                                                "Symbooglix" + Path.DirectorySeparatorChar +
+                                                "bin" + Path.DirectorySeparatorChar +
+                                                "Debug" + Path.DirectorySeparatorChar +
+                                                "z3"
+                                               );
+
+            if (!File.Exists(pathToSolver))
+            {
+                pathToSolver += ".exe";
+            }
+
+            if (!File.Exists(pathToSolver))
+                Assert.Fail("Could not find solver at \"{0}\"", pathToSolver);
+
+            var solver = new Z3SMTLIBSolver(pathToSolver);
+            //solver.SetTimeout(10);
+            return solver;
+
+        }
+
         public static Executor getExecutor(Program p, IStateScheduler scheduler = null, ISolver solver = null)
         {
             if (scheduler == null )

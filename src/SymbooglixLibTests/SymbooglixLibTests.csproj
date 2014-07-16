@@ -62,6 +62,7 @@
     <Compile Include="ConstantFolding\TestBase.cs" />
     <Compile Include="ConstantFolding\FoldAdd.cs" />
     <Compile Include="ConstantFolding\FoldSub.cs" />
+    <Compile Include="MapExtensionality.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -111,6 +112,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\assume_false.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\MapExtensionality.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
