@@ -265,7 +265,13 @@ namespace Symbooglix
             }
             else if (e.isBigNum)
             {
+                // Int
                 TW.Write(e.asBigNum);
+            }
+            else if (e.isBigDec)
+            {
+                // Real
+                TW.Write(e.asBigDec.ToDecimalString());
             }
             else
             {
