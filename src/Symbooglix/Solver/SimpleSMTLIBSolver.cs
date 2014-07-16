@@ -17,6 +17,7 @@ namespace Symbooglix
             private Result SolverResult = Result.UNKNOWN;
             private bool ReceivedResult = false;
             private Process TheProcess = null;
+            private System.Text.Encoding TheEncoding = null;
 
             protected SimpleSMTLIBSolver(string PathToSolverExecutable, string solverArguments)
             {
@@ -30,6 +31,9 @@ namespace Symbooglix
                 StartInfo.RedirectStandardError = true;
                 StartInfo.UseShellExecute = false; // C# docs say this is required
 
+                // This is a HACK
+                TheEncoding = new System.Text.UTF8Encoding(/* encoderShouldEmitUTF8Identifier=*/ false);
+
                 // We create the process early so the printer has access to the TextWriter
                 CreateNewProcess();
             }
@@ -42,9 +46,9 @@ namespace Symbooglix
                 this.TheProcess = Process.Start(StartInfo);
 
                 if (Printer == null)
-                    Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*humanReadable=*/ false);
+                    Printer = new SMTLIBQueryPrinter(GetStdInput(), /*humanReadable=*/ false);
                 else
-                    Printer.ChangeOutput(TheProcess.StandardInput);
+                    Printer.ChangeOutput(GetStdInput());
 
 
                 // Register for asynchronous callbacks
@@ -52,6 +56,16 @@ namespace Symbooglix
                 TheProcess.ErrorDataReceived += ErrorHandler;
                 TheProcess.BeginOutputReadLine();
                 TheProcess.BeginErrorReadLine();
+            }
+
+            private StreamWriter GetStdInput()
+            {
+                // This is a hack. It seems when running the NUnit tests the Byte-Order-Mark gets emitted but not in the driver and this
+                // seems to be caused by how the Encoding is set up. We hack around this by using our own StreamWriter and always
+                // set encoderShouldEmitUTF8Identifier to false
+                var streamWriter = new StreamWriter(TheProcess.StandardInput.BaseStream, TheEncoding);
+                streamWriter.AutoFlush = true;
+                return streamWriter;
             }
 
             public void SetConstraints(ConstraintManager cm)
