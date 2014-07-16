@@ -61,6 +61,9 @@ namespace Symbooglix
             [Option("verify-unmodified-impl", DefaultValue = true, HelpText = "Verify that implementation commands aren't accidently modified during execution")]
             public bool useVerifyUnmodifiedProcedureHandler { get; set; }
 
+            [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
+            public int useModSetTransform { get; set; }
+
             // Positional args
             [ValueOption(0)]
             public string boogieProgramPath { get; set; }
@@ -154,6 +157,17 @@ namespace Symbooglix
             {
                 Console.WriteLine("Failed to resolve.");
                 return 1;
+            }
+
+            if (options.useModSetTransform > 0)
+            {
+                // This is useful for Boogie Programs produced by the GPUVerify tool that
+                // have had instrumentation added that invalidates the modset attached to
+                // procedures. By running the analysis we may modify the modsets attached to
+                // procedures in the program to be correct so that Boogie's Type checker doesn't
+                // produce an error.
+                var modsetAnalyser = new ModSetCollector();
+                modsetAnalyser.DoModSetAnalysis(p);
             }
 
             errors = p.Typecheck();
