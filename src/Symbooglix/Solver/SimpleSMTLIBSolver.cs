@@ -32,8 +32,6 @@ namespace Symbooglix
 
                 // We create the process early so the printer has access to the TextWriter
                 CreateNewProcess();
-
-                Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*humanReadable=*/ false);
             }
 
             private void CreateNewProcess()
