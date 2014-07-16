@@ -142,7 +142,23 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var literal = (LiteralExpr) e.Args[0];
+
+                if (literal.isBigNum)
+                {
+                    // Int
+                    var newValue = BigNum.FromBigInt(literal.asBigNum.ToBigInteger * -1);
+                    return new LiteralExpr(Token.NoToken, newValue);
+                }
+                else if (literal.isBigDec)
+                {
+                    // Real
+                    return new LiteralExpr(Token.NoToken, literal.asBigDec.Negate);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
             }
             else
                 return e;

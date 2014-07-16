@@ -63,6 +63,7 @@
     <Compile Include="ConstantFolding\FoldAdd.cs" />
     <Compile Include="ConstantFolding\FoldSub.cs" />
     <Compile Include="MapExtensionality.cs" />
+    <Compile Include="ConstantFolding\FoldNeg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
