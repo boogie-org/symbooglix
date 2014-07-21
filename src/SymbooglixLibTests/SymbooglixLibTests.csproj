@@ -31,6 +31,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="nunit.framework" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SymbolicOnEntry.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="ConstantFolding\FoldSub.cs" />
     <Compile Include="MapExtensionality.cs" />
     <Compile Include="ConstantFolding\FoldNeg.cs" />
+    <Compile Include="ConstantFolding\FoldArithmeticCoercion.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

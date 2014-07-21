@@ -685,7 +685,34 @@ namespace Symbooglix
 
         public Expr VisitArithmeticCoercion(NAryExpr e)
         {
-            throw new NotImplementedException();
+            Debug.Assert(e.Args.Count == 1);
+            Debug.Assert(e.Fun is ArithmeticCoercion);
+            if (e.Args[0] is LiteralExpr)
+            {
+                var literal = e.Args[0] as LiteralExpr;
+                var arithmeticCoercion = e.Fun as ArithmeticCoercion;
+
+                switch (arithmeticCoercion.Coercion)
+                {
+                    case ArithmeticCoercion.CoercionType.ToInt:
+                        Debug.Assert(literal.isBigDec);
+
+                        // Flooring conversion
+                        var bigDec = literal.asBigDec;
+                        BigInteger flooredValue;
+                        BigInteger ceilingValue; // Not used
+                        bigDec.FloorCeiling(out flooredValue, out ceilingValue);
+                        return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(flooredValue));
+                    case ArithmeticCoercion.CoercionType.ToReal:
+                        Debug.Assert(literal.isBigNum);
+                        var integer = literal.asBigNum;
+                        return new LiteralExpr(Token.NoToken, BigDec.FromBigInt(integer.ToBigInteger));
+                    default:
+                        throw new NotSupportedException("Arithmetic coercion type " + arithmeticCoercion.Coercion + " not supported");
+                }
+            }
+
+            return e;
         }
 
         public Expr Visit_bvadd(NAryExpr e)
