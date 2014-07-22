@@ -528,7 +528,19 @@ namespace Symbooglix
 
         public Expr VisitArithmeticCoercion(NAryExpr e)
         {
-            throw new NotImplementedException ();
+            Debug.Assert(e.Args.Count == 1);
+            Debug.Assert(e.Fun is ArithmeticCoercion);
+
+            var arithmeticCoercion = e.Fun as ArithmeticCoercion;
+            switch (arithmeticCoercion.Coercion)
+            {
+                case ArithmeticCoercion.CoercionType.ToInt:
+                    return PrintUnaryOperator("to_int", e);
+                case ArithmeticCoercion.CoercionType.ToReal:
+                    return PrintUnaryOperator("to_real", e);
+                default:
+                    throw new NotSupportedException("Arithmetic coercion type " + arithmeticCoercion.Coercion + " not supported");
+            }
         }
 
         public Expr Visit_bvadd(NAryExpr e)

@@ -66,6 +66,7 @@
     <Compile Include="MapExtensionality.cs" />
     <Compile Include="ConstantFolding\FoldNeg.cs" />
     <Compile Include="ConstantFolding\FoldArithmeticCoercion.cs" />
+    <Compile Include="AithmeticCoercion.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -118,6 +119,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\MapExtensionality.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\RealToInt.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\IntToReal.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

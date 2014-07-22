@@ -4,6 +4,7 @@ using Symbooglix;
 
 namespace SymbooglixLibTests
 {
+    // FIXME: Refactor to use TerminationCounter class
     [TestFixture()]
     public class TerminationReporting : SymbooglixTest, ITerminationHandler
     {
