@@ -19,6 +19,9 @@ namespace Symbooglix
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
+            [Option("dump-program", DefaultValue = "", HelpText = "Before execution write prepared program to file specified")]
+            public string dumpProgramPath { get; set; }
+
             [OptionList('D', "defines",Separator = ',', HelpText="Add defines to the Boogie parser. Each define should be seperated by a comma.")]
             public List<string> Defines { get; set; }
 
@@ -237,6 +240,19 @@ namespace Symbooglix
             e.RegisterBreakPointHandler(new BreakPointPrinter());
 
             e.RegisterTerminationHandler(new TerminationConsoleReporter());
+
+            e.PrepareProgram();
+
+            // Write program to file if requested
+            if (options.dumpProgramPath.Length > 0)
+            {
+                Console.Out.WriteLine("Writing prepared program to \"" + options.dumpProgramPath + "\"");
+                using (StreamWriter outputFile = File.CreateText(options.dumpProgramPath))
+                {
+                    // FIXME: Get program from executor.
+                    Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true);
+                }
+            }
 
             e.Run(entry);
             return 0;

@@ -36,6 +36,7 @@ namespace Symbooglix
             get;
             private set;
         }
+
         private Program TheProgram;
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
         private List<IExecutorHandler> PreEventHandlers;
