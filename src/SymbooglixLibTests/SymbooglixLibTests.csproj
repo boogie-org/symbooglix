@@ -67,6 +67,7 @@
     <Compile Include="ConstantFolding\FoldNeg.cs" />
     <Compile Include="ConstantFolding\FoldArithmeticCoercion.cs" />
     <Compile Include="AithmeticCoercion.cs" />
+    <Compile Include="ConstantFolding\FoldTypeCoercion.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

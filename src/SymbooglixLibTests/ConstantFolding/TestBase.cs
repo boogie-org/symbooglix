@@ -20,6 +20,13 @@ namespace ConstantFoldingTests
 
         public static FunctionCall CreateBVBuiltIn(string Name, string Builtin, Microsoft.Boogie.Type returnType, Microsoft.Boogie.Type[] argTypes)
         {
+            var funcCall = CreateFunctionCall(Name, returnType, argTypes);
+            funcCall.Func.AddAttribute("bvbuiltin", new string[] { Builtin });
+            return funcCall;
+        }
+
+        public static FunctionCall CreateFunctionCall(string Name, Microsoft.Boogie.Type returnType, Microsoft.Boogie.Type[] argTypes)
+        {
             var returnVar = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "", returnType), false);
             var vars = new List<Variable>();
             foreach (var T in argTypes)
@@ -27,10 +34,8 @@ namespace ConstantFoldingTests
                 vars.Add( new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "",T), true));
             }
 
-            // Finally build the function
-            var func = new Function(Token.NoToken, Name, vars, returnVar);
-            func.AddAttribute("bvbuiltin", new string[] { Builtin });
-            var funcCall = new FunctionCall(func);
+            // Finally build the function and the function call
+            var funcCall = new FunctionCall(new Function(Token.NoToken, Name, vars, returnVar));
             return funcCall;
         }
 
