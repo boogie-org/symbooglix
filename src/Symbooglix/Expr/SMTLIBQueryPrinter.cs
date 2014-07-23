@@ -523,7 +523,14 @@ namespace Symbooglix
 
         public Expr VisitTypeCoercion(NAryExpr e)
         {
-            throw new NotImplementedException ();
+            Debug.Assert(e.Args.Count == 1);
+            var typeCoercion = e.Fun as TypeCoercion;
+            if (!typeCoercion.Type.Equals(e.Args[0].Type))
+                throw new NotSupportedException("Non trivial type coercion used");
+
+            // Completly ignore the type coercion
+            PrintExpr(e.Args[0]);
+            return e;
         }
 
         public Expr VisitArithmeticCoercion(NAryExpr e)

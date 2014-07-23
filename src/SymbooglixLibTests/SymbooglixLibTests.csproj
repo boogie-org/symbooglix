@@ -68,6 +68,7 @@
     <Compile Include="ConstantFolding\FoldArithmeticCoercion.cs" />
     <Compile Include="AithmeticCoercion.cs" />
     <Compile Include="ConstantFolding\FoldTypeCoercion.cs" />
+    <Compile Include="FunctionAsAxiom.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -126,6 +127,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\IntToReal.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\functionAsAxiom.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

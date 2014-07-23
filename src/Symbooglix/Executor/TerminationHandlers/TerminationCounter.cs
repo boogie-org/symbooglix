@@ -12,6 +12,11 @@ namespace Symbooglix
         public int FailingEnsures { get; private set;}
         public int UnsatisfiableAssumes { get; private set;}
 
+        public int NumberOfFailures
+        {
+            get { return FailingAsserts + UnsatisfiableRequires + FailingEnsures + UnsatisfiableAssumes; }
+        }
+
         public TerminationCounter()
         {
             reset();
@@ -50,6 +55,7 @@ namespace Symbooglix
         {
             ++UnsatisfiableAssumes;
         }
+            
 
         public override string ToString()
         {
