@@ -78,6 +78,10 @@
     <Compile Include="Solver\CVC4SMTLIBSolver.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationCounter.cs" />
     <Compile Include="Util\ProgramPrinter.cs" />
+    <Compile Include="Transform\IPass.cs" />
+    <Compile Include="Transform\PassManager.cs" />
+    <Compile Include="Transform\FunctionInliner.cs" />
+    <Compile Include="Analysis\DummyPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
@@ -107,6 +111,8 @@
     <Folder Include="Executor\" />
     <Folder Include="Executor\ExecutorHandlers\" />
     <Folder Include="Executor\TerminationHandlers\" />
+    <Folder Include="Transform\" />
+    <Folder Include="Analysis\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

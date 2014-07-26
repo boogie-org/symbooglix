@@ -56,11 +56,14 @@ namespace Symbooglix
         }
 
 
-        public bool PrepareProgram()
+        public bool PrepareProgram(Transform.PassManager passManager = null)
         {
-            // Create initial execution state
-            InitialState = CurrentState = new ExecutionState();
+            if (passManager == null)
+                passManager = new Transform.PassManager(TheProgram);
 
+            passManager.Add(new Transform.FunctionInliningPass());
+          
+            // FIXME: Make this a pass
             // Make a list of all the functions that are uninterpreted or can't be inlined
             var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
             foreach (var F in functions)
@@ -74,6 +77,13 @@ namespace Symbooglix
                 UninterpretedOrUninlinableFunctions.Add(F);
                 Debug.WriteLine("Added uninterpreted function " + F);
             }
+
+            // FIXME: Enable once Boogie bug is fixed!
+            // Run our passes and any user requested passes
+            //passManager.Run();
+
+            // Create initial execution state
+            InitialState = CurrentState = new ExecutionState();
 
             // Perhaps inform the solver of these functions in the future?
 
