@@ -30,20 +30,31 @@ namespace Symbooglix
                 {
                     // We could be more sophisticatd here and try to optimise
                     // the list of passes so we don't run redundant analyses
-                    // Leave this for now!
+                    // Leave this for now
 
                     // The pass has Dependencies so Add them
+
+                    // It is not safe to iterate over a dictionary and modify it
+                    // at the same time so do it in two stages.
+                    // 1. Collect all the KeyValue Pairs in the dictionary
+                    // 2. Iterate over the collected KeyValue pairs and modify the dictionary
+                    var depList = new List<KeyValuePair<System.Type,IPass>>();
                     foreach (var keyValuePair in passInfo.Dependencies)
+                    {
+                        depList.Add(keyValuePair);
+                    }
+
+                    foreach (var keyValuePair in depList)
                     {
                         // Create dependency. This requires that the pass has a default constructor
                         IPass dependencyOfPass = Activator.CreateInstance(keyValuePair.Key) as IPass;
 
-                        // Is this safe?
                         passInfo.Dependencies[keyValuePair.Key] = dependencyOfPass;
 
                         // Do this recursively so we handle any dependencies of the dependencies (of the...)*
                         Add(dependencyOfPass);
                     }
+
                 }
 
                 Passes.Add(tuple);

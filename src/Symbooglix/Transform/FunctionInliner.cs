@@ -73,7 +73,7 @@ namespace Symbooglix
 
             public void SetPassInfo(ref PassManager.PassInfo passInfo)
             {
-                // No dependencies
+                passInfo.AddDependency<DummyPass>();
                 return;
             }
         }
