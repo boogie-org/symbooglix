@@ -12,6 +12,18 @@ namespace Symbooglix
             protected List<Tuple<IPass,PassInfo>> Passes;
             protected Program TheProgram;
 
+
+            public class PassManagerEventArgs
+            {
+                public readonly IPass ThePass;
+                public readonly Program TheProgram;
+                public PassManagerEventArgs(IPass pass, Program program) { ThePass = pass; TheProgram = program; }
+            }
+            public delegate void PassRunEvent(Object sender, PassManagerEventArgs args);
+            public event PassRunEvent BeforePassRun;
+            public event PassRunEvent AfterPassRun;
+
+
             public PassManager(Program prog)
             {
                 Passes = new List<Tuple<IPass,PassInfo>>();
@@ -70,6 +82,9 @@ namespace Symbooglix
                     // times. So we must do this manually
                     bool handled = false;
 
+                    if (BeforePassRun != null)
+                        BeforePassRun(this, new PassManagerEventArgs(pass, TheProgram));
+
                     // Eurgh: Macros would be handy here!
 
                     if (pass is IProgramPass)
@@ -117,6 +132,8 @@ namespace Symbooglix
                     if (!handled)
                         throw new InvalidCastException("Pass type not handled!");
 
+                    if (AfterPassRun != null)
+                        AfterPassRun(this, new PassManagerEventArgs(pass, TheProgram));
                 }
             }
 

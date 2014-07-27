@@ -22,6 +22,12 @@ namespace Symbooglix
             [Option("dump-program", DefaultValue = "", HelpText = "Before execution write prepared program to file specified")]
             public string dumpProgramPath { get; set; }
 
+            [Option("emit-before", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
+            public bool emitProgramBefore { get; set; }
+
+            [Option("emit-after", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
+            public bool emitProgramAfter { get; set; }
+
             [OptionList('D', "defines",Separator = ',', HelpText="Add defines to the Boogie parser. Each define should be seperated by a comma.")]
             public List<string> Defines { get; set; }
 
@@ -241,7 +247,39 @@ namespace Symbooglix
 
             e.RegisterTerminationHandler(new TerminationConsoleReporter());
 
-            e.PrepareProgram();
+            // FIXME: Design issue, could pass wrong program!
+            var PM = new Transform.PassManager(p);
+
+            // Use anonymous methods so we can use closure to read command line options
+            Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Running pass " + eventArgs.ThePass.GetName());
+                Console.ResetColor();
+                if (options.emitProgramBefore)
+                {
+                    Console.WriteLine("**** Program before pass:");
+                    Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/ true);
+                    Console.WriteLine("**** END Program before pass");
+                }
+            };
+
+            Transform.PassManager.PassRunEvent afterPassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Finished running pass " + eventArgs.ThePass.GetName());
+                Console.ResetColor();
+                if (options.emitProgramAfter)
+                {
+                    Console.WriteLine("**** Program after pass:");
+                    Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/ true);
+                    Console.WriteLine("**** END Program after pass:");
+                }
+            };
+
+            PM.BeforePassRun += beforePassHandler;
+            PM.AfterPassRun += afterPassHandler;
+            e.PrepareProgram(PM);
 
             // Write program to file if requested
             if (options.dumpProgramPath.Length > 0)
