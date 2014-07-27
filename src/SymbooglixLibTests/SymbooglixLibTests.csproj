@@ -69,6 +69,7 @@
     <Compile Include="AithmeticCoercion.cs" />
     <Compile Include="ConstantFolding\FoldTypeCoercion.cs" />
     <Compile Include="FunctionAsAxiom.cs" />
+    <Compile Include="Transforms\Inline.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -132,11 +133,16 @@
     <None Include="programs\functionAsAxiom.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Transforms\programs\simple_function_inline.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="programs\" />
     <Folder Include="ConstantFolding\" />
     <Folder Include="ExprSMTLIB\" />
+    <Folder Include="Transforms\" />
+    <Folder Include="Transforms\programs\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Basetypes\Basetypes.csproj">
