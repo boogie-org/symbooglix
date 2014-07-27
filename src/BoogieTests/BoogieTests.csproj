@@ -37,6 +37,8 @@
     <Compile Include="Duplicator.cs" />
     <Compile Include="BigDecParseFromString.cs" />
     <Compile Include="BadTokenLocations.cs" />
+    <Compile Include="MissingStdDispatchInAbsyNode.cs" />
+    <Compile Include="BoogieTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -51,6 +53,10 @@
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Basetypes\Basetypes.csproj">
       <Project>{43DFAD18-3E35-4558-9BE2-CAFF6B5BA8A0}</Project>
       <Name>Basetypes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SymbooglixLibTests\SymbooglixLibTests.csproj">
+      <Project>{F2D05CFA-9CF9-4853-8230-2C9566216DC0}</Project>
+      <Name>SymbooglixLibTests</Name>
     </ProjectReference>
   </ItemGroup>
   <ProjectExtensions>
@@ -68,6 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="programs\locations.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\requires_ensures.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
