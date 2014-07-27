@@ -10,7 +10,11 @@ namespace Symbooglix
         public class PassManager
         {
             protected List<Tuple<IPass,PassInfo>> Passes;
-            protected Program TheProgram;
+            public Program TheProgram
+            {
+                get;
+                private set;
+            }
 
 
             public class PassManagerEventArgs

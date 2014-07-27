@@ -247,7 +247,7 @@ namespace Symbooglix
 
             e.RegisterTerminationHandler(new TerminationConsoleReporter());
 
-            // FIXME: Design issue, could pass wrong program!
+            // Supply our own PassManager for preparation so we can hook into its events
             var PM = new Transform.PassManager(p);
 
             // Use anonymous methods so we can use closure to read command line options

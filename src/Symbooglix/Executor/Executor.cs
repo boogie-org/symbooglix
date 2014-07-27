@@ -61,6 +61,9 @@ namespace Symbooglix
             if (passManager == null)
                 passManager = new Transform.PassManager(TheProgram);
 
+            if (passManager.TheProgram != TheProgram)
+                throw new InvalidOperationException("PassManager must use same program as executor");
+
             passManager.Add(new Transform.FunctionInliningPass());
           
             // FIXME: Make this a pass
