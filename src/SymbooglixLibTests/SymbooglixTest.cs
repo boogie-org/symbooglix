@@ -117,12 +117,12 @@ namespace SymbooglixLibTests
         public static IdentifierExpr CheckIsSymbolicIdentifier(Expr e, ExecutionState state)
         {
             Assert.IsInstanceOfType(typeof(IdentifierExpr), e);
-            IdentifierExpr sym = e as IdentifierExpr;
-            Assert.IsInstanceOfType(typeof(SymbolicVariable), sym.Decl);
+            IdentifierExpr identiferForSymbolic = e as IdentifierExpr;
+            Assert.IsInstanceOfType(typeof(SymbolicVariable), identiferForSymbolic.Decl);
 
             // Check the state is aware of it too
-            Assert.IsTrue(state.Symbolics.Where(s => s.Expr == sym).Count() > 0);
-            return sym;
+            Assert.IsTrue(state.Symbolics.Where(s => s.Expr == identiferForSymbolic).Count() > 0);
+            return identiferForSymbolic;
         }
 
         public static LiteralExpr CheckIsLiteralBVConstWithValue(Expr e, BigNum value)
