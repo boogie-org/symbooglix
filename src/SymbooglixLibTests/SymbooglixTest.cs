@@ -118,6 +118,9 @@ namespace SymbooglixLibTests
         {
             Assert.IsInstanceOfType(typeof(IdentifierExpr), e);
             IdentifierExpr sym = e as IdentifierExpr;
+            Assert.IsInstanceOfType(typeof(SymbolicVariable), sym.Decl);
+
+            // Check the state is aware of it too
             Assert.IsTrue(state.Symbolics.Where(s => s.Expr == sym).Count() > 0);
             return sym;
         }
