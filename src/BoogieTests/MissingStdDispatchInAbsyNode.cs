@@ -33,6 +33,9 @@ namespace BoogieTests
             // A Buggy version of Boogie hits a Debug.Assert() failure in here
             // Because Requires is missing its StdDispatch() method
             visitor.Visit(requires.First());
+
+            Assert.AreEqual("a == 0", visitor.RequiresExpr);
+
         }
 
         [Test()]
@@ -45,11 +48,26 @@ namespace BoogieTests
             // A Buggy version of Boogie hits a Debug.Assert() failure in here
             // Because Ensures is missing its StdDispatch() method
             visitor.Visit(ensures.First());
+
+            Assert.AreEqual("v > a", visitor.EnsuresExpr);
         }
 
         class DoNothingVisitor : ReadOnlyVisitor
         {
+            public string RequiresExpr;
+            public string EnsuresExpr;
 
+            public override Requires VisitRequires(Requires requires)
+            {
+                RequiresExpr = requires.Condition.ToString();
+                return base.VisitRequires(requires);
+            }
+
+            public override Ensures VisitEnsures(Ensures ensures)
+            {
+                EnsuresExpr = ensures.Condition.ToString();
+                return base.VisitEnsures(ensures);
+            }
         }
     }
 }
