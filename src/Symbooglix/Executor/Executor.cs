@@ -64,6 +64,7 @@ namespace Symbooglix
             passManager.Add(new Transform.FunctionInliningPass());
           
             // FIXME: Make this a pass
+            // FIXME: Remove this? We aren't using it!
             // Make a list of all the functions that are uninterpreted or can't be inlined
             var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
             foreach (var F in functions)
@@ -72,20 +73,19 @@ namespace Symbooglix
                 if (F.FindAttribute("bvbuiltin") != null)
                     continue;
 
-                // FIXME: When we support inling, skip those functions that we would later inline
+                // Inlinable
+                if (F.Body != null)
+                    continue;
 
                 UninterpretedOrUninlinableFunctions.Add(F);
                 Debug.WriteLine("Added uninterpreted function " + F);
             }
 
-            // FIXME: Enable once Boogie bug is fixed!
             // Run our passes and any user requested passes
-            //passManager.Run();
+            passManager.Run();
 
             // Create initial execution state
             InitialState = CurrentState = new ExecutionState();
-
-            // Perhaps inform the solver of these functions in the future?
 
             // Load Global Variables and Constants
             var GVs = TheProgram.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);

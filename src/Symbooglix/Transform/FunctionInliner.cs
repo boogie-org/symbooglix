@@ -53,7 +53,7 @@ namespace Symbooglix
                 {
                     if (function.Body != null)
                     {
-                        functionInlingVisitor.Visit(function.Body);
+                        function.Body = functionInlingVisitor.Visit(function.Body) as Expr;
                     }
                 }
 
