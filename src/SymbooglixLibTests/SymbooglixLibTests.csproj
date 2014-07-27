@@ -70,6 +70,7 @@
     <Compile Include="ConstantFolding\FoldTypeCoercion.cs" />
     <Compile Include="FunctionAsAxiom.cs" />
     <Compile Include="Transforms\Inline.cs" />
+    <Compile Include="ConstantFolding\FoldMul.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

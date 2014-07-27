@@ -219,7 +219,21 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var LHS = e.Args[0] as LiteralExpr;
+                var RHS = e.Args[1] as LiteralExpr;
+                Debug.Assert(LHS.Type == RHS.Type, "Mismatching types");
+                if (LHS.isBigNum && RHS.isBigNum)
+                {
+                    // Int
+                    return new LiteralExpr(Token.NoToken, LHS.asBigNum * RHS.asBigNum);
+                }
+                else if (LHS.isBigDec && RHS.isBigDec)
+                {
+                    // Real
+                    return new LiteralExpr(Token.NoToken, LHS.asBigDec * RHS.asBigDec);
+                }
+                else
+                    throw new NotSupportedException("Unsupported types in - constant fold");
             }
             else
                 return e;
