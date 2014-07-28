@@ -169,6 +169,24 @@ namespace BoogieTests
 
             Assert.IsTrue(forall.Equals(forall2)); // These are "structurally equal"
         }
+
+        // This is a bug in Boogie
+        [Test()]
+        public void simpleLambda()
+        {
+            var boundVar = new BoundVariable(Token.NoToken, new TypedIdent(Token.NoToken,"foo",Microsoft.Boogie.Type.Bool));
+            var id = new IdentifierExpr(Token.NoToken, boundVar);
+
+            // This is basically an Identity Map
+            var lambdaExpr = new LambdaExpr(Token.NoToken, new List<TypeVariable>() , new List<Variable>() { boundVar }, null, id);
+
+            var id2 = new IdentifierExpr(Token.NoToken, boundVar);
+            var lambdaExpr2 = new LambdaExpr(Token.NoToken, new List<TypeVariable>() , new List<Variable>() { boundVar }, null, id2);
+
+            Assert.IsFalse(lambdaExpr == lambdaExpr2); // These are different references
+
+            Assert.IsTrue(lambdaExpr.Equals(lambdaExpr2)); // These are "structurally equal"
+        }
     }
 }
 
