@@ -13,7 +13,8 @@ namespace SymbooglixLibTests
         private class SimpleMapHandler : IBreakPointHandler
         {
             public int hits = 0;
-            private Expr intermediate = null;
+            private Expr nestedMapStoreintermediate = null;
+            private Expr simpleMapStoreIntermediate = null;
             public Executor.HandlerAction handleBreakPoint(string name, Executor e)
             {
                 if (name == "check_read_map")
@@ -33,6 +34,7 @@ namespace SymbooglixLibTests
                 else if (name == "check_write_literal")
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m"); // m := symbolic_0[3bv8 := 12bv32]
+                    simpleMapStoreIntermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
                     Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
                     Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun);
@@ -51,28 +53,15 @@ namespace SymbooglixLibTests
                 else if (name == "check_write_from_map")
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
-                    intermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
+                    nestedMapStoreintermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
                     Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
                     Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
                     Assert.AreEqual(3, mapStore.Args.Count);
 
                     // [0] Is Map written to which should we wrote to earlier so should also be MapStore
-                    // FIXME: Store duplicate of intermediate when doing check_write_literal and just compare against that to simplify test
-                    Assert.IsInstanceOfType(typeof(NAryExpr), mapStore.Args[0]);
-                    NAryExpr writtenTo = mapStore.Args[0] as NAryExpr; // symbolic_0[3bv8:=12bv32]
-                    Assert.IsInstanceOfType(typeof(MapStore), writtenTo.Fun);
+                    Assert.IsTrue(mapStore.Args[0].Equals(simpleMapStoreIntermediate));
 
-                    {
-                        // [0] should be map Identifier
-                        CheckIsSymbolicIdentifier(writtenTo.Args[0], e.CurrentState);
-
-                        // [1] should be write offset
-                        CheckIsLiteralBVConstWithValue(writtenTo.Args[1], BigNum.FromInt(3));
-
-                        // [2] should be value written to location in Map
-                        CheckIsLiteralBVConstWithValue(writtenTo.Args[2], BigNum.FromInt(12));
-                    }
 
                     // [1] is write offset
                     CheckIsLiteralBVConstWithValue(mapStore.Args[1], BigNum.FromInt(1)); // 1bv8
@@ -101,8 +90,8 @@ namespace SymbooglixLibTests
                     Assert.AreEqual(3, mapStore.Args.Count);
 
                     // [0] Should be the map written to which should be equivalent to the expression recorded in "intermediate"
-                    Assert.IsNotNull(intermediate);
-                    //Assert.IsTrue(intermediate.Equals(mapStore.Args[0])); // FIXME: Structual equality is broken in Boogie!
+                    Assert.IsNotNull(nestedMapStoreintermediate);
+                    Assert.IsTrue(nestedMapStoreintermediate.Equals(mapStore.Args[0]));
 
                     // [1] Write offset which should be symbolic (symbolic_2)
                     CheckIsSymbolicIdentifier(mapStore.Args[1], e.CurrentState);
