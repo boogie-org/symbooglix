@@ -316,9 +316,9 @@ namespace Symbooglix
 
             }
 
-            // FIXME: We should check for structural equivalence
-            // we can't do this right now because Boogie's equals operator
-            // overload is broken!
+            // Check for structural equivalence
+            if (e.Args[0].Equals(e.Args[1]))
+                return Expr.True;
 
             // Can't constant fold
             return e;
