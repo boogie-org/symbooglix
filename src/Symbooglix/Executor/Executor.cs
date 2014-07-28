@@ -64,7 +64,10 @@ namespace Symbooglix
             if (passManager.TheProgram != TheProgram)
                 throw new InvalidOperationException("PassManager must use same program as executor");
 
+            var FRF = new FindRecursiveFunctionsPass();
+            passManager.Add(FRF);
             passManager.Add(new Transform.FunctionInliningPass());
+
           
             // FIXME: Make this a pass
             // FIXME: Remove this? We aren't using it!
@@ -86,6 +89,25 @@ namespace Symbooglix
 
             // Run our passes and any user requested passes
             passManager.Run();
+
+            // Don't allow recursive function for now as we can't handle them!
+            if (FRF.RecursiveFunctions.Count > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Error.WriteLine("Detected the following recursive functions");
+                foreach (var function in FRF.RecursiveFunctions)
+                {
+                    Console.Error.Write(function.Name + ": ");
+                    if (function.Body != null)
+                        Console.Error.WriteLine(function.Body.ToString());
+
+                    if (function.DefinitionAxiom != null)
+                        Console.Error.WriteLine(function.DefinitionAxiom.Expr.ToString());
+                }
+                Console.ResetColor();
+
+                throw new NotSupportedException("Cannot handle recursive functions");
+            }
 
             // Create initial execution state
             InitialState = CurrentState = new ExecutionState();

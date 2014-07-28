@@ -82,6 +82,7 @@
     <Compile Include="Transform\PassManager.cs" />
     <Compile Include="Transform\FunctionInliner.cs" />
     <Compile Include="Analysis\DummyPass.cs" />
+    <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
