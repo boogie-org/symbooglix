@@ -108,7 +108,7 @@ namespace Symbooglix
             foreach (var function in functionsToDeclare)
             {
                 if (function.Body != null)
-                    throw new NotSupportedException("Can't handle function bodies yet");
+                    throw new NotSupportedException("Hit function that should of been inlined!");
 
                 TW.Write("(declare-fun " + function.Name + " (");
                 foreach (var type in function.InParams.Select( x => x.TypedIdent.Type ))
