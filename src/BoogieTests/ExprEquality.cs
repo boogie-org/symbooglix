@@ -20,6 +20,7 @@ namespace BoogieTests
             Assert.IsFalse(constant == constant2); // These are different references
 
             Assert.IsTrue(constant.Equals(constant2)); // These are "structurally equal"
+            Assert.IsTrue(constant.GetHashCode() == constant2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
@@ -32,6 +33,7 @@ namespace BoogieTests
             Assert.IsFalse(constant == constant2); // These are different references
 
             Assert.IsTrue(constant.Equals(constant2)); // These are "structurally equal"
+            Assert.IsTrue(constant.GetHashCode() == constant2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
@@ -44,6 +46,7 @@ namespace BoogieTests
             Assert.IsFalse(constant == constant2); // These are different references
 
             Assert.IsTrue(constant.Equals(constant2)); // These are "structurally equal"
+            Assert.IsTrue(constant.GetHashCode() == constant2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
@@ -56,6 +59,7 @@ namespace BoogieTests
             Assert.IsFalse(constant == constant2); // These are different references
 
             Assert.IsTrue(constant.Equals(constant2)); // These are "structurally equal"
+            Assert.IsTrue(constant.GetHashCode() == constant2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was a bug in Boogie
@@ -71,6 +75,7 @@ namespace BoogieTests
             Assert.IsFalse(add == add2); // These are different references
 
             Assert.IsTrue(add.Equals(add2)); // These are "structurally equal"
+            Assert.IsTrue(constant.GetHashCode() == constant2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
@@ -84,6 +89,7 @@ namespace BoogieTests
             Assert.IsFalse(idVar == idVar2); // These are different references
 
             Assert.IsTrue(idVar.Equals(idVar2)); // These are "structurally equal"
+            Assert.IsTrue(idVar.GetHashCode() == idVar2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
@@ -119,6 +125,7 @@ namespace BoogieTests
             Assert.IsFalse(concat == concat2); // These are different references
 
             Assert.IsTrue(concat.Equals(concat2)); // These are "structurally equal"
+            Assert.IsTrue(concat.GetHashCode() == concat2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
@@ -136,6 +143,7 @@ namespace BoogieTests
             Assert.IsFalse(extract == extract2);
 
             Assert.IsTrue(extract.Equals(extract2));
+            Assert.IsTrue(extract.GetHashCode() == extract2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This is a bug in Boogie
@@ -152,6 +160,7 @@ namespace BoogieTests
             Assert.IsFalse(forall == forall2); // These are different references
 
             Assert.IsTrue(forall.Equals(forall2)); // These are "structurally equal"
+            Assert.IsTrue(forall.GetHashCode() == forall2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This is a bug in Boogie
@@ -160,14 +169,15 @@ namespace BoogieTests
         {
             var boundVar = new BoundVariable(Token.NoToken, new TypedIdent(Token.NoToken,"foo",Microsoft.Boogie.Type.Bool));
             var id = new IdentifierExpr(Token.NoToken, boundVar);
-            var forall = new ExistsExpr(Token.NoToken, new List<Variable>() { boundVar }, id);
+            var exists = new ExistsExpr(Token.NoToken, new List<Variable>() { boundVar }, id);
 
             var id2 = new IdentifierExpr(Token.NoToken, boundVar);
-            var forall2 = new ExistsExpr(Token.NoToken, new List<Variable>() { boundVar }, id2);
+            var exists2 = new ExistsExpr(Token.NoToken, new List<Variable>() { boundVar }, id2);
 
-            Assert.IsFalse(forall == forall2); // These are different references
+            Assert.IsFalse(exists == exists2); // These are different references
 
-            Assert.IsTrue(forall.Equals(forall2)); // These are "structurally equal"
+            Assert.IsTrue(exists.Equals(exists2)); // These are "structurally equal"
+            Assert.IsTrue(exists.GetHashCode() == exists2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This is a bug in Boogie
@@ -186,6 +196,7 @@ namespace BoogieTests
             Assert.IsFalse(lambdaExpr == lambdaExpr2); // These are different references
 
             Assert.IsTrue(lambdaExpr.Equals(lambdaExpr2)); // These are "structurally equal"
+            Assert.IsTrue(lambdaExpr.GetHashCode() == lambdaExpr2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
     }
 }
