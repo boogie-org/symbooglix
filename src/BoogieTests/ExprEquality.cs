@@ -75,7 +75,7 @@ namespace BoogieTests
             Assert.IsFalse(add == add2); // These are different references
 
             Assert.IsTrue(add.Equals(add2)); // These are "structurally equal"
-            Assert.IsTrue(constant.GetHashCode() == constant2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
+            Assert.IsTrue(add.GetHashCode() == add2.GetHashCode()); // If the .Equals() is true then hash codes must be the same
         }
 
         // This was never a bug in Boogie
