@@ -446,7 +446,7 @@ namespace Symbooglix
                 }
             }
 
-            // FIXME: Check constraints are consistent
+
 
             return HandlerAction.CONTINUE;
         }
@@ -469,116 +469,33 @@ namespace Symbooglix
             }
 
             // Loop over each ensures to see if it can fail.
+            bool stillInCurrentState = true;
             foreach (var ensures in CurrentState.GetCurrentStackFrame().Impl.Proc.Ensures)
             {
-                bool canFail = false;
-                bool canSucceed = false;
                 Expr remapped = VMR.Visit(ensures.Condition) as Expr;
 
                 if (UseConstantFolding)
                     remapped = CFT.Traverse(remapped);
 
-                // Constant folding might be able to avoid a solver call
-                if (remapped is LiteralExpr)
+                // Note we use closure to pass the ensures we are currently looking at
+                HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
                 {
-                    var literal = remapped as LiteralExpr;
-                    Debug.Assert(literal.isBool, "ensures statement is not a bool!");
-
-                    if (literal.IsTrue)
-                    {
-                        // No need to add "true" to the constraints
-                        continue;
-                    }
-                    else if (literal.IsFalse)
-                    {
-                        // This state must fail
-                        foreach (var handler in TerminationHandlers)
-                            handler.handleFailingEnsures(CurrentState, ensures);
-
-                        StateScheduler.RemoveState(CurrentState);
-                        return HandlerAction.CONTINUE;
-                    }
-                    else
-                    {
-                        throw new InvalidProgramException("unreachable??");
-                    }
-                }
-
-                // Can the ensures fail?
-                Solver.Result result = TheSolver.IsNotQuerySat(remapped);
-                switch (result)
-                {
-                    case Symbooglix.Solver.Result.SAT:
-                        canFail = true;
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
-                        // This actually implies that
-                        //
-                        // ∀X : C(X) → Q(X)
-                        // That is if the constraints are satisfiable then
-                        // the query expr is always true. However I'm not sure
-                        // if we can use this fact because we still need to check if the constraints
-                        // can be satisfied
-                        // FIXME: Do something about this!
-                        break;
-                    case Symbooglix.Solver.Result.UNKNOWN:
-                        // Be conservative, may introduce false positives though.
-                        canFail = true;
-                        break;
-                }
-
-                // Can the ensures suceed?
-                result = TheSolver.IsQuerySat(remapped);
-                switch (result)
-                {
-                    case Solver.Result.SAT:
-                        canSucceed = true;
-                        break;
-                    case Solver.Result.UNSAT:
-                        break;
-                    case Solver.Result.UNKNOWN:
-                        // Be conservative, may explore infeasible path though
-                        canSucceed = true;
-                        break;
-                }
-
-                if (canFail && !canSucceed)
-                {
-                    // This state can only fail
-                    CurrentState.MarkAsTerminatedEarly();
-
-                    // notify handlers
                     foreach (var handler in TerminationHandlers)
-                        handler.handleFailingEnsures(CurrentState, ensures);
+                        handler.handleFailingEnsures(theStateThatWillBeTerminated, ensures);
+                };
+                // Treat an requires similarly to an assert
+                stillInCurrentState = HandleAssertLikeCommand(remapped, helper);
 
-                    StateScheduler.RemoveState(CurrentState);
+                if (!stillInCurrentState)
+                {
+                    // The current state was destroyed because an ensures always failed
+                    // so we shouldn't try to continue execution of it.
                     return HandlerAction.CONTINUE;
                 }
-                else if (!canFail && canSucceed)
-                {
-                    // This state can only suceed
-                    CurrentState.Constraints.AddConstraint(remapped);
-                }
-                else if (canFail && canSucceed)
-                {
-                    // This state can fail and suceed at the ensures
-                    // fork both ways
-
-                    var failedState = CurrentState.DeepClone();
-                    failedState.MarkAsTerminatedEarly();
-
-                    //notify handlers
-                    foreach (var handler in TerminationHandlers)
-                        handler.handleFailingEnsures(failedState, ensures);
-
-                    // succesful state
-                    CurrentState.Constraints.AddConstraint(remapped);
-                }
-                else
-                {
-                    throw new InvalidProgramException("Can't fail or succeed??");
-                }
             }
+
+            // We presume it is now safe to continue with the return
+            Debug.Assert(stillInCurrentState && !executor.CurrentState.HasTerminatedEarly() , "Cannot do a return if the currentState was terminated!");
 
             // Pass Parameters to Caller
             if (CurrentState.Mem.Stack.Count > 1)
@@ -682,37 +599,50 @@ namespace Symbooglix
 
             Debug.WriteLine("Assert : " + dupAndrw);
 
-            // Constant Folding might let us terminate without calling solver
-            if (dupAndrw is LiteralExpr)
+            // Create an anonymous method to tell the helper function
+            // how notify handlers
+            HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
             {
-                var literalAssertion = dupAndrw as LiteralExpr;
+                foreach (var handler in TerminationHandlers)
+                    handler.handleFailingAssert(theStateThatWillBeTerminated);
+            };
+
+            // Use helper method, we don't need to care if the current state is destroyed
+            HandleAssertLikeCommand(dupAndrw, helper);
+            return HandlerAction.CONTINUE;
+        }
+
+        protected delegate void HowToNotifyTerminationHandlers(ExecutionState theStateThatWillBeTerminated);
+        protected bool HandleAssertLikeCommand(Expr condition, HowToNotifyTerminationHandlers howToNotifyHelper)
+        {
+            // Constant Folding might let us terminate without calling solver
+            if (condition is LiteralExpr)
+            {
+                var literalAssertion = condition as LiteralExpr;
                 Debug.Assert(literalAssertion.isBool);
 
                 if (literalAssertion.IsTrue)
                 {
                     // No need to add trivial "true" constraint
-                    return HandlerAction.CONTINUE;
+                    return true; // Still in a state
                 }
                 else if (literalAssertion.IsFalse)
                 {
                     CurrentState.MarkAsTerminatedEarly();
                     // Notify our handlers
-                    foreach (var handler in TerminationHandlers)
-                    {
-                        handler.handleFailingAssert(CurrentState);
-                    }
+                    howToNotifyHelper(CurrentState);
                     StateScheduler.RemoveState(CurrentState);
-                    return HandlerAction.CONTINUE;
+                    return false; // No longer in a state because removed the current state
                 }
                 else
-                    throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our exception types
+                    throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our own exception types
             }
 
             TheSolver.SetConstraints(CurrentState.Constraints);
 
-
-            // First see if it's possible for the assertion to fail
-            Solver.Result result = TheSolver.IsNotQuerySat(dupAndrw);
+            // First see if it's possible for the assertion/ensures to fail
+            // ∃ X constraints(X) ∧ ¬ condition(X)
+            Solver.Result result = TheSolver.IsNotQuerySat(condition);
             bool canFail = false;
             switch (result)
             {
@@ -724,6 +654,13 @@ namespace Symbooglix
                     canFail = true;
                     break;
                 case Symbooglix.Solver.Result.UNSAT:
+                    // This actually implies that
+                    //
+                    // ∀X : C(X) → Q(X)
+                    // That is if the constraints are satisfiable then
+                    // the query expr is always true. Because we've been
+                    // checking constraints as we go we already know C(X) is satisfiable
+                    // FIXME: Do something about this!
                     canFail = false;
                     break;
                 default:
@@ -731,7 +668,8 @@ namespace Symbooglix
             }
 
             // Now see if it's possible for execution to continue past the assertion
-            result = TheSolver.IsQuerySat(dupAndrw);
+            // ∃ X constraints(X) ∧ condition(X)
+            result = TheSolver.IsQuerySat(condition);
             bool canSucceed = false;
             switch (result)
             {
@@ -755,19 +693,20 @@ namespace Symbooglix
                 CurrentState.MarkAsTerminatedEarly();
 
                 // Notify
-                foreach (var handler in TerminationHandlers)
-                    handler.handleFailingAssert(CurrentState);
+                howToNotifyHelper(CurrentState);
 
                 StateScheduler.RemoveState(CurrentState);
+                return false; // No longer in a state because we removed the current state
             }
             else if (!canFail && canSucceed)
             {
                 // This state can only succeed
-                CurrentState.Constraints.AddConstraint(dupAndrw);
+                CurrentState.Constraints.AddConstraint(condition);
+                return true; // We are still in the current state
             }
             else if (canFail && canSucceed)
             {
-                // This state can fail and suceed at the current assertion
+                // This state can fail and suceed at the current assertion/ensures
 
                 // We need to fork and duplicate the states
                 // Or do we? Copying the state just so we can inform
@@ -776,20 +715,16 @@ namespace Symbooglix
                 failingState.MarkAsTerminatedEarly();
 
                 // Notify
-                foreach (var handler in TerminationHandlers)
-                    handler.handleFailingAssert(failingState);
+                howToNotifyHelper(failingState);
 
                 // successful state can now have assertion expr in constraints
-                CurrentState.Constraints.AddConstraint(dupAndrw);
-
+                CurrentState.Constraints.AddConstraint(condition);
+                return true; // We are still in the current state
             }
             else
             {
                 throw new InvalidProgramException("Problem with solver");
             }
-
-
-            return HandlerAction.CONTINUE;
         }
 
         public HandlerAction Handle(AssumeCmd c, Executor executor)
