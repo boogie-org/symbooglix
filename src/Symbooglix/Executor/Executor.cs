@@ -337,11 +337,11 @@ namespace Symbooglix
         }
 
 
-        // if procedureParams == null then parameters will be assumed to be fresh symbolics
+        // if implementationParams == null then parameters will be assumed to be fresh symbolics
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-        public HandlerAction EnterImplementation(Implementation Impl, List<Expr> procedureParams, Executor executor)
+        public HandlerAction EnterImplementation(Implementation Impl, List<Expr> implementationParams, Executor executor)
         {
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
@@ -351,7 +351,7 @@ namespace Symbooglix
             // existing program variables and symbolics
 
             // Load procedure in parameters on to stack
-            if (procedureParams == null)
+            if (implementationParams == null)
             {
                 foreach (var v in Impl.InParams)
                 {
@@ -362,9 +362,9 @@ namespace Symbooglix
             else
             {
                 // Push expr for param on to stack.
-                Debug.Assert(procedureParams.Count == Impl.InParams.Count);
+                Debug.Assert(implementationParams.Count == Impl.InParams.Count);
 
-                foreach (var tuple in Impl.InParams.Zip(procedureParams))
+                foreach (var tuple in Impl.InParams.Zip(implementationParams))
                 {
                     CurrentState.GetCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
                 }
