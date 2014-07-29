@@ -448,8 +448,6 @@ namespace Symbooglix
 
         public HandlerAction Handle(ReturnCmd c, Executor executor)
         {
-            // Check ensures conditions, forking if necessary
-            TheSolver.SetConstraints(CurrentState.Constraints);
             var VMR = new VariableMapRewriter(CurrentState);
 
             // FIXME: The variables attached to the procedure are not the same object instances
