@@ -637,6 +637,8 @@ namespace Symbooglix
             // ∃ X constraints(X) ∧ ¬ condition(X)
             Solver.Result result = TheSolver.IsNotQuerySat(condition);
             bool canFail = false;
+            bool canSucceed = false;
+            bool canNeverFail = false;
             switch (result)
             {
                 case Solver.Result.SAT:
@@ -653,31 +655,40 @@ namespace Symbooglix
                     // That is if the constraints are satisfiable then
                     // the query expr is always true. Because we've been
                     // checking constraints as we go we already know C(X) is satisfiable
-                    // FIXME: Do something about this!
                     canFail = false;
+                    canNeverFail = true;
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");
             }
 
-            // Now see if it's possible for execution to continue past the assertion
-            // ∃ X constraints(X) ∧ condition(X)
-            result = TheSolver.IsQuerySat(condition);
-            bool canSucceed = false;
-            switch (result)
+            // Only invoke solver again if necessary
+            if (canNeverFail)
             {
-                case Solver.Result.SAT:
-                    canSucceed = true;
-                    break;
-                case Solver.Result.UNKNOWN:
-                    Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
-                    canSucceed = true;
-                    break;
-                case Symbooglix.Solver.Result.UNSAT:
-                    canSucceed = false;
-                    break;
-                default:
-                    throw new InvalidOperationException("Invalid solver return code");
+                // In this case the assert/ensures will always succeed
+                // so no need to call solver to ask if this is the case.
+                canSucceed = true;
+            }
+            else
+            {
+                // Now see if it's possible for execution to continue past the assertion
+                // ∃ X constraints(X) ∧ condition(X)
+                result = TheSolver.IsQuerySat(condition);
+                switch (result)
+                {
+                    case Solver.Result.SAT:
+                        canSucceed = true;
+                        break;
+                    case Solver.Result.UNKNOWN:
+                        Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                        canSucceed = true;
+                        break;
+                    case Symbooglix.Solver.Result.UNSAT:
+                        canSucceed = false;
+                        break;
+                    default:
+                        throw new InvalidOperationException("Invalid solver return code");
+                }
             }
 
             if (canFail && !canSucceed)
