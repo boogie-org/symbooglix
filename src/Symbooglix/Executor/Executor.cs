@@ -394,6 +394,7 @@ namespace Symbooglix
             //
             // We also need to rewrite so that we remove any IdentifierExpr that refer to in program
             // variables and instead replace with expressions containing symbolic variables.
+            bool stillInState = true;
             var VR = new VariableMapRewriter(CurrentState);
             foreach (var VariablePair in Impl.InParams.Zip(Impl.Proc.InParams))
             {
@@ -404,26 +405,23 @@ namespace Symbooglix
             {
                 Expr constraint = (Expr) VR.Visit(r.Condition);
 
-                // Check to see if the requires constraint is unsat
-                // FIXME: This should probably be an option.
-                TheSolver.SetConstraints(CurrentState.Constraints);
-                Solver.Result result = TheSolver.IsQuerySat(constraint);
-
-                if (result == Solver.Result.UNSAT)
+                HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
                 {
-                    // We should not proceed because requires cannot be satisifed
-                    CurrentState.MarkAsTerminatedEarly();
-
-                    // notify the handlers
                     foreach (var handler in TerminationHandlers)
                         handler.handleUnsatisfiableRequires(CurrentState, r);
+                };
 
-                    StateScheduler.RemoveState(CurrentState);
-                    return HandlerAction.CONTINUE; // Should we prevent other handlers from executing?
+                stillInState = HandleAssumeLikeCommand(constraint, helper);
+                if (!stillInState)
+                {
+                    // The current state was destroyed so we can't continue handling this command
+                    return HandlerAction.CONTINUE;
                 }
 
-                CurrentState.Constraints.AddConstraint(constraint);
             }
+
+            // We presume now that the CurrentState wasn't destroyed so its safe to continue
+            Debug.Assert(stillInState && !CurrentState.HasTerminatedEarly(), "Can't continue to enter procedure of terminated state!");
 
             // Concretise globals and locals if explicitly set in requires statements
             foreach (Requires r in Impl.Proc.Requires)
@@ -445,9 +443,6 @@ namespace Symbooglix
                     }
                 }
             }
-
-
-
             return HandlerAction.CONTINUE;
         }
 
@@ -727,6 +722,57 @@ namespace Symbooglix
             }
         }
 
+        protected bool HandleAssumeLikeCommand(Expr condition, HowToNotifyTerminationHandlers howToNotifyHelper)
+        {
+            // Constant folding might let us terminate early without calling solver
+            if (condition is LiteralExpr)
+            {
+                var literalAssumption = condition as LiteralExpr;
+                Debug.Assert(literalAssumption.isBool);
+
+                if (literalAssumption.IsTrue)
+                {
+                    // No need to add trivial "true" constraint
+                    return true; // We didn't destroy a state
+                }
+                else if (literalAssumption.IsFalse)
+                {
+                    CurrentState.MarkAsTerminatedEarly();
+                    // Notify our handlers
+                    howToNotifyHelper(CurrentState);
+                    StateScheduler.RemoveState(CurrentState);
+                    return false; // No longer in current state
+                }
+            }
+
+            // Is it possible for the condition to be satisfied
+            // ∃ X : constraints(X) ∧ condition(X)
+            TheSolver.SetConstraints(CurrentState.Constraints);
+            Solver.Result result = TheSolver.IsQuerySat(condition);
+            switch (result)
+            {
+                case Symbooglix.Solver.Result.UNSAT:
+                    CurrentState.MarkAsTerminatedEarly();
+                    // Notify our handlers
+                    howToNotifyHelper(CurrentState);
+                    StateScheduler.RemoveState(CurrentState);
+                    return false; // No longer in current state
+
+                case Symbooglix.Solver.Result.SAT:
+                    CurrentState.Constraints.AddConstraint(condition);
+                    break;
+                case Symbooglix.Solver.Result.UNKNOWN:
+                    Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
+                    // Be conservative and just add the constraint
+                    // FIXME: Is this a bug? HandleAssertLikeCmd() assumes that current constraints are satisfiable
+                    CurrentState.Constraints.AddConstraint(condition);
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid solver return code");
+            }
+            return true; // We are still in the current state
+        }
+
         public HandlerAction Handle(AssumeCmd c, Executor executor)
         {
             HandleBreakPoints(c);
@@ -738,54 +784,14 @@ namespace Symbooglix
 
             Debug.WriteLine("Assume : " + dupAndrw);
 
-            // Constant folding might let us terminate early without calling solver
-            if (dupAndrw is LiteralExpr)
+            HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
             {
-                var literalAssumption = dupAndrw as LiteralExpr;
-                Debug.Assert(literalAssumption.isBool);
+                foreach (var handler in TerminationHandlers)
+                    handler.handleUnsatisfiableAssume(theStateThatWillBeTerminated);
+            };
 
-                if (literalAssumption.IsTrue)
-                {
-                    // No need to add trivial "true" constraint
-                    return HandlerAction.CONTINUE;
-                }
-                else if (literalAssumption.IsFalse)
-                {
-                    CurrentState.MarkAsTerminatedEarly();
-                    // Notify our handlers
-                    foreach (var handler in TerminationHandlers)
-                    {
-                        handler.handleUnsatisfiableAssume(CurrentState);
-                    }
-                    StateScheduler.RemoveState(CurrentState);
-                    return HandlerAction.CONTINUE;
-                }
-            }
-
-            TheSolver.SetConstraints(CurrentState.Constraints);
-            Solver.Result result = TheSolver.IsQuerySat(dupAndrw);
-            switch (result)
-            {
-                case Symbooglix.Solver.Result.UNSAT:
-                    CurrentState.MarkAsTerminatedEarly();
-                    // Notify our handlers
-                    foreach (var handler in TerminationHandlers)
-                    {
-                        handler.handleUnsatisfiableAssume(CurrentState);
-                    }
-                    StateScheduler.RemoveState(CurrentState);
-                    break;
-                case Symbooglix.Solver.Result.SAT:
-                    CurrentState.Constraints.AddConstraint(dupAndrw);
-                    break;
-                case Symbooglix.Solver.Result.UNKNOWN:
-                    Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
-                    CurrentState.Constraints.AddConstraint(dupAndrw);
-                    break;
-                default:
-                    throw new InvalidOperationException("Invalid solver return code");
-            }
-
+            // Use helper. We don't care if it terminates a state because we immediatly return afterwards
+            HandleAssumeLikeCommand(dupAndrw, helper);
             return HandlerAction.CONTINUE;
         }
 
