@@ -494,8 +494,8 @@ namespace Symbooglix
             if (CurrentState.Mem.Stack.Count > 1)
             {
                 StackFrame callingSF = CurrentState.Mem.Stack.ElementAt(CurrentState.Mem.Stack.Count - 2);
-                CallCmd caller = (CallCmd) callingSF.CurrentInstruction.Current;
-                Debug.Assert(caller is CallCmd);
+                Debug.Assert(callingSF.CurrentInstruction.Current is CallCmd, "Expected the calling stack frame's current instruction to be a CallCmd");
+                var caller = callingSF.CurrentInstruction.Current as CallCmd;
 
                 // Assign return parameters
                 Debug.Assert(caller.Proc.OutParams.Count == caller.Outs.Count);
