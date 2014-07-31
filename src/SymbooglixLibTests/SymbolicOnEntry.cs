@@ -16,34 +16,28 @@ namespace SymbooglixLibTests
             e = getExecutor(p);
         }
 
-        private class GlobalsAreSymbolicHandler : IBreakPointHandler
+        [Test()]
+        public void GlobalsAreSymbolic()
         {
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+            e.BreakPointReached += delegate(Object executor, Executor.BreakPointEventArgs eventArgs)
             {
-                Assert.IsTrue(name == "entry");
+                Assert.IsTrue(eventArgs.Name == "entry");
                 e.CurrentState.DumpStackTrace();
                 // Check that all globals are symbolic
                 foreach (GlobalVariable GV in e.CurrentState.Mem.Globals.Keys)
                 {
                     Assert.IsTrue(e.IsSymbolic(GV));
                 }
-
-                return Executor.HandlerAction.STOP;
-            }
-        }
-
-        [Test()]
-        public void GlobalsAreSymbolic()
-        {
-            e.RegisterBreakPointHandler(new GlobalsAreSymbolicHandler());
+            };
             e.Run(getMain(p));
         }
 
-        private class LocalsAreSymbolicHandler : IBreakPointHandler
+        [Test()]
+        public void LocalsAreSymbolic()
         {
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
-                Assert.IsTrue(name == "entry");
+                Assert.IsTrue(data.Name == "entry");
                 e.CurrentState.DumpStackTrace();
                 // Check that all locals are symbolic
                 foreach (Variable LV in e.CurrentState.GetCurrentStackFrame().Locals.Keys)
@@ -51,14 +45,7 @@ namespace SymbooglixLibTests
                     Assert.IsTrue(e.IsSymbolic(LV));
                 }
 
-                return Executor.HandlerAction.STOP;
-            }
-        }
-
-        [Test()]
-        public void LocalsAreSymbolic()
-        {
-            e.RegisterBreakPointHandler(new LocalsAreSymbolicHandler());
+            };
             e.Run(getMain(p));
         }
 

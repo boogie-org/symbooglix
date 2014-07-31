@@ -8,7 +8,7 @@ using System.Linq;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class Concretise : SymbooglixTest, IBreakPointHandler
+    public class Concretise : SymbooglixTest
     {
         public int hits = 0;
 
@@ -19,9 +19,9 @@ namespace SymbooglixLibTests
             e = getExecutor(p);
         }
 
-        public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+        public void checkConcrete(Object executor, Executor.BreakPointEventArgs eventArgs)
         {
-            if (name == "entry")
+            if (eventArgs.Name == "entry")
             {
                 ++hits;
 
@@ -33,11 +33,11 @@ namespace SymbooglixLibTests
                 foreach (Variable V in e.CurrentState.GetCurrentStackFrame().Locals.Keys)
                     Assert.IsTrue(e.IsSymbolic(V));
 
-                return Executor.HandlerAction.CONTINUE;
+                return;
             }
 
             Assert.AreEqual(1, hits);
-            Assert.AreEqual("now_concrete", name);
+            Assert.AreEqual("now_concrete", eventArgs.Name);
             ++hits;
 
             // Check "a" is now concrete
@@ -51,15 +51,13 @@ namespace SymbooglixLibTests
             // Check "y" is still symbolic
             Variable varY = e.CurrentState.GetInScopeVariableAndExprByName("y").Key;
             Assert.IsTrue(e.IsSymbolic(varY));
-
-            return Executor.HandlerAction.STOP;
         }
        
 
         [Test()]
         public void Run()
         {
-            e.RegisterBreakPointHandler(this);
+            e.BreakPointReached += checkConcrete;
             e.Run(getMain(p));
             Assert.AreEqual(2, hits);
         }

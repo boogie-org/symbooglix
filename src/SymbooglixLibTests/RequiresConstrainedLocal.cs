@@ -6,7 +6,7 @@ using Symbooglix;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class RequiresConstrainedLocal : SymbooglixTest, IBreakPointHandler
+    public class RequiresConstrainedLocal : SymbooglixTest
     {
         public RequiresConstrainedLocal()
         {
@@ -14,32 +14,27 @@ namespace SymbooglixLibTests
             setupCmdLineParser();
         }
 
-        public Executor.HandlerAction handleBreakPoint(string name, Executor e)
-        {
-            // Find the "a" local variable
-            var pair = e.CurrentState.GetInScopeVariableAndExprByName("a");
-            Variable V = pair.Key;
-            Expr E = pair.Value;
-
-            Assert.IsTrue(E is IdentifierExpr);
-            var id = E as IdentifierExpr;
-            Assert.IsTrue(id.Decl is SymbolicVariable);
-
-            // Check we have the expected constraint
-            string expected = "bv8ugt(" + id.Name + ", 2bv8)";
-            Assert.AreEqual(e.CurrentState.Constraints.Constraints.Count, 1);
-            Assert.IsTrue(e.CurrentState.Constraints.Constraints[0].ToString() == expected);
-
-            return Executor.HandlerAction.CONTINUE;
-
-        }
-
         [Test()]
         public void NonRecursive()
         {
             p = loadProgram("programs/RequiresConstrainedLocal.bpl");
             e = getExecutor(p);
-            e.RegisterBreakPointHandler(this);
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                // Find the "a" local variable
+                var pair = e.CurrentState.GetInScopeVariableAndExprByName("a");
+                Variable V = pair.Key;
+                Expr E = pair.Value;
+
+                Assert.IsTrue(E is IdentifierExpr);
+                var id = E as IdentifierExpr;
+                Assert.IsTrue(id.Decl is SymbolicVariable);
+
+                // Check we have the expected constraint
+                string expected = "bv8ugt(" + id.Name + ", 2bv8)";
+                Assert.AreEqual(e.CurrentState.Constraints.Constraints.Count, 1);
+                Assert.IsTrue(e.CurrentState.Constraints.Constraints[0].ToString() == expected);
+            };
             e.Run(getMain(p));
         }
     }

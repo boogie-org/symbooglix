@@ -3,97 +3,110 @@ using NUnit.Framework;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using Symbooglix;
+using System.Linq;
 
 namespace SymbooglixLibTests
 {
     public class RequiresConcreteOnEntryToMain : SymbooglixTest
     {
-        private class Handler : IBreakPointHandler
+        public void checkConcrete(Object executor, Executor.BreakPointEventArgs eventArgs)
         {
-            public bool reachable = false;
-            public bool isBvConst = true;
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+            if (eventArgs.Name == "now_concrete")
             {
-                if (name == "now_concrete")
-                {
-                    Variable v = e.CurrentState.GetInScopeVariableAndExprByName("a").Key;
-                    Assert.IsFalse(e.IsSymbolic(v));
-                }
-
-                if (name == "reachable")
-                {
-                    reachable = true;
-
-                    // Check that the equality constraint has been stored
-                    bool found = false;
-                    foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
-                    {
-                        //Variable v = e.currentState.getInScopeVariableAndExprByName("a").Key;
-
-                        foreach (var s in e.CurrentState.Symbolics)
-                        {
-                            Assert.IsTrue(s.Expr is IdentifierExpr);
-                            var id = s.Expr as IdentifierExpr;
-                            LiteralExpr literal = null;
-                            found = FindLiteralAssignment.find(constraint, id.Decl, out literal);
-
-                            if (found)
-                            {
-                                if (isBvConst && literal.isBvConst && literal.asBvConst.Value == BigNum.FromInt(2)) // check its value
-                                    break;
-                                else if (!isBvConst && literal.isBool && literal.IsTrue)
-                                    break;
-                                else
-                                    found = false;
-                            }
-                        }
-
-                        if (found)
-                            break;
-
-                    }
-                    Assert.IsTrue(found, "Equality constraint could not be found");
-                }
-
-                return Executor.HandlerAction.CONTINUE;
+                Variable v = e.CurrentState.GetInScopeVariableAndExprByName("a").Key;
+                Assert.IsFalse(e.IsSymbolic(v));
             }
         }
+
+        public void checkEqualityConstraint(object executor, Executor.BreakPointEventArgs data, Predicate<LiteralExpr> condition)
+        {
+            // Check that the equality constraint has been stored
+            bool found = false;
+
+            // Find the symbolic associated with variable "a".
+            var theLocal = e.CurrentState.GetInScopeVariableAndExprByName("a");
+            var symbolic = e.CurrentState.Symbolics.Where( s => s.Origin.AsVariable == theLocal.Key).First();
+
+
+            foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
+            {
+                LiteralExpr literal = null;
+                found = FindLiteralAssignment.find(constraint, symbolic, out literal);
+                if (found)
+                {
+                    Assert.IsTrue(condition(literal));
+                    found = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(found, "Equality constraint not found");
+        }
+
 
         [Test()]
         public void concreteLocal()
         {
+            bool reachable = false;
             p = loadProgram("programs/RequiresConcreteLocal.bpl");
             e = getExecutor(p);
-            var handler = new Handler();
-            e.RegisterBreakPointHandler(handler);
+            e.BreakPointReached += checkConcrete;
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name == "now_concrete")
+                    this.checkEqualityConstraint(executor, data, l => l.isBvConst && l.asBvConst.ToReadableString() == "2bv8");
+                else if (data.Name == "reachable")
+                    reachable = true;
+                else
+                    Assert.Fail("Unexpected break point \"" + data.Name + "\"");
+            };
             e.Run(getMain(p));
 
-            Assert.IsTrue(handler.reachable); // Check the assertion passed by checkng we explore beyond it
+            Assert.IsTrue(reachable); // Check the assertion passed by checkng we explore beyond it
         }
 
         [Test()]
         public void concreteGlobal()
         {
+            bool reachable = false;
             p = loadProgram("programs/RequiresConcreteGlobal.bpl");
             e = getExecutor(p);
-            var handler = new Handler();
-            e.RegisterBreakPointHandler(handler);
+            e.BreakPointReached += checkConcrete;
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name == "now_concrete")
+                    this.checkEqualityConstraint(executor, data, l => l.isBvConst && l.asBvConst.ToReadableString() == "2bv8");
+                else if (data.Name == "reachable")
+                    reachable = true;
+                else
+                    Assert.Fail("Unexpected break point \"" + data.Name + "\"");
+            };
             e.Run(getMain(p));
 
-            Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
+            Assert.IsTrue(reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }
 
         [Test()]
         public void concreteLocalBool()
         {
+            bool reachable = false;
             p = loadProgram("programs/RequiresConcreteLocalBool.bpl");
             e = getExecutor(p);
-            var handler = new Handler();
-            handler.isBvConst = false;
-            e.RegisterBreakPointHandler(handler);
+            e.BreakPointReached += checkConcrete;
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name == "now_concrete")
+                    this.checkEqualityConstraint(executor, data, l => l.isBool && l.asBool);
+                else if (data.Name == "reachable")
+                    reachable = true;
+                else
+                    Assert.Fail("Unexpected break point \"" + data.Name + "\"");
+            };
+
             e.Run(getMain(p));
 
-            Assert.IsTrue(handler.reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
+            Assert.IsTrue(reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }
 
 

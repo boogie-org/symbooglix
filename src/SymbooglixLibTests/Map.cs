@@ -10,14 +10,17 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class Map : SymbooglixTest
     {
-        private class SimpleMapHandler : IBreakPointHandler
+        [Test()]
+        public void SimpleMap()
         {
-            public int hits = 0;
-            private Expr nestedMapStoreintermediate = null;
-            private Expr simpleMapStoreIntermediate = null;
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+            int hits = 0;
+            Expr nestedMapStoreintermediate = null;
+            Expr simpleMapStoreIntermediate = null;
+            p = loadProgram("programs/SimpleMap.bpl");
+            e = getExecutor(p);
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
-                if (name == "check_read_map")
+                if (data.Name == "check_read_map")
                 {
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a"); // a := symbolic_0[0bv8]
                     Assert.IsInstanceOfType(typeof(NAryExpr), a.Value);
@@ -31,7 +34,7 @@ namespace SymbooglixLibTests
                     // [1] should be offset
                     CheckIsLiteralBVConstWithValue(mapSelect.Args[1], BigNum.FromInt(0));
                 }
-                else if (name == "check_write_literal")
+                else if (data.Name == "check_write_literal")
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m"); // m := symbolic_0[3bv8 := 12bv32]
                     simpleMapStoreIntermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
@@ -50,7 +53,7 @@ namespace SymbooglixLibTests
                     CheckIsLiteralBVConstWithValue(mapStore.Args[2], BigNum.FromInt(12));
 
                 }
-                else if (name == "check_write_from_map")
+                else if (data.Name == "check_write_from_map")
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
                     nestedMapStoreintermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
@@ -80,7 +83,7 @@ namespace SymbooglixLibTests
                         CheckIsLiteralBVConstWithValue(WrittenValue.Args[1], BigNum.FromInt(0));
                     }
                 }
-                else if (name == "check_write_symbolic_index")
+                else if (data.Name == "check_write_symbolic_index")
                 {
                     // Expecting m := symbolic_0[3bv8 := 12bv32][1bv8 := symbolic_0[0bv8]][symbolic_2 := 7bv32]
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
@@ -105,35 +108,21 @@ namespace SymbooglixLibTests
                 }
 
                 ++hits;
-                return Executor.HandlerAction.CONTINUE;
-            }
-        }
-        [Test()]
-        public void SimpleMap()
-        {
-            p = loadProgram("programs/SimpleMap.bpl");
-            e = getExecutor(p);
-            var handler = new SimpleMapHandler();
-            e.RegisterBreakPointHandler(handler);
+            };
             e.Run(getMain(p));
-            Assert.AreEqual(4, handler.hits);
+            Assert.AreEqual(4, hits);
 
         }
 
-        private class TwoDMapHandler : IBreakPointHandler
-        {
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
-            {
-                throw new NotImplementedException();
-            }
-        }
         [Test()]
         public void TwoDMap()
         {
             p = loadProgram("programs/2DMap.bpl");
             e = getExecutor(p);
-            var handler = new TwoDMapHandler();
-            e.RegisterBreakPointHandler(handler);
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                throw new NotImplementedException();
+            };
             e.Run(getMain(p));
 
         }

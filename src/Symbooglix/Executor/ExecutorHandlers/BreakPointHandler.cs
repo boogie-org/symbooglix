@@ -4,19 +4,13 @@ using Microsoft.Boogie;
 
 namespace Symbooglix
 {
-    public interface IBreakPointHandler
+    public class BreakPointPrinter
     {
-        Executor.HandlerAction handleBreakPoint(string name, Executor e);
-    }
-
-    public class BreakPointPrinter : IBreakPointHandler
-    {
-        public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+        static public void handleBreakPoint(object executor, Executor.BreakPointEventArgs eventArgs)
         {
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine("Hit break point " + name);
+            Console.WriteLine("Hit break point " + eventArgs.Name);
             Console.ResetColor();
-            return Executor.HandlerAction.CONTINUE;
         }
     }
 }

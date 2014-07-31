@@ -243,7 +243,7 @@ namespace Symbooglix
                 }
 
                 // Just print a message about break points for now.
-                e.RegisterBreakPointHandler(new BreakPointPrinter());
+                e.BreakPointReached += BreakPointPrinter.handleBreakPoint;
 
                 e.RegisterTerminationHandler(new TerminationConsoleReporter());
 

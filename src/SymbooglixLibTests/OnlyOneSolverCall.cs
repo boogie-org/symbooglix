@@ -7,18 +7,32 @@ using System;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class OnlyOneSolverCall : SymbooglixTest, IBreakPointHandler
+    public class OnlyOneSolverCall : SymbooglixTest
     {
-        ISolver Solver;
-        SolverStats beforeAssert = null;
-        SolverStats afterAssert = null;
         [Test()]
         public void TestCase()
         {
+            SolverStats beforeAssert = null;
+            SolverStats afterAssert = null;
             p = loadProgram("programs/OnlyOneSolverCall.bpl");
-            this.Solver = GetSolver();
-            e = getExecutor(p, new DFSStateScheduler(), this.Solver);
-            e.RegisterBreakPointHandler(this);
+            ISolver Solver = GetSolver();
+            e = getExecutor(p, new DFSStateScheduler(), Solver);
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name == "before_assert")
+                {
+                    beforeAssert = Solver.Statistics;
+                }
+                else if (data.Name == "after_assert")
+                {
+                    afterAssert = Solver.Statistics;
+                }
+                else
+                    Assert.Fail("Unexpected breakpoint :" + data.Name);
+            };
+
+
             e.Run(getMain(p));
             Assert.IsNotNull(beforeAssert);
             Assert.IsNotNull(afterAssert);
@@ -26,22 +40,6 @@ namespace SymbooglixLibTests
             Assert.AreEqual(1, beforeAssert.TotalQueries);
             Assert.AreEqual(2, afterAssert.TotalQueries);
 
-        }
-
-        public Executor.HandlerAction handleBreakPoint(string name, Executor e)
-        {
-            if (name == "before_assert")
-            {
-                beforeAssert = Solver.Statistics;
-            }
-            else if (name == "after_assert")
-            {
-                afterAssert = Solver.Statistics;
-            }
-            else
-                Assert.Fail("Unexpected breakpoint :" + name);
-
-            return Executor.HandlerAction.CONTINUE;
         }
     }
 }

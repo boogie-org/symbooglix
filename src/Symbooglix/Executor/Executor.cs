@@ -23,7 +23,6 @@ namespace Symbooglix
             UninterpretedOrUninlinableFunctions = new List<Function>();
             PreEventHandlers = new List<IExecutorHandler>();
             PostEventHandlers = new List<IExecutorHandler>();
-            BreakPointHandlers = new List<IBreakPointHandler>();
             TerminationHandlers = new List<ITerminationHandler>();
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
@@ -41,7 +40,6 @@ namespace Symbooglix
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
         private List<IExecutorHandler> PreEventHandlers;
         private List<IExecutorHandler> PostEventHandlers;
-        private List<IBreakPointHandler> BreakPointHandlers;
         private List<ITerminationHandler> TerminationHandlers;
         private List<Function> UninterpretedOrUninlinableFunctions;
         private SymbolicPool SymbolicPool;
@@ -54,6 +52,16 @@ namespace Symbooglix
             get;
             set;
         }
+
+        // Events
+        public class BreakPointEventArgs : EventArgs
+        {
+            public readonly string Name;
+            public BreakPointEventArgs(string name) {this.Name = name;}
+        }
+        public delegate void BreakPointEvent(Object executor, BreakPointEventArgs data);
+        public event BreakPointEvent BreakPointReached;
+
 
 
         public bool PrepareProgram(Transform.PassManager passManager = null)
@@ -187,19 +195,6 @@ namespace Symbooglix
             PostEventHandlers.Remove(handler);
         }
 
-        public void RegisterBreakPointHandler(IBreakPointHandler handler)
-        {
-            Debug.Assert(handler != null);
-            BreakPointHandlers.Add(handler);
-        }
-
-        public void UnregisterBreakPointHandler(IBreakPointHandler handler)
-        {
-            Debug.Assert(handler != null);
-            Debug.Assert(BreakPointHandlers.Contains(handler));
-            BreakPointHandlers.Remove(handler);
-        }
-
         public void RegisterTerminationHandler(ITerminationHandler handler)
         {
             Debug.Assert(handler != null);
@@ -285,13 +280,7 @@ namespace Symbooglix
             if (breakPointName == null)
                 return;
 
-            HandlerAction action = HandlerAction.CONTINUE;
-            foreach (IBreakPointHandler h in BreakPointHandlers)
-            {
-                action = h.handleBreakPoint(breakPointName, this);
-                if (action == HandlerAction.STOP)
-                    return;
-            }
+            BreakPointReached(this, new BreakPointEventArgs(breakPointName));
         }
 
         protected SymbolicVariable InitialiseAsSymbolic(Variable v)

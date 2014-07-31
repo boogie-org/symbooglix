@@ -8,19 +8,23 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class Goto : SymbooglixTest
     {
-
-        private class SingleTargetHandler : IBreakPointHandler
+        [Test()]
+        public void SingleTarget()
         {
-            public int hits=0;
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+            int hits = 0;
+            p = loadProgram("programs/GotoSinglePath.bpl");
+            e = getExecutor(p);
+            //var handler = new SingleTargetHandler();
+            //e.RegisterBreakPointHandler(handler);
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
-                if (name == "entry")
+                if (data.Name == "entry")
                 {
                     // FIXME: This is fragile, find a way to name the entry block
                     Assert.AreEqual("anon0", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
                 }
-                else if (name == "reached")
+                else if (data.Name == "reached")
                 {
                     Assert.AreEqual("NEXT", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
@@ -29,33 +33,26 @@ namespace SymbooglixLibTests
                 {
                     Assert.Fail("Unexpected break point");
                 }
-
-                return Executor.HandlerAction.CONTINUE;
-            }
-        }
-        [Test()]
-        public void SingleTarget()
-        {
-            p = loadProgram("programs/GotoSinglePath.bpl");
-            e = getExecutor(p);
-            var handler = new SingleTargetHandler();
-            e.RegisterBreakPointHandler(handler);
+            };
             e.Run(getMain(p));
-            Assert.AreEqual(2, handler.hits);
+            Assert.AreEqual(2, hits);
 
         }
 
-        private class MultipleTargetHandler : IBreakPointHandler
+        [Test()]
+        public void MultipleTargets()
         {
-            public int hits=0;
-            public Executor.HandlerAction handleBreakPoint(string name, Executor e)
+            int hits = 0;
+            p = loadProgram("programs/GotoMultiplePaths.bpl");
+            e = getExecutor(p);
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
-                if (name == "entry")
+                if (data.Name == "entry")
                 {
                     Assert.AreEqual("anon0", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
                 }
-                else if (name == "path0")
+                else if (data.Name == "path0")
                 {
                     Assert.AreEqual("P0", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
@@ -64,7 +61,7 @@ namespace SymbooglixLibTests
                     BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(7, aBV.Value.ToInt);
                 }
-                else if (name == "path1")
+                else if (data.Name == "path1")
                 {
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a");
                     Assert.AreEqual("P1", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
@@ -72,7 +69,7 @@ namespace SymbooglixLibTests
                     Assert.AreEqual(8, aBV.Value.ToInt);
                     ++hits;
                 }
-                else if (name == "path2")
+                else if (data.Name == "path2")
                 {
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a");
                     Assert.AreEqual("P2", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
@@ -84,19 +81,9 @@ namespace SymbooglixLibTests
                 {
                     Assert.Fail("Unexpected break point");
                 }
-
-                return Executor.HandlerAction.CONTINUE;
-            }
-        }
-        [Test()]
-        public void MultipleTargets()
-        {
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
-            e = getExecutor(p);
-            var handler = new MultipleTargetHandler();
-            e.RegisterBreakPointHandler(handler);
+            };
             e.Run(getMain(p));
-            Assert.AreEqual(4, handler.hits);
+            Assert.AreEqual(4, hits);
         }
     }
 }
