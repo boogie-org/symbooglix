@@ -72,6 +72,7 @@
     <Compile Include="Transforms\Inline.cs" />
     <Compile Include="ConstantFolding\FoldMul.cs" />
     <Compile Include="ConstantFolding\FoldEq.cs" />
+    <Compile Include="OnlyOneSolverCall.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -136,6 +137,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Transforms\programs\simple_function_inline.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\OnlyOneSolverCall.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

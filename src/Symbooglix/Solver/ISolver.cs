@@ -51,7 +51,7 @@ namespace Symbooglix
             Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV);
         }
 
-        public class SolverStats
+        public class SolverStats : Util.IDeepClone<SolverStats>
         {
             // Stats on number of queries
             public int SatQueries { get; internal set; }
@@ -100,6 +100,15 @@ namespace Symbooglix
                                      UnknownQueries,
                                      TotalQueries,
                                      ( (double) TotalRunTime.Milliseconds)/1000.0);
+            }
+
+            // Clients need to call this if they want an instance
+            // not is guaranteed not to change when the solver is
+            // invoked again.
+            public SolverStats DeepClone()
+            {
+                // This should be fine because all the types are value types
+                return this.MemberwiseClone() as SolverStats;
             }
         }
 
