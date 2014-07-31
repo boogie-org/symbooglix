@@ -1,7 +1,7 @@
 procedure main()
 {
-    // FIXME: Why can't I name the entry block!
         var a:bv8;
+   entry_block:
         assert {:symbooglix_bp "entry"} true;
         goto P0, P1, P2;
 

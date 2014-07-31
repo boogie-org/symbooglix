@@ -49,7 +49,7 @@ namespace SymbooglixLibTests
             {
                 if (data.Name == "entry")
                 {
-                    Assert.AreEqual("anon0", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
+                    Assert.AreEqual("entry_block", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
                     ++hits;
                 }
                 else if (data.Name == "path0")
