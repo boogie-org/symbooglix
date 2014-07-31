@@ -17,7 +17,7 @@ namespace Symbooglix
             }
 
 
-            public class PassManagerEventArgs
+            public class PassManagerEventArgs : EventArgs
             {
                 public readonly IPass ThePass;
                 public readonly Program TheProgram;
