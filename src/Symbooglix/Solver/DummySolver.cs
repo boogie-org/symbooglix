@@ -12,13 +12,13 @@ namespace Symbooglix
         /// 
         /// It is meant for testing only.
         /// </summary>
-        public class DummySolver : ISolver
+        public class DummySolver : ISolverImpl
         {
             public DummySolver()
             {
             }
 
-            public void SetConstraints (ConstraintManager cm)
+            public void SetConstraints(ConstraintManager cm)
             {
                 // The dummy solver doesn't care about these 
             }
@@ -28,30 +28,21 @@ namespace Symbooglix
                 // The dummy solver doesn't care about this
             }
 
-            public Result IsQuerySat (Microsoft.Boogie.Expr Query, out IAssignment assignment)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
             {
-                assignment = new DummyAssignment(0);
-                return Result.SAT;
+                // Dummy Solver thinks everything is satisfiable
+                if (computeAssignment)
+                    return Tuple.Create(Result.SAT, new DummyAssignment(0) as IAssignment);
+                else
+                    return Tuple.Create(Result.SAT, null as IAssignment);
             }
 
-            public Result IsQuerySat(Expr Query)
+            public void Dispose()
             {
-                IAssignment ignored;
-                return IsQuerySat(Query, out ignored);
+                // Dummy solver doesn't need to clean up anything
+                return;
             }
-
-            public Result IsNotQuerySat (Microsoft.Boogie.Expr Query, out IAssignment assignment)
-            {
-                assignment = new DummyAssignment(0);
-                return Result.SAT;
-            }
-
-            public Result IsNotQuerySat(Expr Query)
-            {
-                IAssignment ignored;
-                return IsNotQuerySat(Query, out ignored);
-            }
-
+                
             private class DummyAssignment : IAssignment
             {
                 private int defaultValue;
@@ -60,7 +51,7 @@ namespace Symbooglix
                     this.defaultValue = defaultValue;
                 }
 
-                public Microsoft.Boogie.LiteralExpr GetAssignment (SymbolicVariable SV)
+                public Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV)
                 {
 
                     if (SV.TypedIdent.Type.IsBv)

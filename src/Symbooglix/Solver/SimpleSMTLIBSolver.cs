@@ -8,7 +8,7 @@ namespace Symbooglix
     namespace Solver
     {
         // FIXME: Refactor this and SMTLIBQueryLoggingSolver
-        public class SimpleSMTLIBSolver : ISolver
+        public class SimpleSMTLIBSolver : ISolverImpl
         {
             public int Timeout { get; private set;}
             protected SMTLIBQueryPrinter Printer = null;
@@ -99,38 +99,26 @@ namespace Symbooglix
                 }
             }
 
-            public Result IsQuerySat(Expr Query, out IAssignment assignment)
+            public void Dispose()
             {
-                throw new NotImplementedException();
-            }
-
-            public Result IsQuerySat(Expr Query)
-            {
-                return DoQuery(Query);
-            }
-
-            public Result IsNotQuerySat(Expr Query, out IAssignment assignment)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Result IsNotQuerySat(Expr Query)
-            {
-                return DoQuery(Expr.Not(Query));
+                TheProcess.Dispose();
             }
 
             // This is not thread safe!
-            private Result DoQuery(Expr QueryToPrint)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
             {
                 ReceivedResult = false;
 
-                Printer.AddDeclarations(QueryToPrint);
+                Printer.AddDeclarations(queryExpr);
 
                 // Assume the process has already been setup
                 SetSolverOptions();
                 PrintDeclarationsAndConstraints();
-                Printer.PrintAssert(QueryToPrint);
+                Printer.PrintAssert(queryExpr);
                 Printer.PrintCheckSat();
+
+                if (computeAssignment)
+                    throw new NotSupportedException("Can't handle assignments yet");
 
                 if (Timeout > 0)
                     TheProcess.WaitForExit(Timeout * 1000);
@@ -142,7 +130,7 @@ namespace Symbooglix
 
                 CreateNewProcess(); // For next invocation
 
-                return SolverResult;
+                return Tuple.Create(SolverResult, null as IAssignment);
             }
 
             protected virtual void OutputHandler(object sendingProcess, DataReceivedEventArgs stdoutLine)

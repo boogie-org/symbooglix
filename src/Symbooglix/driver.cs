@@ -189,116 +189,117 @@ namespace Symbooglix
 
 
             IStateScheduler scheduler = new DFSStateScheduler();
-            Solver.ISolver solver = BuildSolverChain(options);
 
-            Executor e = new Executor(p, scheduler, solver);
-
-
-            Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == options.entryPoint).FirstOrDefault();
-            if (entry == null)
+            // Destroy the solver when we stop using it
+            using (var solver = BuildSolverChain(options))
             {
-                Console.WriteLine("Could not find implementation \"" + options.entryPoint + "\" to use as entry point");
-                return 1;
-            }
-
-            // This debugging handler should be registered first
-            IExecutorHandler verifyUnmodified = null;
-            if (options.useVerifyUnmodifiedProcedureHandler)
-            {
-                verifyUnmodified = new VerifyUnmodifiedProcedureHandler();
-                e.RegisterPreEventHandler(verifyUnmodified);
-            }
-
-            if (options.useInstructionPrinter)
-            {
-                Console.WriteLine("Installing instruction printer");
-                e.RegisterPreEventHandler(new InstructionPrinter());
-            }
-
-            if (options.useEnterLeaveStackPrinter)
-            {
-                Console.WriteLine("Installing Entering and Leaving stack printer");
-                e.RegisterPreEventHandler(new EnterAndLeaveStackPrinter());
-            }
-
-            if (options.useCallSequencePrinter)
-            {
-                Console.WriteLine("Installing call sequence printer");
-                e.RegisterPreEventHandler(new CallSequencePrinter());
-            }
-
-            if (options.useVerifyUnmodifiedProcedureHandler)
-            {
-                // This debugging handler should be registered last
-                e.RegisterPostEventHandler(verifyUnmodified);
-            }
-
-            if (options.useConstantFolding > 0)
-            {
-                e.UseConstantFolding = true;
-            }
-            else
-            {
-                e.UseConstantFolding = false;
-            }
-
-            // Just print a message about break points for now.
-            e.RegisterBreakPointHandler(new BreakPointPrinter());
-
-            e.RegisterTerminationHandler(new TerminationConsoleReporter());
-
-            // Supply our own PassManager for preparation so we can hook into its events
-            var PM = new Transform.PassManager(p);
-
-            // Use anonymous methods so we can use closure to read command line options
-            Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Running pass " + eventArgs.ThePass.GetName());
-                Console.ResetColor();
-                if (options.emitProgramBefore)
+                Executor e = new Executor(p, scheduler, solver);
+                Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == options.entryPoint).FirstOrDefault();
+                if (entry == null)
                 {
-                    Console.WriteLine("**** Program before pass:");
-                    Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/ true);
-                    Console.WriteLine("**** END Program before pass");
+                    Console.WriteLine("Could not find implementation \"" + options.entryPoint + "\" to use as entry point");
+                    return 1;
                 }
-            };
 
-            Transform.PassManager.PassRunEvent afterPassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Finished running pass " + eventArgs.ThePass.GetName());
-                Console.ResetColor();
-                if (options.emitProgramAfter)
+                // This debugging handler should be registered first
+                IExecutorHandler verifyUnmodified = null;
+                if (options.useVerifyUnmodifiedProcedureHandler)
                 {
-                    Console.WriteLine("**** Program after pass:");
-                    Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/ true);
-                    Console.WriteLine("**** END Program after pass:");
+                    verifyUnmodified = new VerifyUnmodifiedProcedureHandler();
+                    e.RegisterPreEventHandler(verifyUnmodified);
                 }
-            };
 
-            PM.BeforePassRun += beforePassHandler;
-            PM.AfterPassRun += afterPassHandler;
-            e.PrepareProgram(PM);
-
-            // Write program to file if requested
-            if (options.dumpProgramPath.Length > 0)
-            {
-                Console.Out.WriteLine("Writing prepared program to \"" + options.dumpProgramPath + "\"");
-                using (StreamWriter outputFile = File.CreateText(options.dumpProgramPath))
+                if (options.useInstructionPrinter)
                 {
-                    // FIXME: Get program from executor.
-                    Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true);
+                    Console.WriteLine("Installing instruction printer");
+                    e.RegisterPreEventHandler(new InstructionPrinter());
                 }
+
+                if (options.useEnterLeaveStackPrinter)
+                {
+                    Console.WriteLine("Installing Entering and Leaving stack printer");
+                    e.RegisterPreEventHandler(new EnterAndLeaveStackPrinter());
+                }
+
+                if (options.useCallSequencePrinter)
+                {
+                    Console.WriteLine("Installing call sequence printer");
+                    e.RegisterPreEventHandler(new CallSequencePrinter());
+                }
+
+                if (options.useVerifyUnmodifiedProcedureHandler)
+                {
+                    // This debugging handler should be registered last
+                    e.RegisterPostEventHandler(verifyUnmodified);
+                }
+
+                if (options.useConstantFolding > 0)
+                {
+                    e.UseConstantFolding = true;
+                }
+                else
+                {
+                    e.UseConstantFolding = false;
+                }
+
+                // Just print a message about break points for now.
+                e.RegisterBreakPointHandler(new BreakPointPrinter());
+
+                e.RegisterTerminationHandler(new TerminationConsoleReporter());
+
+                // Supply our own PassManager for preparation so we can hook into its events
+                var PM = new Transform.PassManager(p);
+
+                // Use anonymous methods so we can use closure to read command line options
+                Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Running pass " + eventArgs.ThePass.GetName());
+                    Console.ResetColor();
+                    if (options.emitProgramBefore)
+                    {
+                        Console.WriteLine("**** Program before pass:");
+                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true);
+                        Console.WriteLine("**** END Program before pass");
+                    }
+                };
+
+                Transform.PassManager.PassRunEvent afterPassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Finished running pass " + eventArgs.ThePass.GetName());
+                    Console.ResetColor();
+                    if (options.emitProgramAfter)
+                    {
+                        Console.WriteLine("**** Program after pass:");
+                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true);
+                        Console.WriteLine("**** END Program after pass:");
+                    }
+                };
+
+                PM.BeforePassRun += beforePassHandler;
+                PM.AfterPassRun += afterPassHandler;
+                e.PrepareProgram(PM);
+
+                // Write program to file if requested
+                if (options.dumpProgramPath.Length > 0)
+                {
+                    Console.Out.WriteLine("Writing prepared program to \"" + options.dumpProgramPath + "\"");
+                    using (StreamWriter outputFile = File.CreateText(options.dumpProgramPath))
+                    {
+                        // FIXME: Get program from executor.
+                        Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true);
+                    }
+                }
+
+                e.Run(entry);
             }
-
-            e.Run(entry);
             return 0;
         }
 
         public static Solver.ISolver BuildSolverChain(CmdLineOpts options)
         {
-            Solver.ISolver solver = null;
+            Solver.ISolverImpl solverImpl = null;
 
             // Try to guess the location of executable. This is just for convenience
             if (options.pathToSolver.Length == 0 && options.solver != CmdLineOpts.Solver.DUMMY)
@@ -334,25 +335,29 @@ namespace Symbooglix
             switch (options.solver)
             {
                 case CmdLineOpts.Solver.CVC4:
-                    solver = new Solver.CVC4SMTLIBSolver(options.pathToSolver);
+                    solverImpl = new Solver.CVC4SMTLIBSolver(options.pathToSolver);
                     break;
                 case CmdLineOpts.Solver.Z3:
-                    solver = new Solver.Z3SMTLIBSolver(options.pathToSolver);
+                    solverImpl = new Solver.Z3SMTLIBSolver(options.pathToSolver);
                     break;
                 case CmdLineOpts.Solver.DUMMY:
-                    solver = new Solver.DummySolver();
+                    solverImpl = new Solver.DummySolver();
                     break;
                 default:
                     throw new NotSupportedException("Unhandled solver type");
             }
 
+
+
             if (options.queryLogPath.Length > 0)
             {
                 // FIXME: How are we going to ensure this file gets closed properly?
                 StreamWriter QueryLogFile = new StreamWriter(options.queryLogPath, /*append=*/ options.appendLoggedQueries > 0);
-                solver = new Solver.SMTLIBQueryLoggingSolver(solver, QueryLogFile, options.humanReadable > 0);
+                solverImpl = new Solver.SMTLIBQueryLoggingSolverImpl(solverImpl, QueryLogFile, options.humanReadable > 0);
             }
 
+            // Only support this for now.
+            Solver.ISolver solver = new Solver.SimpleSolver(solverImpl);
             return solver;
         }
     }

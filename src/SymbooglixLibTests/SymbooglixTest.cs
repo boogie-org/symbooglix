@@ -76,7 +76,7 @@ namespace SymbooglixLibTests
             if (!File.Exists(pathToSolver))
                 Assert.Fail("Could not find solver at \"{0}\"", pathToSolver);
 
-            var solver = new Z3SMTLIBSolver(pathToSolver);
+            var solver = new SimpleSolver(new Z3SMTLIBSolver(pathToSolver));
             //solver.SetTimeout(10);
             return solver;
 
@@ -88,7 +88,7 @@ namespace SymbooglixLibTests
                 scheduler = new DFSStateScheduler();
 
             if (solver == null)
-                solver = new DummySolver();
+                solver = new SimpleSolver(new DummySolver());
 
             Executor e = new Executor(p, scheduler, solver);
 

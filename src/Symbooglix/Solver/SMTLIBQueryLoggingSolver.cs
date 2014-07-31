@@ -1,39 +1,39 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Boogie;
+using Symbooglix;
 using System.IO;
+
 
 namespace Symbooglix
 {
     namespace Solver
     {
-        // FIXME: We need to refactor this so it can reused to builder an actual solver
-        public class SMTLIBQueryLoggingSolver : ISolver
+        // SMTLIBQueryLoggingSolver and SMTLIBQueryLoggingSolverImpl
+        // share quite a bit of code because they used to be the same
+        // class which ended up being quite messy so they were separated
+
+        public class SMTLIBQueryLoggingSolverImpl : ISolverImpl
         {
-            private ISolver UnderlyingSolver;
+            private ISolverImpl UnderlyingImpl;
             private SMTLIBQueryPrinter Printer;
-            private int UseCounter=0;
             private ConstraintManager CurrentConstraints = null;
-            public SMTLIBQueryLoggingSolver(ISolver UnderlyingSolver, TextWriter TW, bool humanReadable)
+            private int UseCounter=0;
+            public SMTLIBQueryLoggingSolverImpl(ISolverImpl underlyingImplementation, TextWriter TW, bool humanReadable)
             {
-                this.UnderlyingSolver = UnderlyingSolver;
+                this.UnderlyingImpl = underlyingImplementation;
                 Printer = new SMTLIBQueryPrinter(TW, humanReadable);
             }
 
-            public void SetConstraints(ConstraintManager cm)
+            public void SetConstraints(ConstraintManager constraints)
             {
                 // Let the printer find the declarations
-                CurrentConstraints = cm;
-                foreach (var constraint in cm.Constraints)
+                CurrentConstraints = constraints;
+                foreach (var constraint in constraints.Constraints)
                 {
                     Printer.AddDeclarations(constraint);
                 }
-                UnderlyingSolver.SetConstraints(cm);
-            }
-
-            public void SetTimeout(int seconds)
-            {
-                UnderlyingSolver.SetTimeout(seconds);
+                UnderlyingImpl.SetConstraints(constraints);
             }
 
             private void PrintDeclarationsAndConstraints()
@@ -47,40 +47,25 @@ namespace Symbooglix
                 }
             }
 
-            public Result IsQuerySat(Expr Query, out IAssignment assignment)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
             {
-                throw new NotImplementedException();
-            }
-
-            public Result IsQuerySat(Expr Query)
-            {
-                return DoQuery(Query, Query, UnderlyingSolver.IsQuerySat, "IsQuerySat");
-            }
-
-            public Result IsNotQuerySat(Expr Query, out IAssignment assignment)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Result IsNotQuerySat(Expr Query)
-            {
-                // At every layer we'll be creating a NotExpr, this isn't great, perhaps we should
-                // forward to a SolverImpl class that only supports isQuerySat and only create the NotExpr
-                // at the first layer?
-                return DoQuery(Expr.Not(Query), Query, UnderlyingSolver.IsNotQuerySat, "IsNotQuerySat");
-            }
-
-            private delegate Result QueryOperation(Expr Query);
-            private Result DoQuery(Expr QueryToPrint, Expr QueryToUnderlyingSolver, QueryOperation handler, string commentLine)
-            {
-                Printer.AddDeclarations(QueryToPrint);
+                Printer.AddDeclarations(queryExpr);
                 Printer.PrintCommentLine("Query " + UseCounter + " Begin");
                 PrintDeclarationsAndConstraints();
-                Printer.PrintCommentLine(commentLine);
-                Printer.PrintAssert(QueryToPrint);
+                Printer.PrintCommentLine("Query Expr");
+                Printer.PrintAssert(queryExpr);
                 Printer.PrintCheckSat();
-                Result result = handler(QueryToUnderlyingSolver);
-                Printer.PrintCommentLine("Result : " + result);
+
+                var result = UnderlyingImpl.ComputeSatisfiability(queryExpr, computeAssignment);
+
+                Printer.PrintCommentLine("Result : " + result.Item1);
+
+                if (computeAssignment)
+                {
+                    // FIXME: Support this for query logging
+                    Printer.PrintCommentLine(" WARNING: computeAssignment requested, but the printer doesn't support this!");
+                }
+
                 Printer.PrintExit();
                 Printer.ClearDeclarations();
                 Printer.PrintCommentLine("End of Query " + (UseCounter));
@@ -88,6 +73,15 @@ namespace Symbooglix
                 return result;
             }
 
+            public void SetTimeout(int seconds)
+            {
+                UnderlyingImpl.SetTimeout(seconds);
+            }
+
+            public void Dispose()
+            {
+                UnderlyingImpl.Dispose();
+            }
         }
     }
 }

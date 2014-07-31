@@ -83,6 +83,8 @@
     <Compile Include="Transform\FunctionInliner.cs" />
     <Compile Include="Analysis\DummyPass.cs" />
     <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
+    <Compile Include="Solver\ISolverImpl.cs" />
+    <Compile Include="Solver\SimpleSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
