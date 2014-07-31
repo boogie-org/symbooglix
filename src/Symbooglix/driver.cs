@@ -293,6 +293,7 @@ namespace Symbooglix
                 }
 
                 e.Run(entry);
+                Console.WriteLine(solver.Statistics.ToString());
             }
             return 0;
         }

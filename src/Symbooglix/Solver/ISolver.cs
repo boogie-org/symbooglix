@@ -6,6 +6,7 @@ namespace Symbooglix
 {
     namespace Solver
     {
+        // FIXME: The client has know way of knowing if a timeout was hit!
         public enum Result {SAT, UNSAT, UNKNOWN};
 
         // This solver interface is what the Executor uses and thus
@@ -40,11 +41,66 @@ namespace Symbooglix
 
             // Get access to the underlying implementation
             ISolverImpl SolverImpl { get; }
+
+            // Access to solver statistics
+            SolverStats Statistics { get; }
         }
 
         public interface IAssignment
         {
             Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV);
+        }
+
+        public class SolverStats
+        {
+            // Stats on number of queries
+            public int SatQueries { get; internal set; }
+            public int UnsatQueries { get; internal set; }
+            public int UnknownQueries { get; internal set; }
+            public int TotalQueries
+            {
+                get { return SatQueries + UnsatQueries + UnknownQueries; }
+            }
+
+            public SolverStats()
+            {
+                SatQueries = 0;
+                UnsatQueries = 0;
+                UnknownQueries = 0;
+                TotalRunTime = TimeSpan.Zero;
+            }
+
+            // Stats on runtime
+            public TimeSpan TotalRunTime { get; internal set;}
+
+            // Helper
+            public void Increment(Result result)
+            {
+                switch (result)
+                {
+                    case Result.SAT:
+                        ++SatQueries;
+                        break;
+                    case Result.UNSAT:
+                        ++UnsatQueries;
+                        break;
+                    case Result.UNKNOWN:
+                        ++UnknownQueries;
+                        break;
+                    default:
+                        throw new InvalidOperationException("Result of type " + result.ToString() + " not handled");
+                }
+            }
+
+            public override string ToString()
+            {
+                return string.Format("[SolverStats: SatQueries={0}, UnsatQueries={1}, UnknownQueries={2}, TotalQueries={3}, TotalRunTime={4}s]",
+                                     SatQueries,
+                                     UnsatQueries,
+                                     UnknownQueries,
+                                     TotalQueries,
+                                     ( (double) TotalRunTime.Milliseconds)/1000.0);
+            }
         }
 
         public class InvalidSolverTimeoutException : Exception
