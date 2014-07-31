@@ -18,7 +18,9 @@ namespace Symbooglix
             get;
             private set;
         }
-        private static int NewId = 0;
+
+        // Start at -1 so the executor can keep around the special "-1" state that will never enter any procedure
+        private static int NewId = -1;
 
         public ExecutionState()
         {

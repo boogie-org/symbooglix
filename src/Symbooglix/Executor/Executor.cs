@@ -213,8 +213,9 @@ namespace Symbooglix
             if (!HasBeenPrepared)
                 PrepareProgram();
 
-            // FIXME: Clone initialState so we can deal with execution at a different entry point later on
-            CurrentState = InitialState;
+            // Clone the state so we can keep the special initial state around
+            // if we want run() to be called again with a different entry point.
+            CurrentState = InitialState.DeepClone();
 
             StateScheduler.AddState(CurrentState);
             

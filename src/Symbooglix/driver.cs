@@ -31,8 +31,12 @@ namespace Symbooglix
             [OptionList('D', "defines",Separator = ',', HelpText="Add defines to the Boogie parser. Each define should be seperated by a comma.")]
             public List<string> Defines { get; set; }
 
-            [Option('e', "entry-point", DefaultValue = "main", HelpText = "Implementation to use as the entry point for execution")]
-            public string entryPoint { get; set; }
+            // FIXME: Urgh... how do you set the default value of the list?
+            [OptionList('e', "entry-points",
+                        Separator = ',',
+                        DefaultValue = null,
+                        HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
+            public List<string> entryPoints { get; set; }
 
             // FIXME: Booleans can't be disabled in the CommandLine library so use ints instead
             [Option("fold-constants", DefaultValue = 1, HelpText = "Use Constant folding during execution")]
@@ -194,12 +198,25 @@ namespace Symbooglix
             using (var solver = BuildSolverChain(options))
             {
                 Executor e = new Executor(p, scheduler, solver);
-                Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == options.entryPoint).FirstOrDefault();
-                if (entry == null)
+
+                // Check all implementations exist and build list of entry points to execute
+                var entryPoints = new List<Implementation>();
+
+                // Set main as default.
+                if (options.entryPoints == null)
+                    options.entryPoints = new List<string>() { "main" };
+
+                foreach (var implString in options.entryPoints)
                 {
-                    Console.WriteLine("Could not find implementation \"" + options.entryPoint + "\" to use as entry point");
-                    return 1;
+                    Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == implString).FirstOrDefault();
+                    if (entry == null)
+                    {
+                        Console.WriteLine("Could not find implementation \"" + implString + "\" to use as entry point");
+                        return 1;
+                    }
+                    entryPoints.Add(entry);
                 }
+
 
                 // This debugging handler should be registered first
                 IExecutorHandler verifyUnmodified = null;
@@ -292,7 +309,14 @@ namespace Symbooglix
                     }
                 }
 
-                e.Run(entry);
+                foreach (var entryPoint in entryPoints)
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Entering Implementation " + entryPoint.Name + " as entry point");
+                    Console.ResetColor();
+                    e.Run(entryPoint);
+                }
+
                 Console.WriteLine(solver.Statistics.ToString());
             }
             return 0;
