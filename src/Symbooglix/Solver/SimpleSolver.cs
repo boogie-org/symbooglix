@@ -9,7 +9,7 @@ namespace Symbooglix
         public class SimpleSolver : ISolver
         {
             protected Stopwatch Timer;
-
+            private SolverStats InternalStatistics;
             public ISolverImpl SolverImpl
             {
                 get;
@@ -19,7 +19,7 @@ namespace Symbooglix
             public SimpleSolver(ISolverImpl solverImpl)
             {
                 this.SolverImpl = solverImpl;
-                Statistics = new SolverStats();
+                InternalStatistics = new SolverStats();
                 Timer = new Stopwatch();
             }
 
@@ -88,14 +88,18 @@ namespace Symbooglix
 
             private void UpdateStatistics(Tuple<Result, IAssignment> result)
             {
-                Statistics.TotalRunTime = Timer.Elapsed;
-                Statistics.Increment(result.Item1);
+                InternalStatistics.TotalRunTime = Timer.Elapsed;
+                InternalStatistics.Increment(result.Item1);
             }
 
             public SolverStats Statistics
             {
-                get;
-                private set;
+                // The client should get a copy that won't change
+                // when the solver is invoked again.
+                get
+                {
+                    return InternalStatistics.DeepClone();
+                }
             }
         }
     }

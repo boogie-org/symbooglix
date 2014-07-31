@@ -42,7 +42,9 @@ namespace Symbooglix
             // Get access to the underlying implementation
             ISolverImpl SolverImpl { get; }
 
-            // Access to solver statistics
+            // Get Solver statistics. The object
+            // returned is guaranteed not to change
+            // when the solver is invoked again.
             SolverStats Statistics { get; }
         }
 

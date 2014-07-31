@@ -30,15 +30,13 @@ namespace SymbooglixLibTests
 
         public Executor.HandlerAction handleBreakPoint(string name, Executor e)
         {
-            // Need to clone the SolverStats object so we have
-            // an instance of SolverStats that won't change.
             if (name == "before_assert")
             {
-                beforeAssert = Solver.Statistics.DeepClone();
+                beforeAssert = Solver.Statistics;
             }
             else if (name == "after_assert")
             {
-                afterAssert = Solver.Statistics.DeepClone();
+                afterAssert = Solver.Statistics;
             }
             else
                 Assert.Fail("Unexpected breakpoint :" + name);
