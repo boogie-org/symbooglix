@@ -48,7 +48,7 @@ namespace SymbooglixLibTests
         {
             bool reachable = false;
             p = loadProgram("programs/RequiresConcreteLocal.bpl");
-            e = getExecutor(p);
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
             e.BreakPointReached += checkConcrete;
 
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
@@ -70,7 +70,7 @@ namespace SymbooglixLibTests
         {
             bool reachable = false;
             p = loadProgram("programs/RequiresConcreteGlobal.bpl");
-            e = getExecutor(p);
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
             e.BreakPointReached += checkConcrete;
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
@@ -91,7 +91,7 @@ namespace SymbooglixLibTests
         {
             bool reachable = false;
             p = loadProgram("programs/RequiresConcreteLocalBool.bpl");
-            e = getExecutor(p);
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
             e.BreakPointReached += checkConcrete;
 
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
