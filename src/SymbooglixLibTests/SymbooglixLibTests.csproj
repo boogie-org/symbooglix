@@ -73,6 +73,7 @@
     <Compile Include="ConstantFolding\FoldMul.cs" />
     <Compile Include="ConstantFolding\FoldEq.cs" />
     <Compile Include="OnlyOneSolverCall.cs" />
+    <Compile Include="PossiblyFailingRequires.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -140,6 +141,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\OnlyOneSolverCall.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\PossiblyFailingRequires.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

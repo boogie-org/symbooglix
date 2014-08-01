@@ -333,6 +333,7 @@ namespace Symbooglix
         // procedure is not allowed to modify passed in parameters.
         public HandlerAction EnterImplementation(Implementation Impl, List<Expr> implementationParams, Executor executor)
         {
+            bool isEntryPoint = CurrentState.Mem.Stack.Count == 0;
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
             CurrentState.EnterImplementation(Impl);
@@ -398,10 +399,25 @@ namespace Symbooglix
                 HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
                 {
                     foreach (var handler in TerminationHandlers)
-                        handler.handleUnsatisfiableRequires(CurrentState, r);
+                        handler.handleUnsatisfiableRequires(theStateThatWillBeTerminated, r);
                 };
 
-                stillInState = HandleAssumeLikeCommand(constraint, helper);
+                // We need to treat the semantics of requires differently depening on where
+                // we are
+                if (isEntryPoint)
+                {
+                    // On entry we treat requires like an assume so it constrains
+                    // the initial state
+                    stillInState = HandleAssumeLikeCommand(constraint, helper);
+                }
+                else
+                {
+                    // We want to treat requires like an assert so that we follow
+                    // path where the requires expression isn't satisfied by the
+                    // caller
+                    stillInState = HandleAssertLikeCommand(constraint, helper);
+                }
+
                 if (!stillInState)
                 {
                     // The current state was destroyed so we can't continue handling this command

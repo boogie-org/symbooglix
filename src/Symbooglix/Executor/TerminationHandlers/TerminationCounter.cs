@@ -17,6 +17,11 @@ namespace Symbooglix
             get { return FailingAsserts + UnsatisfiableRequires + FailingEnsures + UnsatisfiableAssumes; }
         }
 
+        public int NumberOfTerminatedStates
+        {
+            get { return NumberOfFailures + Sucesses; }
+        }
+
         public TerminationCounter()
         {
             reset();
