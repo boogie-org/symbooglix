@@ -85,6 +85,8 @@
     <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
     <Compile Include="Solver\ISolverImpl.cs" />
     <Compile Include="Solver\SimpleSolver.cs" />
+    <Compile Include="Executor\ITerminationType.cs" />
+    <Compile Include="Executor\ProgramLocation.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

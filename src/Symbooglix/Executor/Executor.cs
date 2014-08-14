@@ -333,7 +333,8 @@ namespace Symbooglix
         // procedure is not allowed to modify passed in parameters.
         public HandlerAction EnterImplementation(Implementation Impl, List<Expr> implementationParams, Executor executor)
         {
-            bool isEntryPoint = CurrentState.Mem.Stack.Count == 0;
+            bool isProgramEntryPoint = CurrentState.Mem.Stack.Count == 0;
+
             // FIXME: The boundary between Executor and ExecutionState is
             // unclear, who should do the heavy lifting?
             CurrentState.EnterImplementation(Impl);
@@ -396,18 +397,20 @@ namespace Symbooglix
             {
                 Expr constraint = (Expr) VR.Visit(r.Condition);
 
-                HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
-                {
-                    foreach (var handler in TerminationHandlers)
-                        handler.handleUnsatisfiableRequires(theStateThatWillBeTerminated, r);
-                };
-
                 // We need to treat the semantics of requires differently depening on where
                 // we are
-                if (isEntryPoint)
+                if (isProgramEntryPoint)
                 {
                     // On entry we treat requires like an assume so it constrains
                     // the initial state
+                    HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
+                    {
+                        theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEntryRequires(r));
+
+                        foreach (var handler in TerminationHandlers)
+                            handler.handleUnsatisfiableRequires(theStateThatWillBeTerminated, r);
+                    };
+
                     stillInState = HandleAssumeLikeCommand(constraint, helper);
                 }
                 else
@@ -415,6 +418,14 @@ namespace Symbooglix
                     // We want to treat requires like an assert so that we follow
                     // path where the requires expression isn't satisfied by the
                     // caller
+                    HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
+                    {
+                        theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(r));
+
+                        foreach (var handler in TerminationHandlers)
+                            handler.handleUnsatisfiableRequires(theStateThatWillBeTerminated, r);
+                    };
+
                     stillInState = HandleAssertLikeCommand(constraint, helper);
                 }
 
@@ -427,7 +438,7 @@ namespace Symbooglix
             }
 
             // We presume now that the CurrentState wasn't destroyed so its safe to continue
-            Debug.Assert(stillInState && !CurrentState.HasTerminatedEarly(), "Can't continue to enter procedure of terminated state!");
+            Debug.Assert(stillInState && !CurrentState.Finished(), "Can't continue to enter procedure of terminated state!");
 
             // Concretise globals and locals if explicitly set in requires statements
             foreach (Requires r in Impl.Proc.Requires)
@@ -477,8 +488,10 @@ namespace Symbooglix
                     remapped = CFT.Traverse(remapped);
 
                 // Note we use closure to pass the ensures we are currently looking at
-                HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
+                HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
                 {
+                    theStateThatWillBeTerminated.Terminate( new TerminatedAtFailingEnsures(ensures));
+
                     foreach (var handler in TerminationHandlers)
                         handler.handleFailingEnsures(theStateThatWillBeTerminated, ensures);
                 };
@@ -494,7 +507,7 @@ namespace Symbooglix
             }
 
             // We presume it is now safe to continue with the return
-            Debug.Assert(stillInCurrentState && !executor.CurrentState.HasTerminatedEarly() , "Cannot do a return if the currentState was terminated!");
+            Debug.Assert(stillInCurrentState && !executor.CurrentState.Finished() , "Cannot do a return if the currentState was terminated!");
 
             // Pass Parameters to Caller
             if (CurrentState.Mem.Stack.Count > 1)
@@ -520,7 +533,8 @@ namespace Symbooglix
             // Pop stack frame
             CurrentState.LeaveImplementation();
 
-            if (CurrentState.Finished())
+            // If the stack frame is empty after poping the previous stack then we have finished execution
+            if (CurrentState.Mem.Stack.Count == 0)
             {
                 // Notify any handlers that this state terminated without error
                 foreach (var handler in TerminationHandlers)
@@ -528,6 +542,7 @@ namespace Symbooglix
                     handler.handleSuccess(CurrentState);
                 }
 
+                CurrentState.Terminate(new TerminatedWithoutError(c));
                 StateScheduler.RemoveState(CurrentState);
             }
 
@@ -599,9 +614,12 @@ namespace Symbooglix
             Debug.WriteLine("Assert : " + dupAndrw);
 
             // Create an anonymous method to tell the helper function
-            // how notify handlers
-            HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
+            // how to terminate the state
+            HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
             {
+                // Mark the state as terminated
+                theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingAssert(c));
+
                 foreach (var handler in TerminationHandlers)
                     handler.handleFailingAssert(theStateThatWillBeTerminated);
             };
@@ -611,8 +629,8 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
-        protected delegate void HowToNotifyTerminationHandlers(ExecutionState theStateThatWillBeTerminated);
-        protected bool HandleAssertLikeCommand(Expr condition, HowToNotifyTerminationHandlers howToNotifyHelper)
+        protected delegate void HowToTerminateState(ExecutionState theStateThatWillBeTerminated);
+        protected bool HandleAssertLikeCommand(Expr condition, HowToTerminateState terminate)
         {
             // Constant Folding might let us terminate without calling solver
             if (condition is LiteralExpr)
@@ -627,9 +645,8 @@ namespace Symbooglix
                 }
                 else if (literalAssertion.IsFalse)
                 {
-                    CurrentState.MarkAsTerminatedEarly();
-                    // Notify our handlers
-                    howToNotifyHelper(CurrentState);
+                    // Terminate the state
+                    terminate(CurrentState);
                     StateScheduler.RemoveState(CurrentState);
                     return false; // No longer in a state because removed the current state
                 }
@@ -699,11 +716,7 @@ namespace Symbooglix
 
             if (canFail && !canSucceed)
             {
-                // This state can only fail
-                CurrentState.MarkAsTerminatedEarly();
-
-                // Notify
-                howToNotifyHelper(CurrentState);
+                terminate(CurrentState);
 
                 StateScheduler.RemoveState(CurrentState);
                 return false; // No longer in a state because we removed the current state
@@ -722,10 +735,7 @@ namespace Symbooglix
                 // Or do we? Copying the state just so we can inform
                 // the handlers about it seems wasteful...
                 ExecutionState failingState = CurrentState.DeepClone();
-                failingState.MarkAsTerminatedEarly();
-
-                // Notify
-                howToNotifyHelper(failingState);
+                terminate(failingState);
 
                 // successful state can now have assertion expr in constraints
                 CurrentState.Constraints.AddConstraint(condition);
@@ -737,7 +747,7 @@ namespace Symbooglix
             }
         }
 
-        protected bool HandleAssumeLikeCommand(Expr condition, HowToNotifyTerminationHandlers howToNotifyHelper)
+        protected bool HandleAssumeLikeCommand(Expr condition, HowToTerminateState terminate)
         {
             // Constant folding might let us terminate early without calling solver
             if (condition is LiteralExpr)
@@ -752,9 +762,7 @@ namespace Symbooglix
                 }
                 else if (literalAssumption.IsFalse)
                 {
-                    CurrentState.MarkAsTerminatedEarly();
-                    // Notify our handlers
-                    howToNotifyHelper(CurrentState);
+                    terminate(CurrentState);
                     StateScheduler.RemoveState(CurrentState);
                     return false; // No longer in current state
                 }
@@ -767,9 +775,7 @@ namespace Symbooglix
             switch (result)
             {
                 case Symbooglix.Solver.Result.UNSAT:
-                    CurrentState.MarkAsTerminatedEarly();
-                    // Notify our handlers
-                    howToNotifyHelper(CurrentState);
+                    terminate(CurrentState);
                     StateScheduler.RemoveState(CurrentState);
                     return false; // No longer in current state
 
@@ -799,8 +805,11 @@ namespace Symbooglix
 
             Debug.WriteLine("Assume : " + dupAndrw);
 
-            HowToNotifyTerminationHandlers helper = delegate(ExecutionState theStateThatWillBeTerminated)
+            HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
             {
+                // Terminate the state
+                theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableAssume(c));
+
                 foreach (var handler in TerminationHandlers)
                     handler.handleUnsatisfiableAssume(theStateThatWillBeTerminated);
             };

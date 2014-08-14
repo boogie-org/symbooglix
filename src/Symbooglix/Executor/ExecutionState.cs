@@ -10,10 +10,15 @@ namespace Symbooglix
     {
         public Memory Mem;
         private bool Started = false;
-        private bool TerminatedEarly = false;
         public List<SymbolicVariable> Symbolics;
         public ConstraintManager Constraints;
         public int Id
+        {
+            get;
+            private set;
+        }
+
+        public ITerminationType TerminationType
         {
             get;
             private set;
@@ -28,6 +33,7 @@ namespace Symbooglix
             Symbolics = new List<SymbolicVariable>();
             Constraints = new ConstraintManager();
             Id = NewId++;
+            TerminationType = null;
         }
 
         public ExecutionState DeepClone()
@@ -56,10 +62,8 @@ namespace Symbooglix
         public void DumpState()
         {
             Console.Write("State {0} :", this.Id);
-            if (TerminatedEarly)
-                Console.WriteLine("Terminated early");
-            else if (Finished())
-                Console.WriteLine("Finished");
+            if (Finished())
+                Console.WriteLine(this.TerminationType.GetMessage());
             else
                 Console.WriteLine("Running");
 
@@ -189,28 +193,18 @@ namespace Symbooglix
 
         public bool Finished()
         {
-            if (HasTerminatedEarly() || TerminatedSuccessfuly())
-                return true;
-            else
-                return false;
+            return this.TerminationType != null;
         }
 
-        public void MarkAsTerminatedEarly()
+        public void Terminate(ITerminationType tt)
         {
-            this.TerminatedEarly = true;
-        }
+            Debug.Assert(tt != null, "ITerminationType cannot be null");
+            this.TerminationType = tt;
 
-        public bool HasTerminatedEarly()
-        {
-            return TerminatedEarly;
-        }
+            (tt as dynamic).State = this; // Public interface doesn't allow state to be changed so cast to actual type so we can set.
 
-        public bool TerminatedSuccessfuly()
-        {
-            if (Started && !TerminatedEarly && ( Mem.Stack.Count == 0 ))
-                return true;
-            else
-                return false;
+            // FIXME: Add some checks to make sure the termination type corresponds
+            // with the current instruction
         }
 
         public Expr GetGlobalVariableExpr(Variable GV)
