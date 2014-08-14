@@ -8,9 +8,16 @@ namespace Symbooglix
     {
         public class ProgramPrinter
         {
-            static public void Print(Program prog, TextWriter TW, bool pretty)
+            static public void Print(Program prog, TextWriter TW, bool pretty, bool unstructured)
             {
-                using (var tokenWriter = new TokenTextWriter(TW, pretty))
+                // FIXME:
+                // Urgh this is Gross! Fix boogie so we can request
+                // printing an unstructured program cleanly
+                CommandLineOptions.Clo.PrintUnstructured = unstructured?1:0;
+
+                // It is very important setTokens is false otherwise printing the program will cause the tokens
+                // to change.
+                using (var tokenWriter = new TokenTextWriter("", TW, /*setTokens=*/ false, pretty))
                 {
                     foreach (var tld in prog.TopLevelDeclarations)
                     {
