@@ -13,7 +13,7 @@ namespace SymbooglixLibTests
             p = loadProgram("programs/functionAsAxiom.bpl");
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
             var counter = new TerminationCounter();
-            e.RegisterTerminationHandler(counter);
+            counter.Connect(e);
             e.Run(getMain(p));
 
             Assert.AreEqual(1, counter.Sucesses);

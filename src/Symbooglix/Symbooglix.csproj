@@ -73,7 +73,6 @@
     <Compile Include="Executor\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationConsoleReporter.cs" />
-    <Compile Include="Executor\TerminationHandlers\TerminationHandler.cs" />
     <Compile Include="Solver\Z3SMTLIBSolver.cs" />
     <Compile Include="Solver\CVC4SMTLIBSolver.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationCounter.cs" />
@@ -87,6 +86,7 @@
     <Compile Include="Solver\SimpleSolver.cs" />
     <Compile Include="Executor\ITerminationType.cs" />
     <Compile Include="Executor\ProgramLocation.cs" />
+    <Compile Include="Executor\ExecutorHandlers\IExecutorEventHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

@@ -22,5 +22,5 @@ requires (N == 4);
     assert local == 24;
 }
 
-// CHECK-L: State 4 terminated without error
+// CHECK-L: State 4: Terminated without error
 

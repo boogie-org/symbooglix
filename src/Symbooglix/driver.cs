@@ -262,7 +262,9 @@ namespace Symbooglix
                 // Just print a message about break points for now.
                 e.BreakPointReached += BreakPointPrinter.handleBreakPoint;
 
-                e.RegisterTerminationHandler(new TerminationConsoleReporter());
+
+                var stateHandler = new TerminationConsoleReporter();
+                stateHandler.Connect(e);
 
                 // Supply our own PassManager for preparation so we can hook into its events
                 var PM = new Transform.PassManager(p);

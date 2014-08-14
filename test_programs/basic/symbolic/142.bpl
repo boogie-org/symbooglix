@@ -30,6 +30,6 @@ requires (x < 3);
 }
 
 // FIXME: This is fragile
-// CHECK-L: State 76 terminated without error
-// CHECK-L: State 77 terminated without error
+// CHECK-L: State 76: Terminated without error
+// CHECK-L: State 77: Terminated without error
 

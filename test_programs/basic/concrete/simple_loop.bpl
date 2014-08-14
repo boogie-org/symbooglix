@@ -21,4 +21,4 @@ requires N == 10bv8;
 }
 
 // FIXME: All this unnecessary forking is less than ideal
-// CHECK-L: State 10 terminated without error
+// CHECK-L: State 10: Terminated without error

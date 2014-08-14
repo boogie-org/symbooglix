@@ -1,20 +1,22 @@
 ﻿using Microsoft.Boogie;
 using System;
+using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public class TerminationCounter : ITerminationHandler
+    public class TerminationCounter : IExecutorEventHandler
     {
         // Counters
         public int Sucesses { get; private set;}
         public int FailingAsserts { get; private set;}
-        public int UnsatisfiableRequires { get; private set;}
+        public int UnsatisfiableRequiresOnEntry { get; private set;}
+        public int FailingRequires { get; private set;}
         public int FailingEnsures { get; private set;}
         public int UnsatisfiableAssumes { get; private set;}
 
         public int NumberOfFailures
         {
-            get { return FailingAsserts + UnsatisfiableRequires + FailingEnsures + UnsatisfiableAssumes; }
+            get { return FailingAsserts + UnsatisfiableRequiresOnEntry + FailingRequires + FailingEnsures + UnsatisfiableAssumes; }
         }
 
         public int NumberOfTerminatedStates
@@ -27,50 +29,57 @@ namespace Symbooglix
             reset();
         }
 
+        public void Connect(Executor e)
+        {
+            e.StateTerminated += this.handle;
+        }
+
+        public void Disconnect(Executor e)
+        {
+            e.StateTerminated -= this.handle;
+        }
+
+        private void handle(Object executor, Executor.ExecutionStateEventArgs arg)
+        {
+            var terminationType = arg.State.TerminationType;
+            Debug.Assert(terminationType != null);
+
+            if (terminationType is TerminatedWithoutError)
+                Sucesses++;
+            else if (terminationType is TerminatedAtUnsatisfiableEntryRequires)
+                UnsatisfiableRequiresOnEntry++;
+            else if (terminationType is TerminatedAtUnsatisfiableAssume)
+                UnsatisfiableAssumes++;
+            else if (terminationType is TerminatedAtFailingRequires)
+                FailingRequires++;
+            else if (terminationType is TerminatedAtFailingEnsures)
+                FailingEnsures++;
+            else if (terminationType is TerminatedAtFailingAssert)
+                FailingAsserts++;
+            else
+                throw new NotSupportedException("Can't handle Termination type " + terminationType.ToString());
+        }
+
         public void reset()
         {
             Sucesses = 0;
             FailingAsserts = 0;
-            UnsatisfiableRequires = 0;
+            UnsatisfiableRequiresOnEntry = 0;
+            FailingRequires = 0;
             FailingEnsures = 0;
             UnsatisfiableAssumes = 0;
         }
-
-        public void handleSuccess(ExecutionState s)
-        {
-            ++Sucesses;
-        }
-
-        public void handleFailingAssert(ExecutionState s)
-        {
-            ++FailingAsserts;
-        }
-
-        public void handleUnsatisfiableRequires(ExecutionState s, Requires requiresStatement)
-        {
-            ++UnsatisfiableRequires;
-        }
-
-        public void handleFailingEnsures(ExecutionState s, Ensures ensuresStatement)
-        {
-            ++FailingEnsures;
-        }
-
-        public void handleUnsatisfiableAssume(ExecutionState s)
-        {
-            ++UnsatisfiableAssumes;
-        }
-            
 
         public override string ToString()
         {
             return string.Format("[TerminationCounter:\n" +
                                  "  Sucesses={0}\n" +
                                  "  FailingAsserts={1},\n" +
-                                 "  UnsatisfiableRequires={2}\n" +
-                                 "  FailingEnsures={3}\n" +
-                                 "  UnsatisfiableAssumes={4}\n" +
-                                 "]", Sucesses, FailingAsserts, UnsatisfiableRequires, FailingEnsures, UnsatisfiableAssumes);
+                                 "  UnsatisfiableRequiresOnEntry={2}\n" +
+                                 "  FailingRequires={3}\n" +
+                                 "  FailingEnsures={4}\n" +
+                                 "  UnsatisfiableAssumes={5}\n" +
+                                 "]", Sucesses, FailingAsserts, UnsatisfiableRequiresOnEntry, FailingRequires, FailingEnsures, UnsatisfiableAssumes);
         }
 
     }

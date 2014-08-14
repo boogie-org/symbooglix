@@ -62,7 +62,7 @@ namespace Symbooglix
             var assertCmd = ExitLocation.AsCmd as AssertCmd;
             return "Terminated with assertion failure " +
                 assertCmd.tok.filename + ":" +
-                assertCmd.tok.line + " " +
+                assertCmd.tok.line + ": " +
                 assertCmd.ToString();
         }
 
@@ -90,9 +90,9 @@ namespace Symbooglix
         {
             Debug.Assert(ExitLocation.IsCmd && ExitLocation.AsCmd is AssumeCmd);
             var assumeCmd = ExitLocation.AsCmd as AssumeCmd;
-            return "Terminated with unsatisiable assume " +
+            return "Terminated with unsatisiable assumption " +
                 assumeCmd.tok.filename + ":" +
-                assumeCmd.tok.line + " " +
+                assumeCmd.tok.line + ": " +
                 assumeCmd.ToString();
         }
 
@@ -123,7 +123,7 @@ namespace Symbooglix
             var requires = ExitLocation.AsRequires;
             return "Terminated at program entry point at an unsatisfiable requires " +
                 requires.tok.filename + ":" +
-                requires.tok.line + " " +
+                requires.tok.line + ": " +
                 requires.ToString();
         }
 
@@ -151,10 +151,10 @@ namespace Symbooglix
         {
             Debug.Assert(ExitLocation.IsRequires);
             var requires = ExitLocation.AsRequires;
-            return "Terminated at failing requires " +
+            return "Terminated with failing requires " +
                 requires.tok.filename + ":" +
-                requires.tok.line + " " +
-                requires.ToString();
+                requires.tok.line + ": " +
+                requires.Condition.ToString();
         }
 
         public ExecutionState State
@@ -181,10 +181,10 @@ namespace Symbooglix
         {
             Debug.Assert(ExitLocation.IsEnsures);
             var requires = ExitLocation.AsEnsures;
-            return "Terminated at failing ensures " +
+            return "Terminated with failing ensures " +
                 requires.tok.filename + ":" +
-                requires.tok.line + " " +
-                requires.ToString();
+                requires.tok.line + ": " +
+                requires.Condition.ToString();
         }
 
         public ExecutionState State

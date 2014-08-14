@@ -32,13 +32,13 @@ namespace SymbooglixLibTests
             };
 
             var terminationCounter = new TerminationCounter();
-            e.RegisterTerminationHandler(terminationCounter);
+            terminationCounter.Connect(e);
 
             e.Run(getMain(p));
             Assert.IsTrue(inFoo);
             Assert.IsTrue(pastAssertion);
 
-            Assert.AreEqual(1, terminationCounter.UnsatisfiableRequires);
+            Assert.AreEqual(1, terminationCounter.FailingRequires);
             Assert.AreEqual(1, terminationCounter.Sucesses);
             Assert.AreEqual(2, terminationCounter.NumberOfTerminatedStates);
         }

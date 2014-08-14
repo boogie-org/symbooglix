@@ -4,6 +4,6 @@ procedure main()
 {
     var x:real;
     x := -1.5;
-    // CHECK: State 0 terminated without error
+    // CHECK: State 0: Terminated without error
     assert (x + x) == -3.0;
 }

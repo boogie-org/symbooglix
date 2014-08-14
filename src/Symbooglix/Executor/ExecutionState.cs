@@ -61,7 +61,7 @@ namespace Symbooglix
 
         public void DumpState()
         {
-            Console.Write("State {0} :", this.Id);
+            Console.Write("State {0}: ", this.Id);
             if (Finished())
                 Console.WriteLine(this.TerminationType.GetMessage());
             else

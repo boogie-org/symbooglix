@@ -2,7 +2,7 @@
 var g:int;
 
 // CHECK-L: Entering Implementation entry1 as entry point
-// CHECK-L: State 0 terminated without error
+// CHECK-L: State 0: Terminated without error
 procedure entry1(x:int)
 modifies g;
 {
@@ -11,8 +11,8 @@ modifies g;
 }
 
 // CHECK-L: Entering Implementation entry2 as entry point
-// CHECK-L: State 1 terminated without error
-// CHECK-L: State 2 terminated without error
+// CHECK-L: State 1: Terminated without error
+// CHECK-L: State 2: Terminated without error
 procedure entry2(x:int)
 {
     if (g == 15)

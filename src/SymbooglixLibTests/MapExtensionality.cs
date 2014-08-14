@@ -5,41 +5,24 @@ using System;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class MapExtensionality : SymbooglixTest, ITerminationHandler
+    public class MapExtensionality : SymbooglixTest
     {
         [Test()]
         public void TestCase()
         {
             p= loadProgram("programs/MapExtensionality.bpl");
             var executor = getExecutor(p, new DFSStateScheduler(), GetSolver());
-            executor.RegisterTerminationHandler(this);
+            executor.StateTerminated += delegate(object e, Executor.ExecutionStateEventArgs data) 
+            {
+                var terminationType = data.State.TerminationType;
+                if (terminationType is TerminatedAtFailingAssert)
+                    Assert.Fail("Boogie assertion failed");
+
+                if (terminationType is TerminatedAtUnsatisfiableAssume)
+                    Assert.Fail("Boogie assume failed");
+            };
             executor.Run(getMain(p));
 
-        }
-
-        public void handleSuccess(ExecutionState s)
-        {
-            // Don't need to so anything
-        }
-
-        public void handleFailingAssert(ExecutionState s)
-        {
-            Assert.Fail("Boogie assertion failed");
-        }
-
-        public void handleUnsatisfiableRequires(ExecutionState s, Microsoft.Boogie.Requires requiresStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void handleFailingEnsures(ExecutionState s, Microsoft.Boogie.Ensures ensuresStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void handleUnsatisfiableAssume(ExecutionState s)
-        {
-            Assert.Fail("Boogie assume failed");
         }
     }
 }

@@ -17,4 +17,4 @@ procedure main(arg:bv8) returns (result:bv8)
     assert result == 2bv8;
 
 }
-// CHECK-L: State 1 terminated without error
+// CHECK-L: State 1: Terminated without error

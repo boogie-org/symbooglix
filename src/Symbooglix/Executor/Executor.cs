@@ -23,7 +23,6 @@ namespace Symbooglix
             UninterpretedOrUninlinableFunctions = new List<Function>();
             PreEventHandlers = new List<IExecutorHandler>();
             PostEventHandlers = new List<IExecutorHandler>();
-            TerminationHandlers = new List<ITerminationHandler>();
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
             this.TheSolver = solver;
@@ -40,7 +39,6 @@ namespace Symbooglix
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
         private List<IExecutorHandler> PreEventHandlers;
         private List<IExecutorHandler> PostEventHandlers;
-        private List<ITerminationHandler> TerminationHandlers;
         private List<Function> UninterpretedOrUninlinableFunctions;
         private SymbolicPool SymbolicPool;
         private bool HasBeenPrepared = false;
@@ -62,7 +60,14 @@ namespace Symbooglix
         public delegate void BreakPointEvent(Object executor, BreakPointEventArgs data);
         public event BreakPointEvent BreakPointReached;
 
+        public class ExecutionStateEventArgs : EventArgs
+        {
+            public readonly ExecutionState State;
+            public ExecutionStateEventArgs(ExecutionState e) { State = e;}
+        }
+        public delegate void ExecutionStateEvent(Object executor, ExecutionStateEventArgs data);
 
+        public event ExecutionStateEvent StateTerminated;
 
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
@@ -193,19 +198,6 @@ namespace Symbooglix
             Debug.Assert(handler != null);
             Debug.Assert(PostEventHandlers.Contains(handler));
             PostEventHandlers.Remove(handler);
-        }
-
-        public void RegisterTerminationHandler(ITerminationHandler handler)
-        {
-            Debug.Assert(handler != null);
-            TerminationHandlers.Add(handler);
-        }
-
-        public void UnregisterTerminationHandler(ITerminationHandler handler)
-        {
-            Debug.Assert(handler != null);
-            Debug.Assert(TerminationHandlers.Contains(handler));
-            TerminationHandlers.Remove(handler);
         }
 
         public void Run(Implementation entryPoint)
@@ -406,9 +398,6 @@ namespace Symbooglix
                     HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
                     {
                         theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEntryRequires(r));
-
-                        foreach (var handler in TerminationHandlers)
-                            handler.handleUnsatisfiableRequires(theStateThatWillBeTerminated, r);
                     };
 
                     stillInState = HandleAssumeLikeCommand(constraint, helper);
@@ -421,9 +410,6 @@ namespace Symbooglix
                     HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
                     {
                         theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(r));
-
-                        foreach (var handler in TerminationHandlers)
-                            handler.handleUnsatisfiableRequires(theStateThatWillBeTerminated, r);
                     };
 
                     stillInState = HandleAssertLikeCommand(constraint, helper);
@@ -490,10 +476,7 @@ namespace Symbooglix
                 // Note we use closure to pass the ensures we are currently looking at
                 HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
                 {
-                    theStateThatWillBeTerminated.Terminate( new TerminatedAtFailingEnsures(ensures));
-
-                    foreach (var handler in TerminationHandlers)
-                        handler.handleFailingEnsures(theStateThatWillBeTerminated, ensures);
+                    theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingEnsures(ensures));
                 };
                 // Treat an requires similarly to an assert
                 stillInCurrentState = HandleAssertLikeCommand(remapped, helper);
@@ -533,16 +516,16 @@ namespace Symbooglix
             // Pop stack frame
             CurrentState.LeaveImplementation();
 
-            // If the stack frame is empty after poping the previous stack then we have finished execution
+            // If the stack frame is empty after poping the previous stack then we have
+            // finished execution of the current state.
             if (CurrentState.Mem.Stack.Count == 0)
             {
-                // Notify any handlers that this state terminated without error
-                foreach (var handler in TerminationHandlers)
-                {
-                    handler.handleSuccess(CurrentState);
-                }
-
                 CurrentState.Terminate(new TerminatedWithoutError(c));
+
+                // Notify
+                if (StateTerminated!= null)
+                    StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
+
                 StateScheduler.RemoveState(CurrentState);
             }
 
@@ -619,9 +602,6 @@ namespace Symbooglix
             {
                 // Mark the state as terminated
                 theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingAssert(c));
-
-                foreach (var handler in TerminationHandlers)
-                    handler.handleFailingAssert(theStateThatWillBeTerminated);
             };
 
             // Use helper method, we don't need to care if the current state is destroyed
@@ -647,6 +627,11 @@ namespace Symbooglix
                 {
                     // Terminate the state
                     terminate(CurrentState);
+
+                    // Notify
+                    if (StateTerminated != null)
+                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
+
                     StateScheduler.RemoveState(CurrentState);
                     return false; // No longer in a state because removed the current state
                 }
@@ -718,6 +703,10 @@ namespace Symbooglix
             {
                 terminate(CurrentState);
 
+                // Notify
+                if (StateTerminated != null)
+                    StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
+
                 StateScheduler.RemoveState(CurrentState);
                 return false; // No longer in a state because we removed the current state
             }
@@ -736,6 +725,10 @@ namespace Symbooglix
                 // the handlers about it seems wasteful...
                 ExecutionState failingState = CurrentState.DeepClone();
                 terminate(failingState);
+
+                // Notify
+                if (StateTerminated != null)
+                    StateTerminated(this, new ExecutionStateEventArgs(failingState));
 
                 // successful state can now have assertion expr in constraints
                 CurrentState.Constraints.AddConstraint(condition);
@@ -763,6 +756,11 @@ namespace Symbooglix
                 else if (literalAssumption.IsFalse)
                 {
                     terminate(CurrentState);
+
+                    // Notify
+                    if (StateTerminated != null)
+                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
+
                     StateScheduler.RemoveState(CurrentState);
                     return false; // No longer in current state
                 }
@@ -776,6 +774,11 @@ namespace Symbooglix
             {
                 case Symbooglix.Solver.Result.UNSAT:
                     terminate(CurrentState);
+
+                    // Notify
+                    if (StateTerminated != null)
+                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
+
                     StateScheduler.RemoveState(CurrentState);
                     return false; // No longer in current state
 
@@ -809,9 +812,6 @@ namespace Symbooglix
             {
                 // Terminate the state
                 theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableAssume(c));
-
-                foreach (var handler in TerminationHandlers)
-                    handler.handleUnsatisfiableAssume(theStateThatWillBeTerminated);
             };
 
             // Use helper. We don't care if it terminates a state because we immediatly return afterwards

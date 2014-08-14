@@ -6,7 +6,7 @@ procedure main()
 requires g == 0bv8;
 modifies g;
 // CHECK-L: Mutating tree: '2bv8 == 2bv8' => 'true'
-// CHECK-L: State 0 terminated without error
+// CHECK-L: State 0: Terminated without error
 ensures g == 2bv8;
 {
     g := 2bv8;

@@ -14,7 +14,7 @@ namespace SymbooglixLibTests
             Counter = new TerminationCounter();
             p = loadProgram(program);
             e = getExecutor(p);
-            e.RegisterTerminationHandler(Counter);
+            Counter.Connect(e);
             e.Run(getMain(p));
         }
 

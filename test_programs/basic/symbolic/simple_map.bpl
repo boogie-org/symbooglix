@@ -7,5 +7,5 @@ procedure main()
     m[index] := 0bv8;
     assert m[index] == 0bv8;
     // FIXME: Make this an NUnit test instead
-    // CHECK-L: State 0 terminated without error
+    // CHECK-L: State 0: Terminated without error
 }

@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public class TerminationConsoleReporter : ITerminationHandler
+    public class TerminationConsoleReporter : IExecutorEventHandler
     {
         public TerminationConsoleReporter()
         {
@@ -19,74 +19,41 @@ namespace Symbooglix
             Console.ForegroundColor = savedColour;
         }
 
-
-        public void handleSuccess(ExecutionState s)
+        public void Connect(Executor e)
         {
-            string msg = "State " + s.Id + " terminated without error";
-            WriteLine(ConsoleColor.Green, msg);
+            e.StateTerminated += handle;
         }
 
-        public void handleFailingAssert(ExecutionState s)
+        public void Disconnect(Executor e)
         {
-            string msg = "State " + s.Id + " terminated with an error";
-            WriteLine(ConsoleColor.Red, msg);
-            Debug.Assert(s.GetCurrentStackFrame().CurrentInstruction.Current is AssertCmd);
-            var failingCmd = (AssertCmd) s.GetCurrentStackFrame().CurrentInstruction.Current;
-            msg = "The following assertion failed\n" +
-                  failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
-                  failingCmd.ToString();
-            WriteLine(ConsoleColor.DarkRed, msg);
-
-
-            s.DumpState();
+            e.StateTerminated -= handle;
         }
 
-        public void handleUnsatisfiableRequires(ExecutionState s, Microsoft.Boogie.Requires requiresStatement)
+        private void handle(Object executor, Executor.ExecutionStateEventArgs args)
         {
-            string msg = "State " + s.Id + " terminated with an error";
-            WriteLine(ConsoleColor.Red, msg);
-            msg = "The following requires statement could not be satisfied\n" +
-                  requiresStatement.tok.filename + ":" + requiresStatement.tok.line + ": " +
-                  requiresStatement.Condition.ToString();
-            WriteLine(ConsoleColor.DarkRed, msg);
+            string msg = "State " + args.State.Id + ": ";
 
-            s.DumpState();
-        }
-
-        public void handleFailingEnsures (ExecutionState s, Ensures ensuresStatement)
-        {
-            string msg = "State " + s.Id + " terminated with an error";
-            WriteLine(ConsoleColor.Red, msg);
-            Debug.Assert(s.GetCurrentStackFrame().CurrentInstruction.Current is ReturnCmd);
-            msg = "The following ensures failed\n" +
-                  ensuresStatement.tok.filename + ":" + ensuresStatement.tok.line + ": " +
-                  ensuresStatement.Condition.ToString();
-            WriteLine(ConsoleColor.DarkRed, msg);
-
-
-            s.DumpState();
-        }
-
-        public void handleUnsatisfiableAssume(ExecutionState s)
-        {
-            AssumeCmd assumeCmd = (AssumeCmd) s.GetCurrentStackFrame().CurrentInstruction.Current;
-
-            // Most of the time we should inform about failing assumes, this hack prevents
-            // emitting messages about assumes related to control flow.
-            if (QKeyValue.FindBoolAttribute(assumeCmd.Attributes, "partition") == false)
+            ConsoleColor color;
+            if (args.State.TerminationType is TerminatedWithoutError)
+                color = ConsoleColor.Green;
+            else if (args.State.TerminationType is TerminatedAtUnsatisfiableAssume)
             {
-                string msg = "State " + s.Id + " terminated";
-                WriteLine(ConsoleColor.DarkMagenta, msg);
-                Debug.Assert(s.GetCurrentStackFrame().CurrentInstruction.Current is AssumeCmd);
-                var failingCmd = (AssumeCmd) s.GetCurrentStackFrame().CurrentInstruction.Current;
-                msg = "The following assumption is unsatisfiable\n" +
-                failingCmd.tok.filename + ":" + failingCmd.tok.line + ": " +
-                failingCmd.ToString();
-                WriteLine(ConsoleColor.DarkMagenta, msg);
+                var assumeCmd = args.State.TerminationType.ExitLocation.AsCmd as AssumeCmd;
 
+                // We don't want to notify about unsatisfiable assumes that are a result
+                // of control flow (i.e. goto follow by an assume)
+                if (QKeyValue.FindBoolAttribute(assumeCmd.Attributes, "partition"))
+                    return;
 
-                s.DumpState();
+                color = ConsoleColor.DarkMagenta;
             }
+            else
+                color = ConsoleColor.Red;
+            
+
+            WriteLine(color, msg + args.State.TerminationType.GetMessage());
+
+            args.State.DumpState();
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SymbooglixLibTests
         {
             var counter = new TerminationCounter();
             Init("programs/RealToInt.bpl");
-            e.RegisterTerminationHandler(counter);
+            counter.Connect(e);
             e.Run(getMain(this.p));
             checkCounter(counter);
         }
@@ -34,7 +34,7 @@ namespace SymbooglixLibTests
         {
             var counter = new TerminationCounter();
             Init("programs/IntToReal.bpl");
-            e.RegisterTerminationHandler(counter);
+            counter.Connect(e);
             e.Run(getMain(this.p));
             checkCounter(counter);
         }
