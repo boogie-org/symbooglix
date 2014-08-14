@@ -273,7 +273,8 @@ namespace Symbooglix
             if (breakPointName == null)
                 return;
 
-            BreakPointReached(this, new BreakPointEventArgs(breakPointName));
+            if (BreakPointReached != null)
+                BreakPointReached(this, new BreakPointEventArgs(breakPointName));
         }
 
         protected SymbolicVariable InitialiseAsSymbolic(Variable v)
