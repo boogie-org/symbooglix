@@ -1,0 +1,62 @@
+﻿using NUnit.Framework;
+using Microsoft.Basetypes;
+using Microsoft.Boogie;
+using Symbooglix;
+using System;
+using System.Linq;
+
+namespace SymbooglixLibTests
+{
+    [TestFixture()]
+    public class CallAssignsToGlobal : SymbooglixTest
+    {
+        [Test()]
+        public void TestCase()
+        {
+            p = loadProgram("programs/CallAssignsToGlobal.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            bool checkg = false;
+            bool checkg2 = false;
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name != "checkg")
+                    return;
+
+                checkg = true;
+                var gTuple = e.CurrentState.GetInScopeVariableAndExprByName("g");
+                Assert.IsInstanceOfType(typeof(LiteralExpr), gTuple.Value);
+                Assert.IsTrue((gTuple.Value as LiteralExpr).isBigNum);
+                Assert.AreEqual(BigNum.FromInt(2), (gTuple.Value as LiteralExpr).asBigNum);
+
+            };
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name != "checkg2")
+                    return;
+
+                checkg2 = true;
+
+                // The symbolic assigned to g2 should have a constraint that says it is equal to 3
+                var g2Tuple = e.CurrentState.GetInScopeVariableAndExprByName("g2");
+                var g2Expr = g2Tuple.Value;
+                Assert.IsTrue(e.IsSymbolic(g2Tuple.Key));
+
+                Assert.IsInstanceOfType(typeof(IdentifierExpr), g2Expr);
+                Assert.IsInstanceOfType(typeof(SymbolicVariable), (g2Expr as IdentifierExpr).Decl);
+
+                var expectedConstraint = Expr.Eq(g2Expr, ConstantFoldingTests.TestBase.getConstantInt(3));
+                int found = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
+                Assert.AreEqual(1, found);
+            };
+
+            e.Run(getMain(p));
+
+            Assert.IsTrue(checkg);
+            Assert.IsTrue(checkg2);
+        }
+    }
+}
+

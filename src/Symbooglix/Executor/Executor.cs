@@ -622,8 +622,16 @@ namespace Symbooglix
                     Debug.Assert(value != null);
 
                     // Assign
-                    bool success = CurrentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
-                    Debug.Assert(success, "Failed to assign to variable in stack");
+                    var varToAssignTo = tuple.Item1.Decl;
+                    if (varToAssignTo is GlobalVariable)
+                    {
+                        CurrentState.AssignToGlobalVariable(varToAssignTo as GlobalVariable, value);
+                    }
+                    else
+                    {
+                        bool success = CurrentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
+                        Debug.Assert(success, "Failed to assign to variable in stack");
+                    }
                 }
 
             }

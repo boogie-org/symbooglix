@@ -75,6 +75,7 @@
     <Compile Include="OnlyOneSolverCall.cs" />
     <Compile Include="PossiblyFailingRequires.cs" />
     <Compile Include="SimpleCallSummary.cs" />
+    <Compile Include="CallAssignsToGlobal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -148,6 +149,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\SimpleCallSummary.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\CallAssignsToGlobal.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
