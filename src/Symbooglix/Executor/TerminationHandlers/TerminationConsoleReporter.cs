@@ -13,10 +13,9 @@ namespace Symbooglix
 
         public static void WriteLine(ConsoleColor Colour ,string msg)
         {
-            var savedColour = Console.ForegroundColor;
             Console.ForegroundColor = Colour;
             Console.WriteLine(msg);
-            Console.ForegroundColor = savedColour;
+            Console.ResetColor();
         }
 
         public void Connect(Executor e)
