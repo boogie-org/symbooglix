@@ -8,10 +8,10 @@ using System.Linq;
 namespace SymbooglixLibTests
 {
     [TestFixture()]
-    public class CallAssignsToGlobal : SymbooglixTest
+    public class CallAssignsTo : SymbooglixTest
     {
         [Test()]
-        public void TestCase()
+        public void Global()
         {
             p = loadProgram("programs/CallAssignsToGlobal.bpl");
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
@@ -56,6 +56,54 @@ namespace SymbooglixLibTests
 
             Assert.IsTrue(checkg);
             Assert.IsTrue(checkg2);
+        }
+
+        [Test()]
+        public void Local()
+        {
+            p = loadProgram("programs/CallAssignsToLocal.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            bool checka= false;
+            bool checkb = false;
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name != "checka")
+                    return;
+
+                checka = true;
+                var aTuple = e.CurrentState.GetInScopeVariableAndExprByName("a");
+                Assert.IsInstanceOfType(typeof(LiteralExpr), aTuple.Value);
+                Assert.IsTrue((aTuple.Value as LiteralExpr).isBigNum);
+                Assert.AreEqual(BigNum.FromInt(2), (aTuple.Value as LiteralExpr).asBigNum);
+
+            };
+
+            e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
+            {
+                if (data.Name != "checkb")
+                    return;
+
+                checkb = true;
+
+                // The symbolic assigned to b should have a constraint that says it is equal to 3
+                var bTuple = e.CurrentState.GetInScopeVariableAndExprByName("b");
+                var bExpr = bTuple.Value;
+                Assert.IsTrue(e.IsSymbolic(bTuple.Key));
+
+                Assert.IsInstanceOfType(typeof(IdentifierExpr), bExpr);
+                Assert.IsInstanceOfType(typeof(SymbolicVariable), (bExpr as IdentifierExpr).Decl);
+
+                var expectedConstraint = Expr.Eq(bExpr, ConstantFoldingTests.TestBase.getConstantInt(3));
+                int found = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
+                Assert.AreEqual(1, found);
+            };
+
+            e.Run(getMain(p));
+
+            Assert.IsTrue(checka);
+            Assert.IsTrue(checkb);
         }
     }
 }
