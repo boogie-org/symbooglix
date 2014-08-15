@@ -37,6 +37,11 @@ namespace Symbooglix
             Location = (Object) ensures;
         }
 
+        public ProgramLocation(ModifiesSet modset)
+        {
+            Location = (Object) modset;
+        }
+
         public bool IsVariable
         {
             get { return Location is Variable; }
@@ -117,6 +122,22 @@ namespace Symbooglix
             }
         }
 
+        public bool IsModifiesSet
+        {
+            get { return Location is ModifiesSet; }
+        }
+
+        public ModifiesSet AsModifiesSet
+        {
+            get
+            {
+                if (IsModifiesSet)
+                    return Location as ModifiesSet;
+                else
+                    return null;
+            }
+        }
+
         public override string ToString()
         {
             if (IsVariable)
@@ -125,6 +146,12 @@ namespace Symbooglix
                 return "[Cmd] " + AsCmd.ToString();
             else if (IsTransferCmd)
                 return "[TransferCmd] " + AsTransferCmd.ToString();
+            else if (IsRequires)
+                return "[Requires] " + AsRequires.Condition.ToString();
+            else if (IsEnsures)
+                return "[Ensures] " + AsEnsures.Condition.ToString();
+            else if (IsModifiesSet)
+                return "[Modifies set] " + AsModifiesSet.ToString();
             else
                 return "unknown";
         }

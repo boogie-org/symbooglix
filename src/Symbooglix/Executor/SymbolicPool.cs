@@ -29,6 +29,12 @@ namespace Symbooglix
             return new SymbolicVariable("symbolic_" + (Count++).ToString(), cmd, VarsIndex);
         }
 
+        // Symbolic from a procedure's modeset
+        public SymbolicVariable getFreshSymbolic(Procedure proc, int modSetIndex)
+        {
+            return new SymbolicVariable("symbolic_" + (Count++).ToString(), proc, modSetIndex);
+        }
+
     }
 
     public class SymbolicVariable : Microsoft.Boogie.Variable
@@ -62,6 +68,16 @@ namespace Symbooglix
             Debug.WriteLine("Creating Symbolic " + this);
 
             // Should we record VarsIndex?
+        }
+
+        public SymbolicVariable(string Name, Procedure Origin, int modsetIndex) : base(Token.NoToken, CopyAndRename(Origin.Modifies[modsetIndex].Decl.TypedIdent, Name))
+        {
+            Expr = new IdentifierExpr(Token.NoToken, this);
+            this.Origin = new ProgramLocation(new ModifiesSet(Origin));
+            this.Name = Name;
+            Debug.WriteLine("Creating Symbolic " + this);
+
+            // Should we record modSetIndex?
         }
 
         private static Microsoft.Boogie.TypedIdent CopyAndRename(Microsoft.Boogie.TypedIdent TI, string NewName)
@@ -101,10 +117,19 @@ namespace Symbooglix
             {
                 s += " Variable: " + Origin.AsVariable + ")";
             }
-            else
+            else if (Origin.IsCmd)
             {
                 s += " Cmd:" + Origin.AsCmd.ToString().TrimEnd('\n') + ")";
             }
+            else if (Origin.IsModifiesSet)
+            {
+                s += " Modset:" + Origin.AsModifiesSet.ToString();
+            }
+            else
+            {
+                throw new NotSupportedException("Unhandled origin " + Origin.ToString());
+            }
+
             return s;
         }
     }

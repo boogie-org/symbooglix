@@ -72,6 +72,7 @@ namespace Symbooglix
     {
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
+        public Procedure Proc;
         private BlockCmdIterator BCI;
         public IEnumerator<Absy> CurrentInstruction;
 
@@ -79,7 +80,22 @@ namespace Symbooglix
         {
             Locals = new Dictionary<Variable,Expr>();
             this.Impl = impl;
+            this.Proc = null;
             TransferToBlock(impl.Blocks[0]);
+        }
+
+        // This is a dummy stack frame
+        public StackFrame(Procedure proc)
+        {
+            Locals = new Dictionary<Variable,Expr>();
+            this.Proc = proc;
+            this.Impl = null;
+            this.CurrentInstruction = null;
+        }
+
+        public bool IsDummy
+        {
+            get { return this.Impl == null && this.CurrentInstruction == null; }
         }
 
         public Block CurrentBlock
@@ -101,6 +117,10 @@ namespace Symbooglix
                 other.Locals.Add(pair.Key, copy);
             }
 
+            // A dummy stack frame doesn't have an instruction iterator
+            if (IsDummy)
+                return other;
+            
             // Clone instruction iterator
             if (CurrentInstruction.Current is TransferCmd)
             {
@@ -124,6 +144,11 @@ namespace Symbooglix
 
         public override string ToString()
         {
+            if (IsDummy)
+            {
+                return "[Dummy Stack frame for " + Proc.Name + "]\n";
+            }
+
             string d = "[Stack frame for " + Impl.Name + "]\n";
             string indent = "    ";
             d += indent + "Current block :" + CurrentBlock + "\n";

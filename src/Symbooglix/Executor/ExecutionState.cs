@@ -140,7 +140,6 @@ namespace Symbooglix
                 s.Locals [v] = value;
                 return true;
             }
-
             return false;
 
         }
@@ -172,15 +171,23 @@ namespace Symbooglix
             if (v is GlobalVariable)
             {
                 var g = v as GlobalVariable;
-                if (Mem.Globals.ContainsKey(g))
-                {
-                    Mem.Globals [g] = value;
-                    return;
-                }
+                AssignToGlobalVariable(g, value);
+                return;
             }
 
             throw new InvalidOperationException("Cannot assign to variable not in scope.");
+        }
 
+        public void AssignToGlobalVariable(GlobalVariable GV, Expr value)
+        {
+            Debug.Assert(GV.IsMutable, "Can't assign to a non mutable global!");
+            if (Mem.Globals.ContainsKey(GV))
+            {
+                Mem.Globals[GV] = value;
+                return;
+            }
+
+            throw new InvalidOperationException("Can't assign to a GlobalVariable not in memory");
         }
 
         public void LeaveImplementation()

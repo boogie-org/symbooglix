@@ -59,6 +59,11 @@ namespace Symbooglix
         {
             return Executor.HandlerAction.CONTINUE;
         }
+
+        virtual public Executor.HandlerAction EnterAndLeaveProcedure(Microsoft.Boogie.Procedure proc, System.Collections.Generic.List<Microsoft.Boogie.Expr> procedureParams, Executor executor)
+        {
+            return Executor.HandlerAction.CONTINUE;
+        }
     }
 }
 

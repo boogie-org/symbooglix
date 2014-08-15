@@ -63,6 +63,12 @@ namespace Symbooglix
             return Executor.HandlerAction.CONTINUE;
         }
 
+        public Executor.HandlerAction EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
+        {
+            // This isn't an actual instruction so do nothing
+            return Executor.HandlerAction.CONTINUE;
+        }
+
         private Executor.HandlerAction print(Absy cmd)
         {
             string cmdStr = cmd.ToString();

@@ -106,6 +106,11 @@ namespace Symbooglix
         {
             return Executor.HandlerAction.CONTINUE;
         }
+
+        public Executor.HandlerAction EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
+        {
+            return Executor.HandlerAction.CONTINUE;
+        }
     }
 }
 

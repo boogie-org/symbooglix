@@ -87,6 +87,7 @@
     <Compile Include="Executor\ITerminationType.cs" />
     <Compile Include="Executor\ProgramLocation.cs" />
     <Compile Include="Executor\ExecutorHandlers\IExecutorEventHandler.cs" />
+    <Compile Include="Util\ModifiesSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

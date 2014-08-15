@@ -450,6 +450,119 @@ namespace Symbooglix
             return HandlerAction.CONTINUE;
         }
 
+        public HandlerAction EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
+        {
+            Debug.Assert(CurrentState.Mem.Stack.Count > 0, "Can't enter a procedure without first entering an implementation");
+            StackFrame callingStackFrame = CurrentState.GetCurrentStackFrame();
+
+            // Add a dummy stack frame
+            CurrentState.Mem.Stack.Add(new StackFrame(proc));
+
+
+            // Add input parameters on to dummy stack.
+            Debug.Assert(procedureParams.Count == proc.InParams.Count);
+            foreach (var tuple in proc.InParams.Zip(procedureParams))
+            {
+                CurrentState.GetCurrentStackFrame().Locals.Add(tuple.Item1, tuple.Item2);
+            }
+
+            // Add output parameters on to dummy stack as new symbolic variables
+            foreach(Variable v in proc.OutParams)
+            {
+                // Make symbolic;
+                CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
+                InitialiseAsSymbolic(v);
+            }
+
+            // Assert each requires (this might produce failing states)
+            bool stillInState = true;
+            var VR = new VariableMapRewriter(CurrentState);
+
+            // We don't need to do any of that nasty preReplacementReMap
+            // stuff here because there is no implementation
+            foreach (var requires in proc.Requires)
+            {
+                Expr condition = (Expr) VR.Visit(requires.Condition);
+
+                HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
+                {
+                    theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(requires));
+                };
+
+                stillInState = HandleAssertLikeCommand(condition, helper);
+            }
+
+            // Check we're still in state
+            if (!stillInState)
+            {
+                // The CurrentState was terminated so we can't continue
+                Debug.Assert(CurrentState.Finished());
+                return HandlerAction.CONTINUE;
+            }
+
+            // Make the Global variables in Modset Symbolic
+            for (int modSetIndex=0;  modSetIndex < proc.Modifies.Count ; ++modSetIndex)
+            {
+                var symbolic = SymbolicPool.getFreshSymbolic(proc, modSetIndex);
+                CurrentState.AssignToVariableInScope(proc.Modifies[modSetIndex].Decl, symbolic.Expr);
+                CurrentState.Symbolics.Add(symbolic);
+            }
+
+            // Assume each ensures
+            foreach (var ensures in proc.Ensures)
+            {
+                Expr condition = (Expr) VR.Visit(ensures.Condition);
+
+                // FIXME: We should add an option to disable this because we might want to blindly
+                // assume without checking if its feasible.
+                HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
+                {
+                    theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEnsures(ensures));
+                };
+
+                stillInState = HandleAssumeLikeCommand(condition, helper);
+            }
+
+            // Check we're still in state
+            if (!stillInState)
+            {
+                // The CurrentState was terminated so we can't continue
+                Debug.Assert(CurrentState.Finished());
+                return HandlerAction.CONTINUE;
+            }
+                
+            // Put return parameters into callee's stack frame
+            Debug.Assert(callingStackFrame.CurrentInstruction.Current is CallCmd, "Expected the calling stack frame's current instruction to be a CallCmd");
+            var caller = callingStackFrame.CurrentInstruction.Current as CallCmd;
+
+            // Assign return parameters
+            Debug.Assert(caller.Proc == proc);
+            Debug.Assert(proc.OutParams.Count == caller.Outs.Count);
+            foreach (var tuple in caller.Outs.Zip(proc.OutParams))
+            {
+                // Get return value
+                Expr value = CurrentState.GetInScopeVariableExpr(tuple.Item2);
+                Debug.Assert(value != null);
+
+                // Assign. Try globals first
+                Variable varToAssignTo = tuple.Item1.Decl;
+                if (varToAssignTo is GlobalVariable)
+                {
+                    CurrentState.AssignToGlobalVariable(varToAssignTo as GlobalVariable, value);
+                }
+                else
+                {
+                    bool success = CurrentState.AssignToVariableInStack(callingStackFrame, tuple.Item1.Decl, value);
+                    Debug.Assert(success, "Could not assign to local variable");
+                }
+            }
+
+            // Pop the dummy stack
+            CurrentState.Mem.PopStackFrame();
+
+            return HandlerAction.CONTINUE;
+        }
+
         public HandlerAction Handle(ReturnCmd c, Executor executor)
         {
             var VMR = new VariableMapRewriter(CurrentState);
@@ -509,7 +622,8 @@ namespace Symbooglix
                     Debug.Assert(value != null);
 
                     // Assign
-                    CurrentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
+                    bool success = CurrentState.AssignToVariableInStack(callingSF, tuple.Item1.Decl, value);
+                    Debug.Assert(success, "Failed to assign to variable in stack");
                 }
 
             }
@@ -848,30 +962,58 @@ namespace Symbooglix
             var reWritter = new VariableMapRewriter(CurrentState);
 
             // Find corresponding implementation
+            Implementation impl = null;
+
             var implementations = TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Proc == c.Proc);
-            Debug.Assert(implementations.Count() == 1);
-            Implementation imp = implementations.First();
+            if (implementations.Count() > 0)
+            {
+                // FIXME: What if there is more than one implementation?
+                impl = implementations.First();
+            }
 
             foreach (Expr e in c.Ins)
             {
                 args.Add( (Expr) reWritter.Visit(e) );
             }
 
-            HandlerAction action = HandlerAction.CONTINUE;
-            foreach (IExecutorHandler h in PreEventHandlers)
+            // FIXME: All this handler stuff is gross. Remove it!
+            if (impl != null)
             {
-                action = h.EnterImplementation(imp, args, this);
-                if (action == HandlerAction.STOP)
-                    break;
-            }
+                HandlerAction action = HandlerAction.CONTINUE;
+                foreach (IExecutorHandler h in PreEventHandlers)
+                {
+                    action = h.EnterImplementation(impl, args, this);
+                    if (action == HandlerAction.STOP)
+                        break;
+                }
 
-            // We have slightly different semantics here to the handle() methods. Clients cannot block enterProcedure()
-            EnterImplementation(imp, args, this);
-            foreach (IExecutorHandler h in PostEventHandlers)
+                // We have slightly different semantics here to the handle() methods. Clients cannot block EnterImplementation()
+                EnterImplementation(impl, args, this);
+                foreach (IExecutorHandler h in PostEventHandlers)
+                {
+                    action = h.EnterImplementation(impl, args, this);
+                    if (action == HandlerAction.STOP)
+                        break;
+                }
+            }
+            else
             {
-                action = h.EnterImplementation(imp, args, this);
-                if (action == HandlerAction.STOP)
-                    break;
+                HandlerAction action = HandlerAction.CONTINUE;
+                foreach (IExecutorHandler h in PreEventHandlers)
+                {
+                    action = h.EnterAndLeaveProcedure(c.Proc, args, this);
+                    if (action == HandlerAction.STOP)
+                        break;
+                }
+
+                // We have slightly different semantics here to the handle() methods. Clients cannot block EnterAndLeaveProcedure()
+                EnterAndLeaveProcedure(c.Proc, args, this);
+                foreach (IExecutorHandler h in PostEventHandlers)
+                {
+                    action = h.EnterAndLeaveProcedure(c.Proc, args, this);
+                    if (action == HandlerAction.STOP)
+                        break;
+                }
             }
             return HandlerAction.CONTINUE;
         }

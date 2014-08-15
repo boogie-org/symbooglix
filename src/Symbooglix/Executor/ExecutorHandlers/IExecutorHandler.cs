@@ -24,6 +24,7 @@ namespace Symbooglix
         Executor.HandlerAction Handle(YieldCmd c, Executor executor);
 
         Executor.HandlerAction EnterImplementation(Implementation impl, List<Expr> procedureParams, Executor executor);
+        Executor.HandlerAction EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor);
     }
 }
 

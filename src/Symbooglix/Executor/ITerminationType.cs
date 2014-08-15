@@ -199,5 +199,37 @@ namespace Symbooglix
             private set;
         }
     }
+
+    // This is for Ensures that we try assume when calling into
+    // a procedure
+    public class TerminatedAtUnsatisfiableEnsures : ITerminationType
+    {
+        public TerminatedAtUnsatisfiableEnsures(Ensures ensures)
+        {
+            this.ExitLocation = new ProgramLocation(ensures);
+        }
+
+        public string GetMessage()
+        {
+            Debug.Assert(ExitLocation.IsEnsures);
+            var requires = ExitLocation.AsEnsures;
+            return "Terminated with unsatisfiable ensures " +
+                requires.tok.filename + ":" +
+                requires.tok.line + ": " +
+                requires.Condition.ToString();
+        }
+
+        public ExecutionState State
+        {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation
+        {
+            get;
+            private set;
+        }
+    }
 }
 
