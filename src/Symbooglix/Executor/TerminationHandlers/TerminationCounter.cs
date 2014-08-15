@@ -13,10 +13,19 @@ namespace Symbooglix
         public int FailingRequires { get; private set;}
         public int FailingEnsures { get; private set;}
         public int UnsatisfiableAssumes { get; private set;}
+        public int UnsatisfiableEnsures { get; private set; }
 
         public int NumberOfFailures
         {
-            get { return FailingAsserts + UnsatisfiableRequiresOnEntry + FailingRequires + FailingEnsures + UnsatisfiableAssumes; }
+            get
+            {
+                return FailingAsserts +
+                UnsatisfiableRequiresOnEntry +
+                FailingRequires +
+                FailingEnsures +
+                UnsatisfiableAssumes +
+                UnsatisfiableEnsures;
+            }
         }
 
         public int NumberOfTerminatedStates
@@ -56,6 +65,8 @@ namespace Symbooglix
                 FailingEnsures++;
             else if (terminationType is TerminatedAtFailingAssert)
                 FailingAsserts++;
+            else if (terminationType is TerminatedAtUnsatisfiableEnsures)
+                UnsatisfiableEnsures++;
             else
                 throw new NotSupportedException("Can't handle Termination type " + terminationType.ToString());
         }
@@ -68,6 +79,7 @@ namespace Symbooglix
             FailingRequires = 0;
             FailingEnsures = 0;
             UnsatisfiableAssumes = 0;
+            UnsatisfiableEnsures = 0;
         }
 
         public override string ToString()
@@ -79,7 +91,15 @@ namespace Symbooglix
                                  "  FailingRequires={3}\n" +
                                  "  FailingEnsures={4}\n" +
                                  "  UnsatisfiableAssumes={5}\n" +
-                                 "]", Sucesses, FailingAsserts, UnsatisfiableRequiresOnEntry, FailingRequires, FailingEnsures, UnsatisfiableAssumes);
+                                 "  UnsatisfiableEnsures={6}\n" +
+                                 "]",
+                                 Sucesses,
+                                 FailingAsserts,
+                                 UnsatisfiableRequiresOnEntry,
+                                 FailingRequires,
+                                 FailingEnsures,
+                                 UnsatisfiableAssumes,
+                                 UnsatisfiableEnsures);
         }
 
     }
