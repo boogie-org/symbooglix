@@ -81,9 +81,7 @@ namespace SymbooglixLibTests
                 var symbolicForX = e.CurrentState.Symbolics.Where( s => s.Origin.IsVariable && s.Origin.AsVariable == xVar).First();
 
                 // FIXME: Move constant construction functions to utility so can be shared across tests.
-                // FIXME: Add negate to Boogie.
-                var negatedOne = new NAryExpr(Token.NoToken, new UnaryOperator(Token.NoToken, UnaryOperator.Opcode.Neg), new List<Expr> { ConstantFoldingTests.TestBase.getConstantInt(1) });
-                var expectedConstraint = Expr.Gt(symbolicForX.Expr, negatedOne);
+                var expectedConstraint = Expr.Gt(symbolicForX.Expr, Expr.Neg(ConstantFoldingTests.TestBase.getConstantInt(1)));
                 e.CurrentState.Constraints.Constraints[2].Equals(expectedConstraint);
 
                 int hasConstraint = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();

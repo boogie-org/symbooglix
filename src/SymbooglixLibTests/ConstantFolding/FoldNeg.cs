@@ -8,16 +8,10 @@ namespace ConstantFoldingTests
     [TestFixture()]
     public class FoldNeg : TestBase
     {
-        // FIXME: This belongs in Boogie
-        public static Expr GetNeg(Expr v)
-        {
-            return Expr.Unary(Token.NoToken, UnaryOperator.Opcode.Neg, v);
-        }
-
         [Test()]
         public void Integer()
         {
-            var negation = GetNeg(getConstantInt(1));
+            var negation = Expr.Neg(getConstantInt(1));
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
@@ -30,7 +24,7 @@ namespace ConstantFoldingTests
         [Test()]
         public void IntegerDoubleNegative()
         {
-            var negation = GetNeg(GetNeg(getConstantInt(1)));
+            var negation = Expr.Neg(Expr.Neg(getConstantInt(1)));
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
@@ -43,7 +37,7 @@ namespace ConstantFoldingTests
         [Test()]
         public void Real()
         {
-            var negation = GetNeg(getConstantReal("2.0"));
+            var negation = Expr.Neg(getConstantReal("2.0"));
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
@@ -56,7 +50,7 @@ namespace ConstantFoldingTests
         [Test()]
         public void RealDoubleNegative()
         {
-            var negation = GetNeg(GetNeg(getConstantReal("2.0")));
+            var negation = Expr.Neg(Expr.Neg(getConstantReal("2.0")));
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
