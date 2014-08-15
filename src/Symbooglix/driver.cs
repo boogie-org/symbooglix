@@ -300,6 +300,9 @@ namespace Symbooglix
                 PM.AfterPassRun += afterPassHandler;
                 e.PrepareProgram(PM);
 
+                var terminationCounter = new TerminationCounter();
+                terminationCounter.Connect(e);
+
                 // Write program to file if requested
                 if (options.dumpProgramPath.Length > 0)
                 {
@@ -320,6 +323,7 @@ namespace Symbooglix
                 }
 
                 Console.WriteLine(solver.Statistics.ToString());
+                Console.WriteLine(terminationCounter.ToString());
             }
             return 0;
         }
