@@ -10,9 +10,11 @@ namespace ExprSMTLIBTest
     [TestFixture()]
     public class Literal
     {
+        IExprBuilder Builder;
         public Literal()
         {
             SymbooglixLibTests.SymbooglixTest.setupDebug();
+            Builder = new ExprBuilder();
         }
 
         [Test()]
@@ -32,18 +34,14 @@ namespace ExprSMTLIBTest
         [Test()]
         public void Reals()
         {
-            // FIXME: We shouldn't be using helpers in other test suites, instead the helper
-            // should be moved into Symbooglix somewhere
-            var literal = ConstantFoldingTests.TestBase.getConstantReal("-1.5e0");
+            var literal = Builder.ConstantReal("-1.5e0");
             checkLiteral(literal, "-1.5");
         }
 
         [Test()]
         public void Integers()
         {
-            // FIXME: We shouldn't be using helpers in other test suites, instead the helper
-            // should be moved into Symbooglix somewhere
-            var literal = ConstantFoldingTests.TestBase.getConstantInt(-15);
+            var literal = Builder.ConstantInt(-15);
             checkLiteral(literal, "-15");
         }
 

@@ -10,6 +10,12 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class CallAssignsTo : SymbooglixTest
     {
+        IExprBuilder Builder;
+        public CallAssignsTo()
+        {
+            Builder = new ExprBuilder();
+        }
+
         [Test()]
         public void Global()
         {
@@ -47,7 +53,7 @@ namespace SymbooglixLibTests
                 Assert.IsInstanceOfType(typeof(IdentifierExpr), g2Expr);
                 Assert.IsInstanceOfType(typeof(SymbolicVariable), (g2Expr as IdentifierExpr).Decl);
 
-                var expectedConstraint = Expr.Eq(g2Expr, ConstantFoldingTests.TestBase.getConstantInt(3));
+                var expectedConstraint = Expr.Eq(g2Expr, Builder.ConstantInt(3));
                 int found = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
                 Assert.AreEqual(1, found);
             };
@@ -95,7 +101,7 @@ namespace SymbooglixLibTests
                 Assert.IsInstanceOfType(typeof(IdentifierExpr), bExpr);
                 Assert.IsInstanceOfType(typeof(SymbolicVariable), (bExpr as IdentifierExpr).Decl);
 
-                var expectedConstraint = Expr.Eq(bExpr, ConstantFoldingTests.TestBase.getConstantInt(3));
+                var expectedConstraint = Expr.Eq(bExpr, Builder.ConstantInt(3));
                 int found = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
                 Assert.AreEqual(1, found);
             };

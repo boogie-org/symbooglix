@@ -11,10 +11,13 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class SimpleCallSummary : SymbooglixTest
     {
+        IExprBuilder Builder;
+
         private void Init()
         {
             p = loadProgram("programs/SimpleCallSummary.bpl");
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            Builder = new ExprBuilder();
         }
 
         [Test()]
@@ -81,7 +84,7 @@ namespace SymbooglixLibTests
                 var symbolicForX = e.CurrentState.Symbolics.Where( s => s.Origin.IsVariable && s.Origin.AsVariable == xVar).First();
 
                 // FIXME: Move constant construction functions to utility so can be shared across tests.
-                var expectedConstraint = Expr.Gt(symbolicForX.Expr, Expr.Neg(ConstantFoldingTests.TestBase.getConstantInt(1)));
+                var expectedConstraint = Expr.Gt(symbolicForX.Expr, Expr.Neg(Builder.ConstantInt(1)));
                 e.CurrentState.Constraints.Constraints[2].Equals(expectedConstraint);
 
                 int hasConstraint = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
@@ -111,7 +114,7 @@ namespace SymbooglixLibTests
                 var aExpr = aTuple.Value;
                 Assert.IsInstanceOfType(typeof(LiteralExpr), aExpr);
                 Assert.AreEqual(BigNum.FromInt(2), (aExpr as LiteralExpr).asBigNum);
-                var expectedConstraint3 = Expr.Gt(aExpr, ConstantFoldingTests.TestBase.getConstantInt(0));
+                var expectedConstraint3 = Expr.Gt(aExpr, Builder.ConstantInt(0));
                 int hasConstraint3 = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint3)).Count();
                 Assert.AreEqual(1, hasConstraint3);
 
@@ -146,7 +149,7 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(symbolicForB.Origin.IsVariable);
                 var rVar = barProcedure.OutParams[0];
                 Assert.AreEqual(symbolicForB.Origin.AsVariable, rVar);
-                var expectedConstraint2 = Expr.Gt(symbolicForB.Expr, ConstantFoldingTests.TestBase.getConstantInt(0));
+                var expectedConstraint2 = Expr.Gt(symbolicForB.Expr, Builder.ConstantInt(0));
                 int hasConstraint2 = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint2)).Count();
                 Assert.AreEqual(1, hasConstraint2);
 

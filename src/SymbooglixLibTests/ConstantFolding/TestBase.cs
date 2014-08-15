@@ -18,6 +18,7 @@ namespace ConstantFoldingTests
             Assert.Fail(msg);
         }
 
+        // FIXME: Remove this
         public static FunctionCall CreateBVBuiltIn(string Name, string Builtin, Microsoft.Boogie.Type returnType, Microsoft.Boogie.Type[] argTypes)
         {
             var funcCall = CreateFunctionCall(Name, returnType, argTypes);
@@ -25,6 +26,7 @@ namespace ConstantFoldingTests
             return funcCall;
         }
 
+        // FIXME: Remove this
         public static FunctionCall CreateFunctionCall(string Name, Microsoft.Boogie.Type returnType, Microsoft.Boogie.Type[] argTypes)
         {
             var returnVar = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "", returnType), false);
@@ -39,15 +41,18 @@ namespace ConstantFoldingTests
             return funcCall;
         }
 
+        // FIXME: Remove this
         public static LiteralExpr getConstantInt(int value)
         {
             return new LiteralExpr(Token.NoToken, BigNum.FromInt(value));
         }
 
+        // FIXME: Remove this
         public static LiteralExpr getConstantReal(string value)
         {
             return new LiteralExpr(Token.NoToken, BigDec.FromString(value));
         }
+
 
     }
 }
