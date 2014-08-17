@@ -133,7 +133,7 @@ namespace Symbooglix
             return "Terminated at program entry point at an unsatisfiable requires " +
                 requires.tok.filename + ":" +
                 requires.tok.line + ": " +
-                requires.ToString();
+                requires.Condition.ToString();
         }
 
         public ExecutionState State
@@ -189,11 +189,11 @@ namespace Symbooglix
         public string GetMessage()
         {
             Debug.Assert(ExitLocation.IsEnsures);
-            var requires = ExitLocation.AsEnsures;
+            var ensures = ExitLocation.AsEnsures;
             return "Terminated with failing ensures " +
-                requires.tok.filename + ":" +
-                requires.tok.line + ": " +
-                requires.Condition.ToString();
+                ensures.tok.filename + ":" +
+                ensures.tok.line + ": " +
+                ensures.Condition.ToString();
         }
 
         public ExecutionState State
@@ -221,11 +221,11 @@ namespace Symbooglix
         public string GetMessage()
         {
             Debug.Assert(ExitLocation.IsEnsures);
-            var requires = ExitLocation.AsEnsures;
+            var ensures = ExitLocation.AsEnsures;
             return "Terminated with unsatisfiable ensures " +
-                requires.tok.filename + ":" +
-                requires.tok.line + ": " +
-                requires.Condition.ToString();
+                ensures.tok.filename + ":" +
+                ensures.tok.line + ": " +
+                ensures.Condition.ToString();
         }
 
         public ExecutionState State
