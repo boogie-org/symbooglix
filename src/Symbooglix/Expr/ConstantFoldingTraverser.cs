@@ -508,7 +508,7 @@ namespace Symbooglix
             // <expr> AND false == false
             for (int index = 0; index <= 1; ++index)
             {
-                if (e.Args[0] is LiteralExpr)
+                if (e.Args[index] is LiteralExpr)
                 {
                     var literal = e.Args[index] as LiteralExpr;
                     Debug.Assert(literal.isBool, "literal is not bool");
