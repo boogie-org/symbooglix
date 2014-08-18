@@ -485,7 +485,7 @@ namespace Symbooglix
                     if (VR.preReplacementReMap.ContainsKey(V))
                         V = VR.preReplacementReMap[V];
 
-                    if (CurrentState.IsInScopeVariable(V))
+                    if (CurrentState.IsInScopeVariable(V) && IsSymbolic(V))
                     {
                         MakeConcrete(V, literal);
                     }

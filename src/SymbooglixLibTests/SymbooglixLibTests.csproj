@@ -86,6 +86,7 @@
     <Compile Include="ConstantFolding\FoldBvshl.cs" />
     <Compile Include="ConstantFolding\FoldBvsgt.cs" />
     <Compile Include="ConstantFolding\FoldBVand.cs" />
+    <Compile Include="AlreadyConcrete.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -174,6 +175,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\RequiresWithConstantEqualityConstraint.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\AlreadyConcrete.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
