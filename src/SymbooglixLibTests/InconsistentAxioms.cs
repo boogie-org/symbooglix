@@ -33,7 +33,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual(1, TC.NumberOfFailures);
         }
 
-        [ExpectedException(typeof(Symbooglix.ExecuteTerminatedStateException))]
+        [Test(),ExpectedException(typeof(Symbooglix.ExecuteTerminatedStateException))]
         public void ExceptionThrown()
         {
             Init();

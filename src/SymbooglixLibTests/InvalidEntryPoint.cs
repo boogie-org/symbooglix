@@ -8,7 +8,7 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class InvalidEntryPoint : SymbooglixTest
     {
-        [ExpectedException(typeof(InvalidEntryPoint))]
+        [Test(),ExpectedException(typeof(Symbooglix.InvalidEntryPoint))]
         public void TestCase()
         {
             // It doesn't matter which program we load
