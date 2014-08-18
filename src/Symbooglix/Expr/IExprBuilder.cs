@@ -2,6 +2,8 @@
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Numerics;
 
 namespace Symbooglix
 {
@@ -16,6 +18,7 @@ namespace Symbooglix
 
         // TODO
         // BitVector operators
+        Expr BVSLT(Expr lhs, Expr rhs);
 
         // Real/Int operators
 
@@ -66,7 +69,48 @@ namespace Symbooglix
 
         public LiteralExpr ConstantBV(BigNum decimalValue, int bitWidth)
         {
-            return new LiteralExpr(Token.NoToken, decimalValue, bitWidth);
+            var twoToPowerOfBits = BigInteger.Pow(2, bitWidth);
+            if (decimalValue.Signum < 0)
+            {
+                // Convert the decimal value into two's complement representation
+                //
+                // The rule is basically this:
+                //
+                // decimal_rep_for_bits = (2^m - x) mod (2^m)
+                var abs = decimalValue.Abs.ToBigInteger;
+                var result = ( twoToPowerOfBits - abs );
+                Debug.Assert(result >= 0, "Decimal value cannot be represented in the requested number of bits");
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
+            }
+            else
+            {
+                // Positive or zero
+                Debug.Assert( decimalValue.ToBigInteger < twoToPowerOfBits, "Decimal Value cannot be represented in the requested number of bits");
+                return new LiteralExpr(Token.NoToken, decimalValue, bitWidth);
+            }
+        }
+
+        public Expr BVSLT(Expr lhs, Expr rhs)
+        {
+            Debug.Assert(lhs.Type != null);
+            Debug.Assert(rhs.Type != null);
+            Debug.Assert(lhs.Type == rhs.Type);
+            Debug.Assert(lhs.Type is BvType);
+
+            int bits = lhs.Type.BvBits;
+
+            // FIXME: Cache this for each bitwidth
+            var builtinFunctionCall = CreateBVBuiltIn("BVSLT" + bits.ToString(),
+                                                      "bvslt", BasicType.Bool,
+                                                      new List<Microsoft.Boogie.Type>()
+                                                      {
+                                                        BasicType.GetBvType(bits),
+                                                        BasicType.GetBvType(bits)
+                                                      }
+                                                     );
+
+            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
+            return result;
         }
     }
 }

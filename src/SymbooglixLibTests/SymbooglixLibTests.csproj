@@ -80,6 +80,7 @@
     <Compile Include="InvalidEntryPoint.cs" />
     <Compile Include="ExprSMTLIB\TypeSynonym.cs" />
     <Compile Include="TypeSynonym.cs" />
+    <Compile Include="ConstantFolding\FoldBvslt.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
