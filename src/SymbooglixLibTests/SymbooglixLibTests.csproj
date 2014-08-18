@@ -79,6 +79,7 @@
     <Compile Include="InconsistentAxioms.cs" />
     <Compile Include="InvalidEntryPoint.cs" />
     <Compile Include="ExprSMTLIB\TypeSynonym.cs" />
+    <Compile Include="TypeSynonym.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -161,6 +162,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\InconsistentAxioms.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\TypeSynonym.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
