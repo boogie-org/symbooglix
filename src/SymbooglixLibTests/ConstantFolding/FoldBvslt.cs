@@ -6,19 +6,8 @@ using Microsoft.Boogie;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBvslt
+    public class FoldBvslt : TestBase
     {
-        IExprBuilder builder;
-
-        public FoldBvslt()
-        {
-            builder = new ExprBuilder();
-
-            // Boogie hits NullPtrException if the cmdline parser
-            // isn't setup. This is sooo annoying!
-            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
-        }
-
         [Test()]
         public void PositivePositiveTrue()
         {

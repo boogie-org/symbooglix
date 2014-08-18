@@ -8,9 +8,12 @@ namespace ConstantFoldingTests
 {
     public class TestBase : IErrorSink
     {
+        protected Symbooglix.IExprBuilder builder;
         public TestBase()
         {
             SymbooglixLibTests.SymbooglixTest.setupDebug();
+            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser(); // HACK
+            builder = new Symbooglix.ExprBuilder();
         }
 
         public void Error (IToken tok, string msg)
