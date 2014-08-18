@@ -19,6 +19,7 @@ namespace Symbooglix
         // TODO
         // BitVector operators
         Expr BVSLT(Expr lhs, Expr rhs);
+        Expr BVSGT(Expr lhs, Expr rhs);
         Expr BVOR(Expr lhs, Expr rhs);
         Expr BVSHL(Expr lhs, Expr rhs);
 
@@ -109,6 +110,29 @@ namespace Symbooglix
                                                         BasicType.GetBvType(bits),
                                                         BasicType.GetBvType(bits)
                                                       }
+                                                     );
+
+            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
+            return result;
+        }
+
+        public Expr BVSGT(Expr lhs, Expr rhs)
+        {
+            Debug.Assert(lhs.Type != null);
+            Debug.Assert(rhs.Type != null);
+            Debug.Assert(lhs.Type == rhs.Type);
+            Debug.Assert(lhs.Type is BvType);
+
+            int bits = lhs.Type.BvBits;
+
+            // FIXME: Cache this for each bitwidth
+            var builtinFunctionCall = CreateBVBuiltIn("BVSGT" + bits.ToString(),
+                                                      "bvsgt", BasicType.Bool,
+                                                      new List<Microsoft.Boogie.Type>()
+            {
+                BasicType.GetBvType(bits),
+                BasicType.GetBvType(bits)
+            }
                                                      );
 
             var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
