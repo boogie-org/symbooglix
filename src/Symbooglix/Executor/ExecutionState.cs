@@ -9,7 +9,6 @@ namespace Symbooglix
     public class ExecutionState : Util.IDeepClone<ExecutionState>
     {
         public Memory Mem;
-        private bool Started = false;
         public List<SymbolicVariable> Symbolics;
         public ConstraintManager Constraints;
         public int Id
@@ -83,7 +82,6 @@ namespace Symbooglix
 
         public void EnterImplementation(Implementation impl)
         {
-            Started = true;
             StackFrame s = new StackFrame(impl);
             Mem.Stack.Add(s);
         }
