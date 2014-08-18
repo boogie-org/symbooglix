@@ -296,12 +296,12 @@ namespace Symbooglix
                     }
                 };
 
+                var terminationCounter = new TerminationCounter();
+                terminationCounter.Connect(e);
+
                 PM.BeforePassRun += beforePassHandler;
                 PM.AfterPassRun += afterPassHandler;
                 e.PrepareProgram(PM);
-
-                var terminationCounter = new TerminationCounter();
-                terminationCounter.Connect(e);
 
                 // Write program to file if requested
                 if (options.dumpProgramPath.Length > 0)

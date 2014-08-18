@@ -240,5 +240,35 @@ namespace Symbooglix
             private set;
         }
     }
+
+    public class TerminatedAtUnsatisfiableAxiom : ITerminationType
+    {
+        public TerminatedAtUnsatisfiableAxiom(Axiom axiom)
+        {
+            this.ExitLocation = new ProgramLocation(axiom);
+        }
+
+        public string GetMessage ()
+        {
+            Debug.Assert(ExitLocation.IsAxiom);
+            var axiom = ExitLocation.AsAxiom;
+            return "Terminated with unsatisfiable axiom " +
+                axiom.tok.filename + ":" +
+                axiom.tok.line + ": " +
+                axiom.Expr.ToString();
+        }
+
+        public ExecutionState State
+        {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation
+        {
+            get;
+            internal set;
+        }
+    }
 }
 

@@ -14,6 +14,7 @@ namespace Symbooglix
         public int FailingEnsures { get; private set;}
         public int UnsatisfiableAssumes { get; private set;}
         public int UnsatisfiableEnsures { get; private set; }
+        public int UnsatisfiableAxioms { get; private set;}
 
         public int NumberOfFailures
         {
@@ -24,7 +25,8 @@ namespace Symbooglix
                 FailingRequires +
                 FailingEnsures +
                 UnsatisfiableAssumes +
-                UnsatisfiableEnsures;
+                UnsatisfiableEnsures +
+                UnsatisfiableAxioms;
             }
         }
 
@@ -67,6 +69,8 @@ namespace Symbooglix
                 FailingAsserts++;
             else if (terminationType is TerminatedAtUnsatisfiableEnsures)
                 UnsatisfiableEnsures++;
+            else if (terminationType is TerminatedAtUnsatisfiableAxiom)
+                UnsatisfiableAxioms++;
             else
                 throw new NotSupportedException("Can't handle Termination type " + terminationType.ToString());
         }
@@ -92,6 +96,7 @@ namespace Symbooglix
                                  "  FailingEnsures={4}\n" +
                                  "  UnsatisfiableAssumes={5}\n" +
                                  "  UnsatisfiableEnsures={6}\n" +
+                                 "  UnsatisfiableAxioms={7}\n" +
                                  "]",
                                  Sucesses,
                                  FailingAsserts,
@@ -99,7 +104,8 @@ namespace Symbooglix
                                  FailingRequires,
                                  FailingEnsures,
                                  UnsatisfiableAssumes,
-                                 UnsatisfiableEnsures);
+                                 UnsatisfiableEnsures,
+                                 UnsatisfiableAxioms);
         }
 
     }

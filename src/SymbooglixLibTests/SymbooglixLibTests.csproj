@@ -76,6 +76,7 @@
     <Compile Include="PossiblyFailingRequires.cs" />
     <Compile Include="SimpleCallSummary.cs" />
     <Compile Include="CallAssignsTo.cs" />
+    <Compile Include="InconsistentAxioms.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -155,6 +156,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\CallAssignsToLocal.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\InconsistentAxioms.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

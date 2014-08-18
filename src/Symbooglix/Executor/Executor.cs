@@ -71,6 +71,11 @@ namespace Symbooglix
 
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
+            // FIXME: Mutex Lock on HasBeenPrepared
+
+            if (HasBeenPrepared)
+                return true;
+
             if (passManager == null)
                 passManager = new Transform.PassManager(TheProgram);
 
@@ -144,11 +149,35 @@ namespace Symbooglix
             // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
             foreach (var axiom in axioms)
             {
+                // Check The axiom can be satisfied
+                TheSolver.SetConstraints(InitialState.Constraints);
+
                 var VMR = new VariableMapRewriter(InitialState);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
+
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
+
+                Solver.Result result = TheSolver.IsQuerySat(constraint);
+                switch (result)
+                {
+                    case Symbooglix.Solver.Result.SAT:
+                        break;
+                    case Symbooglix.Solver.Result.UNSAT:
+                    case Symbooglix.Solver.Result.UNKNOWN:
+                        goto default; // Eurgh...
+                    default:
+                        InitialState.Terminate(new TerminatedAtUnsatisfiableAxiom(axiom));
+                        if (StateTerminated != null)
+                        {
+                            StateTerminated(this, new ExecutionStateEventArgs(InitialState));
+                        }
+                        HasBeenPrepared = true; // Don't allow this method to run again
+                        return false;
+                }
+
                 InitialState.Constraints.AddConstraint(constraint);
                 Debug.WriteLine("Adding constraint : " + constraint);
+
             }
              
 
@@ -168,9 +197,6 @@ namespace Symbooglix
 
 
             HasBeenPrepared = true;
-
-            // FIXME: check constraints are consistent!
-
             return true;
         }
 
@@ -204,6 +230,11 @@ namespace Symbooglix
         {
             if (!HasBeenPrepared)
                 PrepareProgram();
+
+            if (InitialState.Finished())
+            {
+                throw new ExecuteTerminatedStateException(this, InitialState);
+            }
 
             // Clone the state so we can keep the special initial state around
             // if we want run() to be called again with a different entry point.

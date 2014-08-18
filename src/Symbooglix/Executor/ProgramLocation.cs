@@ -42,6 +42,11 @@ namespace Symbooglix
             Location = (Object) modset;
         }
 
+        public ProgramLocation(Axiom axiom)
+        {
+            Location = (Object) axiom;
+        }
+
         public bool IsVariable
         {
             get { return Location is Variable; }
@@ -138,6 +143,22 @@ namespace Symbooglix
             }
         }
 
+        public bool IsAxiom
+        {
+            get { return Location is Axiom; }
+        }
+
+        public Axiom AsAxiom
+        {
+            get
+            {
+                if (IsAxiom)
+                    return Location as Axiom;
+                else
+                    return null;
+            }
+        }
+
         public override string ToString()
         {
             if (IsVariable)
@@ -152,6 +173,8 @@ namespace Symbooglix
                 return "[Ensures] " + AsEnsures.Condition.ToString();
             else if (IsModifiesSet)
                 return "[Modifies set] " + AsModifiesSet.ToString();
+            else if (IsAxiom)
+                return "[Axiom] " + AsAxiom.ToString();
             else
                 return "unknown";
         }

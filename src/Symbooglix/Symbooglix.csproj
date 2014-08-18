@@ -89,6 +89,7 @@
     <Compile Include="Executor\ExecutorHandlers\IExecutorEventHandler.cs" />
     <Compile Include="Util\ModifiesSet.cs" />
     <Compile Include="Expr\IExprBuilder.cs" />
+    <Compile Include="Executor\ExecutorExceptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
