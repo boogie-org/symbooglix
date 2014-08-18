@@ -38,6 +38,9 @@ namespace Symbooglix
                         HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
             public List<string> entryPoints { get; set; }
 
+            [Option("gpuverify-entry-points", DefaultValue=false, HelpText = "Use GPUVerify kernels as entry points")]
+            public bool gpuverifyEntryPoints { get; set; }
+
             // FIXME: Booleans can't be disabled in the CommandLine library so use ints instead
             [Option("fold-constants", DefaultValue = 1, HelpText = "Use Constant folding during execution")]
             public int useConstantFolding { get; set; }
@@ -202,19 +205,37 @@ namespace Symbooglix
                 // Check all implementations exist and build list of entry points to execute
                 var entryPoints = new List<Implementation>();
 
-                // Set main as default.
-                if (options.entryPoints == null)
-                    options.entryPoints = new List<string>() { "main" };
-
-                foreach (var implString in options.entryPoints)
+                // This is specific to GPUVerify
+                if (options.gpuverifyEntryPoints)
                 {
-                    Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == implString).FirstOrDefault();
-                    if (entry == null)
+                    var kernels = p.TopLevelDeclarations.OfType<Implementation>().Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes,"kernel"));
+                    foreach (var kernel in kernels)
                     {
-                        Console.WriteLine("Could not find implementation \"" + implString + "\" to use as entry point");
+                        entryPoints.Add(kernel);
+                    }
+
+                    if (entryPoints.Count() == 0)
+                    {
+                        Console.WriteLine("Could not find any kernel entry points");
                         return 1;
                     }
-                    entryPoints.Add(entry);
+                }
+                else
+                {
+                    // Set main as default.
+                    if (options.entryPoints == null)
+                        options.entryPoints = new List<string>() { "main" };
+
+                    foreach (var implString in options.entryPoints)
+                    {
+                        Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == implString).FirstOrDefault();
+                        if (entry == null)
+                        {
+                            Console.WriteLine("Could not find implementation \"" + implString + "\" to use as entry point");
+                            return 1;
+                        }
+                        entryPoints.Add(entry);
+                    }
                 }
 
 
