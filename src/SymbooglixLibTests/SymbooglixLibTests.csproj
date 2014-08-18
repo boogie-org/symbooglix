@@ -77,6 +77,7 @@
     <Compile Include="SimpleCallSummary.cs" />
     <Compile Include="CallAssignsTo.cs" />
     <Compile Include="InconsistentAxioms.cs" />
+    <Compile Include="InvalidEntryPoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -242,7 +242,11 @@ namespace Symbooglix
 
             StateScheduler.AddState(CurrentState);
             
-            // FIXME: Check entry point is in prog?
+            // Check the provided entry point is actually in the program we are about to execute
+            if (TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl == entryPoint).Count() == 0)
+            {
+                throw new InvalidEntryPoint(this, entryPoint);
+            }
 
 
             // Push entry point onto stack frame
