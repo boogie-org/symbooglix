@@ -78,6 +78,7 @@
     <Compile Include="CallAssignsTo.cs" />
     <Compile Include="InconsistentAxioms.cs" />
     <Compile Include="InvalidEntryPoint.cs" />
+    <Compile Include="ExprSMTLIB\TypeSynonym.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

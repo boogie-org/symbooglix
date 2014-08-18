@@ -141,14 +141,24 @@ namespace Symbooglix
 
         public static string GetSMTLIBType(Microsoft.Boogie.Type T)
         {
-            if (T is BvType)
+            Microsoft.Boogie.Type theType = null;
+
+            // Handle type synonym. E.g. ``type arrayId = bv2``
+            // Perhaps we should run a pass in the program to remove
+            // type synonyms?
+            if (T is TypeSynonymAnnotation)
+                theType = ( T as TypeSynonymAnnotation ).ExpandedType;
+            else
+                theType = T;
+
+            if (theType is BvType)
             {
-                var BVT = T as BvType;
+                var BVT = theType as BvType;
                 return "(_ BitVec " + BVT.Bits + ")";
             }
-            else if (T is BasicType)
+            else if (theType is BasicType)
             {
-                var ST = ( T as BasicType ).T;
+                var ST = ( theType as BasicType ).T;
                 switch (ST)
                 {
                     case SimpleType.Bool:
@@ -161,9 +171,9 @@ namespace Symbooglix
                         throw new NotImplementedException("Unsupported SimpleType " + ST.ToString());
                 }
             }
-            else if (T is MapType)
+            else if (theType is MapType)
             {
-                var MT = T as MapType;
+                var MT = theType as MapType;
                 // We are using Z3's Native ArrayTheory (allows for Arrays of Arrays) here. I don't know if other Solvers support this.
                 Debug.Assert(MT.Arguments.Count >= 1, "MapType has too few arguments");
                 string mapTypeAsString = "";
@@ -184,7 +194,7 @@ namespace Symbooglix
             }
             else
             {
-                throw new NotImplementedException("The type " + T.ToString() + " is not supported");
+                throw new NotImplementedException("The type " + theType.ToString() + " is not supported");
             }
         }
 
