@@ -114,7 +114,7 @@ namespace SymbooglixLibTests
 
         }
 
-        [Test()]
+        [Test(),Ignore()]
         public void TwoDMap()
         {
             p = loadProgram("programs/2DMap.bpl");
