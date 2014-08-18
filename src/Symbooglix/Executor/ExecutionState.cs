@@ -165,6 +165,8 @@ namespace Symbooglix
 
         public void AssignToVariableInScope(Variable v, Expr value)
         {
+            Debug.Assert(!(v is Constant), "Cannot assign to a constant");
+
             if (AssignToVariableInStack(GetCurrentStackFrame(), v, value))
                 return;
 

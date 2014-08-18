@@ -81,6 +81,7 @@
     <Compile Include="ExprSMTLIB\TypeSynonym.cs" />
     <Compile Include="TypeSynonym.cs" />
     <Compile Include="ConstantFolding\FoldBvslt.cs" />
+    <Compile Include="RequiresWithConstantEqualityConstraint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -166,6 +167,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\TypeSynonym.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\RequiresWithConstantEqualityConstraint.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

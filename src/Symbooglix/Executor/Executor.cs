@@ -332,6 +332,15 @@ namespace Symbooglix
             Debug.Assert(CurrentState.IsInScopeVariable(v));
             Debug.Assert(IsSymbolic(v), "Tried to concretise something that is already concrete!");
             Debug.WriteLine("Concretising  {0} := {1}", v, literal);
+
+            if (v is Constant)
+            {
+                // This is a special case because we don't normally allow assignment to
+                // constants. We make an exception to this rule here
+                CurrentState.Mem.Globals[v] = literal;
+                return;
+            }
+
             CurrentState.AssignToVariableInScope(v, literal);
 
             // FIXME: 
