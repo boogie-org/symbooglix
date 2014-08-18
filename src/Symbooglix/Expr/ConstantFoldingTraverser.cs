@@ -1004,7 +1004,37 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var valueToShift = e.Args[0] as LiteralExpr;
+                var shiftWidth = e.Args[1] as LiteralExpr;
+                Debug.Assert(valueToShift.isBvConst);
+                Debug.Assert(shiftWidth.isBvConst);
+                Debug.Assert(valueToShift.asBvConst.Bits == shiftWidth.asBvConst.Bits);
+                var bitWidth = ( valueToShift.asBvConst.Bits );
+
+                // SMTLIBv2 definition is
+                //
+                //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
+                //
+                //  nat2bv[m], with 0 < m, which takes a non-negative integer
+                //  n and returns the (unique) bitvector b: [0,...,m) -> {0,1}
+                //    such that
+                //
+                //   b(m-1)*2^{m-1} + ... + b(0)*2^0 = n rem 2^m
+                //
+                // NOTE: Even though there is a "rem 2^m" there when the multiplication
+                // multiplies all the bits out of the original value then any division by
+                // 2^m is guaranteed to have zero remainder
+                if (shiftWidth.asBvConst.Value >= BigNum.FromInt(bitWidth))
+                {
+                    return new LiteralExpr(Token.NoToken, BigNum.FromInt(0), bitWidth);
+                }
+                else
+                {
+                    var result = ( valueToShift.asBvConst.Value.ToBigInteger << shiftWidth.asBvConst.Value.ToIntSafe );
+                    result = BigInteger.Remainder(result, BigInteger.Pow(2, bitWidth)); 
+                    Debug.Assert(result < ( BigInteger.Pow(2, bitWidth) - 1 ));
+                    return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
+                }
             }
             else
                 return e;

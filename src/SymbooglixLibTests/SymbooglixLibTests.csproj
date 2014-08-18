@@ -83,6 +83,7 @@
     <Compile Include="ConstantFolding\FoldBvslt.cs" />
     <Compile Include="RequiresWithConstantEqualityConstraint.cs" />
     <Compile Include="ConstantFolding\FoldBVor.cs" />
+    <Compile Include="ConstantFolding\FoldBvshl.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
