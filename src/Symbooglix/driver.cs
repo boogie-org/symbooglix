@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.Boogie;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 
@@ -59,6 +61,9 @@ namespace Symbooglix
 
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
+
+            [Option("timeout", DefaultValue=0, HelpText="Number of seconds to wait before killing executor")]
+            public int timeout { get; set;}
 
             public enum Solver
             {
@@ -333,6 +338,17 @@ namespace Symbooglix
                         // FIXME: Get program from executor.
                         Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true, /*unstructured=*/ true);
                     }
+                }
+
+                if (options.timeout > 0)
+                {
+                    // Create a thread that will kill the executor after the timeout is hit.
+                    Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(options.timeout * 1000);
+                        Console.WriteLine("Timeout hit. Terminating Executor");
+                        e.Terminate();
+                    });
                 }
 
                 foreach (var entryPoint in entryPoints)
