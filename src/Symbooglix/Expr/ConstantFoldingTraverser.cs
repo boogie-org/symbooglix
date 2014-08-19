@@ -1093,7 +1093,15 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+
+                if (arg0.asBvConst.Value <= arg1.asBvConst.Value)
+                    return Expr.True;
+                else
+                    return Expr.False;
             }
             else
                 return e;
@@ -1110,7 +1118,7 @@ namespace Symbooglix
                 Debug.Assert(arg0.isBvConst);
                 Debug.Assert(arg1.isBvConst);
 
-                if (arg0.asBvConst.Value >= arg1.asBvConst.Value)
+                if (arg0.asBvConst.Value > arg1.asBvConst.Value)
                     return Expr.True;
                 else
                     return Expr.False;
@@ -1124,7 +1132,15 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+
+                if (arg0.asBvConst.Value >= arg1.asBvConst.Value)
+                    return Expr.True;
+                else
+                    return Expr.False;
             }
             else
                 return e;
