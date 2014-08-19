@@ -101,6 +101,9 @@ namespace Symbooglix
 
             public void Dispose()
             {
+                // FIXME: This is broken. Calling this from another thread doesn't cause TheProcess.WaitForExit()
+                // to wake!
+                TheProcess.Kill();
                 TheProcess.Dispose();
             }
 

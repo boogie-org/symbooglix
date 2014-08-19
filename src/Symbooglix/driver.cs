@@ -79,6 +79,9 @@ namespace Symbooglix
             [Option("solver-path", DefaultValue = "", HelpText = "Path to the SMTLIBv2 solver")]
             public string pathToSolver { get; set; }
 
+            [Option("solver-timeout", DefaultValue=0, HelpText="Maximum time allowed for a single query")]
+            public int solverTimeout {get; set;}
+
             [Option("verify-unmodified-impl", DefaultValue = true, HelpText = "Verify that implementation commands aren't accidently modified during execution")]
             public bool useVerifyUnmodifiedProcedureHandler { get; set; }
 
@@ -426,6 +429,7 @@ namespace Symbooglix
 
             // Only support this for now.
             Solver.ISolver solver = new Solver.SimpleSolver(solverImpl);
+            solver.SetTimeout(options.solverTimeout);
             return solver;
         }
     }
