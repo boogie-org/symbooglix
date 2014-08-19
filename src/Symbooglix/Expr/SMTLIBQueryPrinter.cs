@@ -582,7 +582,7 @@ namespace Symbooglix
 
         public Expr Visit_bvurem(NAryExpr e)
         {
-            return PrintBinaryOperator("bvrem", e);
+            return PrintBinaryOperator("bvurem", e);
         }
 
         public Expr Visit_bvsdiv(NAryExpr e)
