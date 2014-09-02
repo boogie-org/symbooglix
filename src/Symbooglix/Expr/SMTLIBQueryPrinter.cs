@@ -19,6 +19,9 @@ namespace Symbooglix
         public bool HumanReadable;
         private int Indent;
 
+        // Tweaks to annotations
+        public bool AnnotateVariableUses = true;
+
         public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true, int indent=2)
         {
             this.HumanReadable = humanReadable; // Must be set before output is set
@@ -298,6 +301,12 @@ namespace Symbooglix
                 throw new InvalidDataException("non symbolic/BoundVariable found in Expr"); //FIXME: Add our own Expr types
 
             TW.Write(e.Name);
+
+
+            if (HumanReadable && AnnotateVariableUses && e.Decl is SymbolicVariable)
+            {
+                TW.Write(" ;" + ( e.Decl as SymbolicVariable ).Origin.ToString());
+            }
             return e;
         }
 
