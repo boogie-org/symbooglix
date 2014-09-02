@@ -54,7 +54,7 @@ namespace SymbooglixLibTests
                 Assert.IsInstanceOfType(typeof(SymbolicVariable), (g2Expr as IdentifierExpr).Decl);
 
                 var expectedConstraint = Expr.Eq(g2Expr, Builder.ConstantInt(3));
-                int found = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
+                int found = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint)).Count();
                 Assert.AreEqual(1, found);
             };
 
@@ -102,7 +102,7 @@ namespace SymbooglixLibTests
                 Assert.IsInstanceOfType(typeof(SymbolicVariable), (bExpr as IdentifierExpr).Decl);
 
                 var expectedConstraint = Expr.Eq(bExpr, Builder.ConstantInt(3));
-                int found = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
+                int found = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint)).Count();
                 Assert.AreEqual(1, found);
             };
 

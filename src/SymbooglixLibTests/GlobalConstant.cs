@@ -45,7 +45,7 @@ namespace SymbooglixLibTests
 
                 // Check for the expect equality constraint.
                 bool found = false;
-                foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
+                foreach (Expr constraint in e.CurrentState.Constraints.ConstraintExprs)
                 {
                     LiteralExpr literal = null;
                     if (FindLiteralAssignment.find(constraint, relevantSymbolic, out literal))
@@ -78,7 +78,7 @@ namespace SymbooglixLibTests
 
                 // Check for the expected constraint
                 bool found = false;
-                foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
+                foreach (Expr constraint in e.CurrentState.Constraints.ConstraintExprs)
                 {
                     if (constraint is NAryExpr)
                     {

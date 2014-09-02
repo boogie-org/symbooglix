@@ -29,7 +29,7 @@ namespace Symbooglix
             {
                 // Let the printer find the declarations
                 CurrentConstraints = constraints;
-                foreach (var constraint in constraints.Constraints)
+                foreach (var constraint in constraints.ConstraintExprs)
                 {
                     Printer.AddDeclarations(constraint);
                 }
@@ -40,8 +40,8 @@ namespace Symbooglix
             {
                 Printer.PrintVariableDeclarations();
                 Printer.PrintFunctionDeclarations();
-                Printer.PrintCommentLine(CurrentConstraints.Constraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in CurrentConstraints.Constraints)
+                Printer.PrintCommentLine(CurrentConstraints.Count.ToString() +  " Constraints");
+                foreach (var constraint in CurrentConstraints.ConstraintExprs)
                 {
                     Printer.PrintAssert(constraint);
                 }

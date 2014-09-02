@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using Microsoft.Boogie;
 using Symbooglix;
+using System.Linq;
 
 namespace SymbooglixLibTests
 {
@@ -32,8 +33,8 @@ namespace SymbooglixLibTests
 
                 // Check we have the expected constraint
                 string expected = "bv8ugt(" + id.Name + ", 2bv8)";
-                Assert.AreEqual(e.CurrentState.Constraints.Constraints.Count, 1);
-                Assert.IsTrue(e.CurrentState.Constraints.Constraints[0].ToString() == expected);
+                Assert.AreEqual(e.CurrentState.Constraints.Count, 1);
+                Assert.IsTrue(e.CurrentState.Constraints.Constraints.Where( c => c.Condition.ToString() == expected).Count() == 1);
             };
             e.Run(getMain(p));
         }

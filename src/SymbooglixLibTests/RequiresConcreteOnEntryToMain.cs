@@ -28,7 +28,7 @@ namespace SymbooglixLibTests
             var symbolic = e.CurrentState.Symbolics.Where( s => s.Origin.AsVariable == theLocal.Key).First();
 
 
-            foreach (Expr constraint in e.CurrentState.Constraints.Constraints)
+            foreach (Expr constraint in e.CurrentState.Constraints.ConstraintExprs)
             {
                 LiteralExpr literal = null;
                 found = FindLiteralAssignment.find(constraint, symbolic, out literal);

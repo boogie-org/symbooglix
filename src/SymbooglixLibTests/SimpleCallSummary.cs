@@ -85,9 +85,8 @@ namespace SymbooglixLibTests
 
                 // FIXME: Move constant construction functions to utility so can be shared across tests.
                 var expectedConstraint = Expr.Gt(symbolicForX.Expr, Expr.Neg(Builder.ConstantInt(1)));
-                e.CurrentState.Constraints.Constraints[2].Equals(expectedConstraint);
 
-                int hasConstraint = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint)).Count();
+                int hasConstraint = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint)).Count();
                 Assert.AreEqual(1, hasConstraint);
             };
 
@@ -115,7 +114,7 @@ namespace SymbooglixLibTests
                 Assert.IsInstanceOfType(typeof(LiteralExpr), aExpr);
                 Assert.AreEqual(BigNum.FromInt(2), (aExpr as LiteralExpr).asBigNum);
                 var expectedConstraint3 = Expr.Gt(aExpr, Builder.ConstantInt(0));
-                int hasConstraint3 = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint3)).Count();
+                int hasConstraint3 = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint3)).Count();
                 Assert.AreEqual(1, hasConstraint3);
 
 
@@ -150,7 +149,7 @@ namespace SymbooglixLibTests
                 var rVar = barProcedure.OutParams[0];
                 Assert.AreEqual(symbolicForB.Origin.AsVariable, rVar);
                 var expectedConstraint2 = Expr.Gt(symbolicForB.Expr, Builder.ConstantInt(0));
-                int hasConstraint2 = e.CurrentState.Constraints.Constraints.Where( c => c.Equals(expectedConstraint2)).Count();
+                int hasConstraint2 = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint2)).Count();
                 Assert.AreEqual(1, hasConstraint2);
 
             };
