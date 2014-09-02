@@ -21,6 +21,9 @@ namespace Symbooglix
 
         // Tweaks to annotations
         public bool AnnotateVariableUses = true;
+        public bool AnnotateAssertsWithNames = true;
+
+        private int AssertCounter = 0;
 
         public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true, int indent=2)
         {
@@ -210,11 +213,34 @@ namespace Symbooglix
         {
             TW.Write("(assert");
             PushIndent();
+
+            if (HumanReadable && AnnotateAssertsWithNames)
+            {
+                PrintSeperator();
+                TW.Write("(!");
+                PushIndent();
+
+            }
             PrintSeperator();
+
             PrintExpr(e);
             PopIndent();
+
+
+            if (HumanReadable && AnnotateAssertsWithNames)
+            {
+                PrintSeperator();
+                TW.Write(":named assert" + AssertCounter.ToString());
+                PrintSeperator();
+                TW.Write(")");
+                PopIndent();
+
+            }
             PrintSeperator();
+
             TW.WriteLine(")");
+
+            ++AssertCounter;
         }
 
         public void PrintCheckSat()
@@ -227,6 +253,7 @@ namespace Symbooglix
         {
             TW.WriteLine("(exit)");
             TW.Flush();
+            AssertCounter = 0;
         }
 
         public void PrintSetOption(string option)
