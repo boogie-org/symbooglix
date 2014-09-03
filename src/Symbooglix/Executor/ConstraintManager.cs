@@ -50,9 +50,9 @@ namespace Symbooglix
             return other;
         }
 
-        public void AddConstraint(Expr e)
+        public void AddConstraint(Expr e, ProgramLocation location)
         {
-            InternalConstraints.Add(new Constraint(e));
+            InternalConstraints.Add(new Constraint(e, location));
         }
 
         public override string ToString()

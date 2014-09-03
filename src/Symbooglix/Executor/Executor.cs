@@ -178,7 +178,7 @@ namespace Symbooglix
                         return false;
                 }
 
-                InitialState.Constraints.AddConstraint(constraint);
+                InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
                 Debug.WriteLine("Adding constraint : " + constraint);
 
             }
@@ -448,7 +448,7 @@ namespace Symbooglix
                         theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEntryRequires(r));
                     };
 
-                    stillInState = HandleAssumeLikeCommand(constraint, helper);
+                    stillInState = HandleAssumeLikeCommand(constraint, helper, r.GetProgramLocation());
                 }
                 else
                 {
@@ -460,7 +460,7 @@ namespace Symbooglix
                         theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(r));
                     };
 
-                    stillInState = HandleAssertLikeCommand(constraint, helper);
+                    stillInState = HandleAssertLikeCommand(constraint, helper, r.GetProgramLocation());
                 }
 
                 if (!stillInState)
@@ -536,7 +536,7 @@ namespace Symbooglix
                     theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(requires));
                 };
 
-                stillInState = HandleAssertLikeCommand(condition, helper);
+                stillInState = HandleAssertLikeCommand(condition, helper, requires.GetProgramLocation());
             }
 
             // Check we're still in state
@@ -567,7 +567,7 @@ namespace Symbooglix
                     theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEnsures(ensures));
                 };
 
-                stillInState = HandleAssumeLikeCommand(condition, helper);
+                stillInState = HandleAssumeLikeCommand(condition, helper, ensures.GetProgramLocation());
             }
 
             // Check we're still in state
@@ -640,7 +640,7 @@ namespace Symbooglix
                     theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingEnsures(ensures));
                 };
                 // Treat an requires similarly to an assert
-                stillInCurrentState = HandleAssertLikeCommand(remapped, helper);
+                stillInCurrentState = HandleAssertLikeCommand(remapped, helper, ensures.GetProgramLocation());
 
                 if (!stillInCurrentState)
                 {
@@ -775,12 +775,12 @@ namespace Symbooglix
             };
 
             // Use helper method, we don't need to care if the current state is destroyed
-            HandleAssertLikeCommand(dupAndrw, helper);
+            HandleAssertLikeCommand(dupAndrw, helper, c.GetProgramLocation());
             return HandlerAction.CONTINUE;
         }
 
         protected delegate void HowToTerminateState(ExecutionState theStateThatWillBeTerminated);
-        protected bool HandleAssertLikeCommand(Expr condition, HowToTerminateState terminate)
+        protected bool HandleAssertLikeCommand(Expr condition, HowToTerminateState terminate, ProgramLocation location)
         {
             // Constant Folding might let us terminate without calling solver
             if (condition is LiteralExpr)
@@ -883,7 +883,7 @@ namespace Symbooglix
             else if (!canFail && canSucceed)
             {
                 // This state can only succeed
-                CurrentState.Constraints.AddConstraint(condition);
+                CurrentState.Constraints.AddConstraint(condition, location);
                 return true; // We are still in the current state
             }
             else if (canFail && canSucceed)
@@ -901,7 +901,7 @@ namespace Symbooglix
                     StateTerminated(this, new ExecutionStateEventArgs(failingState));
 
                 // successful state can now have assertion expr in constraints
-                CurrentState.Constraints.AddConstraint(condition);
+                CurrentState.Constraints.AddConstraint(condition, location);
                 return true; // We are still in the current state
             }
             else
@@ -910,7 +910,7 @@ namespace Symbooglix
             }
         }
 
-        protected bool HandleAssumeLikeCommand(Expr condition, HowToTerminateState terminate)
+        protected bool HandleAssumeLikeCommand(Expr condition, HowToTerminateState terminate, ProgramLocation location)
         {
             // Constant folding might let us terminate early without calling solver
             if (condition is LiteralExpr)
@@ -953,13 +953,13 @@ namespace Symbooglix
                     return false; // No longer in current state
 
                 case Symbooglix.Solver.Result.SAT:
-                    CurrentState.Constraints.AddConstraint(condition);
+                    CurrentState.Constraints.AddConstraint(condition, location);
                     break;
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
                     // Be conservative and just add the constraint
                     // FIXME: Is this a bug? HandleAssertLikeCmd() assumes that current constraints are satisfiable
-                    CurrentState.Constraints.AddConstraint(condition);
+                    CurrentState.Constraints.AddConstraint(condition, location);
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");
@@ -985,7 +985,7 @@ namespace Symbooglix
             };
 
             // Use helper. We don't care if it terminates a state because we immediatly return afterwards
-            HandleAssumeLikeCommand(dupAndrw, helper);
+            HandleAssumeLikeCommand(dupAndrw, helper, c.GetProgramLocation());
             return HandlerAction.CONTINUE;
         }
 

@@ -92,6 +92,7 @@
     <Compile Include="Executor\ExecutorExceptions.cs" />
     <Compile Include="Annotation\AnnotationIndicies.cs" />
     <Compile Include="Annotation\ProgramLocationAnnotater.cs" />
+    <Compile Include="Executor\BoogieAbsyExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
