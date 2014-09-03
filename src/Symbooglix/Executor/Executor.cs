@@ -105,6 +105,9 @@ namespace Symbooglix
                 Debug.WriteLine("Added uninterpreted function " + F);
             }
 
+            // We need ProgramLocation annotations to work out where stuff comes from
+            passManager.Add(new Annotation.ProgramLocationAnnotater());
+
             // Run our passes and any user requested passes
             passManager.Run();
 

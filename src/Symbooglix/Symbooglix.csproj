@@ -90,6 +90,8 @@
     <Compile Include="Util\ModifiesSet.cs" />
     <Compile Include="Expr\IExprBuilder.cs" />
     <Compile Include="Executor\ExecutorExceptions.cs" />
+    <Compile Include="Annotation\AnnotationIndicies.cs" />
+    <Compile Include="Annotation\ProgramLocationAnnotater.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
@@ -121,6 +123,7 @@
     <Folder Include="Executor\TerminationHandlers\" />
     <Folder Include="Transform\" />
     <Folder Include="Analysis\" />
+    <Folder Include="Annotation\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
