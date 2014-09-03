@@ -41,9 +41,10 @@ namespace Symbooglix
                 Printer.PrintVariableDeclarations();
                 Printer.PrintFunctionDeclarations();
                 Printer.PrintCommentLine(CurrentConstraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in CurrentConstraints.ConstraintExprs)
+                foreach (var constraint in CurrentConstraints.Constraints)
                 {
-                    Printer.PrintAssert(constraint);
+                    Printer.PrintCommentLine("Origin : " + constraint.Origin.ToString());
+                    Printer.PrintAssert(constraint.Condition);
                 }
             }
 

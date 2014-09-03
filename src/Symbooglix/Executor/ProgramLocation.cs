@@ -164,7 +164,7 @@ namespace Symbooglix
             if (IsVariable)
                 return "[Variable] " + AsVariable.ToString();
             else if (IsCmd)
-                return "[Cmd] " + AsCmd.ToString();
+                return "[Cmd] " + AsCmd.ToString().TrimEnd('\n');
             else if (IsTransferCmd)
                 return "[TransferCmd] " + AsTransferCmd.ToString();
             else if (IsRequires)
