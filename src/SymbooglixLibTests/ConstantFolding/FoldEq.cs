@@ -109,6 +109,10 @@ namespace ConstantFoldingTests
         public void SymbolicEqual()
         {
             var var0 = new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "foo", Microsoft.Boogie.Type.Int));
+
+            // We can't construct a Symbolic variable without a ProgramLocation being attached!
+            var0.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(var0));
+
             var sym0 = new SymbolicVariable("sym0", var0);
 
             var constant = getConstantInt(17);
@@ -140,6 +144,10 @@ namespace ConstantFoldingTests
         public void SymbolicNotEqual()
         {
             var var0 = new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "foo", Microsoft.Boogie.Type.Int));
+
+            // We can't construct a Symbolic variable without a ProgramLocation being attached!
+            var0.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(var0));
+
             var sym0 = new SymbolicVariable("sym0", var0);
 
             var constant = getConstantInt(17);
