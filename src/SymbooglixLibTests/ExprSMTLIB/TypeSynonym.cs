@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using Symbooglix;
+using Symbooglix.Annotation;
 using System.IO;
 using System.Collections.Generic;
 
@@ -58,6 +59,10 @@ namespace ExprSMTLIBTest
                 // Now check it can be used in a query
                 var typeIdent = new TypedIdent(Token.NoToken, "thetype", ts);
                 var variable = new LocalVariable(Token.NoToken, typeIdent);
+
+                // SymbolicVariable constructor requires that a ProgramLocation is already attached
+                variable.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(variable));
+
                 var symbolic = new SymbolicVariable("symbolic_0", variable);
                 var theExpr = Expr.Eq(symbolic.Expr, theConstant);
 
