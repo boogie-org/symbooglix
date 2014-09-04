@@ -26,19 +26,6 @@ namespace Symbooglix
                 foreach (var variable in prog.TopLevelDeclarations.OfType<Variable>())
                     variable.SetMetadata( (int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(variable));
 
-
-                // Requires, ensures and Modset on procedures
-                foreach (var procedure in prog.TopLevelDeclarations.OfType<Procedure>())
-                {
-                    foreach (var require in procedure.Requires)
-                        require.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(require));
-
-                    foreach (var ensure in procedure.Ensures)
-                        ensure.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(ensure));
-
-                    // TODO: Modset
-                }
-
                 // Local variables in implementations
                 foreach (var impl in prog.TopLevelDeclarations.OfType<Implementation>())
                 {
@@ -51,6 +38,28 @@ namespace Symbooglix
                     foreach (var local in impl.LocVars)
                         local.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(local));
                 }
+
+                // Requires, ensures and Modset on procedures
+                foreach (var procedure in prog.TopLevelDeclarations.OfType<Procedure>())
+                {
+                    foreach (var require in procedure.Requires)
+                        require.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(require));
+
+                    foreach (var ensure in procedure.Ensures)
+                        ensure.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(ensure));
+
+                    // HACK: This is gross but the inParam and outParams on procedure are not the same
+                    // instances in Boogie. So we need to annotate those as well! Boogie really needs fixing!
+                    foreach (var inParam in procedure.InParams)
+                        inParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(inParam));
+
+                    foreach (var outParam in procedure.OutParams)
+                        outParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(outParam));
+
+                    // TODO: Modset
+                }
+
+
 
                 // Commands in basic blocks
                 foreach (var bb in prog.Blocks())
