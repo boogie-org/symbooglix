@@ -123,7 +123,10 @@ namespace Symbooglix
                     // Return the Function expression with variables substituted for function arguments.
                     // This is basically inling
                     ++InlineCounter;
-                    return Substituter.Apply(sub, FC.Func.Body);
+                    var result= Substituter.Apply(sub, FC.Func.Body);
+
+                    // Make sure we visit the result because it may itself contain function calls
+                    return (Expr) base.Visit(result);
                 }
                 else
                     return base.VisitNAryExpr(node);
