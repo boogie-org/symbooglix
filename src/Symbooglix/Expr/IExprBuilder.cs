@@ -20,9 +20,12 @@ namespace Symbooglix
         // BitVector operators
         Expr BVSLT(Expr lhs, Expr rhs);
         Expr BVSGT(Expr lhs, Expr rhs);
+
         Expr BVAND(Expr lhs, Expr rhs);
         Expr BVOR(Expr lhs, Expr rhs);
         Expr BVSHL(Expr lhs, Expr rhs);
+
+        Expr BVMUL(Expr lhs, Expr rhs);
 
         // Real/Int operators
 
@@ -142,6 +145,11 @@ namespace Symbooglix
         public Expr BVSHL(Expr lhs, Expr rhs)
         {
             return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSHL", "bvshl", lhs, rhs);
+        }
+
+        public Expr BVMUL(Expr lhs, Expr rhs)
+        {
+            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVMUL", "bvmul", lhs, rhs);
         }
     }
 }

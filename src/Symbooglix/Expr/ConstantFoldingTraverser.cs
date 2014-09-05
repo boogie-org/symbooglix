@@ -789,7 +789,20 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+                Debug.Assert(arg0.asBvConst.Bits == arg1.asBvConst.Bits);
+                // [[(bvmul s t)]] := nat2bv[m](bv2nat([[s]]) * bv2nat([[t]]))
+
+                var MaxValuePlusOne = (new BigInteger(1)) << arg0.asBvConst.Bits ; // 2^( number of bits)
+
+                // % isn't like mod for negative numbers, so using it would be incorrect in this case.
+                Debug.Assert(!arg0.asBvConst.Value.IsNegative);
+                Debug.Assert(!arg1.asBvConst.Value.IsNegative);
+                var result = ( arg0.asBvConst.Value.ToBigInteger * arg1.asBvConst.Value.ToBigInteger ) % MaxValuePlusOne;
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), arg0.asBvConst.Bits);
             }
             else
                 return e;
