@@ -27,6 +27,7 @@ namespace Symbooglix
 
         Expr BVMUL(Expr lhs, Expr rhs);
         Expr BVUDIV(Expr lhs, Expr rhs);
+        Expr BVUREM(Expr lhs, Expr rhs);
         Expr BVSDIV(Expr lhs, Expr rhs);
 
         // Real/Int operators
@@ -162,6 +163,11 @@ namespace Symbooglix
         public Expr BVSDIV(Expr lhs, Expr rhs)
         {
             return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSDIV", "bvsdiv", lhs, rhs);
+        }
+
+        public Expr BVUREM (Expr lhs, Expr rhs)
+        {
+            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUREM", "bvurem", lhs, rhs);
         }
     }
 }

@@ -214,6 +214,7 @@ Global
 		$2.scope = text/x-csharp
 		$0.TextStylePolicy = $3
 		$3.FileWidth = 120
+		$3.NoTabsAfterNonTabs = True
 		$3.inheritsSet = VisualStudio
 		$3.inheritsScope = text/plain
 		$3.scope = text/plain
@@ -344,5 +345,8 @@ Global
 		$26.NamingStyle = PascalCase
 		$26.IncludeInstanceMembers = True
 		$26.IncludeStaticEntities = True
+		$0.DotNetNamingPolicy = $28
+		$28.DirectoryNamespaceAssociation = None
+		$28.ResourceNamePolicy = FileFormatDefault
 	EndGlobalSection
 EndGlobal
