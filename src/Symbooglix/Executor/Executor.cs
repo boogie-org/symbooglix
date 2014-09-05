@@ -69,138 +69,140 @@ namespace Symbooglix
 
         public event ExecutionStateEvent StateTerminated;
 
+        private Object PrepareProgramLock = new object();
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
-            // FIXME: Mutex Lock on HasBeenPrepared
+            lock (PrepareProgramLock)
+            {
+                if (HasBeenPrepared)
+                    return true;
 
-            if (HasBeenPrepared)
-                return true;
+                if (passManager == null)
+                    passManager = new Transform.PassManager(TheProgram);
 
-            if (passManager == null)
-                passManager = new Transform.PassManager(TheProgram);
+                if (passManager.TheProgram != TheProgram)
+                    throw new InvalidOperationException("PassManager must use same program as executor");
 
-            if (passManager.TheProgram != TheProgram)
-                throw new InvalidOperationException("PassManager must use same program as executor");
-
-            var FRF = new FindRecursiveFunctionsPass();
-            passManager.Add(FRF);
-            passManager.Add(new Transform.FunctionInliningPass());
+                var FRF = new FindRecursiveFunctionsPass();
+                passManager.Add(FRF);
+                passManager.Add(new Transform.FunctionInliningPass());
 
           
-            // FIXME: Make this a pass
-            // FIXME: Remove this? We aren't using it!
-            // Make a list of all the functions that are uninterpreted or can't be inlined
-            var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
-            foreach (var F in functions)
-            {
-                // bvbuiltins are interpreted as SMT-LIBv2 functions
-                if (F.FindAttribute("bvbuiltin") != null)
-                    continue;
-
-                // Inlinable
-                if (F.Body != null)
-                    continue;
-
-                UninterpretedOrUninlinableFunctions.Add(F);
-                Debug.WriteLine("Added uninterpreted function " + F);
-            }
-
-            // We need ProgramLocation annotations to work out where stuff comes from
-            passManager.Add(new Annotation.ProgramLocationAnnotater());
-
-            // Run our passes and any user requested passes
-            passManager.Run();
-
-            // Don't allow recursive function for now as we can't handle them!
-            if (FRF.RecursiveFunctions.Count > 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine("Detected the following recursive functions");
-                foreach (var function in FRF.RecursiveFunctions)
+                // FIXME: Make this a pass
+                // FIXME: Remove this? We aren't using it!
+                // Make a list of all the functions that are uninterpreted or can't be inlined
+                var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
+                foreach (var F in functions)
                 {
-                    Console.Error.Write(function.Name + ": ");
-                    if (function.Body != null)
-                        Console.Error.WriteLine(function.Body.ToString());
+                    // bvbuiltins are interpreted as SMT-LIBv2 functions
+                    if (F.FindAttribute("bvbuiltin") != null)
+                        continue;
 
-                    if (function.DefinitionAxiom != null)
-                        Console.Error.WriteLine(function.DefinitionAxiom.Expr.ToString());
-                }
-                Console.ResetColor();
+                    // Inlinable
+                    if (F.Body != null)
+                        continue;
 
-                throw new NotSupportedException("Cannot handle recursive functions");
-            }
-
-            // Create initial execution state
-            InitialState = CurrentState = new ExecutionState();
-
-            // Load Global Variables and Constants
-            var GVs = TheProgram.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
-            var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
-            foreach (Variable gv in GVs)
-            {
-                // Make symbolic
-                var s = SymbolicPool.getFreshSymbolic(gv);
-                Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
-                InitialState.Mem.Globals.Add(gv, s.Expr);
-                InitialState.Symbolics.Add(s);
-
-            }
-
-            // Add the axioms as path constraints
-            // We must do this before concretising any variables
-            // otherwise we might end up adding constraints like
-            // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
-            foreach (var axiom in axioms)
-            {
-                // Check The axiom can be satisfied
-                TheSolver.SetConstraints(InitialState.Constraints);
-
-                var VMR = new VariableMapRewriter(InitialState);
-                VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
-
-                Expr constraint = (Expr) VMR.Visit(axiom.Expr);
-
-                Solver.Result result = TheSolver.IsQuerySat(constraint);
-                switch (result)
-                {
-                    case Symbooglix.Solver.Result.SAT:
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
-                    case Symbooglix.Solver.Result.UNKNOWN:
-                        goto default; // Eurgh...
-                    default:
-                        InitialState.Terminate(new TerminatedAtUnsatisfiableAxiom(axiom));
-                        if (StateTerminated != null)
-                        {
-                            StateTerminated(this, new ExecutionStateEventArgs(InitialState));
-                        }
-                        HasBeenPrepared = true; // Don't allow this method to run again
-                        return false;
+                    UninterpretedOrUninlinableFunctions.Add(F);
+                    Debug.WriteLine("Added uninterpreted function " + F);
                 }
 
-                InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
-                Debug.WriteLine("Adding constraint : " + constraint);
+                // We need ProgramLocation annotations to work out where stuff comes from
+                passManager.Add(new Annotation.ProgramLocationAnnotater());
 
-            }
+                // Run our passes and any user requested passes
+                passManager.Run();
+
+                // Don't allow recursive function for now as we can't handle them!
+                if (FRF.RecursiveFunctions.Count > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Error.WriteLine("Detected the following recursive functions");
+                    foreach (var function in FRF.RecursiveFunctions)
+                    {
+                        Console.Error.Write(function.Name + ": ");
+                        if (function.Body != null)
+                            Console.Error.WriteLine(function.Body.ToString());
+
+                        if (function.DefinitionAxiom != null)
+                            Console.Error.WriteLine(function.DefinitionAxiom.Expr.ToString());
+                    }
+                    Console.ResetColor();
+
+                    throw new NotSupportedException("Cannot handle recursive functions");
+                }
+
+                // Create initial execution state
+                InitialState = CurrentState = new ExecutionState();
+
+                // Load Global Variables and Constants
+                var GVs = TheProgram.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
+                var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
+                foreach (Variable gv in GVs)
+                {
+                    // Make symbolic
+                    var s = SymbolicPool.getFreshSymbolic(gv);
+                    Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
+                    InitialState.Mem.Globals.Add(gv, s.Expr);
+                    InitialState.Symbolics.Add(s);
+
+                }
+
+                // Add the axioms as path constraints
+                // We must do this before concretising any variables
+                // otherwise we might end up adding constraints like
+                // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
+                foreach (var axiom in axioms)
+                {
+                    // Check The axiom can be satisfied
+                    TheSolver.SetConstraints(InitialState.Constraints);
+
+                    var VMR = new VariableMapRewriter(InitialState);
+                    VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
+
+                    Expr constraint = (Expr) VMR.Visit(axiom.Expr);
+
+                    Solver.Result result = TheSolver.IsQuerySat(constraint);
+                    switch (result)
+                    {
+                        case Symbooglix.Solver.Result.SAT:
+                            break;
+                        case Symbooglix.Solver.Result.UNSAT:
+                        case Symbooglix.Solver.Result.UNKNOWN:
+                            goto default; // Eurgh...
+                        default:
+                            InitialState.Terminate(new TerminatedAtUnsatisfiableAxiom(axiom));
+                            if (StateTerminated != null)
+                            {
+                                StateTerminated(this, new ExecutionStateEventArgs(InitialState));
+                            }
+                            HasBeenPrepared = true; // Don't allow this method to run again
+                            return false;
+                    }
+
+                    InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
+                    Debug.WriteLine("Adding constraint : " + constraint);
+
+                }
              
 
-            // See if we can concretise using the program's axioms
-            foreach (var axiom in axioms)
-            {
-                LiteralExpr literal = null;
-                Variable assignedTo = null;
-                if (FindLiteralAssignment.findAnyVariable(axiom.Expr, out assignedTo, out literal))
+                // See if we can concretise using the program's axioms
+                foreach (var axiom in axioms)
                 {
-                    // Axioms should only be able to refer to globals
-                    Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
-                    Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo));
-                    InitialState.Mem.Globals[assignedTo] = literal;
+                    LiteralExpr literal = null;
+                    Variable assignedTo = null;
+                    if (FindLiteralAssignment.findAnyVariable(axiom.Expr, out assignedTo, out literal))
+                    {
+                        // Axioms should only be able to refer to globals
+                        Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
+                        Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo));
+                        InitialState.Mem.Globals[assignedTo] = literal;
+                    }
                 }
+
+
+                HasBeenPrepared = true;
+                return true;
             }
-
-
-            HasBeenPrepared = true;
-            return true;
         }
 
         public void RegisterPreEventHandler(IExecutorHandler handler)
@@ -231,8 +233,11 @@ namespace Symbooglix
 
         public void Run(Implementation entryPoint)
         {
-            if (!HasBeenPrepared)
-                PrepareProgram();
+            lock (PrepareProgramLock)
+            {
+                if (!HasBeenPrepared)
+                    PrepareProgram();
+            }
 
             if (InitialState.Finished())
             {
