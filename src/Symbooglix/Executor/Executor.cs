@@ -3,6 +3,8 @@ using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Symbooglix
 {
@@ -231,8 +233,24 @@ namespace Symbooglix
             PostEventHandlers.Remove(handler);
         }
 
-        public void Run(Implementation entryPoint)
+        protected void SetupTimeout(int timeout)
         {
+            if (timeout <= 0)
+                return;
+
+            // Create a thread that will kill the executor after the timeout is hit.
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(timeout * 1000); // argument is in milliseconds
+                // FIXME: Emit as event
+                Console.WriteLine("Timeout hit. Terminating Executor");
+                this.Terminate();
+            });
+        }
+
+        public void Run(Implementation entryPoint, int timeout=0)
+        {
+            SetupTimeout(timeout);
             lock (PrepareProgramLock)
             {
                 if (!HasBeenPrepared)

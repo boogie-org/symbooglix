@@ -62,7 +62,7 @@ namespace Symbooglix
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
-            [Option("timeout", DefaultValue=0, HelpText="Number of seconds to wait before killing executor")]
+            [Option("timeout", DefaultValue=0, HelpText="Number of seconds to wait before killing executor for the current entry point")]
             public int timeout { get; set;}
 
             public enum Solver
@@ -343,23 +343,12 @@ namespace Symbooglix
                     }
                 }
 
-                if (options.timeout > 0)
-                {
-                    // Create a thread that will kill the executor after the timeout is hit.
-                    Task.Factory.StartNew(() =>
-                    {
-                        Thread.Sleep(options.timeout * 1000);
-                        Console.WriteLine("Timeout hit. Terminating Executor");
-                        e.Terminate();
-                    });
-                }
-
                 foreach (var entryPoint in entryPoints)
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Entering Implementation " + entryPoint.Name + " as entry point");
                     Console.ResetColor();
-                    e.Run(entryPoint);
+                    e.Run(entryPoint, options.timeout);
                 }
 
                 Console.WriteLine(solver.Statistics.ToString());
