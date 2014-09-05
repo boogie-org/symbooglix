@@ -46,6 +46,7 @@ namespace Symbooglix
         private bool HasBeenPrepared = false;
         public ConstantFoldingTraverser CFT;
         public Solver.ISolver TheSolver;
+        private bool AllowExecutorToRun= false;
 
         public bool UseConstantFolding
         {
@@ -248,56 +249,86 @@ namespace Symbooglix
             });
         }
 
+        private Object ExecutorLoopLock = new object();
         public void Run(Implementation entryPoint, int timeout=0)
         {
-            SetupTimeout(timeout);
-            lock (PrepareProgramLock)
+            AllowExecutorToRun = true;
+
+            // This lock exists for two reasons
+            // 1. Force calls to this method to be serialised.
+            // 2. Allows the Terminate() method to block on this method.
+            lock (ExecutorLoopLock)
             {
-                if (!HasBeenPrepared)
-                    PrepareProgram();
-            }
+                SetupTimeout(timeout);
+                lock (PrepareProgramLock)
+                {
+                    if (!HasBeenPrepared)
+                        PrepareProgram();
+                }
 
-            if (InitialState.Finished())
-            {
-                throw new ExecuteTerminatedStateException(this, InitialState);
-            }
+                if (InitialState.Finished())
+                {
+                    throw new ExecuteTerminatedStateException(this, InitialState);
+                }
 
-            // Clone the state so we can keep the special initial state around
-            // if we want run() to be called again with a different entry point.
-            CurrentState = InitialState.DeepClone();
+                // Clone the state so we can keep the special initial state around
+                // if we want run() to be called again with a different entry point.
+                CurrentState = InitialState.DeepClone();
 
-            StateScheduler.AddState(CurrentState);
+                StateScheduler.AddState(CurrentState);
             
-            // Check the provided entry point is actually in the program we are about to execute
-            if (TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl == entryPoint).Count() == 0)
-            {
-                throw new InvalidEntryPoint(this, entryPoint);
+                // Check the provided entry point is actually in the program we are about to execute
+                if (TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl == entryPoint).Count() == 0)
+                {
+                    throw new InvalidEntryPoint(this, entryPoint);
+                }
+
+
+                // Push entry point onto stack frame
+                EnterImplementation(entryPoint, null, this);
+
+                var oldState = CurrentState;
+                while (AllowExecutorToRun)
+                {
+                    CurrentState = StateScheduler.GetNextState();
+                    if (CurrentState == null)
+                    {
+                        // No states left
+                        break;
+                    }
+
+                    Debug.Assert(!CurrentState.Finished(), "Cannot execute a terminated state!");
+
+                    Debug.WriteLineIf(oldState != CurrentState, "[Switching context " + oldState.Id + " => " + CurrentState.Id + " ]");
+                    oldState = CurrentState;
+
+                    CurrentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
+                    ExecuteInstruction();
+                }
+
+                Console.WriteLine("FIXME: Save state information");
+                Console.WriteLine("States left " + StateScheduler.GetNumberOfStates());
+                StateScheduler.RemoveAll(s => true);
+                Console.WriteLine("Finished executing all states");
             }
-
-
-            // Push entry point onto stack frame
-            EnterImplementation(entryPoint,null, this);
-
-            var oldState = CurrentState;
-            while (StateScheduler.GetNumberOfStates() != 0)
-            {
-                CurrentState = StateScheduler.GetNextState();
-                Debug.WriteLineIf(oldState != CurrentState, "[Switching context " + oldState.Id + " => " + CurrentState.Id + " ]");
-                oldState = CurrentState;
-
-                CurrentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
-                ExecuteInstruction();
-            }
-            Console.WriteLine("Finished executing all states");
-
         }
 
-        public void Terminate()
+        public void Terminate(bool block=false)
         {
             Console.WriteLine("Terminating early");
-            Console.WriteLine("FIXME: Save state information");
-            StateScheduler.RemoveAll(s => true);
-            Debug.Assert(StateScheduler.GetNumberOfStates() == 0);
+
+            // Technically there is a race here
+            // If Run() has not set AllowExecutorToRun to true yet and we set
+            // it to false here in another thread then execution can continue anyway.
+            AllowExecutorToRun = false;
+            if (block)
+            {
+                Console.WriteLine("Waiting for Executor to finish execution...");
+                lock (ExecutorLoopLock)
+                {
+                    Console.WriteLine("Finished");
+                }
+            }
         }
 
         private void ExecuteInstruction()
