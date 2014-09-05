@@ -90,6 +90,7 @@
     <Compile Include="Transforms\NestedFunctionsToInline.cs" />
     <Compile Include="ConstantFolding\FoldBvmul.cs" />
     <Compile Include="ConstantFolding\FoldBvudiv.cs" />
+    <Compile Include="ConstantFolding\FoldBvsdiv.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

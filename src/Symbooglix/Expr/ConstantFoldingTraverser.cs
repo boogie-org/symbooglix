@@ -845,12 +845,75 @@ namespace Symbooglix
                 return e;
         }
 
+        private BigInteger BvNegOnNaturalNumber(BigInteger value, int bitwidth)
+        {
+            var MaxValuePlusOne = (new BigInteger(1)) << bitwidth ; // 2^( number of bits)
+            return ( MaxValuePlusOne - value ) % MaxValuePlusOne;
+        }
+
         public Expr Visit_bvsdiv(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var numerator = e.Args[0] as LiteralExpr;
+                var denominator = e.Args[1] as LiteralExpr;
+                Debug.Assert(numerator.isBvConst);
+                Debug.Assert(denominator.isBvConst);
+                Debug.Assert(numerator .asBvConst.Bits == denominator.asBvConst.Bits);
+
+
+                // (bvsdiv s t) abbreviates
+                // (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+                // (?msb_t ((_ extract |m-1| |m-1|) t)))
+                // (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+                // (bvudiv s t)
+                // (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+                // (bvneg (bvudiv (bvneg s) t))
+                // (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+                // (bvneg (bvudiv s (bvneg t)))
+                // (bvudiv (bvneg s) (bvneg t))))))
+
+                // Check the sign of the bitvector in a two's complement representation
+                int bitwidth = numerator.asBvConst.Bits;
+                var threshold = BigInteger.Pow(2, bitwidth - 1);
+
+
+                bool numeratorIsPositiveOrZero = numerator.asBvConst.Value.ToBigInteger < threshold;
+                bool denominatorIsPositiveOrZero = denominator.asBvConst.Value.ToBigInteger < threshold;
+
+                BigInteger result=0;
+
+                if (numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    result = numerator.asBvConst.Value.ToBigInteger / 
+                             denominator.asBvConst.Value.ToBigInteger;
+                }
+                else if (!numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    result = BvNegOnNaturalNumber( 
+                                                    BvNegOnNaturalNumber(numerator.asBvConst.Value.ToBigInteger, bitwidth) /
+                                                    denominator.asBvConst.Value.ToBigInteger,
+                                                    bitwidth
+                                                 );
+                }
+                else if (numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero)
+                {
+                    result = BvNegOnNaturalNumber( 
+                                                    numerator.asBvConst.Value.ToBigInteger /
+                                                    BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth ),
+                                                    bitwidth
+                                                 );
+                }
+                else
+                {
+                    Debug.Assert(!numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero);
+                    result = BvNegOnNaturalNumber(numerator.asBvConst.Value.ToBigInteger, bitwidth) /
+                             BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth);
+                }
+
+                Debug.Assert(result >= 0);
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), numerator.asBvConst.Bits);
             }
             else
                 return e;
