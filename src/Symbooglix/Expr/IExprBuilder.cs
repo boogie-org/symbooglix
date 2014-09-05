@@ -103,7 +103,7 @@ namespace Symbooglix
             }
         }
 
-        private Expr GetBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr lhs, Expr rhs)
+        private Expr GetBinaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr lhs, Expr rhs)
         {
             Debug.Assert(lhs.Type != null);
             Debug.Assert(rhs.Type != null);
@@ -130,52 +130,52 @@ namespace Symbooglix
 
         public Expr BVSLT(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.Bool, "BVSLT", "bvslt", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.Bool, "BVSLT", "bvslt", lhs, rhs);
         }
 
         public Expr BVSGT(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.Bool, "BVSGT", "bvsgt", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.Bool, "BVSGT", "bvsgt", lhs, rhs);
         }
 
         public Expr BVOR(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVOR", "bvor", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVOR", "bvor", lhs, rhs);
         }
 
         public Expr BVAND(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVAND", "bvand", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVAND", "bvand", lhs, rhs);
         }
 
         public Expr BVSHL(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSHL", "bvshl", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSHL", "bvshl", lhs, rhs);
         }
 
         public Expr BVMUL(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVMUL", "bvmul", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVMUL", "bvmul", lhs, rhs);
         }
 
         public Expr BVUDIV(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUDIV", "bvudiv", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUDIV", "bvudiv", lhs, rhs);
         }
 
         public Expr BVSDIV(Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSDIV", "bvsdiv", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSDIV", "bvsdiv", lhs, rhs);
         }
 
         public Expr BVUREM (Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUREM", "bvurem", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUREM", "bvurem", lhs, rhs);
         }
 
         public Expr BVSREM (Expr lhs, Expr rhs)
         {
-            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
         }
 
         public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand)
