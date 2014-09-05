@@ -813,7 +813,22 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                var arg1 = e.Args[1] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                Debug.Assert(arg1.isBvConst);
+                Debug.Assert(arg0.asBvConst.Bits == arg1.asBvConst.Bits);
+
+                //    [[(bvudiv s t)]] := if bv2nat([[t]]) != 0 then
+                //                           nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
+                //
+                //  Division by zero is not defined by the standard. Just let an exception be
+                // thrown for now.
+                var MaxValuePlusOne = (new BigInteger(1)) << arg0.asBvConst.Bits ; // 2^( number of bits)
+                Debug.Assert(!arg0.asBvConst.Value.IsNegative);
+                Debug.Assert(!arg1.asBvConst.Value.IsNegative);
+                var result = ( arg0.asBvConst.Value.ToBigInteger / arg1.asBvConst.Value.ToBigInteger ) % MaxValuePlusOne;
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), arg0.asBvConst.Bits);
             }
             else
                 return e;
