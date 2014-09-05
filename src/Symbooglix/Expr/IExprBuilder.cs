@@ -31,6 +31,8 @@ namespace Symbooglix
         Expr BVSDIV(Expr lhs, Expr rhs);
         Expr BVSREM(Expr lhs, Expr rhs);
 
+        Expr BVNEG(Expr operand);
+
         // Real/Int operators
 
     }
@@ -174,6 +176,32 @@ namespace Symbooglix
         public Expr BVSREM (Expr lhs, Expr rhs)
         {
             return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
+        }
+
+        public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand)
+        {
+            Debug.Assert(operand.Type != null);
+            Debug.Assert(operand.Type is BvType);
+
+            int bits = operand.Type.BvBits;
+
+            // FIXME: Cache this for each bitwidth
+            var builtinFunctionCall = CreateBVBuiltIn(NameWithoutSizeSuffx + bits.ToString(),
+                                                      builtin, returnType,
+                                                      new List<Microsoft.Boogie.Type>()
+            {
+                BasicType.GetBvType(bits)
+            }
+                                                     );
+
+            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { operand});
+            return result;
+        }
+
+        public Expr BVNEG(Expr operand)
+        {
+            return GetUnaryBVFunction(BasicType.GetBvType(operand.Type.BvBits), "BVNEG", "bvneg", operand);
+
         }
     }
 }

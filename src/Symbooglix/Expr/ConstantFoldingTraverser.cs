@@ -1105,7 +1105,10 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var literal = e.Args[0] as LiteralExpr;
+                Debug.Assert(literal.isBvConst);
+                int bitwidth = literal.asBvConst.Bits;
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(BvNegOnNaturalNumber(literal.asBvConst.Value.ToBigInteger,bitwidth)), bitwidth);
             }
             else
                 return e;
