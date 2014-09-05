@@ -94,119 +94,54 @@ namespace Symbooglix
             }
         }
 
-        public Expr BVSLT(Expr lhs, Expr rhs)
+        private Expr GetBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr lhs, Expr rhs)
         {
             Debug.Assert(lhs.Type != null);
             Debug.Assert(rhs.Type != null);
             Debug.Assert(lhs.Type == rhs.Type);
             Debug.Assert(lhs.Type is BvType);
+            Debug.Assert(rhs.Type is BvType);
 
             int bits = lhs.Type.BvBits;
+            Debug.Assert(bits == rhs.Type.BvBits);
 
             // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn("BVSLT" + bits.ToString(),
-                                                      "bvslt", BasicType.Bool,
+            var builtinFunctionCall = CreateBVBuiltIn(NameWithoutSizeSuffx + bits.ToString(),
+                                                      builtin, returnType,
                                                       new List<Microsoft.Boogie.Type>()
-                                                      {
-                                                        BasicType.GetBvType(bits),
-                                                        BasicType.GetBvType(bits)
-                                                      }
+            {
+                BasicType.GetBvType(bits),
+                BasicType.GetBvType(bits)
+            }
                                                      );
 
             var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
             return result;
+        }
+
+        public Expr BVSLT(Expr lhs, Expr rhs)
+        {
+            return GetBVFunction(BasicType.Bool, "BVSLT", "bvslt", lhs, rhs);
         }
 
         public Expr BVSGT(Expr lhs, Expr rhs)
         {
-            Debug.Assert(lhs.Type != null);
-            Debug.Assert(rhs.Type != null);
-            Debug.Assert(lhs.Type == rhs.Type);
-            Debug.Assert(lhs.Type is BvType);
-
-            int bits = lhs.Type.BvBits;
-
-            // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn("BVSGT" + bits.ToString(),
-                                                      "bvsgt", BasicType.Bool,
-                                                      new List<Microsoft.Boogie.Type>()
-            {
-                BasicType.GetBvType(bits),
-                BasicType.GetBvType(bits)
-            }
-                                                     );
-
-            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
-            return result;
+            return GetBVFunction(BasicType.Bool, "BVSGT", "bvsgt", lhs, rhs);
         }
 
         public Expr BVOR(Expr lhs, Expr rhs)
         {
-            Debug.Assert(lhs.Type != null);
-            Debug.Assert(rhs.Type != null);
-            Debug.Assert(lhs.Type == rhs.Type);
-            Debug.Assert(lhs.Type is BvType);
-
-            int bits = lhs.Type.BvBits;
-
-            // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn("BVOR" + bits.ToString(),
-                                                      "bvor", BasicType.GetBvType(bits),
-                                                      new List<Microsoft.Boogie.Type>()
-            {
-                BasicType.GetBvType(bits),
-                BasicType.GetBvType(bits)
-            }
-                                                     );
-
-            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
-            return result;
+            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVOR", "bvor", lhs, rhs);
         }
 
         public Expr BVAND(Expr lhs, Expr rhs)
         {
-            Debug.Assert(lhs.Type != null);
-            Debug.Assert(rhs.Type != null);
-            Debug.Assert(lhs.Type == rhs.Type);
-            Debug.Assert(lhs.Type is BvType);
-
-            int bits = lhs.Type.BvBits;
-
-            // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn("BVAND" + bits.ToString(),
-                                                      "bvand", BasicType.GetBvType(bits),
-                                                      new List<Microsoft.Boogie.Type>()
-            {
-                BasicType.GetBvType(bits),
-                BasicType.GetBvType(bits)
-            }
-                                                     );
-
-            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
-            return result;
+            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVAND", "bvand", lhs, rhs);
         }
 
         public Expr BVSHL(Expr lhs, Expr rhs)
         {
-            Debug.Assert(lhs.Type != null);
-            Debug.Assert(rhs.Type != null);
-            Debug.Assert(lhs.Type == rhs.Type);
-            Debug.Assert(lhs.Type is BvType);
-
-            int bits = lhs.Type.BvBits;
-
-            // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn("BVSHL" + bits.ToString(),
-                                                      "bvshl", BasicType.GetBvType(bits),
-                                                      new List<Microsoft.Boogie.Type>()
-            {
-                BasicType.GetBvType(bits),
-                BasicType.GetBvType(bits)
-            }
-                                                     );
-
-            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
-            return result;
+            return GetBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSHL", "bvshl", lhs, rhs);
         }
     }
 }
