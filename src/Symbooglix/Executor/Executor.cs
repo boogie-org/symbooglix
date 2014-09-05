@@ -253,7 +253,6 @@ namespace Symbooglix
 
 
             // Push entry point onto stack frame
-            // FIXME: handle requires
             EnterImplementation(entryPoint,null, this);
 
             var oldState = CurrentState;
