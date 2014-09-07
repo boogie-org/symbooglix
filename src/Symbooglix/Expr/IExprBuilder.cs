@@ -19,6 +19,7 @@ namespace Symbooglix
         // TODO
         // BitVector operators
         Expr BVSLT(Expr lhs, Expr rhs);
+        Expr BVSLE(Expr lhs, Expr rhs);
         Expr BVSGT(Expr lhs, Expr rhs);
 
         Expr BVAND(Expr lhs, Expr rhs);
@@ -32,6 +33,7 @@ namespace Symbooglix
         Expr BVSREM(Expr lhs, Expr rhs);
 
         Expr BVNEG(Expr operand);
+
 
         // Real/Int operators
 
@@ -131,6 +133,11 @@ namespace Symbooglix
         public Expr BVSLT(Expr lhs, Expr rhs)
         {
             return GetBinaryBVFunction(BasicType.Bool, "BVSLT", "bvslt", lhs, rhs);
+        }
+
+        public Expr BVSLE (Expr lhs, Expr rhs)
+        {
+            return GetBinaryBVFunction(BasicType.Bool, "BVSLE", "bvsle", lhs, rhs);
         }
 
         public Expr BVSGT(Expr lhs, Expr rhs)
