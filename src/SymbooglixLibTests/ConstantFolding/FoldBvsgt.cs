@@ -6,7 +6,7 @@ using Microsoft.Boogie;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBvglt : TestBase
+    public class FoldBvsgt : TestBase
     {
         [Test()]
         public void PositivePositiveTrue()
