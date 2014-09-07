@@ -943,7 +943,8 @@ namespace Symbooglix
                 Debug.Assert(denominator.isBvConst);
                 Debug.Assert(numerator .asBvConst.Bits == denominator.asBvConst.Bits);
 
-
+                // 2's complement signed remainder (sign follows dividend)
+                //
                 //     (bvsrem s t) abbreviates
                 // (let ((?msb_s ((_ extract |m-1| |m-1|) s))
                 // (?msb_t ((_ extract |m-1| |m-1|) t)))
@@ -982,11 +983,10 @@ namespace Symbooglix
                 }
                 else if (numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero)
                 {
-                    result = BvNegOnNaturalNumber(
-                                                  numerator.asBvConst.Value.ToBigInteger %
-                                                  BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth ),
-                                                  bitwidth
-                                                 ) % MaxValuePlusOne;
+                    result = (
+                              numerator.asBvConst.Value.ToBigInteger %
+                              BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth )
+                             ) % MaxValuePlusOne;
                 }
                 else
                 {

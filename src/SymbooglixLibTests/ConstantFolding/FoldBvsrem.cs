@@ -29,7 +29,7 @@ namespace ConstantFoldingTests
         {
             var arg0 = builder.ConstantBV(7, 4);
             var arg1 = builder.ConstantBV(-2, 4);
-            helper(arg0, arg1, -1);
+            helper(arg0, arg1, 1);
         }
 
         [Test()]
