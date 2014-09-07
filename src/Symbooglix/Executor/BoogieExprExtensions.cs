@@ -10,19 +10,21 @@ namespace Symbooglix
         public static int GetNumberOfChildren(this Expr e)
         {
             if (e is LiteralExpr)
-                return ( e as LiteralExpr ).GetNumberOfChildren();
+                return (e as LiteralExpr).GetNumberOfChildren ();
             else if (e is IdentifierExpr)
-                return ( e as IdentifierExpr ).GetNumberOfChildren();
+                return (e as IdentifierExpr).GetNumberOfChildren ();
             else if (e is NAryExpr)
-                return ( e as NAryExpr ).GetNumberOfChildren();
+                return (e as NAryExpr).GetNumberOfChildren ();
             else if (e is BvExtractExpr)
-                return ( e as BvExtractExpr ).GetNumberOfChildren();
-            else if (e is BvConcatExpr )
-                return ( e as BvConcatExpr ).GetNumberOfChildren();
+                return (e as BvExtractExpr).GetNumberOfChildren ();
+            else if (e is BvConcatExpr)
+                return (e as BvConcatExpr).GetNumberOfChildren ();
             else if (e is ForallExpr)
-                return ( e as ForallExpr ).GetNumberOfChildren();
+                return (e as ForallExpr).GetNumberOfChildren ();
             else if (e is ExistsExpr)
-                return ( e as ExistsExpr ).GetNumberOfChildren();
+                return (e as ExistsExpr).GetNumberOfChildren ();
+            else if (e is OldExpr)
+                return (e as OldExpr).GetNumberOfChildren();
             else
                 throw new NotImplementedException();
         }
@@ -31,19 +33,21 @@ namespace Symbooglix
         public static void SetChild(this Expr e, int number, Expr NewChild)
         {
             if (e is LiteralExpr)
-                ( e as LiteralExpr ).SetChild(number, NewChild);
+                (e as LiteralExpr).SetChild(number, NewChild);
             else if (e is IdentifierExpr)
-                ( e as IdentifierExpr ).SetChild(number, NewChild);
+                (e as IdentifierExpr).SetChild(number, NewChild);
             else if (e is NAryExpr)
-                ( e as NAryExpr ).SetChild(number, NewChild);
+                (e as NAryExpr).SetChild(number, NewChild);
             else if (e is BvExtractExpr)
-                ( e as BvExtractExpr ).SetChild(number, NewChild);
+                (e as BvExtractExpr).SetChild(number, NewChild);
             else if (e is BvConcatExpr)
-                ( e as BvConcatExpr).SetChild(number, NewChild);
+                (e as BvConcatExpr).SetChild(number, NewChild);
             else if (e is ForallExpr)
                 (e as ForallExpr).SetChild(number, NewChild);
             else if (e is ExistsExpr)
                 (e as ExistsExpr).SetChild(number, NewChild);
+            else if (e is OldExpr)
+                (e as OldExpr).SetChild(number, NewChild);
             else
                 throw new NotImplementedException();
         }
@@ -51,19 +55,21 @@ namespace Symbooglix
         public static Expr GetChild(this Expr e, int number)
         {
             if (e is LiteralExpr)
-                return ( e as LiteralExpr ).GetChild(number);
+                return (e as LiteralExpr).GetChild(number);
             else if (e is IdentifierExpr)
-                return ( e as IdentifierExpr ).GetChild(number);
+                return (e as IdentifierExpr).GetChild(number);
             else if (e is NAryExpr)
-                return ( e as NAryExpr ).GetChild(number);
+                return (e as NAryExpr).GetChild(number);
             else if (e is BvExtractExpr)
-                return ( e as BvExtractExpr ).GetChild(number);
+                return (e as BvExtractExpr).GetChild(number);
             else if (e is BvConcatExpr)
-                return ( e as BvConcatExpr ).GetChild(number);
+                return (e as BvConcatExpr).GetChild(number);
             else if (e is ForallExpr)
                 return (e as ForallExpr).GetChild(number);
             else if (e is ExistsExpr)
                 return (e as ExistsExpr).GetChild(number);
+            else if (e is OldExpr)
+                return (e as OldExpr).GetChild(number);
             else
                 throw new NotImplementedException();
         }
@@ -233,6 +239,36 @@ namespace Symbooglix
                 return e.Body;
             default:
                 throw new InvalidOperationException("ExistsExpr only has one child");
+            }
+        }
+
+        // OldExpr
+        public static int GetNumberOfChildren(this OldExpr e)
+        {
+            return 1;
+        }
+
+        public static void SetChild(this OldExpr e, int number, Expr NewChild)
+        {
+            switch (number)
+            {
+                case 0:
+                    e.Expr = NewChild;
+                    return;
+
+                default:
+                    throw new InvalidOperationException("OldExpr only has one child");
+            }
+        }
+
+        public static Expr GetChild(this OldExpr e, int number)
+        {
+            switch (number)
+            {
+                case 0:
+                    return e.Expr;
+                default:
+                    throw new InvalidOperationException("OldExpr only has one child");
             }
         }
     }
