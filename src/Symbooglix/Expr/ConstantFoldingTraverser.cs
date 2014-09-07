@@ -32,6 +32,19 @@ namespace Symbooglix
             {
                 return e.Expr;
             }
+            else if (e.Expr is IdentifierExpr)
+            {
+                var idExpr = e.Expr as IdentifierExpr;
+                Debug.Assert(!(idExpr.Decl is Constant), "can't take old of constant");
+
+                if (idExpr.Decl is GlobalVariable)
+                    return e;
+                else
+                {
+                    // old(e) ==> e , if e is a non global variable
+                    return e.Expr;
+                }
+            }
             else
                 return e;
         }
