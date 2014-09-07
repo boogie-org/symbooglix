@@ -1473,7 +1473,48 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var x = e.Args[0] as LiteralExpr;
+                var y = e.Args[1] as LiteralExpr;
+                Debug.Assert(x.asBvConst.Bits == y.asBvConst.Bits, "Bitwidth mismatch");
+
+                // Check the sign of the bitvector in a two's complement representation
+                var threshold = BigInteger.Pow(2, x.asBvConst.Bits - 1);
+
+                bool xIsPositiveOrZero = x.asBvConst.Value.ToBigInteger < threshold;
+                bool yIsPositiveOrZero = y.asBvConst.Value.ToBigInteger < threshold;
+
+                if (xIsPositiveOrZero == yIsPositiveOrZero)
+                {
+                    // For this case with twos complement representation
+                    //
+                    // Notation: (x+ve) means x where x is a positive bitvector under two's complement
+                    //  _decimal_rep means the decimal representation of the bitvector treating it as unsigned
+                    //
+                    //
+                    // (x+ve) >= (y+ve) == (x_decimal_rep) >= (y_decimal_rep)
+                    // (x-ve) >= (y-ve) == (x_decimal_rep) >= (y_decimal_rep)
+
+                    bool truth = x.asBvConst.Value >= y.asBvConst.Value;
+
+                    if (truth)
+                        return Expr.True;
+                    else
+                        return Expr.False;
+                }
+                else if (xIsPositiveOrZero && !yIsPositiveOrZero)
+                {
+                    // (x+ve) >= (y-ve) == True
+                    return Expr.True;
+                }
+                else if (!xIsPositiveOrZero && yIsPositiveOrZero)
+                {
+                    // (x-ve) >= (y+ve) == False
+                    return Expr.False;
+                }
+                else
+                {
+                    throw new InvalidProgramException("Unreachable!");
+                }
             }
             else
                 return e;

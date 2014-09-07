@@ -95,6 +95,7 @@
     <Compile Include="ConstantFolding\FoldBvsrem.cs" />
     <Compile Include="ConstantFolding\FoldBvneg.cs" />
     <Compile Include="ConstantFolding\FoldBvsle.cs" />
+    <Compile Include="ConstantFolding\FoldBvsge.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -21,6 +21,7 @@ namespace Symbooglix
         Expr BVSLT(Expr lhs, Expr rhs);
         Expr BVSLE(Expr lhs, Expr rhs);
         Expr BVSGT(Expr lhs, Expr rhs);
+        Expr BVSGE(Expr lhls, Expr rhs);
 
         Expr BVAND(Expr lhs, Expr rhs);
         Expr BVOR(Expr lhs, Expr rhs);
@@ -143,6 +144,11 @@ namespace Symbooglix
         public Expr BVSGT(Expr lhs, Expr rhs)
         {
             return GetBinaryBVFunction(BasicType.Bool, "BVSGT", "bvsgt", lhs, rhs);
+        }
+
+        public Expr BVSGE(Expr lhs, Expr rhs)
+        {
+            return GetBinaryBVFunction(BasicType.Bool, "BVSGE", "bvsge", lhs, rhs);
         }
 
         public Expr BVOR(Expr lhs, Expr rhs)

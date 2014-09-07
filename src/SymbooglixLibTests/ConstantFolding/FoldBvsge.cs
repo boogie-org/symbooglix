@@ -6,7 +6,7 @@ using Microsoft.Boogie;
 namespace ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBvglt : TestBase
+    public class FoldBvsge : TestBase
     {
         [Test()]
         public void PositivePositiveTrue()
@@ -15,9 +15,9 @@ namespace ConstantFoldingTests
         }
 
         [Test()]
-        public void PositivePositiveFalseEqual()
+        public void PositivePositiveTrueEqual()
         {
-            helper(6, 6, false);
+            helper(6, 6, true);
         }
 
         [Test()]
@@ -51,9 +51,9 @@ namespace ConstantFoldingTests
         }
 
         [Test()]
-        public void NegativeNegativeFalseEqual()
+        public void NegativeNegativeTrueEqual()
         {
-            helper(-6, -6, false);
+            helper(-6, -6, true);
         }
 
 
@@ -62,7 +62,7 @@ namespace ConstantFoldingTests
         {
             var x = builder.ConstantBV(value0, 4);
             var y = builder.ConstantBV(value1, 4);
-            var bvslt = builder.BVSGT(x, y);
+            var bvslt = builder.BVSGE(x, y);
 
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(bvslt);
