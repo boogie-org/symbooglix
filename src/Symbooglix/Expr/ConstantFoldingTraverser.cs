@@ -28,7 +28,12 @@ namespace Symbooglix
 
         public Expr VisitOldExpr(OldExpr e)
         {
-            throw new NotImplementedException();
+            if (e.Expr is LiteralExpr)
+            {
+                return e.Expr;
+            }
+            else
+                return e;
         }
 
         public Expr VisitCodeExpr(CodeExpr e)
