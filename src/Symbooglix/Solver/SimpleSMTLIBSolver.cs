@@ -134,10 +134,20 @@ namespace Symbooglix
                     Printer.AddDeclarations(queryExpr);
 
                     // Assume the process has already been setup
-                    SetSolverOptions();
-                    PrintDeclarationsAndConstraints();
-                    Printer.PrintAssert(queryExpr);
-                    Printer.PrintCheckSat();
+                    try
+                    {
+                        SetSolverOptions();
+                        PrintDeclarationsAndConstraints();
+                        Printer.PrintAssert(queryExpr);
+                        Printer.PrintCheckSat();
+                    }
+                    catch(System.IO.IOException)
+                    {
+                        // This might happen if the process gets killed whilst we are trying to write
+                        if (!ReceivedResult)
+                            throw new NoSolverResultException("Failed to get solver result!");
+                    }
+
 
                     if (computeAssignment)
                         throw new NotSupportedException("Can't handle assignments yet");
