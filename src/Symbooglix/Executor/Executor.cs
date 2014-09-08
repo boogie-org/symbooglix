@@ -587,6 +587,16 @@ namespace Symbooglix
                 InitialiseAsSymbolic(v);
             }
 
+            // Record any globals that will be used in OldExpr
+            if (proc.GetOldExprVariables().Count > 0)
+            {
+                var duplicator = new NonSymbolicDuplicator();
+                foreach (var GV in proc.GetOldExprVariables())
+                {
+                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
+                }
+            }
+
             // Assert each requires (this might produce failing states)
             bool stillInState = true;
             var VR = new VariableMapRewriter(CurrentState);

@@ -35,6 +35,23 @@ namespace SymbooglixLibTests
             Assert.AreEqual(2, bpCount);
              
         }
+
+        [Test()]
+        public void Proc()
+        {
+            p = loadProgram("programs/OldExprCallProc.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            var TSC = new TerminationCounter();
+            TSC.Connect(e);
+
+            e.Run(getMain(p));
+
+            Assert.AreEqual(0, TSC.Sucesses);
+            Assert.AreEqual(1, TSC.NumberOfFailures);
+            Assert.AreEqual(1, TSC.UnsatisfiableEnsures);
+
+        }
     }
 }
 
