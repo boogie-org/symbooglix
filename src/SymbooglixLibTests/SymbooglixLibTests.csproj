@@ -82,7 +82,6 @@
     <Compile Include="TypeSynonym.cs" />
     <Compile Include="ConstantFolding\FoldBvslt.cs" />
     <Compile Include="RequiresWithConstantEqualityConstraint.cs" />
-    <Compile Include="ConstantFolding\FoldBVor.cs" />
     <Compile Include="ConstantFolding\FoldBvshl.cs" />
     <Compile Include="ConstantFolding\FoldBvsgt.cs" />
     <Compile Include="ConstantFolding\FoldBVand.cs" />
@@ -96,6 +95,8 @@
     <Compile Include="ConstantFolding\FoldBvneg.cs" />
     <Compile Include="ConstantFolding\FoldBvsle.cs" />
     <Compile Include="ConstantFolding\FoldBvsge.cs" />
+    <Compile Include="ConstantFolding\FoldBvxor.cs" />
+    <Compile Include="ConstantFolding\FoldBVor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
