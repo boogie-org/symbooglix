@@ -321,6 +321,10 @@ namespace Symbooglix
             // If Run() has not set AllowExecutorToRun to true yet and we set
             // it to false here in another thread then execution can continue anyway.
             AllowExecutorToRun = false;
+
+            // Stop the solver from doing whatever its doing
+            TheSolver.Dispose();
+
             if (block)
             {
                 Console.WriteLine("Waiting for Executor to finish execution...");

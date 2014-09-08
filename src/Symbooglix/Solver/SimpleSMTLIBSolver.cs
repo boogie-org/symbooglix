@@ -99,41 +99,62 @@ namespace Symbooglix
                 }
             }
 
+            private Object DisposeLock = new object();
+            private bool HasBeenDisposed = false;
             public void Dispose()
             {
-                // FIXME: This is broken. Calling this from another thread doesn't cause TheProcess.WaitForExit()
-                // to wake!
-                TheProcess.Kill();
-                TheProcess.Dispose();
+                lock (DisposeLock)
+                {
+                    if (HasBeenDisposed)
+                        return;
+
+                    TheProcess.CancelErrorRead();
+                    Console.WriteLine("Cancelled reading stderr");
+                    TheProcess.CancelOutputRead();
+                    Console.WriteLine("Cancelled reading stdout");
+                    TheProcess.Kill();
+                    Console.WriteLine("killed process");
+                    lock (ComputeSatisfiabilityLock)
+                    {
+                        TheProcess.Dispose();
+                        Console.WriteLine("Disposed of process");
+                    }
+                    HasBeenDisposed = true;
+                }
             }
 
             // This is not thread safe!
+            private Object ComputeSatisfiabilityLock = new object();
             public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
             {
-                ReceivedResult = false;
+                lock (ComputeSatisfiabilityLock)
+                {
+                    ReceivedResult = false;
 
-                Printer.AddDeclarations(queryExpr);
+                    Printer.AddDeclarations(queryExpr);
 
-                // Assume the process has already been setup
-                SetSolverOptions();
-                PrintDeclarationsAndConstraints();
-                Printer.PrintAssert(queryExpr);
-                Printer.PrintCheckSat();
+                    // Assume the process has already been setup
+                    SetSolverOptions();
+                    PrintDeclarationsAndConstraints();
+                    Printer.PrintAssert(queryExpr);
+                    Printer.PrintCheckSat();
 
-                if (computeAssignment)
-                    throw new NotSupportedException("Can't handle assignments yet");
+                    if (computeAssignment)
+                        throw new NotSupportedException("Can't handle assignments yet");
 
-                if (Timeout > 0)
-                    TheProcess.WaitForExit(Timeout * 1000);
-                else
-                    TheProcess.WaitForExit();
+                    if (Timeout > 0)
+                        TheProcess.WaitForExit(Timeout * 1000);
+                    else
+                        TheProcess.WaitForExit();
 
-                if (!ReceivedResult)
-                    throw new NoSolverResultException("Failed to get solver result!");
+                    if (!ReceivedResult)
+                        throw new NoSolverResultException("Failed to get solver result!");
 
-                CreateNewProcess(); // For next invocation
+                    CreateNewProcess(); // For next invocation
 
-                return Tuple.Create(SolverResult, null as IAssignment);
+
+                    return Tuple.Create(SolverResult, null as IAssignment);
+                }
             }
 
             protected virtual void OutputHandler(object sendingProcess, DataReceivedEventArgs stdoutLine)
