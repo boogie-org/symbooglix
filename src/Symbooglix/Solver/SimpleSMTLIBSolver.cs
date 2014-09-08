@@ -147,6 +147,12 @@ namespace Symbooglix
                         if (!ReceivedResult)
                             throw new NoSolverResultException("Failed to get solver result!");
                     }
+                    catch (ObjectDisposedException)
+                    {
+                        Console.Error.WriteLine("Warning hit ObjectDisposedException. Assuming we are being disposed of!");
+                        // Race condition, We got killed while trying to print. Just give up!
+                        return Tuple.Create(Result.UNKNOWN, null as IAssignment);
+                    }
 
 
                     if (computeAssignment)
