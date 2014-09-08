@@ -99,6 +99,16 @@ namespace Symbooglix
             return e;
         }
 
+        public override Expr VisitOldExpr(OldExpr node)
+        {
+            var oldGlobals = State.GetCurrentStackFrame().OldGlobals;
+            Debug.Assert(oldGlobals != null, "Old Globals should not be null!");
+            Debug.Assert(node.Expr is IdentifierExpr && ( node.Expr as IdentifierExpr ).Decl is GlobalVariable, "Unexpected expression in OldExpr");
+            var GV = ( node.Expr as IdentifierExpr ).Decl as GlobalVariable;
+            Debug.Assert(oldGlobals.ContainsKey(GV), "A global variable is missing from the Current stackframe's list of OldGlobals");
+            return oldGlobals[GV];
+        }
+
         // FIXME: We should not duplicate literals either
     }
 }

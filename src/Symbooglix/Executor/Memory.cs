@@ -76,9 +76,27 @@ namespace Symbooglix
         private BlockCmdIterator BCI;
         public IEnumerator<Absy> CurrentInstruction;
 
+        // FIXME: Make this thread safe
+        // Lazy initialisation
+        private Dictionary<GlobalVariable, Expr> InternalOldGlobals;
+        public Dictionary<GlobalVariable, Expr> OldGlobals
+        {
+            get
+            {
+                if (InternalOldGlobals == null)
+                {
+                    InternalOldGlobals = new Dictionary<GlobalVariable, Expr>();
+                }
+
+                return InternalOldGlobals;
+            }
+            private set { InternalOldGlobals = OldGlobals; }
+        }
+
         public StackFrame(Implementation impl)
         {
             Locals = new Dictionary<Variable,Expr>();
+            InternalOldGlobals = null;
             this.Impl = impl;
             this.Proc = null;
             TransferToBlock(impl.Blocks[0]);
@@ -88,6 +106,7 @@ namespace Symbooglix
         public StackFrame(Procedure proc)
         {
             Locals = new Dictionary<Variable,Expr>();
+            InternalOldGlobals = null;
             this.Proc = proc;
             this.Impl = null;
             this.CurrentInstruction = null;
@@ -115,6 +134,16 @@ namespace Symbooglix
             {
                 Expr copy = (Expr) duplicator.Visit(pair.Value);
                 other.Locals.Add(pair.Key, copy);
+            }
+
+            if (this.OldGlobals != null)
+            {
+                other.InternalOldGlobals = new Dictionary<GlobalVariable, Expr>();
+                foreach (var pair in this.OldGlobals)
+                {
+                    Expr copy = (Expr) duplicator.Visit(pair.Value);
+                    other.InternalOldGlobals.Add(pair.Key, copy);
+                }
             }
 
             // A dummy stack frame doesn't have an instruction iterator

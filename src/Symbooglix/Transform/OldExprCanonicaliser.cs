@@ -56,6 +56,7 @@ namespace Symbooglix
 
                 foreach (var impl in prog.TopLevelDeclarations.OfType<Implementation>())
                 {
+                    // Note this will Visit the implementation and the corresponding procedure
                     canonicaliser.Visit(impl);
                     var GVs = new List<GlobalVariable>();
 

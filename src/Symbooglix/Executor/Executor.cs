@@ -89,7 +89,7 @@ namespace Symbooglix
                 var FRF = new FindRecursiveFunctionsPass();
                 passManager.Add(FRF);
                 passManager.Add(new Transform.FunctionInliningPass());
-
+                passManager.Add(new Transform.OldExprCanonicaliser());
           
                 // FIXME: Make this a pass
                 // FIXME: Remove this? We aren't using it!
@@ -470,6 +470,19 @@ namespace Symbooglix
                 // Make symbolic
                 CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
                 InitialiseAsSymbolic(v);
+            }
+
+            // Record any Globals used in OldExpr for this implementation
+            // Or its procedure. It's important we do this before using the VariableMapRewriter so
+            // it is able to handler any OldExpr
+            var oldExprImplGlobals = CurrentState.GetCurrentStackFrame().Impl.GetOldExprVariables();
+            if (oldExprImplGlobals.Count > 0)
+            {
+                var duplicator = new NonSymbolicDuplicator();
+                foreach (var GV in oldExprImplGlobals)
+                {
+                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
+                }
             }
 
             // Load procedure's requires statements as constraints.
