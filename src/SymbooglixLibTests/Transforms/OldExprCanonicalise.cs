@@ -114,12 +114,16 @@ namespace TransformTests
             var mainOldExprGlobals = pass.GlobalsInsideOldExprUsedByImpl.Where(kv => kv.Key.Name == "main").Select(kv => kv.Value).First();
             Assert.AreEqual(1, mainOldExprGlobals.Count);
             Assert.AreEqual("g", mainOldExprGlobals[0].Name);
+            // Check metadata is set
+            Assert.AreSame(mainOldExprGlobals, prog.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl.Name == "main").First().GetOldExprVariables());
 
             // bar
             var barOldExprGlobals = pass.GlobalsInsideOldExprUsedByImpl.Where(kv => kv.Key.Name == "bar").Select(kv => kv.Value).First();
             Assert.AreEqual(2, barOldExprGlobals.Count);
             Assert.AreEqual(1, barOldExprGlobals.Where(globalV => globalV.Name == "g").Count());
             Assert.AreEqual(1, barOldExprGlobals.Where(globalV => globalV.Name == "h").Count());
+            // Check metadata is set
+            Assert.AreSame(barOldExprGlobals, prog.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl.Name == "bar").First().GetOldExprVariables());
         }
 
         [Test()]
@@ -135,16 +139,22 @@ namespace TransformTests
             var mainOldExprGlobals = pass.GlobalsInsideOldExprUsedByProcedure.Where(kv => kv.Key.Name == "main").Select(kv => kv.Value).First();
             Assert.AreEqual(1, mainOldExprGlobals.Count);
             Assert.AreEqual("g", mainOldExprGlobals[0].Name);
+            // Check metadata is set
+            Assert.AreSame(mainOldExprGlobals, prog.TopLevelDeclarations.OfType<Procedure>().Where(proc => proc.Name == "main").First().GetOldExprVariables());
 
             // bar
             var barOldExprGlobals = pass.GlobalsInsideOldExprUsedByProcedure.Where(kv => kv.Key.Name == "bar").Select(kv => kv.Value).First();
             Assert.AreEqual(1, barOldExprGlobals.Count);
             Assert.AreEqual("g", barOldExprGlobals[0].Name);
+            // Check metadata is set
+            Assert.AreSame(barOldExprGlobals, prog.TopLevelDeclarations.OfType<Procedure>().Where(proc => proc.Name == "bar").First().GetOldExprVariables());
 
             // foo
             var fooOldExprGlobals = pass.GlobalsInsideOldExprUsedByProcedure.Where(kv => kv.Key.Name == "foo").Select(kv => kv.Value).First();
             Assert.AreEqual(1, fooOldExprGlobals.Count);
             Assert.AreEqual("g", fooOldExprGlobals[0].Name);
+            // Check metadata is set
+            Assert.AreSame(fooOldExprGlobals, prog.TopLevelDeclarations.OfType<Procedure>().Where(proc => proc.Name == "foo").First().GetOldExprVariables());
         }
 
         private void LoadProgram()
@@ -155,7 +165,7 @@ namespace TransformTests
         private void RunPass()
         {
             var PM = new PassManager(prog);
-            this.pass = new Symbooglix.Transform.OldExprCanonicaliser();
+            this.pass = new Symbooglix.Transform.OldExprCanonicaliser(/*annotateProceduresAndImplementations=*/ true);
             PM.Add(this.pass);
             PM.Run();
         }

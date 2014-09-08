@@ -7,7 +7,8 @@ namespace Symbooglix
         public enum AnnotationIndex
         {
             PROGRAM_LOCATION = 0,
-            PROFILE_DATA
+            PROFILE_DATA,
+            GLOBALS_USED_IN_OLD_EXPR
         }
     }
 }

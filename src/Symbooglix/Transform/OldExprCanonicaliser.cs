@@ -19,11 +19,14 @@ namespace Symbooglix
         /// </summary>
         public class OldExprCanonicaliser : IProgramPass
         {
+            // FIXME: Do we really need this Dictionary? We can just get what we want from the metadata.
             public IDictionary<Procedure, IList<GlobalVariable>> GlobalsInsideOldExprUsedByProcedure =  new Dictionary<Procedure, IList<GlobalVariable>>();
             public IDictionary<Implementation, IList<GlobalVariable>> GlobalsInsideOldExprUsedByImpl = new Dictionary<Implementation, IList<GlobalVariable>>();
+            private bool AnnotateProceduresAndImplementations;
 
-            public OldExprCanonicaliser()
+            public OldExprCanonicaliser(bool annotateProceduresAndImplementations = true)
             {
+                this.AnnotateProceduresAndImplementations = annotateProceduresAndImplementations;
             }
 
             public bool RunOn(Program prog)
@@ -37,6 +40,12 @@ namespace Symbooglix
 
                     GVs.AddRange(canonicaliser.GlobalsInsideOldExpr);
                     GlobalsInsideOldExprUsedByProcedure[proc] = GVs;
+
+                    if (AnnotateProceduresAndImplementations)
+                    {
+                        // Add as metadata for easy retrival during execution
+                        proc.SetMetadata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR, GVs);
+                    }
 
                     if (GVs.Count > 0)
                         changed = true;
@@ -52,6 +61,12 @@ namespace Symbooglix
 
                     GVs.AddRange(canonicaliser.GlobalsInsideOldExpr);
                     GlobalsInsideOldExprUsedByImpl[impl] = GVs;
+
+                    if (AnnotateProceduresAndImplementations)
+                    {
+                        // Add as metadata for easy retrival during execution
+                        impl.SetMetadata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR, GVs);
+                    }
 
                     if (GVs.Count > 0)
                         changed = true;

@@ -1,6 +1,7 @@
 ﻿using System;
 using Symbooglix;
 using Microsoft.Boogie;
+using System.Collections.Generic;
 
 namespace Symbooglix
 {
@@ -13,6 +14,18 @@ namespace Symbooglix
         public static ProgramLocation GetProgramLocation(this Absy node)
         {
             return node.GetMetatdata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
+        }
+
+        // Handy accessor for metadata added by the OldExprCanonicaliser pass
+        public static IList<GlobalVariable> GetOldExprVariables(this Procedure node)
+        {
+            return node.GetMetatdata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
+        }
+
+        // Handy accessor for metadata added by the OldExprCanonicaliser pass
+        public static IList<GlobalVariable> GetOldExprVariables(this Implementation node)
+        {
+            return node.GetMetatdata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
         }
     }
 }
