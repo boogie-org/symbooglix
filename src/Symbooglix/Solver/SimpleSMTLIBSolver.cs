@@ -145,13 +145,18 @@ namespace Symbooglix
                     {
                         // This might happen if the process gets killed whilst we are trying to write
                         if (!ReceivedResult)
-                            throw new NoSolverResultException("Failed to get solver result!");
+                        {
+                            Console.Error.WriteLine("Failed to get solver result!");
+                            SolverResult = Result.UNKNOWN;
+                            return Tuple.Create(SolverResult, null as IAssignment);
+                        }
                     }
                     catch (ObjectDisposedException)
                     {
                         Console.Error.WriteLine("Warning hit ObjectDisposedException. Assuming we are being disposed of!");
                         // Race condition, We got killed while trying to print. Just give up!
-                        return Tuple.Create(Result.UNKNOWN, null as IAssignment);
+                        SolverResult = Result.UNKNOWN;
+                        return Tuple.Create(SolverResult, null as IAssignment);
                     }
 
 
@@ -164,7 +169,10 @@ namespace Symbooglix
                         TheProcess.WaitForExit();
 
                     if (!ReceivedResult)
-                        throw new NoSolverResultException("Failed to get solver result!");
+                    {
+                        Console.Error.WriteLine("Failed to get solver result!");
+                        SolverResult = Result.UNKNOWN;
+                    }
 
                     CreateNewProcess(); // For next invocation
 
