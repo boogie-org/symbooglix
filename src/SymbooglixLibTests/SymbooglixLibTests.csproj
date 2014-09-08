@@ -97,6 +97,7 @@
     <Compile Include="ConstantFolding\FoldBvsge.cs" />
     <Compile Include="ConstantFolding\FoldBvxor.cs" />
     <Compile Include="ConstantFolding\FoldBVor.cs" />
+    <Compile Include="Transforms\OldExprCanonicalise.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -191,6 +192,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Transforms\programs\NestedFunctionsToInline.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Transforms\programs\OldExprCanonicalise.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
