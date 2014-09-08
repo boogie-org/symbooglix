@@ -613,14 +613,13 @@ namespace Symbooglix
                 };
 
                 stillInState = HandleAssertLikeCommand(condition, helper, requires.GetProgramLocation());
-            }
 
-            // Check we're still in state
-            if (!stillInState)
-            {
-                // The CurrentState was terminated so we can't continue
-                Debug.Assert(CurrentState.Finished());
-                return HandlerAction.CONTINUE;
+                // Check we're still in state
+                if (!stillInState)
+                {
+                    // The CurrentState was terminated so we can't continue
+                    return HandlerAction.CONTINUE;
+                }
             }
 
             // Make the Global variables in Modset Symbolic
@@ -644,16 +643,15 @@ namespace Symbooglix
                 };
 
                 stillInState = HandleAssumeLikeCommand(condition, helper, ensures.GetProgramLocation());
+
+                // Check we're still in state
+                if (!stillInState)
+                {
+                    // The CurrentState was terminated so we can't continue
+                    return HandlerAction.CONTINUE;
+                }
             }
 
-            // Check we're still in state
-            if (!stillInState)
-            {
-                // The CurrentState was terminated so we can't continue
-                Debug.Assert(CurrentState.Finished());
-                return HandlerAction.CONTINUE;
-            }
-                
             // Put return parameters into callee's stack frame
             Debug.Assert(callingStackFrame.CurrentInstruction.Current is CallCmd, "Expected the calling stack frame's current instruction to be a CallCmd");
             var caller = callingStackFrame.CurrentInstruction.Current as CallCmd;
@@ -879,6 +877,7 @@ namespace Symbooglix
                         StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
 
                     StateScheduler.RemoveState(CurrentState);
+                    CurrentState = null;
                     return false; // No longer in a state because removed the current state
                 }
                 else
@@ -954,6 +953,7 @@ namespace Symbooglix
                     StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
 
                 StateScheduler.RemoveState(CurrentState);
+                CurrentState = null;
                 return false; // No longer in a state because we removed the current state
             }
             else if (!canFail && canSucceed)
@@ -1008,6 +1008,7 @@ namespace Symbooglix
                         StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
 
                     StateScheduler.RemoveState(CurrentState);
+                    CurrentState = null;
                     return false; // No longer in current state
                 }
             }
@@ -1026,6 +1027,7 @@ namespace Symbooglix
                         StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
 
                     StateScheduler.RemoveState(CurrentState);
+                    CurrentState = null;
                     return false; // No longer in current state
 
                 case Symbooglix.Solver.Result.SAT:

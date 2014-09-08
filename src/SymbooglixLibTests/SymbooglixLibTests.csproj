@@ -99,6 +99,7 @@
     <Compile Include="ConstantFolding\FoldBVor.cs" />
     <Compile Include="Transforms\OldExprCanonicalise.cs" />
     <Compile Include="OldExprCall.cs" />
+    <Compile Include="CallInconsistentSpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -202,6 +203,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\OldExprCallProc.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\CallInconsistentSpecification.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
