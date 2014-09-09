@@ -386,10 +386,6 @@ namespace Symbooglix
 
             }
 
-            // FIXME: We should check for structural equivalence
-            // we can't do this right now because Boogie's equals operator
-            // overload is broken!
-
             // Can't constant fold
             return e;
         }
