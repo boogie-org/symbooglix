@@ -1296,7 +1296,6 @@ namespace Symbooglix
 
         public Expr Visit_bvugt(NAryExpr e)
         {
-            // FIXME: How are the signed operators going to work?
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
