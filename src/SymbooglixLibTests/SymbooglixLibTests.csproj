@@ -100,6 +100,7 @@
     <Compile Include="Transforms\OldExprCanonicalise.cs" />
     <Compile Include="OldExprCall.cs" />
     <Compile Include="CallInconsistentSpecification.cs" />
+    <Compile Include="WhereExpr.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -206,6 +207,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\CallInconsistentSpecification.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\WhereExpr.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

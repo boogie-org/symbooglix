@@ -471,6 +471,9 @@ namespace Symbooglix
             // Load procedure's declared locals on to stack
             foreach(Variable v in Impl.LocVars)
             {
+                if (v.TypedIdent.WhereExpr != null)
+                    throw new NotImplementedException("WhereExpr not implemented yet");
+
                 // Make symbolic
                 CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
                 InitialiseAsSymbolic(v);
