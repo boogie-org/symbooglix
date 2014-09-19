@@ -142,6 +142,9 @@ namespace Symbooglix
                 var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
                 foreach (Variable gv in GVs)
                 {
+                    if (gv.TypedIdent.WhereExpr != null)
+                        throw new NotImplementedException("WhereExpr on globals not supported");
+
                     // Make symbolic
                     var s = SymbolicPool.getFreshSymbolic(gv);
                     Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
