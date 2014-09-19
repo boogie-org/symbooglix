@@ -270,5 +270,27 @@ namespace Symbooglix
             internal set;
         }
     }
+
+    public class TerminatedWithDisallowedSpeculativePath : ITerminationType
+    {
+        public string GetMessage()
+        {
+            return "Disallowed speculative path. Starting at " + ExitLocation.ToString();
+        }
+
+        public ExecutionState State
+        {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation
+        {
+            get
+            {
+                return State.GetCurrentStackFrame().CurrentInstruction.Current.GetProgramLocation();
+            }
+        }
+    }
 }
 

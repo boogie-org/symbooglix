@@ -300,6 +300,16 @@ namespace Symbooglix
                         break;
                     }
 
+                    if (CurrentState.Speculative)
+                    {
+                        // FIXME: Report hiting a speculative execution state as an event!
+                        Console.WriteLine("Not executing a speculative Execution State!");
+                        CurrentState.Terminate(new TerminatedWithDisallowedSpeculativePath());
+                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
+                        StateScheduler.RemoveState(CurrentState);
+                        continue;
+                    }
+
                     Debug.Assert(!CurrentState.Finished(), "Cannot execute a terminated state!");
 
                     Debug.WriteLineIf(oldState != CurrentState, "[Switching context " + oldState.Id + " => " + CurrentState.Id + " ]");
@@ -902,6 +912,8 @@ namespace Symbooglix
             bool canFail = false;
             bool canSucceed = false;
             bool canNeverFail = false;
+            bool failureIsSpeculative = false;
+            bool successIsSpeculative = false;
             switch (result)
             {
                 case Solver.Result.SAT:
@@ -909,6 +921,7 @@ namespace Symbooglix
                     break;
                 case Solver.Result.UNKNOWN:
                     Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                    failureIsSpeculative = true;
                     canFail = true;
                     break;
                 case Symbooglix.Solver.Result.UNSAT:
@@ -944,6 +957,7 @@ namespace Symbooglix
                         break;
                     case Solver.Result.UNKNOWN:
                         Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                        successIsSpeculative = true;
                         canSucceed = true;
                         break;
                     case Symbooglix.Solver.Result.UNSAT:
@@ -956,6 +970,9 @@ namespace Symbooglix
 
             if (canFail && !canSucceed)
             {
+                if (failureIsSpeculative)
+                    CurrentState.MakeSpeculative();
+
                 terminate(CurrentState);
 
                 // Notify
@@ -968,6 +985,9 @@ namespace Symbooglix
             }
             else if (!canFail && canSucceed)
             {
+                if (successIsSpeculative)
+                    CurrentState.MakeSpeculative();
+
                 // This state can only succeed
                 CurrentState.Constraints.AddConstraint(condition, location);
                 return true; // We are still in the current state
@@ -980,11 +1000,18 @@ namespace Symbooglix
                 // Or do we? Copying the state just so we can inform
                 // the handlers about it seems wasteful...
                 ExecutionState failingState = CurrentState.DeepClone();
+
+                if (failureIsSpeculative)
+                    failingState.MakeSpeculative();
+                    
                 terminate(failingState);
 
                 // Notify
                 if (StateTerminated != null)
                     StateTerminated(this, new ExecutionStateEventArgs(failingState));
+
+                if (successIsSpeculative)
+                    CurrentState.MakeSpeculative();
 
                 // successful state can now have assertion expr in constraints
                 CurrentState.Constraints.AddConstraint(condition, location);
@@ -1045,8 +1072,9 @@ namespace Symbooglix
                     break;
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
-                    // Be conservative and just add the constraint
                     // FIXME: Is this a bug? HandleAssertLikeCmd() assumes that current constraints are satisfiable
+                    CurrentState.MakeSpeculative();
+
                     CurrentState.Constraints.AddConstraint(condition, location);
                     break;
                 default:

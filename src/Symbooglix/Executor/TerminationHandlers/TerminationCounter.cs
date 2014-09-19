@@ -15,6 +15,7 @@ namespace Symbooglix
         public int UnsatisfiableAssumes { get; private set;}
         public int UnsatisfiableEnsures { get; private set; }
         public int UnsatisfiableAxioms { get; private set;}
+        public int DisallowedSpeculativePaths { get; private set; }
 
         public int NumberOfFailures
         {
@@ -27,12 +28,13 @@ namespace Symbooglix
                 UnsatisfiableAssumes +
                 UnsatisfiableEnsures +
                 UnsatisfiableAxioms;
+                // Note we don't consider a DisallowedSpeculativePath to be a failure
             }
         }
 
         public int NumberOfTerminatedStates
         {
-            get { return NumberOfFailures + Sucesses; }
+            get { return NumberOfFailures + Sucesses + DisallowedSpeculativePaths; }
         }
 
         public TerminationCounter()
@@ -71,6 +73,8 @@ namespace Symbooglix
                 UnsatisfiableEnsures++;
             else if (terminationType is TerminatedAtUnsatisfiableAxiom)
                 UnsatisfiableAxioms++;
+            else if (terminationType is TerminatedWithDisallowedSpeculativePath)
+                DisallowedSpeculativePaths++;
             else
                 throw new NotSupportedException("Can't handle Termination type " + terminationType.ToString());
         }
@@ -84,6 +88,7 @@ namespace Symbooglix
             FailingEnsures = 0;
             UnsatisfiableAssumes = 0;
             UnsatisfiableEnsures = 0;
+            DisallowedSpeculativePaths = 0;
         }
 
         public override string ToString()
@@ -97,6 +102,7 @@ namespace Symbooglix
                                  "  UnsatisfiableAssumes={5}\n" +
                                  "  UnsatisfiableEnsures={6}\n" +
                                  "  UnsatisfiableAxioms={7}\n" +
+                                 "  DisallowedSpeculativePath={8}\n" +
                                  "]",
                                  Sucesses,
                                  FailingAsserts,
@@ -105,7 +111,8 @@ namespace Symbooglix
                                  FailingEnsures,
                                  UnsatisfiableAssumes,
                                  UnsatisfiableEnsures,
-                                 UnsatisfiableAxioms);
+                                 UnsatisfiableAxioms,
+                                 DisallowedSpeculativePaths);
         }
 
     }

@@ -7,15 +7,18 @@ namespace Symbooglix
     namespace Solver
     {
         /// <summary>
-        /// This solver considers every query to be satisfiable and gives
-        /// the same assignment for everything.
+        /// This solver considers every query to "resultIsAlways"
+        /// with the same assignment for everything.
         /// 
         /// It is meant for testing only.
         /// </summary>
         public class DummySolver : ISolverImpl
         {
-            public DummySolver()
+            private Result ResultIsAlways;
+
+            public DummySolver(Solver.Result resultIsAlways = Result.SAT)
             {
+                this.ResultIsAlways = resultIsAlways;
             }
 
             public void SetConstraints(ConstraintManager cm)
@@ -32,9 +35,9 @@ namespace Symbooglix
             {
                 // Dummy Solver thinks everything is satisfiable
                 if (computeAssignment)
-                    return Tuple.Create(Result.SAT, new DummyAssignment(0) as IAssignment);
+                    return Tuple.Create(ResultIsAlways, new DummyAssignment(0) as IAssignment);
                 else
-                    return Tuple.Create(Result.SAT, null as IAssignment);
+                    return Tuple.Create(ResultIsAlways, null as IAssignment);
             }
 
             public void Dispose()
@@ -53,7 +56,6 @@ namespace Symbooglix
 
                 public Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV)
                 {
-
                     if (SV.TypedIdent.Type.IsBv)
                     {
                         int width = SV.TypedIdent.Type.BvBits;

@@ -401,7 +401,7 @@ namespace Symbooglix
                     solverImpl = new Solver.Z3SMTLIBSolver(options.pathToSolver);
                     break;
                 case CmdLineOpts.Solver.DUMMY:
-                    solverImpl = new Solver.DummySolver();
+                    solverImpl = new Solver.DummySolver(Symbooglix.Solver.Result.UNKNOWN);
                     break;
                 default:
                     throw new NotSupportedException("Unhandled solver type");

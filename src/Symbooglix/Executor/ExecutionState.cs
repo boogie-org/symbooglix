@@ -23,6 +23,21 @@ namespace Symbooglix
             private set;
         }
 
+        /// <summary>
+        /// An execution is consider speculative if a path has been followed
+        /// that the Solver could not prove could be followed (i.e. it returned unknown)
+        /// </summary>
+        public bool Speculative
+        {
+            get;
+            private set;
+        }
+
+        public void MakeSpeculative()
+        {
+            Speculative = true;
+        }
+
         // Start at -1 so the executor can keep around the special "-1" state that will never enter any procedure
         private static int NewId = -1;
 
@@ -33,6 +48,7 @@ namespace Symbooglix
             Constraints = new ConstraintManager();
             Id = NewId++;
             TerminationType = null;
+            Speculative = false;
         }
 
         public ExecutionState DeepClone()

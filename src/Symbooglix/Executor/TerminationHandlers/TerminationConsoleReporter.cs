@@ -30,7 +30,7 @@ namespace Symbooglix
 
         private void handle(Object executor, Executor.ExecutionStateEventArgs args)
         {
-            string msg = "State " + args.State.Id + ": ";
+            string msg = "State " + args.State.Id + ":" + (args.State.Speculative ? "(Speculative) " : " ");
 
             ConsoleColor color;
             if (args.State.TerminationType is TerminatedWithoutError)

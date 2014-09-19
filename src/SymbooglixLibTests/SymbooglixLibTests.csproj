@@ -101,6 +101,7 @@
     <Compile Include="OldExprCall.cs" />
     <Compile Include="CallInconsistentSpecification.cs" />
     <Compile Include="WhereExpr.cs" />
+    <Compile Include="SpeculativeExecution.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -213,6 +214,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\GlobalWhereExpr.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\TwoPaths.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
