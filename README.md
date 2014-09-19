@@ -14,6 +14,7 @@ Common dependencies
 
 - Git
 - Python
+- Z3 (SMT Solver)
 
 If using Linux
 --------------
@@ -43,6 +44,9 @@ $ xbuild
 
 Alternatively you can load the ``symbooglix/symbooglix.sln`` file into Visual
 Studio or Monodevelop and build from there.
+
+Now make a symbolic link (or copy) to the the z3 executable and place it in the directory
+containing the built ``symbooglix.exe``.
 
 Testing
 =======
