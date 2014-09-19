@@ -174,7 +174,7 @@ namespace Symbooglix
             else if (IsModifiesSet)
                 return "[Modifies set] " + AsModifiesSet.ToString();
             else if (IsAxiom)
-                return "[Axiom] " + AsAxiom.ToString();
+                return "[Axiom] " + AsAxiom.Expr.ToString();
             else
                 return "unknown";
         }
