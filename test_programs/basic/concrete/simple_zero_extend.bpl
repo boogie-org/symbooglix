@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s 2>&1 | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
 function {:bvbuiltin "zero_extend 4"} BV4_ZEXT8(bv4) : bv8;
 function {:bvbuiltin "bvugt"} BV8_UGT(bv8, bv8) : bool;
 procedure main(a:bv4) returns (r:bv8)

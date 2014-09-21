@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s --print-call-seq 2>&1 | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s --print-call-seq 2>&1 | %OutputCheck %s
 var g:bv8;
 
 procedure main()

@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s 2>&1 | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
 var g:bv8;
 
 function {:bvbuiltin "bvadd"} BVADD(bv8,bv8) returns (bv8);

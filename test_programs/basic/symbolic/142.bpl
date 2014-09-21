@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s 2>&1 | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
 procedure {:inline 1} next(x : int) returns (y : int) {
 
   if((x mod 2) == 0) {

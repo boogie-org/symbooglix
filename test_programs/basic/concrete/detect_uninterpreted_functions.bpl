@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s 2>&1 | %OutputCheck -d %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck -d %s
 // CHECK-L: Added uninterpreted function foo
 function foo(a:bv32) returns (bv32);
 // CHECK-L: Added uninterpreted function bar

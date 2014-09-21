@@ -1,4 +1,5 @@
-// RUN: %symbooglix --use-modset-transform=1 %s | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out --use-modset-transform=1 %s | %OutputCheck %s
 var x:int;
 
 procedure main()

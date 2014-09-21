@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s --print-call-seq --fold-constants=0 2>&1 | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s --print-call-seq --fold-constants=0 2>&1 | %OutputCheck %s
 
 function {:bvbuiltin "bvadd"} bv16add(bv16,bv16) returns(bv16);
 

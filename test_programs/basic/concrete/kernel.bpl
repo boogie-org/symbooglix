@@ -1,4 +1,5 @@
-// RUN: %symbooglix --gpuverify-entry-points %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points %s
 procedure {:kernel} $foo()
 {
     assert true;

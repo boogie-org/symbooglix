@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s | %OutputCheck %s
 procedure main(p1:bv8)
 requires p1 == 0bv8;
 {

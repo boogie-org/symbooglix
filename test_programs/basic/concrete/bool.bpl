@@ -1,4 +1,5 @@
-// RUN: %symbooglix %s --print-instr 2>&1 | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s --print-instr 2>&1 | %OutputCheck %s
 procedure main(p1:bool, p2:bool) returns (r:bool)
 // CHECK-L: Concretising  p1 := true
 // CHECK-L: Concretising  p2 := false

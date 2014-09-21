@@ -1,4 +1,5 @@
-// RUN: %symbooglix --entry-points entry1,entry2 %s | %OutputCheck %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out --entry-points entry1,entry2 %s | %OutputCheck %s
 var g:int;
 
 // CHECK-L: Entering Implementation entry1 as entry point
