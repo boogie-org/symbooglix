@@ -72,6 +72,9 @@ namespace Symbooglix
                 Z3
             }
 
+            [Option("output-dir", DefaultValue="", HelpText="Directory to place Executor log files. By default a symbooglix-<N> directory is used")]
+            public string outputDir { get; set; }
+
             // FIXME: The command line library should tell the user what are the valid values
             [Option("solver", DefaultValue = Solver.Z3, HelpText = "Solver to use (valid values CVC4, DUMMY, Z3)")]
             public Solver solver { get; set; }
@@ -330,6 +333,16 @@ namespace Symbooglix
 
                 PM.BeforePassRun += beforePassHandler;
                 PM.AfterPassRun += afterPassHandler;
+
+                ExecutorLogger executorLogger = null;
+                if (options.outputDir.Length == 0)
+                    executorLogger = new ExecutorLogger(Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
+                else
+                    executorLogger = new ExecutorLogger(options.outputDir, /*makeDirectoryInPath=*/ false);
+
+                executorLogger.Connect(e);
+                Console.WriteLine("Logging to directory: " + executorLogger.Root.FullName);
+
                 e.PrepareProgram(PM);
 
                 // Write program to file if requested

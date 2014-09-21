@@ -94,6 +94,7 @@
     <Compile Include="Annotation\ProgramLocationAnnotater.cs" />
     <Compile Include="Executor\BoogieAbsyExtensions.cs" />
     <Compile Include="Transform\OldExprCanonicaliser.cs" />
+    <Compile Include="Executor\ExecutorHandlers\ExecutorLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
