@@ -19,6 +19,14 @@ namespace Symbooglix
             private set;
         }
 
+        public DirectoryInfo TerminatedExecutionStatesDir
+        {
+            get;
+            private set;
+        }
+
+        private ExecutionStateInfoLogger TerminatedStateConstraintsLogger;
+
         public ExecutorLogger(string path, bool makeDirectoryInPath)
         {
             this.Root = null;
@@ -64,16 +72,35 @@ namespace Symbooglix
                     throw new CouldNotCreateDirectoryException("Exception throw when creating: " + e.ToString());
                 }
             }
+
+            SetupLoggers();
         }
 
-        public void Connect (Executor e)
+        private void CreateDirectories()
         {
-            // TODO
+            TerminatedExecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.Root.FullName, "terminated_states"));
         }
 
-        public void Disconnect (Executor e)
+        protected virtual void SetupLoggers()
         {
-            // TODO
+            CreateDirectories();
+            TerminatedStateConstraintsLogger = new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName);
+        }
+
+        public void Connect(Executor e)
+        {
+            TerminatedStateConstraintsLogger.Connect(e);
+        }
+
+        public void Disconnect(Executor e)
+        {
+            TerminatedStateConstraintsLogger.Disconnect(e);
+        }
+
+        public void Wait()
+        {
+            // FIXME: Add a finished event to Executor so the Wait() can be triggered automatically.
+            TerminatedStateConstraintsLogger.Wait();
         }
     }
 }

@@ -366,6 +366,10 @@ namespace Symbooglix
 
                 Console.WriteLine(solver.Statistics.ToString());
                 Console.WriteLine(terminationCounter.ToString());
+
+                Console.WriteLine("Waiting for ExecutorLogger...");
+                executorLogger.Wait();
+                Console.WriteLine("done");
             }
             return 0;
         }
