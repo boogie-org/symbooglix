@@ -219,6 +219,7 @@ namespace Symbooglix
             return this.TerminationType != null;
         }
 
+        // Don't use this directly! Use the Executor.TerminateState() instead!
         public void Terminate(ITerminationType tt)
         {
             Debug.Assert(tt != null, "ITerminationType cannot be null");

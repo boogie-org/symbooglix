@@ -176,11 +176,7 @@ namespace Symbooglix
                         case Symbooglix.Solver.Result.UNKNOWN:
                             goto default; // Eurgh...
                         default:
-                            InitialState.Terminate(new TerminatedAtUnsatisfiableAxiom(axiom));
-                            if (StateTerminated != null)
-                            {
-                                StateTerminated(this, new ExecutionStateEventArgs(InitialState));
-                            }
+                            TerminateState(InitialState, new TerminatedAtUnsatisfiableAxiom(axiom), /*removeFromStateScheduler=*/ false);
                             HasBeenPrepared = true; // Don't allow this method to run again
                             return false;
                     }
@@ -304,9 +300,7 @@ namespace Symbooglix
                     {
                         // FIXME: Report hiting a speculative execution state as an event!
                         Console.WriteLine("Not executing a speculative Execution State!");
-                        CurrentState.Terminate(new TerminatedWithDisallowedSpeculativePath());
-                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
-                        StateScheduler.RemoveState(CurrentState);
+                        this.TerminateState(CurrentState, new TerminatedWithDisallowedSpeculativePath());
                         continue;
                     }
 
@@ -345,6 +339,21 @@ namespace Symbooglix
                 {
                     Console.WriteLine("Finished");
                 }
+            }
+        }
+
+
+        private void TerminateState(ExecutionState state, ITerminationType type, bool removeFromStateScheduler=true)
+        {
+            state.Terminate(type);
+
+            if (removeFromStateScheduler)
+                StateScheduler.RemoveState(state);
+
+            // Notify
+            if (StateTerminated != null)
+            {
+                StateTerminated(this, new ExecutionStateEventArgs(state));
             }
         }
 
@@ -529,24 +538,13 @@ namespace Symbooglix
                 {
                     // On entry we treat requires like an assume so it constrains
                     // the initial state
-                    HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-                    {
-                        theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEntryRequires(r));
-                    };
-
-                    stillInState = HandleAssumeLikeCommand(constraint, helper, r.GetProgramLocation());
+                    stillInState = HandleAssumeLikeCommand(constraint, new TerminatedAtUnsatisfiableEntryRequires(r), r.GetProgramLocation());
                 }
                 else
                 {
                     // We want to treat requires like an assert so that we follow
-                    // path where the requires expression isn't satisfied by the
-                    // caller
-                    HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-                    {
-                        theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(r));
-                    };
-
-                    stillInState = HandleAssertLikeCommand(constraint, helper, r.GetProgramLocation());
+                    // can follow both potential paths (the assert failing and it succeeding)
+                    stillInState = HandleAssertLikeCommand(constraint, new TerminatedAtFailingRequires(r), r.GetProgramLocation());
                 }
 
                 if (!stillInState)
@@ -626,13 +624,7 @@ namespace Symbooglix
             foreach (var requires in proc.Requires)
             {
                 Expr condition = (Expr) VR.Visit(requires.Condition);
-
-                HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-                {
-                    theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingRequires(requires));
-                };
-
-                stillInState = HandleAssertLikeCommand(condition, helper, requires.GetProgramLocation());
+                stillInState = HandleAssertLikeCommand(condition, new TerminatedAtFailingRequires(requires), requires.GetProgramLocation());
 
                 // Check we're still in state
                 if (!stillInState)
@@ -657,12 +649,7 @@ namespace Symbooglix
 
                 // FIXME: We should add an option to disable this because we might want to blindly
                 // assume without checking if its feasible.
-                HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-                {
-                    theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableEnsures(ensures));
-                };
-
-                stillInState = HandleAssumeLikeCommand(condition, helper, ensures.GetProgramLocation());
+                stillInState = HandleAssumeLikeCommand(condition, new TerminatedAtUnsatisfiableEnsures(ensures), ensures.GetProgramLocation());
 
                 // Check we're still in state
                 if (!stillInState)
@@ -728,13 +715,8 @@ namespace Symbooglix
                 if (UseConstantFolding)
                     remapped = CFT.Traverse(remapped);
 
-                // Note we use closure to pass the ensures we are currently looking at
-                HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-                {
-                    theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingEnsures(ensures));
-                };
                 // Treat an requires similarly to an assert
-                stillInCurrentState = HandleAssertLikeCommand(remapped, helper, ensures.GetProgramLocation());
+                stillInCurrentState = HandleAssertLikeCommand(remapped, new TerminatedAtFailingEnsures(ensures), ensures.GetProgramLocation());
 
                 if (!stillInCurrentState)
                 {
@@ -784,13 +766,7 @@ namespace Symbooglix
             // finished execution of the current state.
             if (CurrentState.Mem.Stack.Count == 0)
             {
-                CurrentState.Terminate(new TerminatedWithoutError(c));
-
-                // Notify
-                if (StateTerminated!= null)
-                    StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
-
-                StateScheduler.RemoveState(CurrentState);
+                TerminateState(CurrentState, new TerminatedWithoutError(c));
             }
 
             return HandlerAction.CONTINUE;
@@ -860,21 +836,12 @@ namespace Symbooglix
 
             Debug.WriteLine("Assert : " + dupAndrw);
 
-            // Create an anonymous method to tell the helper function
-            // how to terminate the state
-            HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-            {
-                // Mark the state as terminated
-                theStateThatWillBeTerminated.Terminate(new TerminatedAtFailingAssert(c));
-            };
-
-            // Use helper method, we don't need to care if the current state is destroyed
-            HandleAssertLikeCommand(dupAndrw, helper, c.GetProgramLocation());
+            // we don't need to care if the current state is destroyed
+            HandleAssertLikeCommand(dupAndrw,  new TerminatedAtFailingAssert(c), c.GetProgramLocation());
             return HandlerAction.CONTINUE;
         }
 
-        protected delegate void HowToTerminateState(ExecutionState theStateThatWillBeTerminated);
-        protected bool HandleAssertLikeCommand(Expr condition, HowToTerminateState terminate, ProgramLocation location)
+        protected bool HandleAssertLikeCommand(Expr condition, ITerminationType terminatationType, ProgramLocation location)
         {
             // Constant Folding might let us terminate without calling solver
             if (condition is LiteralExpr)
@@ -890,13 +857,7 @@ namespace Symbooglix
                 else if (literalAssertion.IsFalse)
                 {
                     // Terminate the state
-                    terminate(CurrentState);
-
-                    // Notify
-                    if (StateTerminated != null)
-                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
-
-                    StateScheduler.RemoveState(CurrentState);
+                    TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in a state because removed the current state
                 }
@@ -973,13 +934,7 @@ namespace Symbooglix
                 if (failureIsSpeculative)
                     CurrentState.MakeSpeculative();
 
-                terminate(CurrentState);
-
-                // Notify
-                if (StateTerminated != null)
-                    StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
-
-                StateScheduler.RemoveState(CurrentState);
+                TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
                 CurrentState = null;
                 return false; // No longer in a state because we removed the current state
             }
@@ -1003,12 +958,9 @@ namespace Symbooglix
 
                 if (failureIsSpeculative)
                     failingState.MakeSpeculative();
-                    
-                terminate(failingState);
 
-                // Notify
-                if (StateTerminated != null)
-                    StateTerminated(this, new ExecutionStateEventArgs(failingState));
+                // The failingState hasn't been added to scheduler so we shouldn't try to remove it from the scheduler
+                TerminateState(failingState, terminatationType, /*removeFromStateScheduler=*/false);
 
                 if (successIsSpeculative)
                     CurrentState.MakeSpeculative();
@@ -1023,7 +975,7 @@ namespace Symbooglix
             }
         }
 
-        protected bool HandleAssumeLikeCommand(Expr condition, HowToTerminateState terminate, ProgramLocation location)
+        protected bool HandleAssumeLikeCommand(Expr condition, ITerminationType terminationType, ProgramLocation location)
         {
             // Constant folding might let us terminate early without calling solver
             if (condition is LiteralExpr)
@@ -1038,13 +990,7 @@ namespace Symbooglix
                 }
                 else if (literalAssumption.IsFalse)
                 {
-                    terminate(CurrentState);
-
-                    // Notify
-                    if (StateTerminated != null)
-                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
-
-                    StateScheduler.RemoveState(CurrentState);
+                    TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in current state
                 }
@@ -1057,13 +1003,7 @@ namespace Symbooglix
             switch (result)
             {
                 case Symbooglix.Solver.Result.UNSAT:
-                    terminate(CurrentState);
-
-                    // Notify
-                    if (StateTerminated != null)
-                        StateTerminated(this, new ExecutionStateEventArgs(CurrentState));
-
-                    StateScheduler.RemoveState(CurrentState);
+                    TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in current state
 
@@ -1094,14 +1034,8 @@ namespace Symbooglix
 
             Debug.WriteLine("Assume : " + dupAndrw);
 
-            HowToTerminateState helper = delegate(ExecutionState theStateThatWillBeTerminated)
-            {
-                // Terminate the state
-                theStateThatWillBeTerminated.Terminate(new TerminatedAtUnsatisfiableAssume(c));
-            };
-
             // Use helper. We don't care if it terminates a state because we immediatly return afterwards
-            HandleAssumeLikeCommand(dupAndrw, helper, c.GetProgramLocation());
+            HandleAssumeLikeCommand(dupAndrw, new TerminatedAtUnsatisfiableAssume(c), c.GetProgramLocation());
             return HandlerAction.CONTINUE;
         }
 

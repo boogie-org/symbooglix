@@ -54,7 +54,7 @@ namespace Symbooglix
 
         public void RemoveState(ExecutionState toRemove)
         {
-            Debug.Assert(States.Contains(toRemove));
+            Debug.Assert(States.Contains(toRemove), "Cannot remove state not stored in the state scheduler");
             States.Remove(toRemove);
         }
 
