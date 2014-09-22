@@ -90,17 +90,22 @@ namespace Symbooglix
         public void Connect(Executor e)
         {
             TerminatedStateConstraintsLogger.Connect(e);
+
+            // This forces the Executor to block() whilst we wait for our logging to finish
+            e.ExecutorTerminated += this.Wait;
         }
 
         public void Disconnect(Executor e)
         {
             TerminatedStateConstraintsLogger.Disconnect(e);
+            e.ExecutorTerminated -= this.Wait;
         }
 
-        public void Wait()
+        private void Wait(Object executor, Executor.ExecutorTerminatedArgs args)
         {
-            // FIXME: Add a finished event to Executor so the Wait() can be triggered automatically.
+            Console.WriteLine("Executor terminated. Waiting for logging to finish...");
             TerminatedStateConstraintsLogger.Wait();
+            Console.WriteLine("Logging finished");
         }
     }
 }

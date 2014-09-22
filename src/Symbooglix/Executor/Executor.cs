@@ -70,6 +70,12 @@ namespace Symbooglix
 
         public event ExecutionStateEvent StateTerminated;
 
+        public class ExecutorTerminatedArgs : EventArgs
+        {
+            // Empty right now
+        }
+        public event EventHandler<ExecutorTerminatedArgs> ExecutorTerminated;
+
         private Object PrepareProgramLock = new object();
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
@@ -297,6 +303,11 @@ namespace Symbooglix
                 Console.WriteLine("States left " + StateScheduler.GetNumberOfStates());
                 StateScheduler.RemoveAll(s => true);
                 Console.WriteLine("Finished executing all states");
+
+                if (ExecutorTerminated != null)
+                {
+                    ExecutorTerminated(this, new ExecutorTerminatedArgs());
+                }
             }
         }
 
