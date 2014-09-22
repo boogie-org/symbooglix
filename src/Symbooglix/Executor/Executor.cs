@@ -58,17 +58,14 @@ namespace Symbooglix
             public readonly string Name;
             public BreakPointEventArgs(string name) {this.Name = name;}
         }
-        public delegate void BreakPointEvent(Object executor, BreakPointEventArgs data);
-        public event BreakPointEvent BreakPointReached;
+        public event EventHandler<BreakPointEventArgs> BreakPointReached;
 
         public class ExecutionStateEventArgs : EventArgs
         {
             public readonly ExecutionState State;
             public ExecutionStateEventArgs(ExecutionState e) { State = e;}
         }
-        public delegate void ExecutionStateEvent(Object executor, ExecutionStateEventArgs data);
-
-        public event ExecutionStateEvent StateTerminated;
+        public event EventHandler<ExecutionStateEventArgs> StateTerminated;
 
         public class ExecutorTerminatedArgs : EventArgs
         {
