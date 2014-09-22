@@ -102,6 +102,7 @@
     <Compile Include="CallInconsistentSpecification.cs" />
     <Compile Include="WhereExpr.cs" />
     <Compile Include="SpeculativeExecution.cs" />
+    <Compile Include="ExprSMTLIB\UninterpretedFunction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

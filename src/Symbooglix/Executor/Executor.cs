@@ -22,7 +22,6 @@ namespace Symbooglix
             this.TheProgram = program;
             StateScheduler = scheduler;
             SymbolicPool = new SymbolicPool();
-            UninterpretedOrUninlinableFunctions = new List<Function>();
             PreEventHandlers = new List<IExecutorHandler>();
             PostEventHandlers = new List<IExecutorHandler>();
             CFT = new ConstantFoldingTraverser();
@@ -41,7 +40,6 @@ namespace Symbooglix
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
         private List<IExecutorHandler> PreEventHandlers;
         private List<IExecutorHandler> PostEventHandlers;
-        private List<Function> UninterpretedOrUninlinableFunctions;
         private SymbolicPool SymbolicPool;
         private bool HasBeenPrepared = false;
         public ConstantFoldingTraverser CFT;
@@ -90,24 +88,6 @@ namespace Symbooglix
                 passManager.Add(FRF);
                 passManager.Add(new Transform.FunctionInliningPass());
                 passManager.Add(new Transform.OldExprCanonicaliser());
-          
-                // FIXME: Make this a pass
-                // FIXME: Remove this? We aren't using it!
-                // Make a list of all the functions that are uninterpreted or can't be inlined
-                var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
-                foreach (var F in functions)
-                {
-                    // bvbuiltins are interpreted as SMT-LIBv2 functions
-                    if (F.FindAttribute("bvbuiltin") != null)
-                        continue;
-
-                    // Inlinable
-                    if (F.Body != null)
-                        continue;
-
-                    UninterpretedOrUninlinableFunctions.Add(F);
-                    Debug.WriteLine("Added uninterpreted function " + F);
-                }
 
                 // We need ProgramLocation annotations to work out where stuff comes from
                 passManager.Add(new Annotation.ProgramLocationAnnotater());
