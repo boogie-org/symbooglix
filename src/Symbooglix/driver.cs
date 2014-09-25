@@ -170,7 +170,7 @@ namespace Symbooglix
                     Console.WriteLine("Adding define \"" + define + "\" to Boogie parser");
             }
 
-            int errors = Parser.Parse(options.boogieProgramPath, options.Defines, out p);
+            int errors = Microsoft.Boogie.Parser.Parse(options.boogieProgramPath, options.Defines, out p);
 
             if (errors != 0)
             {
