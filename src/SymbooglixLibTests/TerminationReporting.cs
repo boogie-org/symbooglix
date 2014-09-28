@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System;
 using Symbooglix;
+using Symbooglix.Solver;
 
 namespace SymbooglixLibTests
 {
@@ -91,6 +92,25 @@ namespace SymbooglixLibTests
             Assert.AreEqual(1, Counter.UnsatisfiableAxioms);
             Assert.AreEqual(0, Counter.Sucesses);
             Assert.AreEqual(1, Counter.NumberOfFailures);
+        }
+
+        [Test()]
+        public void DisallowedSpeculativeExecutionPath()
+        {
+            p = loadProgram("programs/TwoPaths.bpl");
+
+            // By using a dummy solver which always returns "UNKNOWN" every path should
+            // be consider to be speculative
+            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+
+            this.Counter = new TerminationCounter();
+            Counter.Connect(e);
+
+            e.Run(getMain(p));
+
+            Assert.AreEqual(2, Counter.DisallowedSpeculativePaths);
+            Assert.AreEqual(0, Counter.Sucesses);
+            Assert.AreEqual(0, Counter.Sucesses);
         }
     }
 }

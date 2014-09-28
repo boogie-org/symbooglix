@@ -56,21 +56,17 @@ namespace SymbooglixLibTests
                 ++breakPointsHit;
             };
 
+            int statesTerminated = 0;
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
             {
                 Assert.IsTrue(data.State.Speculative);
+                ++statesTerminated;
             };
-
-            var counter = new TerminationCounter();
-            counter.Connect(e);
 
             e.Run(getMain(p));
 
-
             Assert.AreEqual(0, breakPointsHit);
-
-            Assert.AreEqual(0, counter.Sucesses);
-            Assert.AreEqual(2, counter.DisallowedSpeculativePaths);
+            Assert.AreEqual(2, statesTerminated);
         }
     }
 }
