@@ -65,7 +65,6 @@
     <Compile Include="Executor\ConstraintManager.cs" />
     <Compile Include="Executor\BoogieCmdExtensions.cs" />
     <Compile Include="Executor\ExecutorHandlers\IExecutorHandler.cs" />
-    <Compile Include="Executor\ExecutorHandlers\DummyHandlers.cs" />
     <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Executor\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
