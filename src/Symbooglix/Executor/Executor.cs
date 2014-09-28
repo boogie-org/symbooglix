@@ -22,8 +22,6 @@ namespace Symbooglix
             this.TheProgram = program;
             StateScheduler = scheduler;
             SymbolicPool = new SymbolicPool();
-            PreEventHandlers = new List<IExecutorHandler>();
-            PostEventHandlers = new List<IExecutorHandler>();
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
             this.TheSolver = solver;
@@ -38,8 +36,6 @@ namespace Symbooglix
 
         private Program TheProgram;
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
-        private List<IExecutorHandler> PreEventHandlers;
-        private List<IExecutorHandler> PostEventHandlers;
         private SymbolicPool SymbolicPool;
         private bool HasBeenPrepared = false;
         public ConstantFoldingTraverser CFT;
@@ -250,32 +246,6 @@ namespace Symbooglix
             }
         }
 
-        public void RegisterPreEventHandler(IExecutorHandler handler)
-        {
-            Debug.Assert(handler != null);
-            PreEventHandlers.Add(handler);
-        }
-
-        public void UnregisterPreEventHandler(IExecutorHandler handler)
-        {
-            Debug.Assert(handler != null);
-            Debug.Assert(PreEventHandlers.Contains(handler));
-            PreEventHandlers.Remove(handler);
-        }
-
-        public void RegisterPostEventHandler(IExecutorHandler handler)
-        {
-            Debug.Assert(handler != null);
-            PostEventHandlers.Add(handler);
-        }
-
-        public void UnregisterPostEventHandler(IExecutorHandler handler)
-        {
-            Debug.Assert(handler != null);
-            Debug.Assert(PostEventHandlers.Contains(handler));
-            PostEventHandlers.Remove(handler);
-        }
-
         protected void SetupTimeout(int timeout)
         {
             if (timeout <= 0)
@@ -414,29 +384,11 @@ namespace Symbooglix
             if (currentInstruction == null)
                 throw new NullReferenceException("Instruction was null");
 
-            HandlerAction action = HandlerAction.CONTINUE;
-            // Invoke pre-event handlers
-            foreach (IExecutorHandler h in PreEventHandlers)
-            {
-                action = currentInstruction.visitCmd(h, this);
-                if (action == HandlerAction.STOP)
-                    return;
-            }
-
             // Notify
             if (InstructionVisited != null)
                 InstructionVisited(this, new InstructionVisitEventArgs(currentInstruction.GetProgramLocation()));
 
-            // Ignore the action returned from ourself
             currentInstruction.visitCmd(this, this); // Use double dispatch
-
-            // Invoke post-event handlers
-            foreach (IExecutorHandler h in PostEventHandlers)
-            {
-                action = currentInstruction.visitCmd(h, this);
-                if (action == HandlerAction.STOP)
-                    return;
-            }
         }
 
         protected void HandleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
@@ -1152,44 +1104,14 @@ namespace Symbooglix
                 args.Add( (Expr) reWritter.Visit(e) );
             }
 
-            // FIXME: All this handler stuff is gross. Remove it!
+
             if (impl != null)
             {
-                HandlerAction action = HandlerAction.CONTINUE;
-                foreach (IExecutorHandler h in PreEventHandlers)
-                {
-                    action = h.EnterImplementation(impl, args, this);
-                    if (action == HandlerAction.STOP)
-                        break;
-                }
-
-                // We have slightly different semantics here to the handle() methods. Clients cannot block EnterImplementation()
                 EnterImplementation(impl, args, this);
-                foreach (IExecutorHandler h in PostEventHandlers)
-                {
-                    action = h.EnterImplementation(impl, args, this);
-                    if (action == HandlerAction.STOP)
-                        break;
-                }
             }
             else
             {
-                HandlerAction action = HandlerAction.CONTINUE;
-                foreach (IExecutorHandler h in PreEventHandlers)
-                {
-                    action = h.EnterAndLeaveProcedure(c.Proc, args, this);
-                    if (action == HandlerAction.STOP)
-                        break;
-                }
-
-                // We have slightly different semantics here to the handle() methods. Clients cannot block EnterAndLeaveProcedure()
                 EnterAndLeaveProcedure(c.Proc, args, this);
-                foreach (IExecutorHandler h in PostEventHandlers)
-                {
-                    action = h.EnterAndLeaveProcedure(c.Proc, args, this);
-                    if (action == HandlerAction.STOP)
-                        break;
-                }
             }
             return HandlerAction.CONTINUE;
         }
