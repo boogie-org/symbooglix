@@ -11,12 +11,6 @@ namespace Symbooglix
 
     public class Executor : IExecutorHandler
     {
-        public enum HandlerAction 
-        { 
-            CONTINUE, // Allow execution of other handlers for this event
-            STOP // Do not execute any more handlers for this event
-        };
-        
         public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver)
         { 
             this.TheProgram = program;
@@ -457,7 +451,7 @@ namespace Symbooglix
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-        public HandlerAction EnterImplementation(Implementation Impl, List<Expr> implementationParams, Executor executor)
+        public void EnterImplementation(Implementation Impl, List<Expr> implementationParams, Executor executor)
         {
             bool isProgramEntryPoint = CurrentState.Mem.Stack.Count == 0;
 
@@ -561,7 +555,7 @@ namespace Symbooglix
                 if (!stillInState)
                 {
                     // The current state was destroyed so we can't continue handling this command
-                    return HandlerAction.CONTINUE;
+                    return;
                 }
 
             }
@@ -589,10 +583,9 @@ namespace Symbooglix
                     }
                 }
             }
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
+        public void EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
         {
             Debug.Assert(CurrentState.Mem.Stack.Count > 0, "Can't enter a procedure without first entering an implementation");
             StackFrame callingStackFrame = CurrentState.GetCurrentStackFrame();
@@ -645,7 +638,7 @@ namespace Symbooglix
                 if (!stillInState)
                 {
                     // The CurrentState was terminated so we can't continue
-                    return HandlerAction.CONTINUE;
+                    return;
                 }
             }
 
@@ -670,7 +663,7 @@ namespace Symbooglix
                 if (!stillInState)
                 {
                     // The CurrentState was terminated so we can't continue
-                    return HandlerAction.CONTINUE;
+                    return;
                 }
             }
 
@@ -706,11 +699,9 @@ namespace Symbooglix
 
             // Pop the dummy stack
             CurrentState.Mem.PopStackFrame();
-
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(ReturnCmd c, Executor executor)
+        public void Handle(ReturnCmd c, Executor executor)
         {
             var VMR = new VariableMapRewriter(CurrentState);
 
@@ -741,7 +732,7 @@ namespace Symbooglix
                 {
                     // The current state was destroyed because an ensures always failed
                     // so we shouldn't try to continue execution of it.
-                    return HandlerAction.CONTINUE;
+                    return;
                 }
             }
 
@@ -791,13 +782,10 @@ namespace Symbooglix
             {
                 TerminateState(CurrentState, new TerminatedWithoutError(c));
             }
-
-            return HandlerAction.CONTINUE;
-     
         }
 
 
-        public HandlerAction Handle(AssignCmd c, Executor executor)
+        public void Handle(AssignCmd c, Executor executor)
         {
             int index=0;
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
@@ -845,10 +833,9 @@ namespace Symbooglix
                 Debug.WriteLine("Assignment : " + lvalue + " := " + rvalue);
                 ++index;
             }
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(AssertCmd c, Executor executor)
+        public void Handle(AssertCmd c, Executor executor)
         {
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
@@ -861,7 +848,6 @@ namespace Symbooglix
 
             // we don't need to care if the current state is destroyed
             HandleAssertLikeCommand(dupAndrw,  new TerminatedAtFailingAssert(c), c.GetProgramLocation());
-            return HandlerAction.CONTINUE;
         }
 
         protected bool HandleAssertLikeCommand(Expr condition, ITerminationType terminatationType, ProgramLocation location)
@@ -1046,7 +1032,7 @@ namespace Symbooglix
             return true; // We are still in the current state
         }
 
-        public HandlerAction Handle(AssumeCmd c, Executor executor)
+        public void Handle(AssumeCmd c, Executor executor)
         {
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
@@ -1059,10 +1045,9 @@ namespace Symbooglix
 
             // Use helper. We don't care if it terminates a state because we immediatly return afterwards
             HandleAssumeLikeCommand(dupAndrw, new TerminatedAtUnsatisfiableAssume(c), c.GetProgramLocation());
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(GotoCmd c, Executor executor)
+        public void Handle(GotoCmd c, Executor executor)
         {
             Debug.Assert(c.labelTargets.Count() > 0);
 
@@ -1080,11 +1065,9 @@ namespace Symbooglix
 
             // The current execution state will always take the first target
             CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
-
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(CallCmd c, Executor executor)
+        public void Handle(CallCmd c, Executor executor)
         {
             var args = new List<Expr>();
             var reWritter = new VariableMapRewriter(CurrentState);
@@ -1113,22 +1096,19 @@ namespace Symbooglix
             {
                 EnterAndLeaveProcedure(c.Proc, args, this);
             }
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(AssertEnsuresCmd c, Executor executor)
+        public void Handle(AssertEnsuresCmd c, Executor executor)
         {
             throw new NotImplementedException ();
-            //return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(AssertRequiresCmd c, Executor executor)
+        public void Handle(AssertRequiresCmd c, Executor executor)
         {
             throw new NotImplementedException ();
-            //return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(HavocCmd c, Executor executor)
+        public void Handle(HavocCmd c, Executor executor)
         {
             for (int index=0; index < c.Vars.Count ; ++index)
             {
@@ -1138,13 +1118,11 @@ namespace Symbooglix
                 CurrentState.Symbolics.Add(s);
 
             }
-            return HandlerAction.CONTINUE;
         }
 
-        public HandlerAction Handle(YieldCmd c, Executor executor)
+        public void Handle(YieldCmd c, Executor executor)
         {
             throw new NotImplementedException ();
-            //return HandlerAction.CONTINUE;
         }
 
     }
