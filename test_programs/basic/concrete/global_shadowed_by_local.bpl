@@ -7,9 +7,9 @@ modifies g;
 {
     var x:bv8;
     g := 12bv8;
-    // CHECK-L: Calling: ov()
+    // CHECK-L: Entering: ov()
     call x := ov();
-    // CHECK-L: Leaving: ov()
+    // CHECK-L: Leaving: ov(...)
 
     // FIXME: Boogie cannot verify this assertion
     // CHECK-NEXT-L: Mutating tree: '12bv8 != 99bv8' => 'true'

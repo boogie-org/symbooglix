@@ -80,6 +80,59 @@ namespace Symbooglix
         }
         public event EventHandler<InstructionVisitEventArgs> InstructionVisited;
 
+        public class EnterProcedureEventArgs : EventArgs
+        {
+            public readonly Procedure Proc = null;
+            public readonly List<Expr> Args = null;
+            public EnterProcedureEventArgs(Procedure proc, List<Expr> args)
+            {
+                this.Proc = proc;
+                this.Args = new List<Expr>();
+                foreach (var arg in args)
+                    Args.Add(arg);
+            }
+        }
+
+        public class LeaveProcedureEventArgs : EventArgs
+        {
+            public readonly Procedure Proc = null;
+            public LeaveProcedureEventArgs(Procedure proc)
+            {
+                this.Proc = proc;
+            }
+        }
+
+        public class EnterImplementationEventArgs : EventArgs
+        {
+            public readonly Implementation Impl = null;
+            public readonly List<Expr> Args = null;
+            public EnterImplementationEventArgs(Implementation impl, List<Expr> args)
+            {
+                this.Impl = impl;
+
+                if (args == null)
+                    return;
+
+                this.Args = new List<Expr>();
+                foreach (var arg in args)
+                    Args.Add(arg);
+            }
+        }
+
+        public class LeaveImplementationEventArgs : EventArgs
+        {
+            public readonly Implementation Impl = null;
+            public LeaveImplementationEventArgs(Implementation impl)
+            {
+                this.Impl = impl;
+            }
+        }
+
+        public event EventHandler<EnterProcedureEventArgs> ProcedureEntered;
+        public event EventHandler<EnterImplementationEventArgs> ImplementationEntered;
+        public event EventHandler<LeaveProcedureEventArgs> ProcedureLeft;
+        public event EventHandler<LeaveImplementationEventArgs> ImplementationLeft;
+
         private Object PrepareProgramLock = new object();
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
@@ -463,6 +516,10 @@ namespace Symbooglix
             // FIXME: We should check there are no name clashes between
             // existing program variables and symbolics
 
+            // Notify
+            if (ImplementationEntered != null)
+                ImplementationEntered(this, new EnterImplementationEventArgs(Impl, implementationParams));
+
             // Load procedure in parameters on to stack
             if (implementationParams == null)
             {
@@ -588,6 +645,10 @@ namespace Symbooglix
             Debug.Assert(CurrentState.Mem.Stack.Count > 0, "Can't enter a procedure without first entering an implementation");
             StackFrame callingStackFrame = CurrentState.GetCurrentStackFrame();
 
+            // Notify
+            if (ProcedureEntered != null)
+                ProcedureEntered(this, new EnterProcedureEventArgs(proc, procedureParams));
+
             // Add a dummy stack frame
             CurrentState.Mem.Stack.Add(new StackFrame(proc));
 
@@ -687,6 +748,10 @@ namespace Symbooglix
                 }
             }
 
+            // Notify
+            if (ProcedureLeft != null)
+                ProcedureLeft(this, new LeaveProcedureEventArgs(proc));
+
             // Pop the dummy stack
             CurrentState.Mem.PopStackFrame();
 
@@ -760,6 +825,10 @@ namespace Symbooglix
                 }
 
             }
+
+            // Notify
+            if (ImplementationLeft!= null)
+                ImplementationLeft(this, new LeaveImplementationEventArgs(CurrentState.GetCurrentStackFrame().Impl));
 
             // Pop stack frame
             CurrentState.LeaveImplementation();

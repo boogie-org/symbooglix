@@ -67,7 +67,6 @@
     <Compile Include="Executor\ExecutorHandlers\IExecutorHandler.cs" />
     <Compile Include="Executor\ExecutorHandlers\DummyHandlers.cs" />
     <Compile Include="Executor\ExecutorHandlers\EnterAndLeaveStackPrinter.cs" />
-    <Compile Include="Executor\ExecutorHandlers\CallSequencePrinter.cs" />
     <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Executor\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
@@ -96,6 +95,7 @@
     <Compile Include="Executor\ExecutorHandlers\ExecutorLogger.cs" />
     <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\InstructionPrinter.cs" />
+    <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

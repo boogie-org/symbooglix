@@ -275,7 +275,9 @@ namespace Symbooglix
                 if (options.useCallSequencePrinter)
                 {
                     Console.WriteLine("Installing call sequence printer");
-                    e.RegisterPreEventHandler(new CallSequencePrinter());
+                    //e.RegisterPreEventHandler(new CallSequencePrinter());
+                    var callPrinter = new CallPrinter(Console.Out);
+                    callPrinter.Connect(e);
                 }
 
                 if (options.useVerifyUnmodifiedProcedureHandler)
