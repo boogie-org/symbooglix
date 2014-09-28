@@ -1,80 +1,30 @@
-using System;
-using Microsoft.Boogie;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.IO;
 
 namespace Symbooglix
 {
-    public class InstructionPrinter : IExecutorHandler
+    public class InstructionPrinter : IExecutorEventHandler
     {
-        public Executor.HandlerAction Handle(AssertCmd c, Executor executor)
+        TextWriter TW;
+        public InstructionPrinter(TextWriter TW)
         {
-            return print(c);
+            this.TW = TW;
         }
 
-        public Executor.HandlerAction Handle(AssignCmd c, Executor executor)
+        private void handle(Object executor, Executor.InstructionVisitEventArgs instructionVisitEventArgs)
         {
-            return print(c);
+            var loc = instructionVisitEventArgs.Location;
+            TW.WriteLine(loc.FileName + ":" + loc.LineNumber + ": " + loc.ToString());
         }
 
-        public Executor.HandlerAction Handle(AssumeCmd c, Executor executor)
+        public void Connect(Executor e)
         {
-            return print(c);
+            e.InstructionVisited += handle;
         }
 
-        public Executor.HandlerAction Handle(AssertEnsuresCmd c, Executor executor)
+        public void Disconnect(Executor e)
         {
-            return print(c);
-        }
-
-        public Executor.HandlerAction Handle(AssertRequiresCmd c, Executor executor)
-        {
-            return print(c);
-        }
-
-        public Executor.HandlerAction Handle(CallCmd c, Executor executor)
-        {
-            return print(c);
-        }
-
-        public Executor.HandlerAction Handle(GotoCmd c, Executor executor)
-        {
-            return print(c);
-        }
-
-        public Executor.HandlerAction Handle(HavocCmd c, Executor executor)
-        {
-            return print(c);
-        }
-
-        public Executor.HandlerAction Handle(ReturnCmd c, Executor executor)
-        {
-            return print(c);
-        }
-
-        public Executor.HandlerAction Handle(YieldCmd c, Executor executor)
-        {
-            return print(c);
-        }
-
-        public Executor.HandlerAction EnterImplementation(Implementation impl, List<Expr> procedureParams, Executor executor)
-        {
-            // This isn't an actual instruction so do nothing
-            return Executor.HandlerAction.CONTINUE;
-        }
-
-        public Executor.HandlerAction EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
-        {
-            // This isn't an actual instruction so do nothing
-            return Executor.HandlerAction.CONTINUE;
-        }
-
-        private Executor.HandlerAction print(Absy cmd)
-        {
-            string cmdStr = cmd.ToString();
-            cmdStr = cmdStr.TrimEnd('\n'); // Some command have newlines and others don't
-            Console.Error.WriteLine("InstructionPrinter: " + cmdStr);
-            return Executor.HandlerAction.CONTINUE;
+            e.InstructionVisited -= handle;
         }
     }
 }

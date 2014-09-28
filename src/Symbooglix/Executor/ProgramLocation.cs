@@ -9,6 +9,28 @@ namespace Symbooglix
     {
         private Object Location;
 
+        public string FileName
+        {
+            get
+            {
+                if (Location is Absy)
+                    return ( Location as Absy ).tok.filename;
+                else
+                    return "unknown"; // FIXME
+            }
+        }
+
+        public int LineNumber
+        {
+            get
+            {
+                if (Location is Absy)
+                    return ( Location as Absy ).tok.line;
+                else
+                    return -1; // FIXME
+            }
+        }
+
         // The location is where this variable is declared
         public ProgramLocation(Variable V)
         {

@@ -7,7 +7,7 @@ requires (p1 == true);
 requires (p2 == false);
 {
     // Basically just xor
-    // CHECK-L: InstructionPrinter: r := (p1 || p2) && !(p1 && p2)
+    // CHECK-L: ${CHECKFILE_ABS_PATH}:${LINE:+2}: [Cmd] r := (p1 || p2) && !(p1 && p2);
     // CHECK-L: Assignment : r := true
     r := (p1 || p2) && !(p1 && p2);
     assert r == true;

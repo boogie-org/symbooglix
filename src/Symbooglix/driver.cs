@@ -261,7 +261,9 @@ namespace Symbooglix
                 if (options.useInstructionPrinter)
                 {
                     Console.WriteLine("Installing instruction printer");
-                    e.RegisterPreEventHandler(new InstructionPrinter());
+                    //e.RegisterPreEventHandler(new InstructionPrinter());
+                    var instrPrinter = new InstructionPrinter(Console.Out);
+                    instrPrinter.Connect(e);
                 }
 
                 if (options.useEnterLeaveStackPrinter)

@@ -73,6 +73,13 @@ namespace Symbooglix
         }
         public event EventHandler<ExecutorTerminatedArgs> ExecutorTerminated;
 
+        public class InstructionVisitEventArgs : EventArgs
+        {
+            public readonly ProgramLocation Location;
+            public InstructionVisitEventArgs(ProgramLocation location) {this.Location = location;}
+        }
+        public event EventHandler<InstructionVisitEventArgs> InstructionVisited;
+
         private Object PrepareProgramLock = new object();
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
@@ -362,6 +369,10 @@ namespace Symbooglix
                 if (action == HandlerAction.STOP)
                     return;
             }
+
+            // Notify
+            if (InstructionVisited != null)
+                InstructionVisited(this, new InstructionVisitEventArgs(currentInstruction.GetProgramLocation()));
 
             // Ignore the action returned from ourself
             currentInstruction.visitCmd(this, this); // Use double dispatch
