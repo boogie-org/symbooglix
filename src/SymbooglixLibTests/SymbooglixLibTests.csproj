@@ -103,6 +103,7 @@
     <Compile Include="WhereExpr.cs" />
     <Compile Include="SpeculativeExecution.cs" />
     <Compile Include="ExprSMTLIB\UninterpretedFunction.cs" />
+    <Compile Include="TerminationType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
