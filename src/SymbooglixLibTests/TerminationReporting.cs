@@ -22,14 +22,14 @@ namespace SymbooglixLibTests
         public void FailingAssert()
         {
             InitAndRun("programs/assert_false.bpl");
-            Assert.AreEqual(Counter.FailingAsserts, 1);
+            Assert.AreEqual(1,Counter.FailingAsserts);
         }
 
         [Test()]
         public void TerminateWithoutError()
         {
             InitAndRun("programs/assert_true.bpl");
-            Assert.AreEqual(Counter.FailingAsserts, 0);
+            Assert.AreEqual(0, Counter.FailingAsserts);
             Assert.AreEqual(Counter.Sucesses, 1);
         }
 
@@ -37,7 +37,7 @@ namespace SymbooglixLibTests
         public void UnsatAssume()
         {
             InitAndRun("programs/assume_false.bpl");
-            Assert.AreEqual(Counter.UnsatisfiableAssumes, 1);
+            Assert.AreEqual(1,Counter.UnsatisfiableAssumes);
         }
 
         [Test()]
