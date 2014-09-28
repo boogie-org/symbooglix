@@ -13,7 +13,7 @@ namespace SymbooglixLibTests
         {
             Counter = new TerminationCounter();
             p = loadProgram(program);
-            e = getExecutor(p);
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
             Counter.Connect(e);
             e.Run(getMain(p));
         }
@@ -38,6 +38,13 @@ namespace SymbooglixLibTests
         {
             InitAndRun("programs/assume_false.bpl");
             Assert.AreEqual(Counter.UnsatisfiableAssumes, 1);
+        }
+
+        [Test()]
+        public void UnsatEntryRequires()
+        {
+            InitAndRun("programs/UnsatisfiableEntryRequires.bpl");
+            Assert.AreEqual(1, Counter.UnsatisfiableRequiresOnEntry);
         }
     }
 }
