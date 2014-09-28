@@ -13,26 +13,6 @@ namespace SymbooglixLibTests
             this.e = getExecutor(p, new DFSStateScheduler(), GetSolver());
         }
 
-        [Test()]
-        public void Notified()
-        {
-            Init();
-            var TC = new TerminationCounter();
-            TC.Connect(e);
-
-            try
-            {
-                e.Run(getMain(p));
-            }
-            catch
-            {
-                // Don't do anything
-            }
-
-            Assert.AreEqual(1, TC.UnsatisfiableAxioms);
-            Assert.AreEqual(1, TC.NumberOfFailures);
-        }
-
         [Test(),ExpectedException(typeof(Symbooglix.ExecuteTerminatedStateException))]
         public void ExceptionThrown()
         {

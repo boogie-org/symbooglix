@@ -15,7 +15,15 @@ namespace SymbooglixLibTests
             p = loadProgram(program);
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
             Counter.Connect(e);
-            e.Run(getMain(p));
+
+            try
+            {
+                e.Run(getMain(p));
+            }
+            catch (ExecuteTerminatedStateException)
+            {
+                // Ignore this
+            }
         }
 
         [Test()]
@@ -72,6 +80,15 @@ namespace SymbooglixLibTests
         {
             InitAndRun("programs/UnsatisfiableEnsures.bpl");
             Assert.AreEqual(1, Counter.UnsatisfiableEnsures);
+            Assert.AreEqual(0, Counter.Sucesses);
+            Assert.AreEqual(1, Counter.NumberOfFailures);
+        }
+
+        [Test()]
+        public void UnsatAxiom()
+        {
+            InitAndRun("programs/InconsistentAxioms.bpl");
+            Assert.AreEqual(1, Counter.UnsatisfiableAxioms);
             Assert.AreEqual(0, Counter.Sucesses);
             Assert.AreEqual(1, Counter.NumberOfFailures);
         }
