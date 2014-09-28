@@ -382,7 +382,8 @@ namespace Symbooglix
             if (InstructionVisited != null)
                 InstructionVisited(this, new InstructionVisitEventArgs(currentInstruction.GetProgramLocation()));
 
-            currentInstruction.visitCmd(this, this); // Use double dispatch
+            // FIXME: Use of "dynamic" might hinder performance
+            this.Handle(currentInstruction as dynamic, this);
         }
 
         protected void HandleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
