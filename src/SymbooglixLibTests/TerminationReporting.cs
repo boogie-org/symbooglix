@@ -45,6 +45,17 @@ namespace SymbooglixLibTests
         {
             InitAndRun("programs/UnsatisfiableEntryRequires.bpl");
             Assert.AreEqual(1, Counter.UnsatisfiableRequiresOnEntry);
+            Assert.AreEqual(0, Counter.Sucesses);
+            Assert.AreEqual(1, Counter.NumberOfFailures);
+        }
+
+        [Test()]
+        public void FailingRequires()
+        {
+            InitAndRun("programs/FailingRequires.bpl");
+            Assert.AreEqual(1, Counter.FailingRequires);
+            Assert.AreEqual(0, Counter.Sucesses);
+            Assert.AreEqual(1, Counter.NumberOfFailures);
         }
     }
 }
