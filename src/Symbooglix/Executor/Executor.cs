@@ -1139,7 +1139,6 @@ namespace Symbooglix
 
         public HandlerAction Handle(HavocCmd c, Executor executor)
         {
-            Debug.WriteLine("Havoc : " + c.ToString().TrimEnd('\n'));
             for (int index=0; index < c.Vars.Count ; ++index)
             {
                 var s = SymbolicPool.getFreshSymbolic(c, index);

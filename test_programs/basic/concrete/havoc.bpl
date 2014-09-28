@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out --print-instr %s 2>&1 | %OutputCheck %s
 
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
@@ -13,11 +13,11 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
 {
     var a:bv8;
     var b:bv8;
-    // CHECK: Assignment : a := 1bv8
+    // CHECK-L: Assignment : a := 1bv8
     a := 1bv8;
-    // CHECK-NEXT: Assignment : b := 2bv8
+    // CHECK-L: Assignment : b := 2bv8
     b := 2bv8;
-    // CHECK: Havoc : havoc a, b
+    // CHECK-L: ${CHECKFILE_ABS_PATH}:${LINE:+3}: [Cmd] havoc a, b
     // CHECK-NEXT: symbolic_6:bv8
     // CHECK-NEXT: symbolic_7:bv8
     havoc a,b;
