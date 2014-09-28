@@ -56,9 +56,6 @@ namespace Symbooglix
             [Option("print-instr", DefaultValue = false, HelpText = "Print instructions during execution")]
             public bool useInstructionPrinter { get; set; }
 
-            [Option("print-stack-enter-leave", DefaultValue = false, HelpText = "Print stackframe when entering/leaving procedures")]
-            public bool useEnterLeaveStackPrinter { get; set; }
-
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
@@ -264,12 +261,6 @@ namespace Symbooglix
                     //e.RegisterPreEventHandler(new InstructionPrinter());
                     var instrPrinter = new InstructionPrinter(Console.Out);
                     instrPrinter.Connect(e);
-                }
-
-                if (options.useEnterLeaveStackPrinter)
-                {
-                    Console.WriteLine("Installing Entering and Leaving stack printer");
-                    e.RegisterPreEventHandler(new EnterAndLeaveStackPrinter());
                 }
 
                 if (options.useCallSequencePrinter)
