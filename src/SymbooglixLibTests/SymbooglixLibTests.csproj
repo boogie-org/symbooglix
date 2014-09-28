@@ -105,6 +105,7 @@
     <Compile Include="ExprSMTLIB\UninterpretedFunction.cs" />
     <Compile Include="TerminationType.cs" />
     <Compile Include="ExecutorTerminatedEvent.cs" />
+    <Compile Include="InstructionPrinter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
