@@ -57,6 +57,15 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, Counter.Sucesses);
             Assert.AreEqual(1, Counter.NumberOfFailures);
         }
+
+        [Test()]
+        public void FailingEnsures()
+        {
+            InitAndRun("programs/FailingEnsures.bpl");
+            Assert.AreEqual(1, Counter.FailingEnsures);
+            Assert.AreEqual(0, Counter.Sucesses);
+            Assert.AreEqual(1, Counter.NumberOfFailures);
+        }
     }
 }
 
