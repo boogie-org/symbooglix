@@ -250,6 +250,9 @@ namespace Symbooglix
 
                 if (InitialState.Finished())
                 {
+                    if (ExecutorTerminated != null)
+                        ExecutorTerminated(this, new ExecutorTerminatedArgs());
+
                     throw new ExecuteTerminatedStateException(this, InitialState);
                 }
 
