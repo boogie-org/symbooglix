@@ -92,9 +92,6 @@ namespace SymbooglixLibTests
 
             Executor e = new Executor(p, scheduler, solver);
 
-            IExecutorHandler verifier = new VerifyUnmodifiedProcedureHandler();
-            e.RegisterPreEventHandler(verifier);
-            e.RegisterPostEventHandler(verifier);
             return e;
         }
 

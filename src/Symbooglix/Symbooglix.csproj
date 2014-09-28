@@ -66,7 +66,6 @@
     <Compile Include="Executor\BoogieCmdExtensions.cs" />
     <Compile Include="Executor\ExecutorHandlers\IExecutorHandler.cs" />
     <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
-    <Compile Include="Executor\ExecutorHandlers\VerifyUnmodifiedProcedureHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationConsoleReporter.cs" />
     <Compile Include="Solver\Z3SMTLIBSolver.cs" />

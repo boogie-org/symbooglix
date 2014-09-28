@@ -82,9 +82,6 @@ namespace Symbooglix
             [Option("solver-timeout", DefaultValue=0, HelpText="Maximum time allowed for a single query")]
             public int solverTimeout {get; set;}
 
-            [Option("verify-unmodified-impl", DefaultValue = true, HelpText = "Verify that implementation commands aren't accidently modified during execution")]
-            public bool useVerifyUnmodifiedProcedureHandler { get; set; }
-
             [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
             public int useModSetTransform { get; set; }
 
@@ -246,15 +243,6 @@ namespace Symbooglix
                     }
                 }
 
-
-                // This debugging handler should be registered first
-                IExecutorHandler verifyUnmodified = null;
-                if (options.useVerifyUnmodifiedProcedureHandler)
-                {
-                    verifyUnmodified = new VerifyUnmodifiedProcedureHandler();
-                    e.RegisterPreEventHandler(verifyUnmodified);
-                }
-
                 if (options.useInstructionPrinter)
                 {
                     Console.WriteLine("Installing instruction printer");
@@ -269,12 +257,6 @@ namespace Symbooglix
                     //e.RegisterPreEventHandler(new CallSequencePrinter());
                     var callPrinter = new CallPrinter(Console.Out);
                     callPrinter.Connect(e);
-                }
-
-                if (options.useVerifyUnmodifiedProcedureHandler)
-                {
-                    // This debugging handler should be registered last
-                    e.RegisterPostEventHandler(verifyUnmodified);
                 }
 
                 if (options.useConstantFolding > 0)
