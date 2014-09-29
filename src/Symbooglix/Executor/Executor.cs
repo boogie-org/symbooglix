@@ -294,7 +294,7 @@ namespace Symbooglix
 
 
                 // Push entry point onto stack frame
-                EnterImplementation(entryPoint, null, this);
+                EnterImplementation(entryPoint, null);
 
                 var oldState = CurrentState;
                 while (AllowExecutorToRun)
@@ -383,7 +383,7 @@ namespace Symbooglix
                 InstructionVisited(this, new InstructionVisitEventArgs(currentInstruction.GetProgramLocation()));
 
             // FIXME: Use of "dynamic" might hinder performance
-            this.Handle(currentInstruction as dynamic, this);
+            this.Handle(currentInstruction as dynamic);
         }
 
         protected void HandleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
@@ -452,7 +452,7 @@ namespace Symbooglix
         // otherwise procedureParams should be a listof Expr for the procedure.
         // Note there is not need to make a copy of these Expr because a Boogie
         // procedure is not allowed to modify passed in parameters.
-        public void EnterImplementation(Implementation Impl, List<Expr> implementationParams, Executor executor)
+        public void EnterImplementation(Implementation Impl, List<Expr> implementationParams)
         {
             bool isProgramEntryPoint = CurrentState.Mem.Stack.Count == 0;
 
@@ -586,7 +586,7 @@ namespace Symbooglix
             }
         }
 
-        public void EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams, Executor executor)
+        public void EnterAndLeaveProcedure(Procedure proc, List<Expr> procedureParams)
         {
             Debug.Assert(CurrentState.Mem.Stack.Count > 0, "Can't enter a procedure without first entering an implementation");
             StackFrame callingStackFrame = CurrentState.GetCurrentStackFrame();
@@ -702,7 +702,7 @@ namespace Symbooglix
             CurrentState.Mem.PopStackFrame();
         }
 
-        public void Handle(ReturnCmd c, Executor executor)
+        public void Handle(ReturnCmd c)
         {
             var VMR = new VariableMapRewriter(CurrentState);
 
@@ -738,7 +738,7 @@ namespace Symbooglix
             }
 
             // We presume it is now safe to continue with the return
-            Debug.Assert(stillInCurrentState && !executor.CurrentState.Finished() , "Cannot do a return if the currentState was terminated!");
+            Debug.Assert(stillInCurrentState && !this.CurrentState.Finished() , "Cannot do a return if the currentState was terminated!");
 
             // Pass Parameters to Caller
             if (CurrentState.Mem.Stack.Count > 1)
@@ -786,7 +786,7 @@ namespace Symbooglix
         }
 
 
-        public void Handle(AssignCmd c, Executor executor)
+        public void Handle(AssignCmd c)
         {
             int index=0;
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
@@ -836,7 +836,7 @@ namespace Symbooglix
             }
         }
 
-        public void Handle(AssertCmd c, Executor executor)
+        public void Handle(AssertCmd c)
         {
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
@@ -1033,7 +1033,7 @@ namespace Symbooglix
             return true; // We are still in the current state
         }
 
-        public void Handle(AssumeCmd c, Executor executor)
+        public void Handle(AssumeCmd c)
         {
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
@@ -1048,7 +1048,7 @@ namespace Symbooglix
             HandleAssumeLikeCommand(dupAndrw, new TerminatedAtUnsatisfiableAssume(c), c.GetProgramLocation());
         }
 
-        public void Handle(GotoCmd c, Executor executor)
+        public void Handle(GotoCmd c)
         {
             Debug.Assert(c.labelTargets.Count() > 0);
 
@@ -1068,7 +1068,7 @@ namespace Symbooglix
             CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
         }
 
-        public void Handle(CallCmd c, Executor executor)
+        public void Handle(CallCmd c)
         {
             var args = new List<Expr>();
             var reWritter = new VariableMapRewriter(CurrentState);
@@ -1091,25 +1091,25 @@ namespace Symbooglix
 
             if (impl != null)
             {
-                EnterImplementation(impl, args, this);
+                EnterImplementation(impl, args);
             }
             else
             {
-                EnterAndLeaveProcedure(c.Proc, args, this);
+                EnterAndLeaveProcedure(c.Proc, args);
             }
         }
 
-        public void Handle(AssertEnsuresCmd c, Executor executor)
+        public void Handle(AssertEnsuresCmd c)
         {
             throw new NotImplementedException ();
         }
 
-        public void Handle(AssertRequiresCmd c, Executor executor)
+        public void Handle(AssertRequiresCmd c)
         {
             throw new NotImplementedException ();
         }
 
-        public void Handle(HavocCmd c, Executor executor)
+        public void Handle(HavocCmd c)
         {
             for (int index=0; index < c.Vars.Count ; ++index)
             {
@@ -1121,7 +1121,7 @@ namespace Symbooglix
             }
         }
 
-        public void Handle(YieldCmd c, Executor executor)
+        public void Handle(YieldCmd c)
         {
             throw new NotImplementedException ();
         }
