@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Symbooglix
 {
 
-    public class Executor : IExecutorHandler
+    public class Executor
     {
         public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver)
         { 

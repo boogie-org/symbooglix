@@ -63,7 +63,6 @@
     <Compile Include="Executor\SymbolicPool.cs" />
     <Compile Include="Executor\VariableMapRewriter.cs" />
     <Compile Include="Executor\ConstraintManager.cs" />
-    <Compile Include="Executor\ExecutorHandlers\IExecutorHandler.cs" />
     <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationConsoleReporter.cs" />
