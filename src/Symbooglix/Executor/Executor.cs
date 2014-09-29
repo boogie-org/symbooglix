@@ -1099,16 +1099,6 @@ namespace Symbooglix
             }
         }
 
-        protected void Handle(AssertEnsuresCmd c)
-        {
-            throw new NotImplementedException ();
-        }
-
-        protected void Handle(AssertRequiresCmd c)
-        {
-            throw new NotImplementedException ();
-        }
-
         protected void Handle(HavocCmd c)
         {
             for (int index=0; index < c.Vars.Count ; ++index)
