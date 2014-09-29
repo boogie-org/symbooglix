@@ -103,6 +103,24 @@ namespace SymbooglixLibTests
             e.Run(getMain(p));
             Assert.AreEqual(2, counter);
         }
+
+        [Test()]
+        public void UnexplorableGotos()
+        {
+            p = loadProgram("programs/GotoUnsatTargets.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e.UseGotoLookAhead = true;
+
+            int counter = 0;
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs executionStateEventArgs)
+            {
+                Assert.IsInstanceOfType(typeof(TerminatedAtGotoWithUnsatisfiableTargets), executionStateEventArgs.State.TerminationType);
+                ++counter;
+            };
+            e.Run(getMain(p));
+
+            Assert.AreEqual(1, counter);
+        }
     }
 }
 

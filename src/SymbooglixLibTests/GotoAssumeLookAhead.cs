@@ -18,7 +18,9 @@ namespace SymbooglixLibTests
             counter.Connect(e);
             e.Run(getMain(p));
 
-            // FIXME: Check for failed state.
+            Assert.AreEqual(0, counter.Sucesses);
+            Assert.AreEqual(1, counter.NumberOfTerminatedStates);
+            Assert.AreEqual(1, counter.UnexplorableGotos);
         }
 
         [Test()]

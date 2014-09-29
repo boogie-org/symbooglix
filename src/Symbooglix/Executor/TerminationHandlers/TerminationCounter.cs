@@ -16,6 +16,7 @@ namespace Symbooglix
         public int UnsatisfiableEnsures { get; private set; }
         public int UnsatisfiableAxioms { get; private set;}
         public int DisallowedSpeculativePaths { get; private set; }
+        public int UnexplorableGotos { get; private set; }
 
         public int NumberOfFailures
         {
@@ -28,13 +29,13 @@ namespace Symbooglix
                 UnsatisfiableAssumes +
                 UnsatisfiableEnsures +
                 UnsatisfiableAxioms;
-                // Note we don't consider a DisallowedSpeculativePath to be a failure
+                // Note we don't consider a DisallowedSpeculativePath or UnExplorableGotos to be failures
             }
         }
 
         public int NumberOfTerminatedStates
         {
-            get { return NumberOfFailures + Sucesses + DisallowedSpeculativePaths; }
+            get { return NumberOfFailures + Sucesses + DisallowedSpeculativePaths + UnexplorableGotos; }
         }
 
         public TerminationCounter()
@@ -75,6 +76,8 @@ namespace Symbooglix
                 UnsatisfiableAxioms++;
             else if (terminationType is TerminatedWithDisallowedSpeculativePath)
                 DisallowedSpeculativePaths++;
+            else if (terminationType is TerminatedAtGotoWithUnsatisfiableTargets)
+                UnexplorableGotos++;
             else
                 throw new NotSupportedException("Can't handle Termination type " + terminationType.ToString());
         }
@@ -89,6 +92,7 @@ namespace Symbooglix
             UnsatisfiableAssumes = 0;
             UnsatisfiableEnsures = 0;
             DisallowedSpeculativePaths = 0;
+            UnexplorableGotos = 0;
         }
 
         public override string ToString()
@@ -103,6 +107,7 @@ namespace Symbooglix
                                  "  UnsatisfiableEnsures={6}\n" +
                                  "  UnsatisfiableAxioms={7}\n" +
                                  "  DisallowedSpeculativePath={8}\n" +
+                                 "  UnexplorableGotos={9}\n" +
                                  "]",
                                  Sucesses,
                                  FailingAsserts,
@@ -112,7 +117,8 @@ namespace Symbooglix
                                  UnsatisfiableAssumes,
                                  UnsatisfiableEnsures,
                                  UnsatisfiableAxioms,
-                                 DisallowedSpeculativePaths);
+                                 DisallowedSpeculativePaths,
+                                 UnexplorableGotos);
         }
 
     }

@@ -110,7 +110,22 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(2, Counter.DisallowedSpeculativePaths);
             Assert.AreEqual(0, Counter.Sucesses);
-            Assert.AreEqual(0, Counter.Sucesses);
+            Assert.AreEqual(0, Counter.NumberOfFailures);
+        }
+
+        [Test()]
+        public void UnexplorableGotos()
+        {
+            p = loadProgram("programs/GotoUnsatTargets.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e.UseGotoLookAhead = true;
+
+            var counter = new TerminationCounter();
+            counter.Connect(e);
+            e.Run(getMain(p));
+
+            Assert.AreEqual(0, counter.Sucesses);
+            Assert.AreEqual(1, counter.UnexplorableGotos);
         }
     }
 }

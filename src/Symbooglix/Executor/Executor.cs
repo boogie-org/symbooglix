@@ -1152,7 +1152,7 @@ namespace Symbooglix
             {
                 // No paths are feasible so terminate current state
                 // FIXME: Need new termination type
-                TerminateState(CurrentState, null, /*removeFromStateSchedular=*/ true);
+                TerminateState(CurrentState, new TerminatedAtGotoWithUnsatisfiableTargets(c), /*removeFromStateSchedular=*/ true);
                 return;
             }
 

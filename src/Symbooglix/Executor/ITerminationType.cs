@@ -292,5 +292,43 @@ namespace Symbooglix
             }
         }
     }
+
+    public class TerminatedAtGotoWithUnsatisfiableTargets : ITerminationType
+    {
+        public TerminatedAtGotoWithUnsatisfiableTargets(GotoCmd gotoCmd)
+        {
+            this.ExitLocation = gotoCmd.GetProgramLocation();
+        }
+
+        public string GetMessage()
+        {
+            Debug.Assert(ExitLocation.IsTransferCmd && ExitLocation.AsTransferCmd is GotoCmd);
+
+            var gotoCmd = ExitLocation.AsTransferCmd as GotoCmd;
+            string line = "";
+            using (var SW = new StringWriter())
+            {
+                gotoCmd.Emit(new TokenTextWriter("", SW, /*setTokens=*/false, /*pretty=*/false), 0);
+                line = SW.ToString();
+            }
+
+            return "Terminated with no satisfiable path available from goto " +
+                gotoCmd.tok.filename + ":" +
+                gotoCmd.tok.line + " " +
+                line;
+        }
+
+        public ExecutionState State
+        {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation
+        {
+            get;
+            internal set;
+        }
+    }
 }
 
