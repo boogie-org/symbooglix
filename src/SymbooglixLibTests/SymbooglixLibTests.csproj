@@ -107,6 +107,8 @@
     <Compile Include="ExecutorTerminatedEvent.cs" />
     <Compile Include="InstructionPrinter.cs" />
     <Compile Include="BlockCmdIterator.cs" />
+    <Compile Include="GotoAssumeLookAhead.cs" />
+    <Compile Include="GotoNaive.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -237,6 +239,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\EntryWithImmediateGoto.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GotoUnsatTargets.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GotoAllSatTargets.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GotoAllTargetsWithoutAssumes.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GotoTargetsMixedAssumes.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
