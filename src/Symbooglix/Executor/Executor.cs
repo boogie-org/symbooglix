@@ -389,8 +389,18 @@ namespace Symbooglix
             if (InstructionVisited != null)
                 InstructionVisited(this, new InstructionVisitEventArgs(currentInstruction.GetProgramLocation()));
 
+            #if DEBUG
+            // This is heuristic that tries to catch accidental changes to the program
+            // by the executor by checking that the string representing the command hasn't changed.
+            string original = currentInstruction.ToString();
+            #endif
+
             // FIXME: Use of "dynamic" might hinder performance
             this.Handle(currentInstruction as dynamic);
+
+            #if DEBUG
+            Debug.Assert(original.Equals( currentInstruction.ToString()), "instruction was changed during execution!");
+            #endif
         }
 
         protected void HandleBreakPoints(PredicateCmd cmd) // FIXME: Support calls too!
