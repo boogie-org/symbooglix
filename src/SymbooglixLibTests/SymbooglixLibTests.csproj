@@ -106,6 +106,7 @@
     <Compile Include="TerminationType.cs" />
     <Compile Include="ExecutorTerminatedEvent.cs" />
     <Compile Include="InstructionPrinter.cs" />
+    <Compile Include="BlockCmdIterator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -233,6 +234,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\UnsatisfiableEnsures.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\EntryWithImmediateGoto.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

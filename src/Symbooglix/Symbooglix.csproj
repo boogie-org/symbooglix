@@ -59,7 +59,6 @@
     <Compile Include="Executor\Memory.cs" />
     <Compile Include="Executor\ExecutionState.cs" />
     <Compile Include="Executor\StateScheduler.cs" />
-    <Compile Include="Executor\BlockCmdIterator.cs" />
     <Compile Include="Executor\SymbolicPool.cs" />
     <Compile Include="Executor\VariableMapRewriter.cs" />
     <Compile Include="Executor\ConstraintManager.cs" />
@@ -91,6 +90,7 @@
     <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\InstructionPrinter.cs" />
     <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
+    <Compile Include="Executor\BlockCmdEnumerable.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

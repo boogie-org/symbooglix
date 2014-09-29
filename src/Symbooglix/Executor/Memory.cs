@@ -73,7 +73,7 @@ namespace Symbooglix
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
         public Procedure Proc;
-        private BlockCmdIterator BCI;
+        private BlockCmdEnumerable BCI;
         public IEnumerator<Absy> CurrentInstruction;
 
         // FIXME: Make this thread safe
@@ -198,7 +198,7 @@ namespace Symbooglix
             Debug.Assert(Impl.Blocks.Contains(BB));
 
             CurrentBlock = BB;
-            BCI = new BlockCmdIterator(CurrentBlock);
+            BCI = new BlockCmdEnumerable(CurrentBlock);
             CurrentInstruction = BCI.GetEnumerator();
         }
     }
