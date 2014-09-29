@@ -18,6 +18,7 @@ namespace Symbooglix
             SymbolicPool = new SymbolicPool();
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
+            UseGotoLookAhead = true;
             this.TheSolver = solver;
         }
 
@@ -37,6 +38,12 @@ namespace Symbooglix
         private bool AllowExecutorToRun= false;
 
         public bool UseConstantFolding
+        {
+            get;
+            set;
+        }
+
+        public bool UseGotoLookAhead
         {
             get;
             set;
@@ -1052,6 +1059,14 @@ namespace Symbooglix
         {
             Debug.Assert(c.labelTargets.Count() > 0);
 
+            if (UseGotoLookAhead)
+                LookAheadGotoFork(c);
+            else
+                SimpleGotoFork(c);
+        }
+
+        protected void SimpleGotoFork(GotoCmd c)
+        {
             if (c.labelTargets.Count() > 1)
             {
                 ExecutionState newState = null;
@@ -1066,6 +1081,127 @@ namespace Symbooglix
 
             // The current execution state will always take the first target
             CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
+        }
+
+        private struct LookAheadInfo
+        {
+            public Expr ReWrittenAssumeExpr; // null if no assume to look ahead
+            public Block Target;
+            public bool IsSpeculative;
+        }
+
+        protected void LookAheadGotoFork(GotoCmd c)
+        {
+
+            var blocksToExecute = new List<LookAheadInfo>();
+
+            // After running over label targets this list will
+            // contain the targets that will be followed.
+            // If Expr is null it means that an assume was
+            // not found as the first instruction at the target
+            // so it should be executed normally.
+            // If the Expr is not null then it is the rewritten expression
+            // from an assume instruction that should be added to the constraints
+            var remapper = new VariableMapRewriter(CurrentState);
+            foreach (var block in c.labelTargets)
+            {
+                LookAheadInfo info;
+                info.IsSpeculative = false;
+                info.ReWrittenAssumeExpr = null;
+                info.Target = block;
+
+                var targetInstruction = new BlockCmdEnumerator(block);
+                targetInstruction.MoveNext();
+
+                if (!( targetInstruction.Current is AssumeCmd ))
+                {
+                    // There is no assume cmd at the beginning of the target block
+                    // so this will need to be executed.
+                    blocksToExecute.Add(info);
+                    continue;
+                }
+
+                var assumeCmd = targetInstruction.Current as AssumeCmd;
+                Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
+                info.ReWrittenAssumeExpr = dupAndRw;
+
+                // Ask to solver if the assume is satisfiable
+                TheSolver.SetConstraints(CurrentState.Constraints);
+                Solver.Result result = TheSolver.IsQuerySat(dupAndRw);
+                switch (result)
+                {
+                    case Symbooglix.Solver.Result.UNKNOWN:
+                        info.IsSpeculative = true;
+                        blocksToExecute.Add(info);
+                        break;
+                    case Symbooglix.Solver.Result.SAT:
+                        blocksToExecute.Add(info);
+                        break;
+                    case Symbooglix.Solver.Result.UNSAT:
+                        // Following this path would lead to in an infeasiable execution state
+                        // so drop it don't add it to blocksToExecute
+                        break;
+                    default:
+                        throw new NotImplementedException("Unhandled case");
+                }
+            }
+
+            // Now create the ExecutionStates that we know will be feasible
+
+            if (blocksToExecute.Count == 0)
+            {
+                // No paths are feasible so terminate current state
+                // FIXME: Need new termination type
+                TerminateState(CurrentState, null, /*removeFromStateSchedular=*/ true);
+                return;
+            }
+
+            // Will contain the execution states we want
+            var forkingStates = new List<ExecutionState>();
+            forkingStates.Add(CurrentState);
+
+            // Create new ExecutionStates for the other blocks
+            for (int index = 1; index < blocksToExecute.Count; ++index)
+            {
+                var newState = CurrentState.DeepClone();
+                forkingStates.Add(newState);
+            }
+
+            // Finally Setup Modify each ExecutionState as appropriate and set it up to follow the appropriate path
+            Debug.Assert(forkingStates.Count == blocksToExecute.Count, "Created wrong number of states to Execute");
+            foreach (var blockStatePair in blocksToExecute.Zip(forkingStates))
+            {
+                var theState = blockStatePair.Item2;
+                var theInfo = blockStatePair.Item1;
+
+                if (theInfo.IsSpeculative)
+                {
+                    theState.MakeSpeculative();
+                }
+
+                // Transfer to the appropriate basic block
+                theState.GetCurrentStackFrame().TransferToBlock(theInfo.Target);
+
+                if (theInfo.ReWrittenAssumeExpr != null)
+                {
+                    // For this state we looked ahead and there was a satisfiable assume
+                    // so now add the assume constraint and walk past the assume that we
+                    // already looked at because there is no need to execute it.
+                    var assumeCmd = (theInfo.Target.Cmds[0] as AssumeCmd);
+                    Debug.Assert(assumeCmd != null, "The target block does not start with the expected AssumeCmd");
+                    theState.Constraints.AddConstraint(theInfo.ReWrittenAssumeExpr, assumeCmd.GetProgramLocation());
+
+                    // Move the currentInstruction to point to the AssumeCmd.
+                    // When the Executor loop execute's "theState"'s next instruction
+                    // it will move forward again thus skipping the AssumeCmd
+                    theState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
+                    Debug.Assert(theState.GetCurrentStackFrame().CurrentInstruction.Current is AssumeCmd, "The target block does not start with the expected AssumeCmd");
+                }
+
+                // Add the new states to the scheduler
+                if (theState != CurrentState)
+                    StateScheduler.AddState(theState);
+            }
         }
 
         protected void Handle(CallCmd c)

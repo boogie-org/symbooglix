@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s 2>&1 | %OutputCheck %s
 // Bitvector functions
 function {:bvbuiltin "bvadd"} bv8add(bv8,bv8) returns(bv8);
 function {:bvbuiltin "bvult"} bv8ult(bv8,bv8) returns(bool);

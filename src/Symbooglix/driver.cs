@@ -40,6 +40,9 @@ namespace Symbooglix
                         HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
             public List<string> entryPoints { get; set; }
 
+            [Option("goto-assume-look-ahead", DefaultValue= 1, HelpText="Prevent needless state creation and destruction by looking ahead at gotos")]
+            public int gotoAssumeLookAhead { get; set; }
+
             [Option("gpuverify-entry-points", DefaultValue=false, HelpText = "Use GPUVerify kernels as entry points")]
             public bool gpuverifyEntryPoints { get; set; }
 
@@ -266,6 +269,15 @@ namespace Symbooglix
                 else
                 {
                     e.UseConstantFolding = false;
+                }
+
+                if (options.gotoAssumeLookAhead > 0)
+                {
+                    e.UseGotoLookAhead = true;
+                }
+                else
+                {
+                    e.UseGotoLookAhead = false;
                 }
 
                 // Just print a message about break points for now.

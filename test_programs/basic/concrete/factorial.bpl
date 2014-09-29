@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s | %OutputCheck %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s | %OutputCheck %s
 procedure fact(N:int) returns(r:int);
 
 implementation fact(N:int) returns(r:int)
