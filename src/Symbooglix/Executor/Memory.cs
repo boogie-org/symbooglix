@@ -73,8 +73,7 @@ namespace Symbooglix
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
         public Procedure Proc;
-        private BlockCmdEnumerable BCI;
-        public IEnumerator<Absy> CurrentInstruction;
+        public BlockCmdEnumerator CurrentInstruction;
 
         // FIXME: Make this thread safe
         // Lazy initialisation
@@ -149,24 +148,9 @@ namespace Symbooglix
             // A dummy stack frame doesn't have an instruction iterator
             if (IsDummy)
                 return other;
-            
-            // Clone instruction iterator
-            if (CurrentInstruction.Current is TransferCmd)
-            {
-                // We are about to transfer so be lazy so don't bother cloning instruction
-                Debug.WriteLine("Warning: Not duplicating currentInstruction");
-            }
-            else
-            {
-                // FIXME: This is nasty. Find a better way to clone the instruction iterator!
-                other.CurrentInstruction = BCI.GetEnumerator(); // new iterator instance
 
-                // Walk the copy forwards until the iterator is pointing to the same instruction
-                while (other.CurrentInstruction.Current != this.CurrentInstruction.Current)
-                {
-                    other.CurrentInstruction.MoveNext();
-                }
-            }
+            // Clone instruction iterator
+            other.CurrentInstruction = CurrentInstruction.DeepClone();
 
             return other;
         }
@@ -198,8 +182,7 @@ namespace Symbooglix
             Debug.Assert(Impl.Blocks.Contains(BB));
 
             CurrentBlock = BB;
-            BCI = new BlockCmdEnumerable(CurrentBlock);
-            CurrentInstruction = BCI.GetEnumerator();
+            CurrentInstruction = new BlockCmdEnumerator(CurrentBlock);
         }
     }
 
