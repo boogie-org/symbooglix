@@ -56,8 +56,8 @@ namespace Symbooglix
 
         protected override void DoTask(Executor e, ExecutionState State)
         {
-            string terminatationType = State.TerminationType.GetType().ToString();
-            using (var SW = new StreamWriter(Path.Combine(Directory,State.Id + "-" + terminatationType + ".smt2")))
+            string terminatationTypeName = State.TerminationType.GetType().ToString();
+            using (var SW = new StreamWriter(Path.Combine(Directory,State.Id + "-" + terminatationTypeName + ".smt2")))
             {
                 var outputFile = new SMTLIBQueryPrinter(SW, true);
 
@@ -65,6 +65,13 @@ namespace Symbooglix
                 foreach (var constraint in State.Constraints.ConstraintExprs)
                 {
                     outputFile.AddDeclarations(constraint);
+                }
+
+                // Add declarations for any variables in the condition for sat if its available
+                if (State.TerminationType is TerminationTypeWithSatAndUnsatExpr)
+                {
+                    var terminationType = State.TerminationType as TerminationTypeWithSatAndUnsatExpr;
+                    outputFile.AddDeclarations(terminationType.ConditionForSat);
                 }
 
                 outputFile.PrintFunctionDeclarations();
@@ -76,7 +83,13 @@ namespace Symbooglix
                     outputFile.PrintAssert(constraint.Condition);
                 }
 
-                // FIXME: The last constraint from the execution state is missing!
+                // This adds the last constraint if there is one
+                if (State.TerminationType is TerminationTypeWithSatAndUnsatExpr)
+                {
+                    var terminationType = State.TerminationType as TerminationTypeWithSatAndUnsatExpr;
+                    outputFile.PrintCommentLine("Query Expr:SAT");
+                    outputFile.PrintAssert(terminationType.ConditionForSat);
+                }
 
                 outputFile.PrintCheckSat();
                 outputFile.PrintExit();
