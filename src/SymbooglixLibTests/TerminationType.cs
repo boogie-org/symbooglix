@@ -35,17 +35,68 @@ namespace SymbooglixLibTests
             return terminationType;
         }
 
+        public T InitAndRunWithSuccessAndFailure<T>(string program) where T:class
+        {
+            int counter = 0;
+            p = loadProgram(program);
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            T terminationType = null;
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs state)
+            {
+                if (state.State.TerminationType is T)
+                    terminationType = state.State.TerminationType as T;
+
+                ++counter;
+            };
+
+            try
+            {
+                e.Run(getMain(p));
+            }
+            catch (ExecuteTerminatedStateException)
+            {
+                // Ignore for now
+            }
+
+            Assert.AreEqual(2, counter);
+            Assert.IsInstanceOfType(typeof(T), terminationType);
+            return terminationType;
+        }
+
         [Test()]
-        public void FailingAssert()
+        public void FailingAssertConstant()
         {
             var terminationType = InitAndRun<TerminatedAtFailingAssert>("programs/assert_false.bpl");
 
-            // FIXME: We should have another test for the case that ConditionForUnsat is null
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
             Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
             Assert.AreEqual("true", terminationType.ConditionForSat.ToString());
+        }
+
+        [Test()]
+        public void FailingAssertNotConstant()
+        {
+            var terminationType = InitAndRun<TerminatedAtFailingAssert>("programs/FailingAssertNonTrivial.bpl");
+
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.IsNotNull(terminationType.ConditionForSat);
+
+            Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 <= symbolic_0", terminationType.ConditionForSat.ToString());
+        }
+
+        [Test()]
+        public void FailingAndSuceedingAssert()
+        {
+            var terminationType = InitAndRunWithSuccessAndFailure<TerminatedAtFailingAssert>("programs/FailingAndSucceedingAssert.bpl");
+
+            Assert.IsNull(terminationType.ConditionForUnsat);
+            Assert.IsNotNull(terminationType.ConditionForSat);
+
+            Assert.AreEqual("0 < symbolic_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
