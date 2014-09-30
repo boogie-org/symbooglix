@@ -131,11 +131,21 @@ namespace SymbooglixLibTests
         {
             var terminationType = InitAndRun<TerminatedAtFailingRequires>("programs/FailingRequires.bpl");
 
-            // FIXME: We should have another test for the case that ConditionForUnsat is null
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
             Assert.AreEqual("symbolic_0 > 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 >= symbolic_0", terminationType.ConditionForSat.ToString());
+        }
+
+        [Test()]
+        public void FailingAndSucceedingRequires()
+        {
+            var terminationType = InitAndRunWithSuccessAndFailure<TerminatedAtFailingRequires>("programs/FailingAndSucceedingRequires.bpl");
+
+            Assert.IsNull(terminationType.ConditionForUnsat);
+            Assert.IsNotNull(terminationType.ConditionForSat);
+
             Assert.AreEqual("0 >= symbolic_0", terminationType.ConditionForSat.ToString());
         }
 
