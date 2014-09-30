@@ -43,6 +43,9 @@ namespace SymbooglixLibTests
             // FIXME: We should have another test for the case that ConditionForUnsat is null
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
+
+            Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("true", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -58,6 +61,7 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableAssume>("programs/assume_false.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
         }
 
 
@@ -67,6 +71,7 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableEntryRequires>("programs/UnsatisfiableEntryRequires.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
         }
 
 
@@ -78,6 +83,9 @@ namespace SymbooglixLibTests
             // FIXME: We should have another test for the case that ConditionForUnsat is null
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
+
+            Assert.AreEqual("symbolic_0 > 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 >= symbolic_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -88,6 +96,9 @@ namespace SymbooglixLibTests
             // FIXME: We should have another test for the case that ConditionForUnsat is null
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
+
+            Assert.AreEqual("symbolic_1 > 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 >= symbolic_1", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -96,6 +107,7 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableEnsures>("programs/UnsatisfiableEnsures.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.AreEqual("symbolic_1 > 20", terminationType.ConditionForUnsat.ToString());
         }
 
         [Test()]
@@ -104,6 +116,7 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableAxiom>("programs/InconsistentAxioms.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
         }
 
         [Test()]
