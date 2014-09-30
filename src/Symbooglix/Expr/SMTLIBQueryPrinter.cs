@@ -249,6 +249,12 @@ namespace Symbooglix
             TW.Flush();
         }
 
+        public void PrintGetModel()
+        {
+            TW.WriteLine("(get-model)");
+            TW.Flush();
+        }
+
         public void PrintExit()
         {
             TW.WriteLine("(exit)");
@@ -256,12 +262,11 @@ namespace Symbooglix
             AssertCounter = 0;
         }
 
-        public void PrintSetOption(string option)
+        // FIXME: This API is gross. Use enums instead
+        public void PrintSetOption(string option, string value)
         {
-            TW.WriteLine("(set-option :" + option + ")");
+            TW.WriteLine("(set-option :" + option + " " + value + ")");
         }
-
-
 
         private void PushIndent()
         {

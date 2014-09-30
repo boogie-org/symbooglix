@@ -61,6 +61,8 @@ namespace Symbooglix
             {
                 var outputFile = new SMTLIBQueryPrinter(SW, true);
 
+                outputFile.AnnotateAssertsWithNames = false; // Enabling this is really only useful for getting the unsat-core
+
                 // FIXME: This **all** needs to be refactored. The solvers do something very similar
                 foreach (var constraint in State.Constraints.ConstraintExprs)
                 {
@@ -74,6 +76,7 @@ namespace Symbooglix
                     outputFile.AddDeclarations(terminationType.ConditionForSat);
                 }
 
+                outputFile.PrintSetOption("produce-models", "true");
                 outputFile.PrintCommentLine(State.TerminationType.GetMessage());
                 outputFile.PrintFunctionDeclarations();
                 outputFile.PrintVariableDeclarations();
@@ -93,6 +96,7 @@ namespace Symbooglix
                 }
 
                 outputFile.PrintCheckSat();
+                outputFile.PrintGetModel();
                 outputFile.PrintExit();
             }
         }
