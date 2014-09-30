@@ -74,6 +74,7 @@ namespace Symbooglix
                     outputFile.AddDeclarations(terminationType.ConditionForSat);
                 }
 
+                outputFile.PrintCommentLine(State.TerminationType.GetMessage());
                 outputFile.PrintFunctionDeclarations();
                 outputFile.PrintVariableDeclarations();
 
