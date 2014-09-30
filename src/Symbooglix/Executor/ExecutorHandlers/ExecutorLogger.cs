@@ -26,6 +26,7 @@ namespace Symbooglix
         }
 
         private ExecutionStateInfoLogger TerminatedStateConstraintsLogger;
+        private ExecutionStateInfoLogger TerminatedStateUnsatCoreLogger;
 
         public ExecutorLogger(string path, bool makeDirectoryInPath)
         {
@@ -85,11 +86,13 @@ namespace Symbooglix
         {
             CreateDirectories();
             TerminatedStateConstraintsLogger = new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName);
+            TerminatedStateUnsatCoreLogger = new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName);
         }
 
         public void Connect(Executor e)
         {
             TerminatedStateConstraintsLogger.Connect(e);
+            TerminatedStateUnsatCoreLogger.Connect(e);
 
             // This forces the Executor to block() whilst we wait for our logging to finish
             e.ExecutorTerminated += this.Wait;
@@ -98,6 +101,7 @@ namespace Symbooglix
         public void Disconnect(Executor e)
         {
             TerminatedStateConstraintsLogger.Disconnect(e);
+            TerminatedStateUnsatCoreLogger.Disconnect(e);
             e.ExecutorTerminated -= this.Wait;
         }
 
@@ -105,6 +109,7 @@ namespace Symbooglix
         {
             Console.WriteLine("Executor terminated. Waiting for logging to finish...");
             TerminatedStateConstraintsLogger.Wait();
+            TerminatedStateUnsatCoreLogger.Wait();
             Console.WriteLine("Logging finished");
         }
     }

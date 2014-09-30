@@ -255,6 +255,12 @@ namespace Symbooglix
             TW.Flush();
         }
 
+        public void PrintGetUnsatCore()
+        {
+            TW.WriteLine("(get-unsat-core)");
+            TW.Flush();
+        }
+
         public void PrintExit()
         {
             TW.WriteLine("(exit)");
