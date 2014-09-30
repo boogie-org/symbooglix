@@ -20,6 +20,56 @@ namespace Symbooglix
         string GetMessage();
     }
 
+    public abstract class TerminationTypeWithUnsatExpr : ITerminationType
+    {
+        protected TerminationTypeWithUnsatExpr()
+        {
+            this.ConditionForUnsat = null;
+        }
+
+        // This is the condition that could be added to an ExecutionState's
+        // constraints to make them unsatisfiable. This is intended to be used
+        // to determine the unsat core.
+        // If the Expr is not available then this will return null.
+        Expr ConditionForUnsat
+        {
+            get;
+            set;
+        }
+
+        public abstract string GetMessage();
+
+        public ExecutionState State
+        {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation
+        {
+            get;
+            internal set;
+        }
+    }
+
+    public abstract class TerminationTypeWithSatAndUnsatExpr : TerminationTypeWithUnsatExpr
+    {
+        protected TerminationTypeWithSatAndUnsatExpr()
+        {
+            this.ConditionForSat = null;
+        }
+
+        // This is the condition that could be added to the ExecutionState's
+        // constraints and would be satisfiable. This is intended to be used
+        // for getting a model from the solver
+        // If the Expr is not available then this will return null.
+        Expr ConditionForSat
+        {
+            get;
+            set;
+        }
+    }
+
     public class TerminatedWithoutError : ITerminationType
     {
         public TerminatedWithoutError(ReturnCmd location)
@@ -58,14 +108,14 @@ namespace Symbooglix
         }
     }
 
-    public class TerminatedAtFailingAssert : ITerminationType
+    public class TerminatedAtFailingAssert : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtFailingAssert(AssertCmd location)
         {
             this.ExitLocation = new ProgramLocation(location);
         }
 
-        public string GetMessage()
+        public override string GetMessage()
         {
             Debug.Assert(ExitLocation.IsCmd && ExitLocation.AsCmd is AssertCmd);
             var assertCmd = ExitLocation.AsCmd as AssertCmd;
@@ -74,28 +124,16 @@ namespace Symbooglix
                 assertCmd.tok.line + ": " +
                 assertCmd.ToString();
         }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            private set;
-        }
     }
 
-    public class TerminatedAtUnsatisfiableAssume : ITerminationType
+    public class TerminatedAtUnsatisfiableAssume : TerminationTypeWithUnsatExpr
     {
         public TerminatedAtUnsatisfiableAssume(AssumeCmd location)
         {
             this.ExitLocation = new ProgramLocation(location);
         }
 
-        public string GetMessage()
+        public override string GetMessage()
         {
             Debug.Assert(ExitLocation.IsCmd && ExitLocation.AsCmd is AssumeCmd);
             var assumeCmd = ExitLocation.AsCmd as AssumeCmd;
@@ -104,29 +142,17 @@ namespace Symbooglix
                 assumeCmd.tok.line + ": " +
                 assumeCmd.ToString();
         }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            private set;
-        }
     }
 
     // This is only for requires on program entry points
-    public class TerminatedAtUnsatisfiableEntryRequires : ITerminationType
+    public class TerminatedAtUnsatisfiableEntryRequires : TerminationTypeWithUnsatExpr
     {
         public TerminatedAtUnsatisfiableEntryRequires(Requires requires)
         {
             this.ExitLocation = new ProgramLocation(requires);
         }
             
-        public string GetMessage()
+        public override string GetMessage()
         {
             Debug.Assert(ExitLocation.IsRequires);
             var requires = ExitLocation.AsRequires;
@@ -135,28 +161,16 @@ namespace Symbooglix
                 requires.tok.line + ": " +
                 requires.Condition.ToString();
         }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            private set;
-        }
     }
 
-    public class TerminatedAtFailingRequires : ITerminationType
+    public class TerminatedAtFailingRequires : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtFailingRequires(Requires requires)
         {
             this.ExitLocation = new ProgramLocation(requires);
         }
 
-        public string GetMessage()
+        public override string GetMessage()
         {
             Debug.Assert(ExitLocation.IsRequires);
             var requires = ExitLocation.AsRequires;
@@ -165,28 +179,16 @@ namespace Symbooglix
                 requires.tok.line + ": " +
                 requires.Condition.ToString();
         }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            private set;
-        }
-
     }
 
-    public class TerminatedAtFailingEnsures : ITerminationType
+    public class TerminatedAtFailingEnsures : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtFailingEnsures(Ensures ensures)
         {
             this.ExitLocation = new ProgramLocation(ensures);
         }
-        public string GetMessage()
+
+        public override string GetMessage()
         {
             Debug.Assert(ExitLocation.IsEnsures);
             var ensures = ExitLocation.AsEnsures;
@@ -195,30 +197,18 @@ namespace Symbooglix
                 ensures.tok.line + ": " +
                 ensures.Condition.ToString();
         }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            private set;
-        }
     }
 
     // This is for Ensures that we try assume when calling into
     // a procedure
-    public class TerminatedAtUnsatisfiableEnsures : ITerminationType
+    public class TerminatedAtUnsatisfiableEnsures : TerminationTypeWithUnsatExpr
     {
         public TerminatedAtUnsatisfiableEnsures(Ensures ensures)
         {
             this.ExitLocation = new ProgramLocation(ensures);
         }
 
-        public string GetMessage()
+        public override string GetMessage()
         {
             Debug.Assert(ExitLocation.IsEnsures);
             var ensures = ExitLocation.AsEnsures;
@@ -227,28 +217,16 @@ namespace Symbooglix
                 ensures.tok.line + ": " +
                 ensures.Condition.ToString();
         }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            private set;
-        }
     }
 
-    public class TerminatedAtUnsatisfiableAxiom : ITerminationType
+    public class TerminatedAtUnsatisfiableAxiom : TerminationTypeWithUnsatExpr
     {
         public TerminatedAtUnsatisfiableAxiom(Axiom axiom)
         {
             this.ExitLocation = new ProgramLocation(axiom);
         }
 
-        public string GetMessage ()
+        public override string GetMessage ()
         {
             Debug.Assert(ExitLocation.IsAxiom);
             var axiom = ExitLocation.AsAxiom;
@@ -256,18 +234,6 @@ namespace Symbooglix
                 axiom.tok.filename + ":" +
                 axiom.tok.line + ": " +
                 axiom.Expr.ToString();
-        }
-
-        public ExecutionState State
-        {
-            get;
-            internal set;
-        }
-
-        public ProgramLocation ExitLocation
-        {
-            get;
-            internal set;
         }
     }
 

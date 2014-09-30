@@ -868,7 +868,7 @@ namespace Symbooglix
             HandleAssertLikeCommand(dupAndrw,  new TerminatedAtFailingAssert(c), c.GetProgramLocation());
         }
 
-        protected bool HandleAssertLikeCommand(Expr condition, ITerminationType terminatationType, ProgramLocation location)
+        protected bool HandleAssertLikeCommand(Expr condition, TerminationTypeWithSatAndUnsatExpr terminatationType, ProgramLocation location)
         {
             // Constant Folding might let us terminate without calling solver
             if (condition is LiteralExpr)
@@ -1002,7 +1002,7 @@ namespace Symbooglix
             }
         }
 
-        protected bool HandleAssumeLikeCommand(Expr condition, ITerminationType terminationType, ProgramLocation location)
+        protected bool HandleAssumeLikeCommand(Expr condition, TerminationTypeWithUnsatExpr terminationType, ProgramLocation location)
         {
             // Constant folding might let us terminate early without calling solver
             if (condition is LiteralExpr)
