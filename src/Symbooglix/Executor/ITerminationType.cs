@@ -20,11 +20,22 @@ namespace Symbooglix
         string GetMessage();
     }
 
-    public abstract class TerminationTypeWithUnsatExpr : ITerminationType
+    public abstract class TerminationTypeWithSatAndUnsatExpr : ITerminationType
     {
-        protected TerminationTypeWithUnsatExpr()
+        protected TerminationTypeWithSatAndUnsatExpr()
         {
+            this.ConditionForSat = null;
             this.ConditionForUnsat = null;
+        }
+
+        // This is the condition that could be added to the ExecutionState's
+        // constraints and would be satisfiable. This is intended to be used
+        // for getting a model from the solver
+        // If the Expr is not available then this will return null.
+        public Expr ConditionForSat
+        {
+            get;
+            set;
         }
 
         // This is the condition that could be added to an ExecutionState's
@@ -49,24 +60,6 @@ namespace Symbooglix
         {
             get;
             internal set;
-        }
-    }
-
-    public abstract class TerminationTypeWithSatAndUnsatExpr : TerminationTypeWithUnsatExpr
-    {
-        protected TerminationTypeWithSatAndUnsatExpr()
-        {
-            this.ConditionForSat = null;
-        }
-
-        // This is the condition that could be added to the ExecutionState's
-        // constraints and would be satisfiable. This is intended to be used
-        // for getting a model from the solver
-        // If the Expr is not available then this will return null.
-        public Expr ConditionForSat
-        {
-            get;
-            set;
         }
     }
 
@@ -126,7 +119,7 @@ namespace Symbooglix
         }
     }
 
-    public class TerminatedAtUnsatisfiableAssume : TerminationTypeWithUnsatExpr
+    public class TerminatedAtUnsatisfiableAssume : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtUnsatisfiableAssume(AssumeCmd location)
         {
@@ -145,7 +138,7 @@ namespace Symbooglix
     }
 
     // This is only for requires on program entry points
-    public class TerminatedAtUnsatisfiableEntryRequires : TerminationTypeWithUnsatExpr
+    public class TerminatedAtUnsatisfiableEntryRequires : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtUnsatisfiableEntryRequires(Requires requires)
         {
@@ -201,7 +194,7 @@ namespace Symbooglix
 
     // This is for Ensures that we try assume when calling into
     // a procedure
-    public class TerminatedAtUnsatisfiableEnsures : TerminationTypeWithUnsatExpr
+    public class TerminatedAtUnsatisfiableEnsures : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtUnsatisfiableEnsures(Ensures ensures)
         {
@@ -219,7 +212,7 @@ namespace Symbooglix
         }
     }
 
-    public class TerminatedAtUnsatisfiableAxiom : TerminationTypeWithUnsatExpr
+    public class TerminatedAtUnsatisfiableAxiom : TerminationTypeWithSatAndUnsatExpr
     {
         public TerminatedAtUnsatisfiableAxiom(Axiom axiom)
         {

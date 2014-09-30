@@ -107,12 +107,21 @@ namespace SymbooglixLibTests
 
 
         [Test()]
-        public void UnsatAssume()
+        public void UnsatAssumeConstant()
         {
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableAssume>("programs/assume_false.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
+        }
+
+        [Test()]
+        public void UnsatAssume()
+        {
+            var terminationType = InitAndRun<TerminatedAtUnsatisfiableAssume>("programs/UnsatisfiableAssume.bpl");
+
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.AreEqual("symbolic_0 * symbolic_0 < symbolic_0", terminationType.ConditionForUnsat.ToString());
         }
 
 

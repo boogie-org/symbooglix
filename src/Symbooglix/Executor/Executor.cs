@@ -1012,7 +1012,7 @@ namespace Symbooglix
             }
         }
 
-        protected bool HandleAssumeLikeCommand(Expr condition, TerminationTypeWithUnsatExpr terminationType, ProgramLocation location)
+        protected bool HandleAssumeLikeCommand(Expr condition, TerminationTypeWithSatAndUnsatExpr terminationType, ProgramLocation location)
         {
             // Constant folding might let us terminate early without calling solver
             if (condition is LiteralExpr)
@@ -1028,6 +1028,7 @@ namespace Symbooglix
                 else if (literalAssumption.IsFalse)
                 {
                     terminationType.ConditionForUnsat = Expr.False;
+                    terminationType.ConditionForSat = Expr.True;
                     TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in current state
@@ -1042,6 +1043,14 @@ namespace Symbooglix
             {
                 case Symbooglix.Solver.Result.UNSAT:
                     terminationType.ConditionForUnsat = condition;
+
+                    // Expr.Not(condition) will only be satisfiable if
+                    // the original constraints are satisfiable
+                    // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
+                    // ∀ x constraints(x) ∧ ¬query(x)
+                    // So here we assume
+                    terminationType.ConditionForSat = Expr.Not(condition);
+
                     TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in current state
