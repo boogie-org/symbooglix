@@ -110,6 +110,7 @@
     <Compile Include="GotoAssumeLookAhead.cs" />
     <Compile Include="GotoNaive.cs" />
     <Compile Include="Transforms\ExecutorContextChangeEvent.cs" />
+    <Compile Include="ExecutorExplicitBranchDepth.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -267,6 +268,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\UnsatisfiableAssume.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\ConcreteLoop.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

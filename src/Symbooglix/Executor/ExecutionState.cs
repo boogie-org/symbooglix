@@ -24,6 +24,22 @@ namespace Symbooglix
         }
 
         /// <summary>
+        /// Gets the explicit branch depth. This is considered to be the number of goto
+        /// instructions the state has executed past that have more than one target.
+        /// </summary>
+        /// <value>The explicit branch depth.</value>
+        public int ExplicitBranchDepth
+        {
+            get;
+            private set;
+        }
+
+        public void IncrementExplicitBranchDepth()
+        {
+            ++ExplicitBranchDepth;
+        }
+
+        /// <summary>
         /// An execution is consider speculative if a path has been followed
         /// that the Solver could not prove could be followed (i.e. it returned unknown)
         /// </summary>
@@ -49,6 +65,7 @@ namespace Symbooglix
             Id = NewId++;
             TerminationType = null;
             Speculative = false;
+            ExplicitBranchDepth = 0;
         }
 
         public ExecutionState DeepClone()
@@ -82,6 +99,7 @@ namespace Symbooglix
             else
                 Console.WriteLine("Running");
 
+            Console.WriteLine("Explicit branch depth: {0}", this.ExplicitBranchDepth);
             Console.WriteLine(Mem);
             Console.WriteLine(Constraints);
         }

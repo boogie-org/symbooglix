@@ -1116,6 +1116,8 @@ namespace Symbooglix
         {
             if (c.labelTargets.Count() > 1)
             {
+                CurrentState.IncrementExplicitBranchDepth(); // We only increment if there are multiple targets on the goto
+
                 ExecutionState newState = null;
                 for (int targetId = 1, tEnd = c.labelTargets.Count; targetId < tEnd; ++targetId)
                 {
@@ -1225,6 +1227,10 @@ namespace Symbooglix
                 {
                     theState.MakeSpeculative();
                 }
+
+                // We only count gotos that have more than one target
+                if (c.labelTargets.Count > 1)
+                    theState.IncrementExplicitBranchDepth();
 
                 // Transfer to the appropriate basic block
                 theState.GetCurrentStackFrame().TransferToBlock(theInfo.Target);
