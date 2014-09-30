@@ -283,6 +283,9 @@ namespace Symbooglix
                 // Just print a message about break points for now.
                 e.BreakPointReached += BreakPointPrinter.handleBreakPoint;
 
+                // Write to the console about context changes
+                var contextChangeReporter = new ContextChangedReporter();
+                contextChangeReporter.Connect(e);
 
                 var stateHandler = new TerminationConsoleReporter();
                 stateHandler.Connect(e);

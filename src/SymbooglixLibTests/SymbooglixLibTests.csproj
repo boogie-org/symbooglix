@@ -109,6 +109,7 @@
     <Compile Include="BlockCmdIterator.cs" />
     <Compile Include="GotoAssumeLookAhead.cs" />
     <Compile Include="GotoNaive.cs" />
+    <Compile Include="Transforms\ExecutorContextChangeEvent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

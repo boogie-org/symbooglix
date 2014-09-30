@@ -130,6 +130,19 @@ namespace Symbooglix
         public event EventHandler<LeaveProcedureEventArgs> ProcedureLeft;
         public event EventHandler<LeaveImplementationEventArgs> ImplementationLeft;
 
+        public class ContextChangeEventArgs : EventArgs
+        {
+            public readonly ExecutionState Previous;
+            public readonly ExecutionState Next;
+            public ContextChangeEventArgs(ExecutionState previous, ExecutionState next)
+            {
+                this.Previous = previous;
+                this.Next = next;
+            }
+        }
+
+        public event EventHandler<ContextChangeEventArgs> ContextChanged;
+
         private Object PrepareProgramLock = new object();
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
@@ -325,7 +338,10 @@ namespace Symbooglix
 
                     Debug.Assert(!CurrentState.Finished(), "Cannot execute a terminated state!");
 
-                    Debug.WriteLineIf(oldState != CurrentState, "[Switching context " + oldState.Id + " => " + CurrentState.Id + " ]");
+                    // Notify that the Executed state has changed.
+                    if (ContextChanged != null & oldState != CurrentState)
+                        ContextChanged(this, new ContextChangeEventArgs(oldState, CurrentState));
+
                     oldState = CurrentState;
 
                     CurrentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();

@@ -91,6 +91,7 @@
     <Compile Include="Executor\ExecutorHandlers\InstructionPrinter.cs" />
     <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
     <Compile Include="Executor\BlockCmdEnumerable.cs" />
+    <Compile Include="Executor\ExecutorHandlers\ContextChangedReporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
