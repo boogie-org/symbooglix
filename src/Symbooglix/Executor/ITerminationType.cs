@@ -31,7 +31,7 @@ namespace Symbooglix
         // constraints to make them unsatisfiable. This is intended to be used
         // to determine the unsat core.
         // If the Expr is not available then this will return null.
-        Expr ConditionForUnsat
+        public Expr ConditionForUnsat
         {
             get;
             set;
@@ -63,7 +63,7 @@ namespace Symbooglix
         // constraints and would be satisfiable. This is intended to be used
         // for getting a model from the solver
         // If the Expr is not available then this will return null.
-        Expr ConditionForSat
+        public Expr ConditionForSat
         {
             get;
             set;

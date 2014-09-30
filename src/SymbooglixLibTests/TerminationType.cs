@@ -8,15 +8,17 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class TerminationType : SymbooglixTest
     {
-        public void InitAndRun<T>(string program)
+        public T InitAndRun<T>(string program) where T:class
         {
             int counter = 0;
             p = loadProgram(program);
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
 
+            T terminationType = null;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs state)
             {
                 Assert.IsInstanceOfType(typeof(T), state.State.TerminationType);
+                terminationType = state.State.TerminationType as T;
                 ++counter;
             };
 
@@ -30,12 +32,17 @@ namespace SymbooglixLibTests
             }
 
             Assert.AreEqual(1, counter);
+            return terminationType;
         }
 
         [Test()]
         public void FailingAssert()
         {
-            InitAndRun<TerminatedAtFailingAssert>("programs/assert_false.bpl");
+            var terminationType = InitAndRun<TerminatedAtFailingAssert>("programs/assert_false.bpl");
+
+            // FIXME: We should have another test for the case that ConditionForUnsat is null
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.IsNotNull(terminationType.ConditionForSat);
         }
 
         [Test()]
@@ -48,40 +55,55 @@ namespace SymbooglixLibTests
         [Test()]
         public void UnsatAssume()
         {
-            InitAndRun<TerminatedAtUnsatisfiableAssume>("programs/assume_false.bpl");
+            var terminationType = InitAndRun<TerminatedAtUnsatisfiableAssume>("programs/assume_false.bpl");
+
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
         }
 
 
         [Test()]
         public void UnsatEntryRequires()
         {
-            InitAndRun<TerminatedAtUnsatisfiableEntryRequires>("programs/UnsatisfiableEntryRequires.bpl");
+            var terminationType = InitAndRun<TerminatedAtUnsatisfiableEntryRequires>("programs/UnsatisfiableEntryRequires.bpl");
+
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
         }
 
 
         [Test()]
         public void FailingRequires()
         {
-            InitAndRun<TerminatedAtFailingRequires>("programs/FailingRequires.bpl");
+            var terminationType = InitAndRun<TerminatedAtFailingRequires>("programs/FailingRequires.bpl");
 
+            // FIXME: We should have another test for the case that ConditionForUnsat is null
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.IsNotNull(terminationType.ConditionForSat);
         }
 
         [Test()]
         public void FailingEnsures()
         {
-            InitAndRun<TerminatedAtFailingEnsures>("programs/FailingEnsures.bpl");
+            var terminationType = InitAndRun<TerminatedAtFailingEnsures>("programs/FailingEnsures.bpl");
+
+            // FIXME: We should have another test for the case that ConditionForUnsat is null
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
+            Assert.IsNotNull(terminationType.ConditionForSat);
         }
 
         [Test()]
         public void UnsatEnsures()
         {
-            InitAndRun<TerminatedAtUnsatisfiableEnsures>("programs/UnsatisfiableEnsures.bpl");
+            var terminationType = InitAndRun<TerminatedAtUnsatisfiableEnsures>("programs/UnsatisfiableEnsures.bpl");
+
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
         }
 
         [Test()]
         public void UnsatAxiom()
         {
-            InitAndRun<TerminatedAtUnsatisfiableAxiom>("programs/InconsistentAxioms.bpl");
+            var terminationType = InitAndRun<TerminatedAtUnsatisfiableAxiom>("programs/InconsistentAxioms.bpl");
+
+            Assert.IsNotNull(terminationType.ConditionForUnsat);
         }
 
         [Test()]

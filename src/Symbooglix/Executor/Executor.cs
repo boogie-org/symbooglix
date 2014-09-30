@@ -216,7 +216,9 @@ namespace Symbooglix
                         case Symbooglix.Solver.Result.UNKNOWN:
                             goto default; // Eurgh...
                         default:
-                            TerminateState(InitialState, new TerminatedAtUnsatisfiableAxiom(axiom), /*removeFromStateScheduler=*/ false);
+                            var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
+                            terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
+                            TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/ false);
                             HasBeenPrepared = true; // Don't allow this method to run again
                             return false;
                     }
@@ -884,6 +886,8 @@ namespace Symbooglix
                 else if (literalAssertion.IsFalse)
                 {
                     // Terminate the state
+                    terminatationType.ConditionForSat = Expr.True;
+                    terminatationType.ConditionForUnsat = Expr.False;
                     TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in a state because removed the current state
@@ -961,6 +965,8 @@ namespace Symbooglix
                 if (failureIsSpeculative)
                     CurrentState.MakeSpeculative();
 
+                terminatationType.ConditionForUnsat = condition;
+                terminatationType.ConditionForSat = Expr.Not(condition);
                 TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
                 CurrentState = null;
                 return false; // No longer in a state because we removed the current state
@@ -986,6 +992,10 @@ namespace Symbooglix
                 if (failureIsSpeculative)
                     failingState.MakeSpeculative();
 
+                // For the failing state we want to state that the negation of the condition
+                // is satisfiable (i.e. it can be used to generate a model for the failing execution)
+                // terminationType.ConditionForUnsat is not yet because both paths are satisfiable
+                terminatationType.ConditionForSat = Expr.Not(condition);
                 // The failingState hasn't been added to scheduler so we shouldn't try to remove it from the scheduler
                 TerminateState(failingState, terminatationType, /*removeFromStateScheduler=*/false);
 
@@ -1017,6 +1027,7 @@ namespace Symbooglix
                 }
                 else if (literalAssumption.IsFalse)
                 {
+                    terminationType.ConditionForUnsat = Expr.False;
                     TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in current state
@@ -1030,6 +1041,7 @@ namespace Symbooglix
             switch (result)
             {
                 case Symbooglix.Solver.Result.UNSAT:
+                    terminationType.ConditionForUnsat = condition;
                     TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;
                     return false; // No longer in current state
