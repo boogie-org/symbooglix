@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Boogie;
 using System.Diagnostics;
 using System.Linq;
+using System.IO;
 
 namespace Symbooglix
 {
@@ -34,29 +35,40 @@ namespace Symbooglix
             return other;
         }
 
-        public override string ToString()
+        public void Dump(TextWriter TW, int indent)
         {
-            string d = "[Memory]\n";
-            string indent = "    ";
+            TW.WriteLine("[Memory]");
+            string indentStr = new string(' ',indent);
 
-            d += indent + "Globals:\n";
+            TW.WriteLine("Globals (" + Globals.Count + "):");
 
             foreach (var tuple in Globals.Keys.Zip(Globals.Values))
             {
-                d += indent + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type  + " := " + tuple.Item2 + "\n";
+                TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type  + " := " + tuple.Item2);
             }
 
-            d += indent + "\nStack:\n";
+            TW.WriteLine("");
+
+            TW.WriteLine("Stack (" + Stack.Count + "):");
 
             int depth = Stack.Count;
             for (int index = depth -1; index >= 0; --index)
             {
-                d += indent + index + ":\n";
-                d += Stack [index].ToString();
-                d += "\n";
+                TW.Write(indent + index + ":");
+                Stack[index].Dump(TW, indent * 2);
+                TW.WriteLine("");
             }
+        }
 
-            return d;
+        public override string ToString()
+        {
+            string result = null;
+            using (var SW = new StringWriter())
+            {
+                Dump(SW, 4);
+                result = SW.ToString();
+            }
+            return result;
         }
 
         public void PopStackFrame()
@@ -155,24 +167,37 @@ namespace Symbooglix
             return other;
         }
 
-        public override string ToString()
+        public void Dump(TextWriter TW, int indent)
         {
             if (IsDummy)
             {
-                return "[Dummy Stack frame for " + Proc.Name + "]\n";
+                TW.WriteLine("[Dummy Stack frame for " + Proc.Name + "]");
+                return;
             }
 
-            string d = "[Stack frame for " + Impl.Name + "]\n";
-            string indent = "    ";
-            d += indent + "Current block :" + CurrentBlock + "\n";
-            d += indent + "Current instruction : " + CurrentInstruction.Current + "\n";
+            string indentStr = new string(' ', indent);
+
+            TW.WriteLine(indentStr + "[Stack frame for " + Impl.Name + "]");
+            TW.WriteLine(indentStr + indentStr + "Current block :" + CurrentBlock);
+            TW.WriteLine(indentStr + indentStr + "Current instruction : " + CurrentInstruction.Current);
+            TW.WriteLine("");
 
             foreach (var tuple in Locals.Keys.Zip(Locals.Values))
             {
-                d += indent + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2 + "\n";
+                TW.WriteLine(indentStr + indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
+            }
+        }
+
+        public override string ToString()
+        {
+            string result = null;
+            using (var SW = new StringWriter())
+            {
+                Dump(SW, 4);
+                result = SW.ToString();
             }
 
-            return d;
+            return result;
         }
 
         public void TransferToBlock(Block BB)

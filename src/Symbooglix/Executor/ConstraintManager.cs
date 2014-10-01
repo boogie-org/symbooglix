@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Boogie;
+using System.IO;
 
 namespace Symbooglix
 {
@@ -55,15 +56,31 @@ namespace Symbooglix
             InternalConstraints.Add(new Constraint(e, location));
         }
 
+        public void Dump(TextWriter TW, int indent, bool showConstraints=false)
+        {
+            string indentStr = new string(' ', indent);
+            TW.WriteLine("[Constraints]");
+            TW.WriteLine(indentStr + InternalConstraints.Count + " constraint(s)");
+
+            if (showConstraints)
+            {
+                foreach (var e in InternalConstraints)
+                {
+                    TW.WriteLine(indentStr + "Origin:" + e.Origin);
+                    TW.WriteLine(indentStr + "Expr:" + e.Condition);
+                }
+            }
+        }
+
         public override string ToString()
         {
-            string d = "[Constraints]\n";
-            d += InternalConstraints.Count + " constraint(s)\n\n";
-
-            foreach (var e in InternalConstraints)
-                d += e.Condition + "\n";
-
-            return d;
+            string result = null;
+            using (var SW = new StringWriter())
+            {
+                Dump(SW, 4);
+                result = SW.ToString();
+            }
+            return result;
         }
     }
 

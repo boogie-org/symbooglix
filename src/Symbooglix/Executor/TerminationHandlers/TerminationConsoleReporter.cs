@@ -52,7 +52,8 @@ namespace Symbooglix
 
             WriteLine(color, msg + args.State.TerminationType.GetMessage());
 
-            args.State.DumpState();
+            // FIXME: Remove me
+            args.State.Dump();
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using System.IO;
 
 namespace Symbooglix
 {
@@ -91,18 +92,27 @@ namespace Symbooglix
             return true;
         }
 
-        public void DumpState()
+        public void Dump()
         {
-            Console.Write("State {0}: ", this.Id);
-            if (Finished())
-                Console.WriteLine(this.TerminationType.GetMessage());
-            else
-                Console.WriteLine("Running");
-
-            Console.WriteLine("Explicit branch depth: {0}", this.ExplicitBranchDepth);
-            Console.WriteLine(Mem);
-            Console.WriteLine(Constraints);
+            DumpState(Console.Error, false);
         }
+
+        public void DumpState(TextWriter TW, bool showConstraints, int indent=4)
+        {
+            TW.Write("State " + this.Id + ": ");
+            if (Finished())
+                TW.WriteLine(this.TerminationType.GetMessage());
+            else
+                TW.WriteLine("Running");
+
+            TW.WriteLine("Explicit branch depth: {0}", this.ExplicitBranchDepth);
+
+            Mem.Dump(TW, indent);
+
+            if (showConstraints)
+                Constraints.Dump(TW, indent, showConstraints);
+        }
+
        
         public StackFrame GetCurrentStackFrame()
         {
