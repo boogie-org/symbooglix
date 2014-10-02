@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class ExecutionStateUnSatCoreLogger : ExecutionStateInfoLogger
+    public class ExecutionStateUnSatCoreLogger : ExecutionStateLogger
     {
         public ExecutionStateUnSatCoreLogger(string directory) : base(directory)
         {

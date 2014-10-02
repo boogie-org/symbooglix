@@ -6,10 +6,10 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public abstract class ExecutionStateInfoLogger : IExecutorEventHandler
+    public abstract class ExecutionStateLogger : IExecutorEventHandler
     {
         protected string Directory;
-        public ExecutionStateInfoLogger(string directory)
+        public ExecutionStateLogger(string directory)
         {
             this.Directory = directory;
         }

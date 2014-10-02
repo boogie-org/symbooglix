@@ -25,8 +25,8 @@ namespace Symbooglix
             private set;
         }
 
-        private ExecutionStateInfoLogger TerminatedStateConstraintsLogger;
-        private ExecutionStateInfoLogger TerminatedStateUnsatCoreLogger;
+        private ExecutionStateLogger TerminatedStateConstraintsLogger;
+        private ExecutionStateLogger TerminatedStateUnsatCoreLogger;
 
         public ExecutorLogger(string path, bool makeDirectoryInPath)
         {

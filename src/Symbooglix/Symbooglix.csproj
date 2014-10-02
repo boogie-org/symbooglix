@@ -87,13 +87,13 @@
     <Compile Include="Executor\BoogieAbsyExtensions.cs" />
     <Compile Include="Transform\OldExprCanonicaliser.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorLogger.cs" />
-    <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\InstructionPrinter.cs" />
     <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
     <Compile Include="Executor\BlockCmdEnumerable.cs" />
     <Compile Include="Executor\ExecutorHandlers\ContextChangedReporter.cs" />
     <Compile Include="Executor\TerminationHandlers\ExecutionStateConstraintLogger.cs" />
     <Compile Include="Executor\TerminationHandlers\ExecutionStateUnSatCoreLogger.cs" />
+    <Compile Include="Executor\TerminationHandlers\ExecutionStateLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
