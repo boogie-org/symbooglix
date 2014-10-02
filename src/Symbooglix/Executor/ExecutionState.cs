@@ -94,7 +94,7 @@ namespace Symbooglix
 
         public void Dump()
         {
-            DumpState(Console.Error, false);
+            DumpState(Console.Error, true);
         }
 
         public void DumpState(TextWriter TW, bool showConstraints, int indent=4)
@@ -107,10 +107,11 @@ namespace Symbooglix
 
             TW.WriteLine("Explicit branch depth: {0}", this.ExplicitBranchDepth);
 
+            // FIXME: These don't get indented properly
             Mem.Dump(TW, indent);
 
             if (showConstraints)
-                Constraints.Dump(TW, indent, showConstraints);
+                Constraints.Dump(TW, showConstraints, indent);
         }
 
        

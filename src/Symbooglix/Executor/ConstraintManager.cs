@@ -56,7 +56,7 @@ namespace Symbooglix
             InternalConstraints.Add(new Constraint(e, location));
         }
 
-        public void Dump(TextWriter TW, int indent, bool showConstraints=false)
+        public void Dump(TextWriter TW,  bool showConstraints, int indent)
         {
             string indentStr = new string(' ', indent);
             TW.WriteLine("[Constraints]");
@@ -68,16 +68,22 @@ namespace Symbooglix
                 {
                     TW.WriteLine(indentStr + "Origin:" + e.Origin);
                     TW.WriteLine(indentStr + "Expr:" + e.Condition);
+                    TW.WriteLine("");
                 }
             }
         }
 
         public override string ToString()
         {
+            return ToString(false);
+        }
+
+        public string ToString(bool showConstraints)
+        {
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW, 4);
+                Dump(SW, showConstraints ,4);
                 result = SW.ToString();
             }
             return result;

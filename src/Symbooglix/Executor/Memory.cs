@@ -54,8 +54,8 @@ namespace Symbooglix
             int depth = Stack.Count;
             for (int index = depth -1; index >= 0; --index)
             {
-                TW.Write(indent + index + ":");
-                Stack[index].Dump(TW, indent * 2);
+                TW.WriteLine(indentStr + index + ":");
+                Stack[index].Dump(TW, indent);
                 TW.WriteLine("");
             }
         }
@@ -177,14 +177,18 @@ namespace Symbooglix
 
             string indentStr = new string(' ', indent);
 
-            TW.WriteLine(indentStr + "[Stack frame for " + Impl.Name + "]");
-            TW.WriteLine(indentStr + indentStr + "Current block :" + CurrentBlock);
-            TW.WriteLine(indentStr + indentStr + "Current instruction : " + CurrentInstruction.Current);
+            TW.WriteLine("[Stack frame for " + Impl.Name + "]");
+            TW.WriteLine(indentStr + "Current block :" + CurrentBlock);
+            TW.WriteLine(indentStr + "Current instruction : (" + 
+                         CurrentInstruction.Current.tok.filename + ":" +
+                         CurrentInstruction.Current.tok.line + ") " +
+                         CurrentInstruction.Current.ToString().TrimEnd('\n')
+                        );
             TW.WriteLine("");
 
             foreach (var tuple in Locals.Keys.Zip(Locals.Values))
             {
-                TW.WriteLine(indentStr + indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
+                TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
             }
         }
 
