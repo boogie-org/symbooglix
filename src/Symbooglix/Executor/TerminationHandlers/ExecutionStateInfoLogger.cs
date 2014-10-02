@@ -31,18 +31,23 @@ namespace Symbooglix
         public void Connect(Executor e)
         {
             e.StateTerminated += handle;
+            e.ExecutorTerminated += Wait;
         }
 
         public void Disconnect(Executor e)
         {
             e.StateTerminated -= handle;
+            e.ExecutorTerminated -= Wait;
         }
 
         protected abstract void DoTask(Executor e, ExecutionState State);
 
-        // Yuck! Is there a better way to do this that ensures that our Tasks
-        // always finish before the program is allowed to Terminate?
-        public void Wait()
+        // We need a way to ensure that our tasks finish before the application
+        // using this class exits because it will just exit without letting our
+        // tasks finish if we don't explicitly wait. This is achieved by hooking
+        // into the ExecutorTerminated event and then waiting on all the tasks we
+        // have. Is there a better way to do this???
+        private void Wait(Object executor, Executor.ExecutorTerminatedArgs args)
         {
             Task.WaitAll(ScheduledTasks.ToArray());
         }
