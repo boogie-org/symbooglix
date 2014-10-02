@@ -106,6 +106,7 @@ namespace Symbooglix
                 TW.WriteLine("Running");
 
             TW.WriteLine("Explicit branch depth: {0}", this.ExplicitBranchDepth);
+            TW.WriteLine("Speculative: {0}", this.Speculative);
 
             // FIXME: These don't get indented properly
             Mem.Dump(TW, indent);
