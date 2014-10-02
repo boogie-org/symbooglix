@@ -92,6 +92,8 @@
     <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
     <Compile Include="Executor\BlockCmdEnumerable.cs" />
     <Compile Include="Executor\ExecutorHandlers\ContextChangedReporter.cs" />
+    <Compile Include="Executor\TerminationHandlers\ExecutionStateConstraintLogger.cs" />
+    <Compile Include="Executor\TerminationHandlers\ExecutionStateUnSatCoreLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
