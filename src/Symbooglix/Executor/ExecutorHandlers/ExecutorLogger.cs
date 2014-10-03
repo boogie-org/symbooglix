@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Symbooglix
 {
@@ -22,16 +23,15 @@ namespace Symbooglix
         public DirectoryInfo TerminatedExecutionStatesDir
         {
             get;
-            private set;
+            protected set;
         }
 
-        private ExecutionStateLogger TerminatedStateConstraintsLogger;
-        private ExecutionStateLogger TerminatedStateUnsatCoreLogger;
-        private ExecutionStateLogger TerminatedStateInfoLogger;
+        private List<IExecutorEventHandler> Loggers;
 
         public ExecutorLogger(string path, bool makeDirectoryInPath)
         {
             this.Root = null;
+            this.Loggers = new List<IExecutorEventHandler>();
 
             if (makeDirectoryInPath)
             {
@@ -75,34 +75,32 @@ namespace Symbooglix
                 }
             }
 
+            CreateDirectories();
             SetupLoggers();
         }
 
-        private void CreateDirectories()
+        protected virtual void CreateDirectories()
         {
             TerminatedExecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.Root.FullName, "terminated_states"));
         }
 
         protected virtual void SetupLoggers()
         {
-            CreateDirectories();
-            TerminatedStateConstraintsLogger = new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName);
-            TerminatedStateUnsatCoreLogger = new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName);
-            TerminatedStateInfoLogger = new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName);
+            Loggers.Add(new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName));
+            Loggers.Add(new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName));
+            Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
         }
 
         public void Connect(Executor e)
         {
-            TerminatedStateConstraintsLogger.Connect(e);
-            TerminatedStateUnsatCoreLogger.Connect(e);
-            TerminatedStateInfoLogger.Connect(e);
+            foreach (var logger in Loggers)
+                logger.Connect(e);
         }
 
         public void Disconnect(Executor e)
         {
-            TerminatedStateConstraintsLogger.Disconnect(e);
-            TerminatedStateUnsatCoreLogger.Disconnect(e);
-            TerminatedStateInfoLogger.Disconnect(e);
+            foreach (var logger in Loggers)
+                logger.Disconnect(e);
         }
     }
 }
