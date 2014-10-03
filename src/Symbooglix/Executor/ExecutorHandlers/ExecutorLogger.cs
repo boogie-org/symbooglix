@@ -27,6 +27,7 @@ namespace Symbooglix
 
         private ExecutionStateLogger TerminatedStateConstraintsLogger;
         private ExecutionStateLogger TerminatedStateUnsatCoreLogger;
+        private ExecutionStateLogger TerminatedStateInfoLogger;
 
         public ExecutorLogger(string path, bool makeDirectoryInPath)
         {
@@ -87,18 +88,21 @@ namespace Symbooglix
             CreateDirectories();
             TerminatedStateConstraintsLogger = new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName);
             TerminatedStateUnsatCoreLogger = new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName);
+            TerminatedStateInfoLogger = new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName);
         }
 
         public void Connect(Executor e)
         {
             TerminatedStateConstraintsLogger.Connect(e);
             TerminatedStateUnsatCoreLogger.Connect(e);
+            TerminatedStateInfoLogger.Connect(e);
         }
 
         public void Disconnect(Executor e)
         {
             TerminatedStateConstraintsLogger.Disconnect(e);
             TerminatedStateUnsatCoreLogger.Disconnect(e);
+            TerminatedStateInfoLogger.Disconnect(e);
         }
     }
 }
