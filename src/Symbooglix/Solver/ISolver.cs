@@ -101,7 +101,7 @@ namespace Symbooglix
                                      UnsatQueries,
                                      UnknownQueries,
                                      TotalQueries,
-                                     ( (double) TotalRunTime.Milliseconds)/1000.0);
+                                     TotalRunTime.TotalSeconds);
             }
 
             // Clients need to call this if they want an instance
