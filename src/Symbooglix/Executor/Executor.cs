@@ -20,9 +20,11 @@ namespace Symbooglix
             UseConstantFolding = false;
             UseGotoLookAhead = true;
             this.TheSolver = solver;
+            this.Duplicator = new NonSymbolicDuplicator();
         }
 
         private IStateScheduler StateScheduler;
+        private NonSymbolicDuplicator Duplicator;
         public  ExecutionState CurrentState
         {
             get;
@@ -548,10 +550,9 @@ namespace Symbooglix
             var oldExprImplGlobals = CurrentState.GetCurrentStackFrame().Impl.GetOldExprVariables();
             if (oldExprImplGlobals.Count > 0)
             {
-                var duplicator = new NonSymbolicDuplicator();
                 foreach (var GV in oldExprImplGlobals)
                 {
-                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
+                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) Duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
                 }
             }
 
@@ -652,10 +653,9 @@ namespace Symbooglix
             // Record any globals that will be used in OldExpr
             if (proc.GetOldExprVariables().Count > 0)
             {
-                var duplicator = new NonSymbolicDuplicator();
                 foreach (var GV in proc.GetOldExprVariables())
                 {
-                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
+                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) Duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
                 }
             }
 
