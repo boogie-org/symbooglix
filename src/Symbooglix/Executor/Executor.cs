@@ -1011,7 +1011,10 @@ namespace Symbooglix
                 // For the failing state we want to state that the negation of the condition
                 // is satisfiable (i.e. it can be used to generate a model for the failing execution)
                 // terminationType.ConditionForUnsat is not yet because both paths are satisfiable
-                terminatationType.ConditionForSat = Expr.Not(condition);
+
+                // Note: We need to duplicate the condition Expr here to ensure each ExecutionState has its own
+                // copy of the Expr
+                terminatationType.ConditionForSat = Expr.Not( (Expr) Duplicator.Visit(condition));
                 // The failingState hasn't been added to scheduler so we shouldn't try to remove it from the scheduler
                 TerminateState(failingState, terminatationType, /*removeFromStateScheduler=*/false);
 
