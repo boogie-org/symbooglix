@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public class FindFunctionsVisitor : StandardVisitor
+    public class FindFunctionsVisitor : ReadOnlyVisitor
     {
         public ICollection<Function> foundFuctions;
 

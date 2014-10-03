@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public class FindSymbolicsVisitor : StandardVisitor
+    public class FindSymbolicsVisitor : ReadOnlyVisitor
     {
         public ICollection<SymbolicVariable> symbolics;
 
