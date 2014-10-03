@@ -179,12 +179,19 @@ namespace Symbooglix
 
             TW.WriteLine("[Stack frame for " + Impl.Name + "]");
             TW.WriteLine(indentStr + "Current block :" + CurrentBlock);
-            TW.WriteLine(indentStr + "Current instruction : (" + 
-                         CurrentInstruction.Current.tok.filename + ":" +
-                         CurrentInstruction.Current.tok.line + ") " +
-                         CurrentInstruction.Current.ToString().TrimEnd('\n')
-                        );
-            TW.WriteLine("");
+            TW.Write(indentStr + "Current instruction : ");
+            if (CurrentInstruction.Current != null)
+            {
+                TW.WriteLine(CurrentInstruction.Current.tok.filename + ":" +
+                CurrentInstruction.Current.tok.line + ") " +
+                CurrentInstruction.Current.ToString().TrimEnd('\n')
+                );
+                TW.WriteLine("");
+            }
+            else
+            {
+                TW.WriteLine("No instructions executed yet");
+            }
 
             foreach (var tuple in Locals.Keys.Zip(Locals.Values))
             {
