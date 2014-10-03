@@ -70,7 +70,13 @@ namespace Symbooglix
         {
             // Empty right now
         }
+
+        public class ExecutorStartedArgs : EventArgs
+        {
+            // Empty right now
+        }
         public event EventHandler<ExecutorTerminatedArgs> ExecutorTerminated;
+        public event EventHandler<ExecutorStartedArgs> ExecutorStarted;
 
         public class InstructionVisitEventArgs : EventArgs
         {
@@ -295,6 +301,10 @@ namespace Symbooglix
                     if (!HasBeenPrepared)
                         PrepareProgram();
                 }
+
+                // Notify
+                if (ExecutorStarted != null)
+                    ExecutorStarted(this, new ExecutorStartedArgs());
 
                 if (InitialState.Finished())
                 {

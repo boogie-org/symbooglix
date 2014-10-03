@@ -111,6 +111,7 @@
     <Compile Include="GotoNaive.cs" />
     <Compile Include="Transforms\ExecutorContextChangeEvent.cs" />
     <Compile Include="ExecutorExplicitBranchDepth.cs" />
+    <Compile Include="ExecutorStartedEvent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
