@@ -13,6 +13,21 @@ namespace Symbooglix
         {
         }
 
+        public override Absy Visit(Absy node)
+        {
+            var result = base.Visit(node);
+
+            #if DEBUG
+            Debug.Assert(node is Expr);
+            Debug.Assert(result is Expr);
+            var dc = new DuplicationVerifier(true, true);
+            var duplicates = dc.CheckDuplication(node as Expr, result as Expr);
+            Debug.Assert(duplicates.Count == 0, "Duplication detected. Found " + duplicates.Count);
+            #endif
+
+            return result;
+        }
+
         public override Expr VisitIdentifierExpr (IdentifierExpr node)
         {
             if (node.Decl is SymbolicVariable)

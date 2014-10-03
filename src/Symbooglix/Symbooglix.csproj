@@ -94,6 +94,7 @@
     <Compile Include="Executor\TerminationHandlers\ExecutionStateConstraintLogger.cs" />
     <Compile Include="Executor\TerminationHandlers\ExecutionStateUnSatCoreLogger.cs" />
     <Compile Include="Executor\TerminationHandlers\ExecutionStateLogger.cs" />
+    <Compile Include="Expr\DuplicationVerifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
