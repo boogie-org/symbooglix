@@ -282,7 +282,7 @@ namespace Symbooglix
                 // FIXME: Emit as event
                 Console.WriteLine("Timeout hit. Terminating Executor");
                 this.Terminate();
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         private Object ExecutorLoopLock = new object();
