@@ -92,6 +92,7 @@ namespace BoogieTests
             {
                 ++counter;
                 Assert.IsInstanceOfType(typeof(GlobalVariable), g);
+                Assert.AreSame(g, gv);
             }
 
             // FIXME: This currently fails in Boogie
