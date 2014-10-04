@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using Symbooglix.Util;
+using Microsoft.Boogie;
 
 namespace Symbooglix
 {
@@ -23,24 +24,28 @@ namespace Symbooglix
 
         public void Connect(Executor e)
         {
-            e.ExecutorStarted += HandleExecutorStarted;
+            e.ExecutorTerminated += HandleExecutorTerminated;
         }
 
-        void HandleExecutorStarted(object sender, Executor.ExecutorStartedArgs e)
+        void HandleExecutorTerminated(object sender, Executor.ExecutorTerminatedArgs e)
         {
             var executor = sender as Executor;
             Debug.Assert(sender is Executor, "Expected Executor");
 
             using (var SW = new StreamWriter(this.Destination))
             {
+                // FIXME: Duplication isn't ideal here but we don't want to affect the reported error locations
+                // which would happen if we changed the tokens on the Executor's program
+                var duplicator = new Duplicator();
+                var clonedProgram = (Program) duplicator.Visit(executor.TheProgram);
                 Console.WriteLine("Writing unstructured program to {0}", this.Destination);
-                ProgramPrinter.Print(executor.TheProgram, SW, /*pretty=*/false, ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
+                ProgramPrinter.Print(clonedProgram, SW, /*pretty=*/false, Destination, /*setTokens=*/ true, ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
             }
         }
 
         public void Disconnect(Executor e)
         {
-            e.ExecutorStarted -= HandleExecutorStarted;
+            e.ExecutorTerminated -= HandleExecutorTerminated;
         }
     }
 }
