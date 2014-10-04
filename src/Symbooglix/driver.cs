@@ -333,7 +333,7 @@ namespace Symbooglix
                     executorLogger = new ExecutorFileLoggerHandler(options.outputDir, /*makeDirectoryInPath=*/ false);
 
                 executorLogger.Connect(e);
-                Console.WriteLine("Logging to directory: " + executorLogger.Root.FullName);
+                Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
 
                 e.PrepareProgram(PM);
 

@@ -14,7 +14,7 @@ namespace Symbooglix
 
     public class ExecutorFileLoggerHandler : IExecutorEventHandler
     {
-        public DirectoryInfo Root
+        public DirectoryInfo RootDir
         {
             get;
             private set;
@@ -30,7 +30,7 @@ namespace Symbooglix
 
         public ExecutorFileLoggerHandler(string path, bool makeDirectoryInPath)
         {
-            this.Root = null;
+            this.RootDir = null;
             this.Loggers = new List<IExecutorEventHandler>();
 
             if (makeDirectoryInPath)
@@ -46,7 +46,7 @@ namespace Symbooglix
 
                     try
                     {
-                        this.Root = Directory.CreateDirectory(pathToUse);
+                        this.RootDir = Directory.CreateDirectory(pathToUse);
                         break;
                     }
                     catch (Exception e)
@@ -55,7 +55,7 @@ namespace Symbooglix
                     }
                 }
 
-                if (this.Root == null)
+                if (this.RootDir == null)
                     throw new CouldNotCreateDirectoryException("Available numbers exhausted");
 
             }
@@ -67,7 +67,7 @@ namespace Symbooglix
                 // Just use the path
                 try
                 {
-                    this.Root = Directory.CreateDirectory(path);
+                    this.RootDir = Directory.CreateDirectory(path);
                 }
                 catch (Exception e)
                 {
@@ -81,7 +81,7 @@ namespace Symbooglix
 
         protected virtual void CreateDirectories()
         {
-            TerminatedExecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.Root.FullName, "terminated_states"));
+            TerminatedExecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.RootDir.FullName, "terminated_states"));
         }
 
         protected virtual void SetupLoggers()
@@ -89,7 +89,7 @@ namespace Symbooglix
             Loggers.Add(new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
-            Loggers.Add(new MemoryUsageLogger(this.Root.FullName));
+            Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
         }
 
         public void Connect(Executor e)
