@@ -12,8 +12,9 @@ namespace Symbooglix
         }
     }
 
-    public class ExecutorFileLoggerHandler : IExecutorEventHandler
+    public class ExecutorFileLoggerHandler
     {
+        private Executor TheExecutor;
         public DirectoryInfo RootDir
         {
             get;
@@ -28,8 +29,9 @@ namespace Symbooglix
 
         private List<IExecutorEventHandler> Loggers;
 
-        public ExecutorFileLoggerHandler(string path, bool makeDirectoryInPath)
+        public ExecutorFileLoggerHandler(Executor executor, string path, bool makeDirectoryInPath)
         {
+            this.TheExecutor = executor;
             this.RootDir = null;
             this.Loggers = new List<IExecutorEventHandler>();
 
@@ -77,6 +79,7 @@ namespace Symbooglix
 
             CreateDirectories();
             SetupLoggers();
+            Connect();
         }
 
         protected virtual void CreateDirectories()
@@ -92,16 +95,10 @@ namespace Symbooglix
             Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
         }
 
-        public void Connect(Executor e)
+        private void Connect()
         {
             foreach (var logger in Loggers)
-                logger.Connect(e);
-        }
-
-        public void Disconnect(Executor e)
-        {
-            foreach (var logger in Loggers)
-                logger.Disconnect(e);
+                logger.Connect(TheExecutor);
         }
     }
 }

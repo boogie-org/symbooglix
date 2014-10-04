@@ -328,11 +328,10 @@ namespace Symbooglix
 
                 ExecutorFileLoggerHandler executorLogger = null;
                 if (options.outputDir.Length == 0)
-                    executorLogger = new ExecutorFileLoggerHandler(Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
+                    executorLogger = new ExecutorFileLoggerHandler(e, Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
                 else
-                    executorLogger = new ExecutorFileLoggerHandler(options.outputDir, /*makeDirectoryInPath=*/ false);
+                    executorLogger = new ExecutorFileLoggerHandler(e, options.outputDir, /*makeDirectoryInPath=*/ false);
 
-                executorLogger.Connect(e);
                 Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
 
                 e.PrepareProgram(PM);
