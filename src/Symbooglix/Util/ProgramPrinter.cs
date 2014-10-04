@@ -17,7 +17,14 @@ namespace Symbooglix
                 UNSTRUCTURED_ONLY =2
             }
 
+            // This version does not change the tokens
             static public void Print(Program prog, TextWriter TW, bool pretty, PrintType type)
+            {
+                Print(prog, TW, pretty, "", /*setTokens=*/false, type);
+            }
+
+            // This version does change the tokens
+            static public void Print(Program prog, TextWriter TW, bool pretty, string filename, bool setTokens, PrintType type)
             {
                 // FIXME:
                 // Urgh this is Gross! Fix boogie so we can request
@@ -25,9 +32,7 @@ namespace Symbooglix
                 // 0 = print only structured,  1 = both structured and unstructured,  2 = only unstructured
                 CommandLineOptions.Clo.PrintUnstructured = (int) type;
 
-                // It is very important setTokens is false otherwise printing the program will cause the tokens
-                // to change.
-                using (var tokenWriter = new TokenTextWriter("", TW, /*setTokens=*/ false, pretty))
+                using (var tokenWriter = new TokenTextWriter(filename, TW, setTokens, pretty))
                 {
                     foreach (var tld in prog.TopLevelDeclarations)
                     {
@@ -35,7 +40,6 @@ namespace Symbooglix
                     }
                     TW.Flush();
                 }
-
             }
         }
     }
