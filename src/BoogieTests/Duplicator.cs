@@ -57,6 +57,8 @@ namespace BoogieTests
             var t = new TypedIdent(Token.NoToken, "foo", Microsoft.Boogie.Type.Bool);
             var gv = new GlobalVariable(Token.NoToken, t);
             p.AddTopLevelDeclaration(gv);
+            string metaDataString = "This is a test";
+            p.SetMetadata(0, metaDataString);
 
             // Now try to clone
             var p2 = (Program) d.Visit(p);
@@ -72,6 +74,8 @@ namespace BoogieTests
             }
             Assert.AreEqual(1, counter);
             Assert.AreNotSame(gv, gv2);
+            Assert.AreEqual(metaDataString, p2.GetMetatdata<string>(0));
+
 
             // Check Top level declarations list is duplicated properly
             var t2 = new TypedIdent(Token.NoToken, "bar", Microsoft.Boogie.Type.Bool);
@@ -95,8 +99,13 @@ namespace BoogieTests
                 Assert.AreSame(g, gv);
             }
 
-            // FIXME: This currently fails in Boogie
             Assert.AreEqual(1, counter);
+
+            // Change Metadata in p2, this shouldn't affect p
+            string newMetaDataString = "Another test";
+            p2.SetMetadata(0, newMetaDataString);
+
+            Assert.AreNotEqual(p2.GetMetatdata<string>(0), p.GetMetatdata<string>(0));
         }
     }
 }
