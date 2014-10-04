@@ -302,7 +302,7 @@ namespace Symbooglix
                     if (options.emitProgramBefore)
                     {
                         Console.WriteLine("**** Program before pass:");
-                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, /*unstructured=*/ true);
+                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
                         Console.WriteLine("**** END Program before pass");
                     }
                 };
@@ -315,7 +315,7 @@ namespace Symbooglix
                     if (options.emitProgramAfter)
                     {
                         Console.WriteLine("**** Program after pass:");
-                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, /*unstructured=*/ true);
+                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
                         Console.WriteLine("**** END Program after pass:");
                     }
                 };
@@ -344,7 +344,7 @@ namespace Symbooglix
                     using (StreamWriter outputFile = File.CreateText(options.dumpProgramPath))
                     {
                         // FIXME: Get program from executor.
-                        Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true, /*unstructured=*/ true);
+                        Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
                     }
                 }
 

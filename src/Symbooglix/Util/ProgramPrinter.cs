@@ -8,12 +8,22 @@ namespace Symbooglix
     {
         public class ProgramPrinter
         {
-            static public void Print(Program prog, TextWriter TW, bool pretty, bool unstructured)
+            public enum PrintType : int
+            {
+                // The values are hard coded here because they are the integer values
+                // of ``CommandLineOptions.Clo.PrintUnstructured`` in Boogie
+                STRUCTURED_ONLY = 0,
+                STRUCTURED_AND_UNSTRUCTURED =1,
+                UNSTRUCTURED_ONLY =2
+            }
+
+            static public void Print(Program prog, TextWriter TW, bool pretty, PrintType type)
             {
                 // FIXME:
                 // Urgh this is Gross! Fix boogie so we can request
                 // printing an unstructured program cleanly
-                CommandLineOptions.Clo.PrintUnstructured = unstructured?1:0;
+                // 0 = print only structured,  1 = both structured and unstructured,  2 = only unstructured
+                CommandLineOptions.Clo.PrintUnstructured = (int) type;
 
                 // It is very important setTokens is false otherwise printing the program will cause the tokens
                 // to change.
