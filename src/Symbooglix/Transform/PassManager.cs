@@ -26,6 +26,7 @@ namespace Symbooglix
             public delegate void PassRunEvent(Object sender, PassManagerEventArgs args);
             public event PassRunEvent BeforePassRun;
             public event PassRunEvent AfterPassRun;
+            public event PassRunEvent Finished;
 
 
             public PassManager(Program prog)
@@ -139,6 +140,9 @@ namespace Symbooglix
                     if (AfterPassRun != null)
                         AfterPassRun(this, new PassManagerEventArgs(pass, TheProgram));
                 }
+
+                if (Finished != null)
+                    Finished(this, new PassManagerEventArgs(null, TheProgram));
             }
 
             private void Handle(IProgramPass pass)
