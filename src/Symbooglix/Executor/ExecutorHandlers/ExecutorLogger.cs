@@ -89,6 +89,7 @@ namespace Symbooglix
             Loggers.Add(new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
+            Loggers.Add(new MemoryUsageLogger(this.Root.FullName));
         }
 
         public void Connect(Executor e)
