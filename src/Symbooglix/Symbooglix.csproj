@@ -86,7 +86,6 @@
     <Compile Include="Annotation\ProgramLocationAnnotater.cs" />
     <Compile Include="Executor\BoogieAbsyExtensions.cs" />
     <Compile Include="Transform\OldExprCanonicaliser.cs" />
-    <Compile Include="Executor\ExecutorHandlers\ExecutorLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\InstructionPrinter.cs" />
     <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
     <Compile Include="Executor\BlockCmdEnumerable.cs" />
@@ -97,6 +96,7 @@
     <Compile Include="Expr\DuplicationVerifier.cs" />
     <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\MemoryUsageLogger.cs" />
+    <Compile Include="Executor\ExecutorHandlers\ExecutorFileLoggerHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

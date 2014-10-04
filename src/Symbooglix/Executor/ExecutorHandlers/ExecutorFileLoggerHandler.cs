@@ -12,7 +12,7 @@ namespace Symbooglix
         }
     }
 
-    public class ExecutorLogger : IExecutorEventHandler
+    public class ExecutorFileLoggerHandler : IExecutorEventHandler
     {
         public DirectoryInfo Root
         {
@@ -28,7 +28,7 @@ namespace Symbooglix
 
         private List<IExecutorEventHandler> Loggers;
 
-        public ExecutorLogger(string path, bool makeDirectoryInPath)
+        public ExecutorFileLoggerHandler(string path, bool makeDirectoryInPath)
         {
             this.Root = null;
             this.Loggers = new List<IExecutorEventHandler>();

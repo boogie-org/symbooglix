@@ -326,11 +326,11 @@ namespace Symbooglix
                 PM.BeforePassRun += beforePassHandler;
                 PM.AfterPassRun += afterPassHandler;
 
-                ExecutorLogger executorLogger = null;
+                ExecutorFileLoggerHandler executorLogger = null;
                 if (options.outputDir.Length == 0)
-                    executorLogger = new ExecutorLogger(Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
+                    executorLogger = new ExecutorFileLoggerHandler(Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
                 else
-                    executorLogger = new ExecutorLogger(options.outputDir, /*makeDirectoryInPath=*/ false);
+                    executorLogger = new ExecutorFileLoggerHandler(options.outputDir, /*makeDirectoryInPath=*/ false);
 
                 executorLogger.Connect(e);
                 Console.WriteLine("Logging to directory: " + executorLogger.Root.FullName);
