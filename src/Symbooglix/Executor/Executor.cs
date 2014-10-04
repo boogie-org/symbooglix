@@ -31,7 +31,7 @@ namespace Symbooglix
             private set;
         }
 
-        private Program TheProgram;
+        public Program TheProgram;
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
         private SymbolicPool SymbolicPool;
         private bool HasBeenPrepared = false;
