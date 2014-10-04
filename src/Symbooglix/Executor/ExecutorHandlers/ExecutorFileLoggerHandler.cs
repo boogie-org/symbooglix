@@ -93,6 +93,7 @@ namespace Symbooglix
             Loggers.Add(new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
+            Loggers.Add(new BoogieProgramLogger(this.RootDir.FullName));
         }
 
         private void Connect()

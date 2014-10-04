@@ -97,6 +97,7 @@
     <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\MemoryUsageLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorFileLoggerHandler.cs" />
+    <Compile Include="Executor\ExecutorHandlers\BoogieProgramLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

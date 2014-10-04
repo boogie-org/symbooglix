@@ -21,9 +21,6 @@ namespace Symbooglix
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
-            [Option("dump-program", DefaultValue = "", HelpText = "Before execution write prepared program to file specified")]
-            public string dumpProgramPath { get; set; }
-
             [Option("emit-before", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool emitProgramBefore { get; set; }
 
@@ -335,17 +332,6 @@ namespace Symbooglix
                 Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
 
                 e.PrepareProgram(PM);
-
-                // Write program to file if requested
-                if (options.dumpProgramPath.Length > 0)
-                {
-                    Console.Out.WriteLine("Writing prepared program to \"" + options.dumpProgramPath + "\"");
-                    using (StreamWriter outputFile = File.CreateText(options.dumpProgramPath))
-                    {
-                        // FIXME: Get program from executor.
-                        Util.ProgramPrinter.Print(p, outputFile, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
-                    }
-                }
 
                 foreach (var entryPoint in entryPoints)
                 {
