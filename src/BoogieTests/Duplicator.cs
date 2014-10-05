@@ -2,6 +2,8 @@ using NUnit.Framework;
 using System;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
+using SymbooglixLibTests;
+using System.Linq;
 
 namespace BoogieTests
 {
@@ -106,6 +108,60 @@ namespace BoogieTests
             p2.SetMetadata(0, newMetaDataString);
 
             Assert.AreNotEqual(p2.GetMetatdata<string>(0), p.GetMetatdata<string>(0));
+        }
+
+        [Test()]
+        public void GotoTargets()
+        {
+            Program p = SymbooglixLibTests.SymbooglixTest.loadProgram("programs/GotoCmd.bpl");
+
+            var main = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();
+
+            // Access blocks via their labels of gotocmds
+            var oldEntryBlock =  ( main.Blocks[1].TransferCmd as GotoCmd ).labelTargets[0];
+            Assert.AreEqual("entry", oldEntryBlock.Label);
+
+            var oldThing1Block = ( main.Blocks[1].TransferCmd as GotoCmd ).labelTargets[1];
+            Assert.AreEqual("thing1", oldThing1Block.Label);
+
+            var oldThing2Block = ( main.Blocks[0].TransferCmd as GotoCmd ).labelTargets[1];
+            Assert.AreEqual("thing2", oldThing2Block.Label);
+
+            // Now duplicate
+            var duplicator = new Duplicator();
+            var newProgram = (Program) duplicator.Visit(p);
+
+            // FIXME:
+            // There is a bug in Boogie where the label targets of GotoCmds don't get changed on duplication
+
+            // First lets check BBs have been duplicated
+            var newMain= newProgram.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();
+            var newEntryBlock = newMain.Blocks[0];
+            Assert.AreEqual("entry", newEntryBlock.Label);
+            Assert.AreNotSame(newEntryBlock, oldEntryBlock);
+
+            var newThing1Block = newMain.Blocks[1];
+            Assert.AreEqual("thing1", newThing1Block.Label);
+            Assert.AreNotSame(newThing1Block, oldThing1Block);
+
+            var newThing2Block = newMain.Blocks[2];
+            Assert.AreEqual("thing2", newThing2Block.Label);
+            Assert.AreNotSame(newThing2Block, oldThing2Block);
+
+            // Okay let's examine the gotos and make sure they point to the right instances
+            var newEntryGotoCmd = newEntryBlock.TransferCmd as GotoCmd;
+            var newthing1GotoCmd = newThing1Block.TransferCmd as GotoCmd;
+
+            Assert.AreNotSame(newEntryGotoCmd.labelTargets[0], oldThing1Block);
+            Assert.AreSame(newEntryGotoCmd.labelTargets[0], newThing1Block);
+            Assert.AreNotSame(newEntryGotoCmd.labelTargets[1], oldThing2Block);
+            Assert.AreSame(newEntryGotoCmd.labelTargets[1], newThing2Block);
+
+            Assert.AreNotSame(newthing1GotoCmd.labelTargets[0], oldEntryBlock);
+            Assert.AreSame(newthing1GotoCmd.labelTargets[0], newEntryBlock);
+            Assert.AreNotSame(newthing1GotoCmd.labelTargets[1], oldThing1Block);
+            Assert.AreSame(newthing1GotoCmd.labelTargets[1], newThing1Block);
+
         }
     }
 }
