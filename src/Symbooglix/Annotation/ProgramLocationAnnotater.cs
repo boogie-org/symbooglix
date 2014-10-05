@@ -15,60 +15,8 @@ namespace Symbooglix
 
             public bool RunOn(Microsoft.Boogie.Program prog, Transform.PassInfo passInfo)
             {
-                // FIXME: Factor these iterators out
-
-                // Axioms
-                foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
-                    axiom.SetMetadata( (int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(axiom));
-
-
-                // Global variables
-                foreach (var variable in prog.TopLevelDeclarations.OfType<Variable>())
-                    variable.SetMetadata( (int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(variable));
-
-                // Local variables in implementations
-                foreach (var impl in prog.TopLevelDeclarations.OfType<Implementation>())
-                {
-                    foreach (var inParam in impl.InParams)
-                        inParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(inParam));
-
-                    foreach (var outParam in impl.OutParams)
-                        outParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(outParam));
-
-                    foreach (var local in impl.LocVars)
-                        local.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(local));
-                }
-
-                // Requires, ensures and Modset on procedures
-                foreach (var procedure in prog.TopLevelDeclarations.OfType<Procedure>())
-                {
-                    foreach (var require in procedure.Requires)
-                        require.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(require));
-
-                    foreach (var ensure in procedure.Ensures)
-                        ensure.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(ensure));
-
-                    // HACK: This is gross but the inParam and outParams on procedure are not the same
-                    // instances in Boogie. So we need to annotate those as well! Boogie really needs fixing!
-                    foreach (var inParam in procedure.InParams)
-                        inParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(inParam));
-
-                    foreach (var outParam in procedure.OutParams)
-                        outParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(outParam));
-
-                    // TODO: Modset
-                }
-
-
-
-                // Commands in basic blocks
-                foreach (var bb in prog.Blocks())
-                {
-                    foreach (var cmd in bb.Cmds)
-                        cmd.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(cmd));
-
-                    bb.TransferCmd.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(bb.TransferCmd));
-                }
+                var visitor = new ProgramLocationAnnotationVisitor();
+                prog = (Microsoft.Boogie.Program) visitor.Visit(prog);
 
                 // We don't consider modifying metadata as changing the program
                 return false;
@@ -84,6 +32,72 @@ namespace Symbooglix
                 return;
             }
 
+        }
+
+        class ProgramLocationAnnotationVisitor : StandardVisitor
+        {
+            public override Axiom VisitAxiom(Axiom axiom)
+            {
+                axiom.SetMetadata( (int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(axiom));
+                return axiom; // No need to traverse deeper
+            }
+
+            public override Block VisitBlock(Block bb)
+            {
+                foreach (var cmd in bb.Cmds)
+                    cmd.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(cmd));
+
+                bb.TransferCmd.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(bb.TransferCmd));
+
+                return bb; // No need to traverse deeper
+            }
+
+            public override Implementation VisitImplementation(Implementation impl)
+            {
+                foreach (var inParam in impl.InParams)
+                    inParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(inParam));
+
+                foreach (var outParam in impl.OutParams)
+                    outParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(outParam));
+
+                foreach (var local in impl.LocVars)
+                    local.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(local));
+
+                return base.VisitImplementation(impl); // Need to traverse deeper so basic blocks get traversed
+            }
+
+            public override Procedure VisitProcedure(Procedure procedure)
+            {
+                foreach (var require in procedure.Requires)
+                    require.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(require));
+
+                foreach (var ensure in procedure.Ensures)
+                    ensure.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(ensure));
+
+                // HACK: This is gross but the inParam and outParams on procedure are not the same
+                // instances in Boogie. So we need to annotate those as well! Boogie really needs fixing!
+                foreach (var inParam in procedure.InParams)
+                    inParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(inParam));
+
+                foreach (var outParam in procedure.OutParams)
+                    outParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(outParam));
+
+                // TODO: Modset
+
+                return procedure; // No need to traverse deeper
+            }
+
+            public override Constant VisitConstant(Constant variable)
+            {
+                variable.SetMetadata( (int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(variable));
+                return variable;
+            }
+
+            public override GlobalVariable VisitGlobalVariable(GlobalVariable variable)
+            {
+                variable.SetMetadata( (int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(variable));
+                return variable;
+            }
         }
     }
 }

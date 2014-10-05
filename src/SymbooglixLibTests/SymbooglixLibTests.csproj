@@ -112,6 +112,7 @@
     <Compile Include="Transforms\ExecutorContextChangeEvent.cs" />
     <Compile Include="ExecutorExplicitBranchDepth.cs" />
     <Compile Include="ExecutorStartedEvent.cs" />
+    <Compile Include="Transforms\ProgramLocationAnnotation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -272,6 +273,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\ConcreteLoop.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Transforms\programs\AnnotationPass.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
