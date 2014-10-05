@@ -17,7 +17,7 @@ namespace Symbooglix
         ///
         /// assert old(old(old( 2 + g))) ==> assert 2 + old(g)
         /// </summary>
-        public class OldExprCanonicaliser : IProgramPass
+        public class OldExprCanonicaliser : IPass
         {
             // FIXME: Do we really need this Dictionary? We can just get what we want from the metadata.
             public IDictionary<Procedure, IList<GlobalVariable>> GlobalsInsideOldExprUsedByProcedure =  new Dictionary<Procedure, IList<GlobalVariable>>();

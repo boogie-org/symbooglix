@@ -7,7 +7,7 @@ namespace Symbooglix
 {
     namespace Annotation
     {
-        public class ProgramLocationAnnotater : Transform.IProgramPass
+        public class ProgramLocationAnnotater : Transform.IPass
         {
             public ProgramLocationAnnotater()
             {
@@ -83,6 +83,7 @@ namespace Symbooglix
             {
                 return;
             }
+
         }
     }
 }

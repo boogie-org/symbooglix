@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Symbooglix
 {
@@ -81,61 +82,10 @@ namespace Symbooglix
             {
                 foreach (var pass in Passes.Select( p => p.Item1))
                 {
-                    // Passes may implement multiple IPass interfaces
-                    // so we can't use Handle(pass as dynmaic) or double
-                    // dispatch here because may need to call Handle multiple
-                    // times. So we must do this manually
-                    bool handled = false;
-
                     if (BeforePassRun != null)
                         BeforePassRun(this, new PassManagerEventArgs(pass, TheProgram));
 
-                    // Eurgh: Macros would be handy here!
-
-                    if (pass is IProgramPass)
-                    {
-                        Handle(pass as IProgramPass);
-                        handled = true;
-                    }
-
-                    if (pass is IFunctionPass)
-                    {
-                        Handle(pass as IFunctionPass);
-                        handled = true;
-                    }
-
-                    if (pass is IProcedurePass)
-                    {
-                        Handle(pass as IProcedurePass);
-                        handled = true;
-                    }
-
-                    if (pass is IImplementationPass)
-                    {
-                        Handle(pass as IImplementationPass);
-                        handled = true;
-                    }
-
-                    if (pass is IAxiomPass)
-                    {
-                        Handle(pass as IAxiomPass);
-                        handled = true;
-                    }
-
-                    if (pass is IGlobalVariablePass)
-                    {
-                        Handle(pass as IGlobalVariablePass);
-                        handled = true;
-                    }
-
-                    if (pass is IConstantVariablePass)
-                    {
-                        Handle(pass as IConstantVariablePass);
-                        handled = true;
-                    }
-
-                    if (!handled)
-                        throw new InvalidCastException("Pass type not handled!");
+                    pass.RunOn(TheProgram);
 
                     if (AfterPassRun != null)
                         AfterPassRun(this, new PassManagerEventArgs(pass, TheProgram));
@@ -143,71 +93,6 @@ namespace Symbooglix
 
                 if (Finished != null)
                     Finished(this, new PassManagerEventArgs(null, TheProgram));
-            }
-
-            private void Handle(IProgramPass pass)
-            {
-                pass.RunOn(TheProgram);
-            }
-
-            private void Handle(IFunctionPass pass)
-            {
-                var functions = TheProgram.TopLevelDeclarations.OfType<Function>();
-                foreach (var function in functions)
-                {
-                    pass.RunOn(function);
-                }
-            }
-
-            private void Handle(IProcedurePass pass)
-            {
-                var procedures = TheProgram.TopLevelDeclarations.OfType<Procedure>();
-                foreach (var procedure in procedures)
-                {
-                    pass.RunOn(procedure);
-                }
-            }
-
-            private void Handle(IImplementationPass pass)
-            {
-                var implementations= TheProgram.TopLevelDeclarations.OfType<Implementation>();
-                foreach (var implementation in implementations)
-                {
-                    pass.RunOn(implementation);
-                }
-            }
-
-            private void Handle(IAxiomPass pass)
-            {
-                var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
-                foreach (var axiom in axioms)
-                {
-                    pass.RunOn(axiom);
-                }
-            }
-
-            private void Handle(IBasicBlockPass pass)
-            {
-                foreach (var basicBlock in TheProgram.Blocks())
-                {
-                    pass.RunOn(basicBlock);
-                }
-            }
-
-            private void Handle(IGlobalVariablePass pass)
-            {
-                foreach (var global in TheProgram.TopLevelDeclarations.OfType<GlobalVariable>())
-                {
-                    pass.RunOn(global);
-                }
-            }
-
-            private void Handle(IConstantVariablePass pass)
-            {
-                foreach (var constant in TheProgram.TopLevelDeclarations.OfType<Constant>())
-                {
-                    pass.RunOn(constant);
-                }
             }
 
             public class PassInfo

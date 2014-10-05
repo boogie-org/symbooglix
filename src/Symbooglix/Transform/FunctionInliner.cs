@@ -8,7 +8,7 @@ namespace Symbooglix
 {
     namespace Transform
     {
-        public class FunctionInliningPass : IProgramPass
+        public class FunctionInliningPass : IPass
         {
             private Predicate<Function> Condition;
 

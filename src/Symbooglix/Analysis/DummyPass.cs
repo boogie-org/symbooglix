@@ -2,7 +2,7 @@
 
 namespace Symbooglix
 {
-    public class DummyPass : Transform.IProgramPass
+    public class DummyPass : Transform.IPass
     {
         public DummyPass()
         {

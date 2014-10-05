@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Symbooglix
 {
-    public class FindRecursiveFunctionsPass : Transform.IFunctionPass
+    public class FindRecursiveFunctionsPass : Transform.IPass
     {
         public HashSet<Function> RecursiveFunctions;
 
@@ -14,10 +15,13 @@ namespace Symbooglix
             RecursiveFunctions = new HashSet<Function>();
         }
 
-        public bool RunOn(Function func)
+        public bool RunOn(Program prog)
         {
-            var findRecursiveFunctionVisitor = new FindRecursiveFunctionVisitor(RecursiveFunctions);
-            findRecursiveFunctionVisitor.Visit(func);
+            foreach (var func in prog.TopLevelDeclarations.OfType<Function>())
+            {
+                var findRecursiveFunctionVisitor = new FindRecursiveFunctionVisitor(RecursiveFunctions);
+                findRecursiveFunctionVisitor.Visit(func);
+            }
             return false; // This is an Analysis that doesn't modify anything about the Functions
         }
 
