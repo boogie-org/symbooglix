@@ -210,7 +210,7 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
 
-            // FIXME: Test Termination statistic when Axioms support them
+            Assert.AreEqual(1, terminationType.ExitLocation.InstrStatistics.Terminations);
         }
 
         [Test()]

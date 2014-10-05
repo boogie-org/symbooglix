@@ -31,6 +31,27 @@ namespace Symbooglix
             }
         }
 
+        public InstructionStatistics InstrStatistics
+        {
+            get
+            {
+                if (IsCmd)
+                    return AsCmd.GetInstructionStatistics();
+                else if (IsTransferCmd)
+                    return AsTransferCmd.GetInstructionStatistics();
+                else if (IsRequires)
+                    return AsRequires.GetInstructionStatistics();
+                else if (IsEnsures)
+                    return AsEnsures.GetInstructionStatistics();
+                else if (IsAxiom)
+                {
+                    return AsAxiom.GetInstructionStatistics();
+                }
+
+                return null;
+            }
+        }
+
         // The location is where this variable is declared
         public ProgramLocation(Variable V)
         {

@@ -401,6 +401,7 @@ namespace Symbooglix
         private void TerminateState(ExecutionState state, ITerminationType type, bool removeFromStateScheduler=true)
         {
             state.Terminate(type);
+            type.ExitLocation.InstrStatistics.IncrementTerminations(); // Increment the Termination account at the relevant instruction
 
             if (removeFromStateScheduler)
                 StateScheduler.RemoveState(state);

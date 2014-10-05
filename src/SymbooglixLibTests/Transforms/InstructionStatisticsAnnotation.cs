@@ -22,6 +22,10 @@ namespace TransformTests
             pm.Add(new Symbooglix.Annotation.InstructionStatisticsAnnotater());
             pm.Run();
 
+            // Check Axioms
+            foreach (var axiom in Prog.TopLevelDeclarations.OfType<Axiom>())
+                DoSomethingWithInstructionStatistics(axiom.GetInstructionStatistics());
+
 
             // Check Procedures
             foreach (var proc in Prog.TopLevelDeclarations.OfType<Procedure>())

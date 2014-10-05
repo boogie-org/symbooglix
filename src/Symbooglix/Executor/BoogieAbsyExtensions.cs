@@ -47,6 +47,11 @@ namespace Symbooglix
         {
             return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
+
+        public static InstructionStatistics GetInstructionStatistics(this Axiom node)
+        {
+            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+        }
     }
 }
 

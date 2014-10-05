@@ -6,6 +6,9 @@ const c0:int;
 const c1:int;
 const c2:int;
 
+axiom true;
+axiom true;
+
 function foo(a:int, b:int) returns(r:bool);
 
 function bar(a:int, b:int) returns(r:bool)

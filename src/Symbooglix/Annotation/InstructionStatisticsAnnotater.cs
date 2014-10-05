@@ -56,6 +56,12 @@ namespace Symbooglix
                 ensures.SetMetadata( (int) AnnotationIndex.PROFILE_DATA, new InstructionStatistics());
                 return ensures; // No Need to recurse deeper
             }
+
+            public override Axiom VisitAxiom (Axiom axiom)
+            {
+                axiom.SetMetadata( (int) AnnotationIndex.PROFILE_DATA, new InstructionStatistics());
+                return axiom; // No Need to recurse deeper
+            }
         }
     }
 }
