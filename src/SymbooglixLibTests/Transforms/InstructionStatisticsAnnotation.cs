@@ -59,6 +59,7 @@ namespace TransformTests
         private void DoSomethingWithInstructionStatistics(InstructionStatistics instrStats)
         {
             Assert.AreEqual(0, instrStats.Covered);
+            Assert.AreEqual(0, instrStats.Terminations);
         }
     }
 }

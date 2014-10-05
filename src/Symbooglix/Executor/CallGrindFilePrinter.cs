@@ -20,7 +20,7 @@ namespace Symbooglix
 
         protected void PrintCostLine(int line, InstructionStatistics instrStats)
         {
-            TW.WriteLine("{0} {1}", line, instrStats.Covered);
+            TW.WriteLine("{0} {1} {2}", line, instrStats.Covered, instrStats.Terminations);
         }
 
         protected void Print(Block bb, Implementation impl)
@@ -134,7 +134,7 @@ namespace Symbooglix
             TW.WriteLine("# This file can be opened by KCacheGrind");
 
             // List supported counters
-            TW.WriteLine("events: Covered");
+            TW.WriteLine("events: Covered Terminations");
 
             // Specifiy input file
             TW.WriteLine("fl={0}", this.PathToProgram);

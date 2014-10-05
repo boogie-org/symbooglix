@@ -15,14 +15,26 @@ namespace Symbooglix
 
         // TODO fork count
 
+        public int Terminations
+        {
+            get;
+            private set;
+        }
+
         public InstructionStatistics()
         {
             this.Covered = 0;
+            this.Terminations = 0;
         }
 
         public void IncrementCovered()
         {
             ++Covered;
+        }
+
+        public void IncrementTerminations()
+        {
+            ++Terminations;
         }
     }
 
