@@ -49,7 +49,10 @@ namespace Symbooglix
         // have. Is there a better way to do this???
         private void Wait(Object executor, Executor.ExecutorTerminatedArgs args)
         {
-            Task.WaitAll(ScheduledTasks.ToArray());
+            lock (ScheduledTasks)
+            {
+                Task.WaitAll(ScheduledTasks.ToArray());
+            }
         }
     }
 }
