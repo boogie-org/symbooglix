@@ -64,6 +64,7 @@ namespace TransformTests
         {
             Assert.AreEqual(0, instrStats.Covered);
             Assert.AreEqual(0, instrStats.Terminations);
+            Assert.AreEqual(0, instrStats.Forks);
         }
     }
 }

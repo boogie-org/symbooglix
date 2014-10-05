@@ -110,6 +110,42 @@ namespace SymbooglixLibTests
                 Assert.AreEqual(restOfCodeCount, bb.Cmds[index].GetInstructionStatistics().Covered);
             Assert.AreEqual(restOfCodeCount, bb.TransferCmd.GetInstructionStatistics().Covered);
         }
+
+        [Test()]
+        public void MultipleForksLookAhead()
+        {
+            p = loadProgram("programs/MultipleForks.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e.UseGotoLookAhead = true;
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+            e.Run(getMain(p));
+
+            Assert.AreEqual(5, tc.Sucesses);
+
+            // LoopHead goto
+            var gotoCmd = getMain(p).Blocks[2].TransferCmd;
+            Assert.AreEqual(4, gotoCmd.GetInstructionStatistics().Forks);
+        }
+
+        [Test()]
+        public void MultipleForksNaiveGoto()
+        {
+            p = loadProgram("programs/MultipleForks.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e.UseGotoLookAhead = false;
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+            e.Run(getMain(p));
+
+            Assert.AreEqual(5, tc.Sucesses);
+
+            // LoopHead goto
+            var gotoCmd = getMain(p).Blocks[2].TransferCmd;
+            Assert.AreEqual(5, gotoCmd.GetInstructionStatistics().Forks);
+        }
     }
 }
 

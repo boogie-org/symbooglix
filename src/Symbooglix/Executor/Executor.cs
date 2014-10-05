@@ -1153,6 +1153,7 @@ namespace Symbooglix
                 {
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
                     newState = CurrentState.DeepClone(); // FIXME: This is not memory efficient
+                    c.GetInstructionStatistics().IncrementForks();
                     newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
                     StateScheduler.AddState(newState);
                 }
@@ -1247,6 +1248,7 @@ namespace Symbooglix
             for (int index = 1; index < blocksToExecute.Count; ++index)
             {
                 var newState = CurrentState.DeepClone();
+                c.GetInstructionStatistics().IncrementForks();
                 forkingStates.Add(newState);
             }
 

@@ -13,9 +13,13 @@ namespace Symbooglix
             private set;
         }
 
-        // TODO fork count
-
         public int Terminations
+        {
+            get;
+            private set;
+        }
+
+        public int Forks
         {
             get;
             private set;
@@ -25,6 +29,7 @@ namespace Symbooglix
         {
             this.Covered = 0;
             this.Terminations = 0;
+            this.Forks = 0;
         }
 
         public void IncrementCovered()
@@ -35,6 +40,11 @@ namespace Symbooglix
         public void IncrementTerminations()
         {
             ++Terminations;
+        }
+
+        public void IncrementForks()
+        {
+            ++Forks;
         }
     }
 
