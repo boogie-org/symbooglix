@@ -86,6 +86,29 @@ namespace Symbooglix
             Debug.Assert(TargetsVisited.ContainsKey(block), "Target is not part of goto");
             return TargetsVisited[block];
         }
+
+
+        /// <summary>
+        /// Creates a duplicate of the GotoInstructionStatistics but with Blocks remapped.
+        /// This is useful for working duplicated programs which may point to the Blocks
+        //  of the old program
+        /// </summary>
+        /// <returns>The modified copy</returns>
+        /// <param name="substitution">Substitution.</param>
+        public GotoInstructionStatistics BlockSubstitution(Dictionary<Block,Block> substitution)
+        {
+            var newTargetsVisited = new Dictionary<Block,int>();
+
+            foreach (var pair in TargetsVisited)
+            {
+                newTargetsVisited.Add(substitution[pair.Key], TargetsVisited[pair.Key]);
+            }
+
+            // We need to do a clone because we want to copy over all the other statistics by value
+            var other = (GotoInstructionStatistics) this.MemberwiseClone();
+            other.TargetsVisited = newTargetsVisited;
+            return other;
+        }
     }
 }
 
