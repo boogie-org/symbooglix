@@ -1,7 +1,8 @@
 // This test case exposed a bug where two Execution states
 // that belong to a fork unintentionally shared the assertion
 // which caused problems with a buggy version of the ExprSMTLIBQueryPrinter
-// RUN: %symbooglix --gpuverify-entry-points %s
+// RUN: %rmdir %t.symbooglix-out
+// RUN: %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points %s
 type _SIZE_T_TYPE = bv32;
 
 procedure _ATOMIC_OP8(x: [bv32]bv8, y: bv32) returns (z$1: bv8, A$1: [bv32]bv8, z$2: bv8, A$2: [bv32]bv8);
