@@ -27,6 +27,31 @@ namespace Symbooglix
         {
             return node.GetMetatdata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
         }
+
+        public static InstructionStatistics GetInstructionStatistics(this Cmd node)
+        {
+            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+        }
+
+        public static InstructionStatistics GetInstructionStatistics(this ReturnCmd node)
+        {
+            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+        }
+
+        public static GotoInstructionStatistics GetInstructionStatistics(this GotoCmd node)
+        {
+            return node.GetMetatdata<GotoInstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+        }
+
+        public static InstructionStatistics GetInstructionStatistics(this Requires node)
+        {
+            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+        }
+
+        public static InstructionStatistics GetInstructionStatistics(this Ensures node)
+        {
+            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+        }
     }
 }
 

@@ -113,6 +113,7 @@
     <Compile Include="ExecutorExplicitBranchDepth.cs" />
     <Compile Include="ExecutorStartedEvent.cs" />
     <Compile Include="Transforms\ProgramLocationAnnotation.cs" />
+    <Compile Include="Transforms\InstructionStatisticsAnnotation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

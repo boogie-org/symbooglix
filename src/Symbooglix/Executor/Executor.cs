@@ -173,6 +173,9 @@ namespace Symbooglix
                 // We need ProgramLocation annotations to work out where stuff comes from
                 passManager.Add(new Annotation.ProgramLocationAnnotater());
 
+                // For profiling Boogie Program execution
+                passManager.Add(new Annotation.InstructionStatisticsAnnotater());
+
                 // Run our passes and any user requested passes
                 passManager.Run();
 
