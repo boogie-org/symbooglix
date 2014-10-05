@@ -100,6 +100,7 @@
     <Compile Include="Executor\ExecutorHandlers\BoogieProgramLogger.cs" />
     <Compile Include="Executor\InstructionStatistics.cs" />
     <Compile Include="Annotation\InstructionStatisticsAnnotater.cs" />
+    <Compile Include="Executor\CallGrindFilePrinter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

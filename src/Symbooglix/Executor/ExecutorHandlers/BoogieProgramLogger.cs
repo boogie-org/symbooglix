@@ -10,7 +10,13 @@ namespace Symbooglix
     {
         private string Directory;
 
-        public string Destination
+        public string ProgramDestination
+        {
+            get;
+            private set;
+        }
+
+        public string CallGrindFileDestintation
         {
             get;
             private set;
@@ -19,7 +25,8 @@ namespace Symbooglix
         public BoogieProgramLogger(string directory)
         {
             this.Directory = directory;
-            this.Destination = Path.Combine(Directory, "program.bpl");
+            this.ProgramDestination = Path.Combine(Directory, "program.bpl");
+            this.CallGrindFileDestintation = Path.Combine(Directory, "instr_stats.callgrind");
         }
 
         public void Connect(Executor e)
@@ -32,14 +39,22 @@ namespace Symbooglix
             var executor = sender as Executor;
             Debug.Assert(sender is Executor, "Expected Executor");
 
-            using (var SW = new StreamWriter(this.Destination))
+            Program clonedProgram = null;
+            using (var SW = new StreamWriter(this.ProgramDestination))
             {
                 // FIXME: Duplication isn't ideal here but we don't want to affect the reported error locations
                 // which would happen if we changed the tokens on the Executor's program
                 var duplicator = new Duplicator();
-                var clonedProgram = (Program) duplicator.Visit(executor.TheProgram);
-                Console.WriteLine("Writing unstructured program to {0}", this.Destination);
-                ProgramPrinter.Print(clonedProgram, SW, /*pretty=*/false, Destination, /*setTokens=*/ true, ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
+                clonedProgram = (Program) duplicator.Visit(executor.TheProgram);
+                Console.WriteLine("Writing unstructured program to {0}", this.ProgramDestination);
+                ProgramPrinter.Print(clonedProgram, SW, /*pretty=*/false, ProgramDestination, /*setTokens=*/ true, ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
+            }
+
+            // Write out instruction statistics to a callgrind file
+            using (var SW = new StreamWriter(this.CallGrindFileDestintation))
+            {
+                Console.WriteLine("Writing callgrind file to {0}", this.CallGrindFileDestintation);
+                CallGrindFilePrinter.Print(clonedProgram, Path.GetFileName(this.ProgramDestination), SW);
             }
         }
 
