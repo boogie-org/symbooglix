@@ -24,6 +24,20 @@ namespace Symbooglix
                 TW.WriteLine("# Statistics for {0}", impl.Name);
                 TW.WriteLine("fn={0}", impl.Name);
 
+                var proc = impl.Proc;
+                TW.WriteLine("# Requires statements Start");
+                foreach (var requires in proc.Requires)
+                {
+                    TW.WriteLine("{0} {1}", requires.tok.line, requires.GetInstructionStatistics().Covered);
+                }
+                TW.WriteLine("# Requires statements End");
+                TW.WriteLine("# Ensures statements Start");
+                foreach (var ensures in proc.Ensures)
+                {
+                    TW.WriteLine("{0} {1}", ensures.tok.line, ensures.GetInstructionStatistics().Covered);
+                }
+                TW.WriteLine("# Ensures statements End");
+
                 foreach (var bb in impl.Blocks)
                 {
                     TW.WriteLine("# BasicBlock:{0}", bb.Label);

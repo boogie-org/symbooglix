@@ -585,6 +585,7 @@ namespace Symbooglix
             }
             foreach (Requires r in Impl.Proc.Requires)
             {
+                r.GetInstructionStatistics().IncrementCovered();
                 Expr constraint = (Expr) VR.Visit(r.Condition);
 
                 // We need to treat the semantics of requires differently depening on where
@@ -680,6 +681,7 @@ namespace Symbooglix
             // stuff here because there is no implementation
             foreach (var requires in proc.Requires)
             {
+                requires.GetInstructionStatistics().IncrementCovered();
                 Expr condition = (Expr) VR.Visit(requires.Condition);
                 stillInState = HandleAssertLikeCommand(condition, new TerminatedAtFailingRequires(requires), requires.GetProgramLocation());
 
@@ -702,6 +704,7 @@ namespace Symbooglix
             // Assume each ensures
             foreach (var ensures in proc.Ensures)
             {
+                ensures.GetInstructionStatistics().IncrementCovered();
                 Expr condition = (Expr) VR.Visit(ensures.Condition);
 
                 // FIXME: We should add an option to disable this because we might want to blindly
@@ -771,6 +774,7 @@ namespace Symbooglix
             bool stillInCurrentState = true;
             foreach (var ensures in CurrentState.GetCurrentStackFrame().Impl.Proc.Ensures)
             {
+                ensures.GetInstructionStatistics().IncrementCovered();
                 Expr remapped = VMR.Visit(ensures.Condition) as Expr;
 
                 if (UseConstantFolding)

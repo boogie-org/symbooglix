@@ -25,6 +25,13 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(3, (foo.Blocks[0].TransferCmd as ReturnCmd).GetInstructionStatistics().Covered);
 
+            // Check foo's requires and ensures were covered
+            foreach (var requires in foo.Proc.Requires)
+                Assert.AreEqual(3, requires.GetInstructionStatistics().Covered);
+
+            foreach (var ensures in foo.Proc.Ensures)
+                Assert.AreEqual(3, ensures.GetInstructionStatistics().Covered);
+
             // Check execution of main
             var main = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();
 
@@ -78,6 +85,13 @@ namespace SymbooglixLibTests
                 Assert.AreEqual(3, cmd.GetInstructionStatistics().Covered);
 
             Assert.AreEqual(3, (foo.Blocks[0].TransferCmd as ReturnCmd).GetInstructionStatistics().Covered);
+
+            // Check foo's requires and ensures were covered
+            foreach (var requires in foo.Proc.Requires)
+                Assert.AreEqual(3, requires.GetInstructionStatistics().Covered);
+
+            foreach (var ensures in foo.Proc.Ensures)
+                Assert.AreEqual(3, ensures.GetInstructionStatistics().Covered);
 
             // Check execution of main
             var main = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();
