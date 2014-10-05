@@ -752,6 +752,8 @@ namespace Symbooglix
 
         protected void Handle(ReturnCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
+
             var VMR = new VariableMapRewriter(CurrentState);
 
             // FIXME: The variables attached to the procedure are not the same object instances
@@ -836,6 +838,8 @@ namespace Symbooglix
 
         protected void Handle(AssignCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
+
             int index=0;
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
@@ -886,6 +890,8 @@ namespace Symbooglix
 
         protected void Handle(AssertCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
+
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
@@ -1105,6 +1111,8 @@ namespace Symbooglix
 
         protected void Handle(AssumeCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
+
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
             var dupAndrw = (Expr) r.Visit(c.Expr);
@@ -1121,6 +1129,7 @@ namespace Symbooglix
         protected void Handle(GotoCmd c)
         {
             Debug.Assert(c.labelTargets.Count() > 0);
+            c.GetInstructionStatistics().IncrementCovered();
 
             if (UseGotoLookAhead)
                 LookAheadGotoFork(c);
@@ -1187,6 +1196,10 @@ namespace Symbooglix
                 }
 
                 var assumeCmd = targetInstruction.Current as AssumeCmd;
+
+                // Is doing a look ahead really count as coverage?
+                assumeCmd.GetInstructionStatistics().IncrementCovered();
+
                 Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
                 info.ReWrittenAssumeExpr = dupAndRw;
 
@@ -1275,6 +1288,8 @@ namespace Symbooglix
 
         protected void Handle(CallCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
+
             var args = new List<Expr>();
             var reWritter = new VariableMapRewriter(CurrentState);
 
@@ -1306,6 +1321,8 @@ namespace Symbooglix
 
         protected void Handle(HavocCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
+
             for (int index=0; index < c.Vars.Count ; ++index)
             {
                 var s = SymbolicPool.getFreshSymbolic(c, index);
@@ -1318,6 +1335,7 @@ namespace Symbooglix
 
         protected void Handle(YieldCmd c)
         {
+            c.GetInstructionStatistics().IncrementCovered();
             throw new NotImplementedException ();
         }
 

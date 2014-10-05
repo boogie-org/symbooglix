@@ -114,6 +114,7 @@
     <Compile Include="ExecutorStartedEvent.cs" />
     <Compile Include="Transforms\ProgramLocationAnnotation.cs" />
     <Compile Include="Transforms\InstructionStatisticsAnnotation.cs" />
+    <Compile Include="InstructionStatisticsTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -277,6 +278,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Transforms\programs\AnnotationPass.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\InstructionStatistics.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

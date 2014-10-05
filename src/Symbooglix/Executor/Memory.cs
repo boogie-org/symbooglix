@@ -213,6 +213,14 @@ namespace Symbooglix
 
         public void TransferToBlock(Block BB)
         {
+            // Update GotoCmd stats
+            if (CurrentInstruction != null)
+            {
+                var gotoCmd = CurrentInstruction.Current as GotoCmd;
+                Debug.Assert(gotoCmd != null, "Expected GotoCmd at current instruction");
+                (gotoCmd.GetInstructionStatistics() as GotoInstructionStatistics).IncrementJumpTo(BB);
+            }
+
             Debug.WriteLine("Entering block " + BB.ToString());
             // Check if BB is in procedure
             Debug.Assert(Impl.Blocks.Contains(BB));

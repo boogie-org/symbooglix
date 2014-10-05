@@ -42,7 +42,7 @@ namespace TransformTests
                 if (bb.TransferCmd is GotoCmd)
                 {
                     var gotoCmd = bb.TransferCmd as GotoCmd;
-                    var instrStats = gotoCmd.GetInstructionStatistics();
+                    var instrStats = gotoCmd.GetInstructionStatistics() as GotoInstructionStatistics;
                     Assert.AreEqual(0, instrStats.Covered);
                     Assert.AreEqual(0, instrStats.TotalJumps);
 

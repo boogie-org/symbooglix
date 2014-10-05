@@ -33,14 +33,9 @@ namespace Symbooglix
             return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
 
-        public static InstructionStatistics GetInstructionStatistics(this ReturnCmd node)
+        public static InstructionStatistics GetInstructionStatistics(this TransferCmd node)
         {
             return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
-        }
-
-        public static GotoInstructionStatistics GetInstructionStatistics(this GotoCmd node)
-        {
-            return node.GetMetatdata<GotoInstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
 
         public static InstructionStatistics GetInstructionStatistics(this Requires node)
