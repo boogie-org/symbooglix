@@ -9,7 +9,7 @@ namespace Symbooglix
         public interface IPass
         {
             string GetName();
-            void SetPassInfo(ref PassManager.PassInfo passInfo);
+            void SetPassInfo(ref PassInfo passInfo);
             bool RunOn(Program prog);
         }
     }

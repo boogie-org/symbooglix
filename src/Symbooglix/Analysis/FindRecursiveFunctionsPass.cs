@@ -30,7 +30,7 @@ namespace Symbooglix
             return "Find recursive functions";
         }
 
-        public void SetPassInfo(ref Transform.PassManager.PassInfo passInfo)
+        public void SetPassInfo(ref Transform.PassInfo passInfo)
         {
             // No dependencies
             return;

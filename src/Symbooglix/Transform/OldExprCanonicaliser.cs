@@ -84,7 +84,7 @@ namespace Symbooglix
                 return "OldExprCanonicaliser";
             }
 
-            public void SetPassInfo(ref PassManager.PassInfo passInfo)
+            public void SetPassInfo(ref PassInfo passInfo)
             {
                 return;
             }

@@ -94,34 +94,33 @@ namespace Symbooglix
                 if (Finished != null)
                     Finished(this, new PassManagerEventArgs(null, TheProgram));
             }
+        }
 
-            public class PassInfo
+        public class PassInfo
+        {
+            // Only the PassManager should access this
+            internal Dictionary<System.Type,IPass> Dependencies = null;
+
+            // Passes use this to declare what passes they need run before them in SetPassInfo()
+            public void AddDependency<T>() where T : IPass
             {
-                // FIXME: This shouldn't be public, only the PassManager should be able to access this
-                public Dictionary<System.Type,IPass> Dependencies = null;
-
-                // Passes use this to declare what passes they need run before them in SetPassInfo()
-                public void AddDependency<T>() where T : IPass
+                // We don't create the passes here
+                if (Dependencies == null)
                 {
-                    // We don't create the passes here
-                    if (Dependencies == null)
-                    {
-                        Dependencies = new Dictionary<System.Type, IPass>();
-                    }
-
-                    // Don't create the passes here. Let the PassManager
-                    // do it instead so it can optimise the list of passes to
-                    // run.
-                    Dependencies.Add(typeof(T), null);
+                    Dependencies = new Dictionary<System.Type, IPass>();
                 }
 
-                // Passes can use this to gain access to passes they depend on.
-                public T GetDependency<T>() where T : class, IPass
-                {
-                    return Dependencies[typeof(T)] as T;
-                }
+                // Don't create the passes here. Let the PassManager
+                // do it instead so it can optimise the list of passes to
+                // run.
+                Dependencies.Add(typeof(T), null);
             }
 
+            // Passes can use this to gain access to passes they depend on.
+            public T GetDependency<T>() where T : class, IPass
+            {
+                return Dependencies[typeof(T)] as T;
+            }
         }
     }
 }

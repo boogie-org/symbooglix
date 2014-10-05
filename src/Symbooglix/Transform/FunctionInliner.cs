@@ -71,7 +71,7 @@ namespace Symbooglix
                 return "Function inliner";
             }
 
-            public void SetPassInfo(ref PassManager.PassInfo passInfo)
+            public void SetPassInfo(ref PassInfo passInfo)
             {
                 return;
             }

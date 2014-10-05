@@ -79,7 +79,7 @@ namespace Symbooglix
                 return "Program location annotater";
             }
 
-            public void SetPassInfo(ref Transform.PassManager.PassInfo passInfo)
+            public void SetPassInfo(ref Transform.PassInfo passInfo)
             {
                 return;
             }
