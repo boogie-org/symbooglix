@@ -15,7 +15,7 @@ namespace Symbooglix
             RecursiveFunctions = new HashSet<Function>();
         }
 
-        public bool RunOn(Program prog)
+        public bool RunOn(Program prog, Transform.PassInfo passInfo)
         {
             foreach (var func in prog.TopLevelDeclarations.OfType<Function>())
             {

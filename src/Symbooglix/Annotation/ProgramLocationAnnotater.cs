@@ -13,7 +13,7 @@ namespace Symbooglix
             {
             }
 
-            public bool RunOn(Microsoft.Boogie.Program prog)
+            public bool RunOn(Microsoft.Boogie.Program prog, Transform.PassInfo passInfo)
             {
                 // FIXME: Factor these iterators out
 

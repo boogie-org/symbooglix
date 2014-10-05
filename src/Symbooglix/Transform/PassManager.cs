@@ -80,12 +80,15 @@ namespace Symbooglix
                 
             public void Run()
             {
-                foreach (var pass in Passes.Select( p => p.Item1))
+                foreach (var passTuple in Passes)
                 {
+                    var pass = passTuple.Item1;
+                    var passInfo = passTuple.Item2;
+
                     if (BeforePassRun != null)
                         BeforePassRun(this, new PassManagerEventArgs(pass, TheProgram));
 
-                    pass.RunOn(TheProgram);
+                    pass.RunOn(TheProgram, passInfo);
 
                     if (AfterPassRun != null)
                         AfterPassRun(this, new PassManagerEventArgs(pass, TheProgram));

@@ -24,7 +24,7 @@ namespace Symbooglix
 
             }
 
-            public bool RunOn(Program prog)
+            public bool RunOn(Program prog, PassInfo passInfo)
             {
                 var functionInlingVisitor = new FunctionInlingVisitor(Condition);
 

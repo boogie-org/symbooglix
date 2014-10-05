@@ -10,7 +10,7 @@ namespace Symbooglix
         {
             string GetName();
             void SetPassInfo(ref PassInfo passInfo);
-            bool RunOn(Program prog);
+            bool RunOn(Program prog, PassInfo passInfo);
         }
     }
 }

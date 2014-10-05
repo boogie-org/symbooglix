@@ -29,7 +29,7 @@ namespace Symbooglix
                 this.AnnotateProceduresAndImplementations = annotateProceduresAndImplementations;
             }
 
-            public bool RunOn(Program prog)
+            public bool RunOn(Program prog, PassInfo passInfo)
             {
                 var canonicaliser = new OldExprCanonicaliserVisitor();
                 bool changed = false;
