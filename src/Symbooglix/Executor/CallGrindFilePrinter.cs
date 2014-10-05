@@ -84,7 +84,7 @@ namespace Symbooglix
                 if (gotoCmd.labelTargets.Count == 1)
                 {
                     // Non conditional jump
-                    int targetLineNumber = gotoCmd.labelTargets[0].tok.line;
+                    int targetLineNumber = GetBlockLineNumber(gotoCmd.labelTargets[0]);
                     TW.WriteLine("jump={0} {1}", gotoCmdStats.TotalJumps, targetLineNumber);
                     TW.WriteLine("{0}", gotoCmd.tok.line);
                 }
@@ -93,13 +93,25 @@ namespace Symbooglix
                     // Conditional jump
                     foreach (var target in gotoCmd.labelTargets)
                     {
-                        int targetLineNumber = target.tok.line;
+                        int targetLineNumber = GetBlockLineNumber(target);
                         TW.WriteLine("jcnd={0}/{1} {2}", gotoCmdStats.GetJumpsTo(target), gotoCmdStats.TotalJumps, targetLineNumber);
                         TW.WriteLine("{0}", gotoCmd.tok.line);
                     }
                 }
                 PrintCostLine(gotoCmd.tok.line, gotoCmdStats);
             }
+        }
+
+        private int GetBlockLineNumber(Block bb)
+        {
+            int line = bb.tok.line;
+
+            // FIXME: There is a Bug in Boogie somewhere because the Tokens attached to the program are wrong!
+            #if DEBUG
+            string filename = Path.GetFileName(bb.tok.filename);
+            Debug.Assert(filename == Path.GetFileName(PathToProgram), "Mismatched tokens. Expected " + Path.GetFileName(PathToProgram) + ", got " + filename);
+            #endif
+            return line;
         }
 
         protected void Print(Implementation impl)
