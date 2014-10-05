@@ -72,6 +72,9 @@ namespace SymbooglixLibTests
             var loopBodyGotoStats = loopBody.TransferCmd.GetInstructionStatistics() as GotoInstructionStatistics;
             Assert.AreEqual(3, loopBodyGotoStats.TotalJumps);
             Assert.AreEqual(3, loopBodyGotoStats.GetJumpsTo(loopHead));
+
+            // Check termination occurred at the ReturnCmd
+            Assert.AreEqual(1, loopDone.TransferCmd.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -83,6 +86,13 @@ namespace SymbooglixLibTests
 
             e.Run(getMain(p));
             DoTest(8, 4, 4);
+
+            // Check the terminations as the AssumeCmds
+            var main = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();
+            var LoopBodyAssume = main.Blocks[2].Cmds[0] as AssumeCmd;
+            var LoopDoneAssume = main.Blocks[3].Cmds[0] as AssumeCmd;
+            Assert.AreEqual(1, LoopBodyAssume.GetInstructionStatistics().Terminations);
+            Assert.AreEqual(3, LoopDoneAssume.GetInstructionStatistics().Terminations);
         }
 
         private void CheckBlockCount(Block bb, int count)

@@ -257,6 +257,25 @@ namespace Symbooglix
 
             (tt as dynamic).State = this; // Public interface doesn't allow state to be changed so cast to actual type so we can set.
 
+            // Increment the Terminations statistic
+            var location = tt.ExitLocation;
+            if (location.IsCmd)
+                location.AsCmd.GetInstructionStatistics().IncrementTerminations();
+            else if (location.IsTransferCmd)
+                location.AsTransferCmd.GetInstructionStatistics().IncrementTerminations();
+            else if (location.IsRequires)
+                location.AsRequires.GetInstructionStatistics().IncrementTerminations();
+            else if (location.IsEnsures)
+                location.AsEnsures.GetInstructionStatistics().IncrementTerminations();
+            else if (location.IsAxiom)
+            {
+                // FIXME: Axioms don't have statistics
+            }
+            else
+            {
+                throw new InvalidDataException("ITerminationType had an unexpected ProgramLocation:" + location.ToString());
+            }
+
             // FIXME: Add some checks to make sure the termination type corresponds
             // with the current instruction
         }
