@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Boogie;
 using System.IO;
 using System.Linq;
@@ -119,10 +120,19 @@ namespace Symbooglix
 
         protected void Print(Implementation impl)
         {
-            TW.WriteLine("# Statistics for {0}", impl.Name);
-            TW.WriteLine("fn={0}", impl.Name);
+            Print(impl.Proc);
 
-            var proc = impl.Proc;
+            foreach (var bb in impl.Blocks)
+            {
+                Print(bb, impl);
+            }
+        }
+
+        protected void Print(Procedure proc)
+        {
+            TW.WriteLine("# Statistics for {0}", proc.Name);
+            TW.WriteLine("fn={0}", proc.Name);
+
             TW.WriteLine("# Requires statements Start");
             foreach (var requires in proc.Requires)
             {
@@ -135,11 +145,6 @@ namespace Symbooglix
                 PrintCostLine(ensures.tok.line, ensures.GetInstructionStatistics());
             }
             TW.WriteLine("# Ensures statements End");
-
-            foreach (var bb in impl.Blocks)
-            {
-                Print(bb, impl);
-            }
         }
 
         public void Print(TextWriter TW)
@@ -155,9 +160,17 @@ namespace Symbooglix
             TW.WriteLine("fl={0}", this.PathToProgram);
 
             // FIXME: Walk up callgraph instead
+            var printedImplementationsWithProcedures = new HashSet<Procedure>();
             foreach (var impl in TheProgram.TopLevelDeclarations.OfType<Implementation>())
             {
                 Print(impl);
+                printedImplementationsWithProcedures.Add(impl.Proc);
+            }
+
+            // Print Procedures that haven't been printed yet. This can happen when calling into a procedure instead of an implementation
+            foreach (var proc in TheProgram.TopLevelDeclarations.OfType<Procedure>().Where( p => ! printedImplementationsWithProcedures.Contains(p)))
+            {
+                Print(proc);
             }
         }
     }
