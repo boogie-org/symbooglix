@@ -163,6 +163,27 @@ namespace BoogieTests
             Assert.AreSame(newthing1GotoCmd.labelTargets[1], newThing1Block);
 
         }
+
+        [Test()]
+        public void ImplementationProcedureResolving()
+        {
+            Program p = SymbooglixLibTests.SymbooglixTest.loadProgram("programs/ProcedureImplementation.bpl");
+
+            // Check resolved
+            var oldMainImpl = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
+            var oldMainProc = p.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "main").First();
+            Assert.AreSame(oldMainImpl.Proc, oldMainProc);
+
+            // Now duplicate the program
+            var newProgram = (Program) d.Visit(p);
+
+            // Check resolved
+            var newMainImpl = newProgram.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
+            var newMainProc = newProgram.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "main").First();
+            // FIXME: This is a bug in Boogie's duplicator
+            Assert.AreSame(newMainImpl.Proc, newMainProc);
+
+        }
     }
 }
 
