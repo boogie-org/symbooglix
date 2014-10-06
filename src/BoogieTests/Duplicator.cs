@@ -8,9 +8,14 @@ using System.Linq;
 namespace BoogieTests
 {
     [TestFixture ()]
-    public class DuplicatorTests
+    public class DuplicatorTests : IErrorSink
     {
         Duplicator d;
+
+        public void Error(IToken tok, string msg)
+        {
+            Assert.Fail(msg);
+        }
 
         [SetUp]
         public void init()
@@ -176,6 +181,10 @@ namespace BoogieTests
 
             // Now duplicate the program
             var newProgram = (Program) d.Visit(p);
+
+            // Resolving doesn't seem to fix this.
+            var rc = new ResolutionContext(this);
+            newProgram.Resolve(rc);
 
             // Check resolved
             var newMainImpl = newProgram.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
