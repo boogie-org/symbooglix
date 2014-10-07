@@ -85,7 +85,7 @@ namespace Symbooglix
                 {
                     // Non conditional jump
                     int targetLineNumber = GetBlockLineNumber(gotoCmd.labelTargets[0]);
-                    TW.WriteLine("jump={0} {1}", gotoCmdStats.TotalJumps, targetLineNumber);
+                    TW.WriteLine("jump={0} {1}", gotoCmdStats.Covered, targetLineNumber);
                     TW.WriteLine("{0}", gotoCmd.tok.line);
                 }
                 else
@@ -94,7 +94,12 @@ namespace Symbooglix
                     foreach (var target in gotoCmd.labelTargets)
                     {
                         int targetLineNumber = GetBlockLineNumber(target);
-                        TW.WriteLine("jcnd={0}/{1} {2}", gotoCmdStats.GetJumpsTo(target), gotoCmdStats.TotalJumps, targetLineNumber);
+
+                        // Note we use gotoCmdStats.Covered instead of gotoCmdStats.TotalJumps. The reason is that using
+                        // TotalJumps can be confusing because this number can be greater than the number of times the
+                        // GotoCmd was visited. E.g. We could say "4 out 9 times went to ..." when the GotoCmd was only visited
+                        // 5 times.
+                        TW.WriteLine("jcnd={0}/{1} {2}", gotoCmdStats.GetJumpsTo(target), gotoCmdStats.Covered, targetLineNumber);
                         TW.WriteLine("{0}", gotoCmd.tok.line);
                     }
                 }
