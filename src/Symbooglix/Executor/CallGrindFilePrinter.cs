@@ -105,8 +105,6 @@ namespace Symbooglix
         private int GetBlockLineNumber(Block bb)
         {
             int line = bb.tok.line;
-
-            // FIXME: There is a Bug in Boogie somewhere because the Tokens attached to the program are wrong!
             #if DEBUG
             string filename = Path.GetFileName(bb.tok.filename);
             Debug.Assert(filename == Path.GetFileName(PathToProgram), "Mismatched tokens. Expected " + Path.GetFileName(PathToProgram) + ", got " + filename);
