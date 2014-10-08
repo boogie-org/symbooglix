@@ -115,6 +115,7 @@
     <Compile Include="Transforms\ProgramLocationAnnotation.cs" />
     <Compile Include="Transforms\InstructionStatisticsAnnotation.cs" />
     <Compile Include="InstructionStatisticsTests.cs" />
+    <Compile Include="EntryPoints.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

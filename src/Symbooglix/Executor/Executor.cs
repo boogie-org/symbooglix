@@ -21,6 +21,7 @@ namespace Symbooglix
             UseGotoLookAhead = true;
             this.TheSolver = solver;
             this.Duplicator = new NonSymbolicDuplicator();
+            this.InternalRequestedEntryPoints = new List<Implementation>();
         }
 
         private IStateScheduler StateScheduler;
@@ -49,6 +50,13 @@ namespace Symbooglix
         {
             get;
             set;
+        }
+
+        private List<Implementation> InternalRequestedEntryPoints;
+
+        public IEnumerable<Implementation> RequestedEntryPoints
+        {
+            get { return InternalRequestedEntryPoints; }
         }
 
         // Events
@@ -341,6 +349,8 @@ namespace Symbooglix
                     throw new InvalidEntryPoint(this, entryPoint);
                 }
 
+                // Record the entry point that was requested
+                InternalRequestedEntryPoints.Add(entryPoint);
 
                 // Push entry point onto stack frame
                 EnterImplementation(entryPoint, null);
