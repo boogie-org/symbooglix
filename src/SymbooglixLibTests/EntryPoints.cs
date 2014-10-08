@@ -29,6 +29,32 @@ namespace SymbooglixLibTests
             foreach (var pair in expectedList.Zip( e.RequestedEntryPoints))
                 Assert.AreSame(pair.Item1, pair.Item2);
         }
+
+        [Test()]
+        public void RecordEntryPointEarly()
+        {
+            p = loadProgram("programs/InconsistentAxioms.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            var main = getMain(p);
+
+            var counter = new TerminationCounter();
+            counter.Connect(e);
+
+            try
+            {
+                e.Run(main);
+            }
+            catch (ExecuteTerminatedStateException)
+            {
+                // Ignore
+            }
+
+            Assert.AreEqual(1, counter.UnsatisfiableAxioms);
+
+            Assert.AreEqual(1, e.RequestedEntryPoints.Count());
+            Assert.AreSame(main, e.RequestedEntryPoints.First());
+        }
     }
 }
 
