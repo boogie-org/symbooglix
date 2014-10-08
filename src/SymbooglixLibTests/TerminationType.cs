@@ -8,7 +8,7 @@ namespace SymbooglixLibTests
     [TestFixture()]
     public class TerminationType : SymbooglixTest
     {
-        public T InitAndRun<T>(string program) where T:class
+        public T InitAndRun<T>(string program) where T:class,ITerminationType
         {
             int counter = 0;
             p = loadProgram(program);
@@ -22,6 +22,7 @@ namespace SymbooglixLibTests
                 ++counter;
 
                 Assert.IsFalse(eventArgs.State.Speculative);
+                Assert.AreEqual(1, terminationType.ExitLocation.InstrStatistics.Terminations);
             };
 
             try
@@ -77,7 +78,6 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
             Assert.AreEqual("true", terminationType.ConditionForSat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsCmd.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -90,7 +90,6 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
             Assert.AreEqual("0 <= symbolic_0", terminationType.ConditionForSat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsCmd.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -108,8 +107,7 @@ namespace SymbooglixLibTests
         [Test()]
         public void TerminateWithoutError()
         {
-            var terminationType = InitAndRun<TerminatedWithoutError>("programs/assert_true.bpl");
-            Assert.AreEqual(1, terminationType.ExitLocation.AsTransferCmd.GetInstructionStatistics().Terminations);
+            InitAndRun<TerminatedWithoutError>("programs/assert_true.bpl");
         }
 
 
@@ -120,7 +118,6 @@ namespace SymbooglixLibTests
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsCmd.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -130,7 +127,6 @@ namespace SymbooglixLibTests
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("symbolic_0 * symbolic_0 < symbolic_0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsCmd.GetInstructionStatistics().Terminations);
         }
 
 
@@ -141,7 +137,6 @@ namespace SymbooglixLibTests
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsRequires.GetInstructionStatistics().Terminations);
         }
 
 
@@ -155,7 +150,6 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual("symbolic_0 > 0", terminationType.ConditionForUnsat.ToString());
             Assert.AreEqual("0 >= symbolic_0", terminationType.ConditionForSat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsRequires.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -180,7 +174,6 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual("symbolic_1 > 0", terminationType.ConditionForUnsat.ToString());
             Assert.AreEqual("0 >= symbolic_1", terminationType.ConditionForSat.ToString());
-            Assert.AreEqual(1, terminationType.ExitLocation.AsEnsures.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -205,8 +198,6 @@ namespace SymbooglixLibTests
 
             Assert.IsNotNull(terminationType.ConditionForSat);
             Assert.AreEqual("20 >= symbolic_1", terminationType.ConditionForSat.ToString());
-
-            Assert.AreEqual(1, terminationType.ExitLocation.AsEnsures.GetInstructionStatistics().Terminations);
         }
 
         [Test()]
@@ -218,8 +209,6 @@ namespace SymbooglixLibTests
             Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
             Assert.IsNotNull(terminationType.ConditionForSat);
             Assert.AreEqual("0 <= symbolic_0", terminationType.ConditionForSat.ToString());
-
-            Assert.AreEqual(1, terminationType.ExitLocation.InstrStatistics.Terminations);
         }
 
         [Test()]
@@ -245,11 +234,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual(2, counter);
 
             // Check Terminations statistic
-            if (terminationType.ExitLocation.IsTransferCmd)
-                Assert.AreEqual(1, terminationType.ExitLocation.AsTransferCmd.GetInstructionStatistics().Terminations);
-            else if (terminationType.ExitLocation.IsCmd)
-                Assert.AreEqual(1, terminationType.ExitLocation.AsCmd.GetInstructionStatistics().Terminations);
-
+            Assert.AreEqual(1, terminationType.ExitLocation.InstrStatistics.Terminations);
         }
 
         [Test()]
