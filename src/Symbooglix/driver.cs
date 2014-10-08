@@ -338,7 +338,17 @@ namespace Symbooglix
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine("Entering Implementation " + entryPoint.Name + " as entry point");
                     Console.ResetColor();
-                    e.Run(entryPoint, options.timeout);
+
+                    try
+                    {
+                        e.Run(entryPoint, options.timeout);
+                    }
+                    catch(ExecuteTerminatedStateException)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
+                        Console.ResetColor();
+                    }
                 }
 
                 Console.WriteLine(solver.Statistics.ToString());

@@ -244,6 +244,14 @@ namespace Symbooglix
                         default:
                             var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
                             terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
+
+                            // Expr.Not(constraint) will only be satisfiable if
+                            // the original constraints are satisfiable
+                            // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
+                            // ∀ x constraints(x) ∧ ¬query(x)
+                            // So here we assume
+                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
+
                             TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/ false);
                             HasBeenPrepared = true; // Don't allow this method to run again
                             return false;

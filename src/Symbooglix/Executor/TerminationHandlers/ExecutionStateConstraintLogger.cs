@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
 
 namespace Symbooglix
 {
@@ -28,6 +29,7 @@ namespace Symbooglix
                 if (State.TerminationType is TerminationTypeWithSatAndUnsatExpr)
                 {
                     var terminationType = State.TerminationType as TerminationTypeWithSatAndUnsatExpr;
+                    Debug.Assert(terminationType.ConditionForSat != null, "ConditionForSat should not be null");
                     outputFile.AddDeclarations(terminationType.ConditionForSat);
                 }
 
