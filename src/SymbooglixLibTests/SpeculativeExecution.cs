@@ -97,6 +97,40 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(1, statesTerminated);
         }
+
+        [Test()]
+        public void SpeculativeDueToFailingAssert()
+        {
+            p = loadProgram("programs/assert_nontrivial.bpl");
+
+            // By using a dummy solver which always returns "UNKNOWN" every path should
+            // be consider to be speculative
+            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+
+            int statesTerminated = 0;
+            bool hitFailingAssert = false;
+            e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
+            {
+                Assert.IsTrue(data.State.Speculative);
+
+                if (data.State.TerminationType is TerminatedAtFailingAssert)
+                    hitFailingAssert = true;
+
+                ++statesTerminated;
+            };
+
+            try
+            {
+                e.Run(getMain(p));
+            }
+            catch(ExecuteTerminatedStateException)
+            {
+                // Ignore
+            }
+
+            Assert.AreEqual(2, statesTerminated);
+            Assert.IsTrue(hitFailingAssert);
+        }
     }
 }
 
