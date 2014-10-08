@@ -223,6 +223,8 @@ namespace Symbooglix
                 // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
                 foreach (var axiom in axioms)
                 {
+                    axiom.GetInstructionStatistics().IncrementCovered();
+
                     // Check The axiom can be satisfied
                     TheSolver.SetConstraints(InitialState.Constraints);
 

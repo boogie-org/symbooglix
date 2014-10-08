@@ -159,6 +159,12 @@ namespace Symbooglix
             // Specifiy input file
             TW.WriteLine("fl={0}", this.PathToProgram);
 
+            // FIXME: This is a hack to support displaying axioms
+            TW.WriteLine("# Axioms: FIXME use entry point instead");
+            TW.WriteLine("fn=__symbooglix_init");
+            foreach (var axiom in TheProgram.TopLevelDeclarations.OfType<Axiom>())
+                PrintCostLine(axiom.tok.line, axiom.GetInstructionStatistics());
+
             // FIXME: Walk up callgraph instead
             var printedImplementationsWithProcedures = new HashSet<Procedure>();
             foreach (var impl in TheProgram.TopLevelDeclarations.OfType<Implementation>())

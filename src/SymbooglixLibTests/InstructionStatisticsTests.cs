@@ -40,6 +40,12 @@ namespace SymbooglixLibTests
             foreach (var ensures in foo.Proc.Ensures)
                 Assert.AreEqual(3, ensures.GetInstructionStatistics().Covered);
 
+            // Check the axioms were covered
+            var axioms = p.TopLevelDeclarations.OfType<Axiom>();
+            Assert.AreEqual(1, axioms.Count());
+            foreach (var axiom in axioms)
+                Assert.AreEqual(1, axiom.GetInstructionStatistics().Covered);
+
             // Check execution of main
             var main = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();
 
