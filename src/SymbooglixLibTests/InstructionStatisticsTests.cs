@@ -17,10 +17,14 @@ namespace SymbooglixLibTests
             e.UseGotoLookAhead = true;
 
             e.Run(getMain(p));
-            DoTest(4, 1, 3);
+            DoTest(4, 1, 3, 3, 1);
         }
 
-        private void DoTest(int expectedLoopHeadTotalJumps, int expectedLoopHeadJumpsToLoopDone, int expectedLoopHeadJumpsToLoopBody)
+        private void DoTest(int expectedLoopHeadTotalJumps,
+                            int expectedLoopHeadJumpsToLoopDone,
+                            int expectedLoopHeadJumpsToLoopBody,
+                            int expectedLoopBodyAssumeCoverage,
+                            int expectedLoopDoneAssumeCoverage)
         {
             // Check we executed foo three times
             var foo = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "foo").First();
@@ -50,12 +54,12 @@ namespace SymbooglixLibTests
             var loopBody = main.Blocks[2];
             Assert.AreEqual("anon2_LoopBody", loopBody.Label);
 
-            // The assume gets visited one extra time
-            CheckBlockStartingWithAssumeCount(loopBody, 4, 3);
+            // The assume might get visited one extra time depending on the goto implementation being used.
+            CheckBlockStartingWithAssumeCount(loopBody, expectedLoopBodyAssumeCoverage, 3);
 
             var loopDone = main.Blocks[3];
             Assert.AreEqual("anon2_LoopDone", loopDone.Label);
-            CheckBlockStartingWithAssumeCount(loopDone, 4, 1);
+            CheckBlockStartingWithAssumeCount(loopDone, expectedLoopDoneAssumeCoverage, 1);
 
             // Check the goto of entry block
             var gotoStats = entryBlock.TransferCmd.GetInstructionStatistics() as GotoInstructionStatistics;
@@ -85,7 +89,7 @@ namespace SymbooglixLibTests
             e.UseGotoLookAhead = false;
 
             e.Run(getMain(p));
-            DoTest(8, 4, 4);
+            DoTest(8, 4, 4, 4, 4);
 
             // Check the terminations as the AssumeCmds
             var main = p.TopLevelDeclarations.OfType<Implementation>().Where(x => x.Name == "main").First();

@@ -1203,9 +1203,6 @@ namespace Symbooglix
 
                 var assumeCmd = targetInstruction.Current as AssumeCmd;
 
-                // Is doing a look ahead really count as coverage?
-                assumeCmd.GetInstructionStatistics().IncrementCovered();
-
                 Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
                 info.ReWrittenAssumeExpr = dupAndRw;
 
@@ -1279,6 +1276,9 @@ namespace Symbooglix
                     var assumeCmd = (theInfo.Target.Cmds[0] as AssumeCmd);
                     Debug.Assert(assumeCmd != null, "The target block does not start with the expected AssumeCmd");
                     theState.Constraints.AddConstraint(theInfo.ReWrittenAssumeExpr, assumeCmd.GetProgramLocation());
+
+                    // We only increment the coverage on paths that we actually follow
+                    assumeCmd.GetInstructionStatistics().IncrementCovered();
 
                     // Move the currentInstruction to point to the AssumeCmd.
                     // When the Executor loop execute's "theState"'s next instruction
