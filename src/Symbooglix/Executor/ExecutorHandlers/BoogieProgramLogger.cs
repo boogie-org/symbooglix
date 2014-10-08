@@ -56,7 +56,9 @@ namespace Symbooglix
             using (var SW = new StreamWriter(this.CallGrindFileDestintation))
             {
                 Console.WriteLine("Writing callgrind file to {0}", this.CallGrindFileDestintation);
-                var callGrindFilePrinter = new CallGrindFilePrinter(clonedProgram, Path.GetFileName(this.ProgramDestination));
+                Debug.Assert(executor.RequestedEntryPoints.Count() > 0, "The executor did not report an entry point");
+                var entryPointToUse = executor.RequestedEntryPoints.First();
+                var callGrindFilePrinter = new CallGrindFilePrinter(clonedProgram, Path.GetFileName(this.ProgramDestination), entryPointToUse);
                 callGrindFilePrinter.Print(SW);
             }
         }

@@ -319,6 +319,10 @@ namespace Symbooglix
             lock (ExecutorLoopLock)
             {
                 SetupTimeout(timeout);
+
+                // Record the entry point that was requested
+                InternalRequestedEntryPoints.Add(entryPoint);
+
                 lock (PrepareProgramLock)
                 {
                     if (!HasBeenPrepared)
@@ -348,9 +352,6 @@ namespace Symbooglix
                 {
                     throw new InvalidEntryPoint(this, entryPoint);
                 }
-
-                // Record the entry point that was requested
-                InternalRequestedEntryPoints.Add(entryPoint);
 
                 // Push entry point onto stack frame
                 EnterImplementation(entryPoint, null);

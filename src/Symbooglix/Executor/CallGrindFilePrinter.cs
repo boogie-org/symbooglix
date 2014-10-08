@@ -12,11 +12,13 @@ namespace Symbooglix
         Program TheProgram;
         TextWriter TW;
         string PathToProgram;
+        Implementation EntryPoint;
 
-        public CallGrindFilePrinter(Program prog, string pathToProgram)
+        public CallGrindFilePrinter(Program prog, string pathToProgram, Implementation entryPoint)
         {
             this.TheProgram = prog;
             this.PathToProgram = pathToProgram;
+            this.EntryPoint = entryPoint;
         }
 
         protected void PrintCostLine(int line, InstructionStatistics instrStats)
@@ -159,11 +161,12 @@ namespace Symbooglix
             // Specifiy input file
             TW.WriteLine("fl={0}", this.PathToProgram);
 
-            // FIXME: This is a hack to support displaying axioms
-            TW.WriteLine("# Axioms: FIXME use entry point instead");
-            TW.WriteLine("fn=__symbooglix_init");
+            TW.WriteLine("# Start Axioms");
+            TW.WriteLine("fn={0}", EntryPoint.Name);
             foreach (var axiom in TheProgram.TopLevelDeclarations.OfType<Axiom>())
                 PrintCostLine(axiom.tok.line, axiom.GetInstructionStatistics());
+
+            TW.WriteLine("# End axioms");
 
             // FIXME: Walk up callgraph instead
             var printedImplementationsWithProcedures = new HashSet<Procedure>();
