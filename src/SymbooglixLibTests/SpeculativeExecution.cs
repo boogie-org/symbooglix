@@ -40,14 +40,14 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, counter.DisallowedSpeculativePaths);
         }
 
-        [Test()]
-        public void Speculative()
+        private void SpeculativeTest(bool useLookAheadGoto)
         {
             p = loadProgram("programs/TwoPaths.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
             e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e.UseGotoLookAhead = useLookAheadGoto;
 
             int breakPointsHit = 0;
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
@@ -67,6 +67,18 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(0, breakPointsHit);
             Assert.AreEqual(2, statesTerminated);
+        }
+
+        [Test()]
+        public void SpeculativeLookAheadGoto()
+        {
+            SpeculativeTest(true);
+        }
+
+        [Test()]
+        public void SpeculativeNaiveGoto()
+        {
+            SpeculativeTest(false);
         }
 
         [Test()]
