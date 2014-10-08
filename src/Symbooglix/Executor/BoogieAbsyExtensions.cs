@@ -13,44 +13,44 @@ namespace Symbooglix
         // ProgramLocation, applying to Absy is too broad!
         public static ProgramLocation GetProgramLocation(this Absy node)
         {
-            return node.GetMetatdata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
+            return node.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
         }
 
         // Handy accessor for metadata added by the OldExprCanonicaliser pass
         public static IList<GlobalVariable> GetOldExprVariables(this Procedure node)
         {
-            return node.GetMetatdata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
+            return node.GetMetadata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
         }
 
         // Handy accessor for metadata added by the OldExprCanonicaliser pass
         public static IList<GlobalVariable> GetOldExprVariables(this Implementation node)
         {
-            return node.GetMetatdata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
+            return node.GetMetadata<IList<GlobalVariable>>((int) Annotation.AnnotationIndex.GLOBALS_USED_IN_OLD_EXPR);
         }
 
         public static InstructionStatistics GetInstructionStatistics(this Cmd node)
         {
-            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+            return node.GetMetadata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
 
         public static InstructionStatistics GetInstructionStatistics(this TransferCmd node)
         {
-            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+            return node.GetMetadata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
 
         public static InstructionStatistics GetInstructionStatistics(this Requires node)
         {
-            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+            return node.GetMetadata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
 
         public static InstructionStatistics GetInstructionStatistics(this Ensures node)
         {
-            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+            return node.GetMetadata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
 
         public static InstructionStatistics GetInstructionStatistics(this Axiom node)
         {
-            return node.GetMetatdata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
+            return node.GetMetadata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
     }
 }

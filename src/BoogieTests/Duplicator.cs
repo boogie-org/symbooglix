@@ -81,7 +81,7 @@ namespace BoogieTests
             }
             Assert.AreEqual(1, counter);
             Assert.AreNotSame(gv, gv2);
-            Assert.AreEqual(metaDataString, p2.GetMetatdata<string>(0));
+            Assert.AreEqual(metaDataString, p2.GetMetadata<string>(0));
 
 
             // Check Top level declarations list is duplicated properly
@@ -112,7 +112,7 @@ namespace BoogieTests
             string newMetaDataString = "Another test";
             p2.SetMetadata(0, newMetaDataString);
 
-            Assert.AreNotEqual(p2.GetMetatdata<string>(0), p.GetMetatdata<string>(0));
+            Assert.AreNotEqual(p2.GetMetadata<string>(0), p.GetMetadata<string>(0));
         }
 
         [Test()]

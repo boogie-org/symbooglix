@@ -55,7 +55,7 @@ namespace Symbooglix
         public SymbolicVariable(string Name, Variable variable) : base(Token.NoToken, CopyAndRename(variable.TypedIdent, Name))
         {
             Expr = new IdentifierExpr(Token.NoToken, this);
-            this.Origin = variable.GetMetatdata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
+            this.Origin = variable.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
             this.Name = Name;
             Debug.WriteLine("Creating Symbolic " + this);
         }
@@ -63,7 +63,7 @@ namespace Symbooglix
         public SymbolicVariable(string Name, HavocCmd cmd, int VarsIndex) : base(Token.NoToken, CopyAndRename(cmd.Vars[VarsIndex].Decl.TypedIdent, Name))
         {
             Expr = new IdentifierExpr(Token.NoToken, this);
-            this.Origin = cmd.GetMetatdata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
+            this.Origin = cmd.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
             this.Name = Name;
             Debug.WriteLine("Creating Symbolic " + this);
 
