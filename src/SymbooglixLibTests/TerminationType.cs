@@ -199,6 +199,10 @@ namespace SymbooglixLibTests
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("symbolic_1 > 20", terminationType.ConditionForUnsat.ToString());
+
+            Assert.IsNotNull(terminationType.ConditionForSat);
+            Assert.AreEqual("20 >= symbolic_1", terminationType.ConditionForSat.ToString());
+
             Assert.AreEqual(1, terminationType.ExitLocation.AsEnsures.GetInstructionStatistics().Terminations);
         }
 
@@ -209,6 +213,8 @@ namespace SymbooglixLibTests
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
+            Assert.IsNotNull(terminationType.ConditionForSat);
+            Assert.AreEqual("0 <= symbolic_0", terminationType.ConditionForSat.ToString());
 
             Assert.AreEqual(1, terminationType.ExitLocation.InstrStatistics.Terminations);
         }
