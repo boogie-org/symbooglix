@@ -15,11 +15,13 @@ namespace SymbooglixLibTests
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
 
             T terminationType = null;
-            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs state)
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
             {
-                Assert.IsInstanceOfType(typeof(T), state.State.TerminationType);
-                terminationType = state.State.TerminationType as T;
+                Assert.IsInstanceOfType(typeof(T), eventArgs.State.TerminationType);
+                terminationType = eventArgs.State.TerminationType as T;
                 ++counter;
+
+                Assert.IsFalse(eventArgs.State.Speculative);
             };
 
             try
@@ -42,12 +44,13 @@ namespace SymbooglixLibTests
             e = getExecutor(p, new DFSStateScheduler(), GetSolver());
 
             T terminationType = null;
-            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs state)
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
             {
-                if (state.State.TerminationType is T)
-                    terminationType = state.State.TerminationType as T;
+                if (eventArgs.State.TerminationType is T)
+                    terminationType = eventArgs.State.TerminationType as T;
 
                 ++counter;
+                Assert.IsFalse(eventArgs.State.Speculative);
             };
 
             try
@@ -235,6 +238,7 @@ namespace SymbooglixLibTests
                 terminationType = stateArgs.State.TerminationType;
                 Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedSpeculativePath), terminationType);
                 ++counter;
+                Assert.IsTrue(stateArgs.State.Speculative);
             };
 
             e.Run(getMain(p));
@@ -262,6 +266,7 @@ namespace SymbooglixLibTests
                 Assert.IsInstanceOfType(typeof(TerminatedAtGotoWithUnsatisfiableTargets), executionStateEventArgs.State.TerminationType);
                 terminationType = executionStateEventArgs.State.TerminationType;
                 ++counter;
+                Assert.IsFalse(executionStateEventArgs.State.Speculative);
             };
             e.Run(getMain(p));
 
