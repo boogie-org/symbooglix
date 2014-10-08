@@ -191,6 +191,42 @@ namespace BoogieTests
             var newMainProc = newProgram.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "main").First();
             // FIXME: This is a bug in Boogie's duplicator
             Assert.AreSame(newMainImpl.Proc, newMainProc);
+        }
+
+        [Test()]
+        public void CallCmdResolving()
+        {
+            Program p = SymbooglixLibTests.SymbooglixTest.loadProgram("programs/CallCmd.bpl");
+
+            // Get hold of the procedures that will be used with the CallCmd
+            var oldFoo = p.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "foo").First();
+            var oldBar = p.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "bar").First();
+
+            // Get the call to Foo
+            var oldCmdsInMain = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").SelectMany(i => i.Blocks).SelectMany(b => b.Cmds);
+            var oldCallToFoo = oldCmdsInMain.OfType<CallCmd>().Where(c => c.callee == "foo").First();
+            var oldCallToBar = oldCmdsInMain.OfType<CallCmd>().Where(c => c.callee == "bar").First();
+
+            // Check the Calls
+            Assert.AreSame(oldCallToFoo.Proc, oldFoo);
+            Assert.AreSame(oldCallToBar.Proc, oldBar);
+
+            // Now duplicate the program and check that the calls are resolved correctly
+            var newProgram = (Program) d.Visit(p);
+
+            var foo = newProgram.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "foo").First();
+            var bar = newProgram.TopLevelDeclarations.OfType<Procedure>().Where(i => i.Name == "bar").First();
+
+            // Get the call to Foo
+            var cmdsInMain = newProgram.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").SelectMany(i => i.Blocks).SelectMany(b => b.Cmds);
+            var callToFoo = cmdsInMain.OfType<CallCmd>().Where(c => c.callee == "foo").First();
+            var callToBar = cmdsInMain.OfType<CallCmd>().Where(c => c.callee == "bar").First();
+
+            // Check the Calls
+            Assert.AreNotSame(callToFoo.Proc, oldFoo);
+            Assert.AreSame(callToFoo.Proc, foo);
+            Assert.AreNotSame(callToBar.Proc, oldBar);
+            Assert.AreSame(callToBar.Proc, bar);
 
         }
     }
