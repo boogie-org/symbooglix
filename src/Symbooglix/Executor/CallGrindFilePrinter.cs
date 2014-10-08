@@ -47,12 +47,12 @@ namespace Symbooglix
                     if (calleeImpl.Count() > 0)
                     {
                         TW.WriteLine("# Call into implementation");
-                        calleeLineNumber = calleeImpl.First().tok.line;
+                        calleeLineNumber = GetLineNumber(calleeImpl.First());
                     }
                     else
                     {
                         TW.WriteLine("# Call into procedure");
-                        calleeLineNumber = callCmd.Proc.tok.line;
+                        calleeLineNumber = GetLineNumber(callCmd.Proc);
                     }
 
 
@@ -61,13 +61,13 @@ namespace Symbooglix
                     // FIXME: This is supposed to be the inclusive "cost" of calls to the proc/impl.
                     // We aren't sending the right number. We really need to walk to call graph bottom up
                     // instead of iterating over the impl/proc in an arbitrary order
-                    PrintCostLine(callCmd.tok.line, callCmd.GetInstructionStatistics());
+                    PrintCostLine(GetLineNumber(callCmd), callCmd.GetInstructionStatistics());
 
                     TW.WriteLine("cfn={0}", impl.Name);
                 }
                 else
                 {
-                    PrintCostLine(cmd.tok.line, cmd.GetInstructionStatistics());
+                    PrintCostLine(GetLineNumber(cmd), cmd.GetInstructionStatistics());
                 }
             }
 
@@ -75,7 +75,7 @@ namespace Symbooglix
             // Handle TransferCmd
             if (bb.TransferCmd is ReturnCmd)
             {
-                PrintCostLine(bb.TransferCmd.tok.line, bb.TransferCmd.GetInstructionStatistics());
+                PrintCostLine(GetLineNumber(bb.TransferCmd), bb.TransferCmd.GetInstructionStatistics());
             }
             else
             {
@@ -87,34 +87,31 @@ namespace Symbooglix
                 if (gotoCmd.labelTargets.Count == 1)
                 {
                     // Non conditional jump
-                    int targetLineNumber = GetBlockLineNumber(gotoCmd.labelTargets[0]);
-                    TW.WriteLine("jump={0} {1}", gotoCmdStats.Covered, targetLineNumber);
-                    TW.WriteLine("{0}", gotoCmd.tok.line);
+                    TW.WriteLine("jump={0} {1}", gotoCmdStats.Covered, GetLineNumber(gotoCmd.labelTargets[0]));
+                    TW.WriteLine("{0}", GetLineNumber(gotoCmd));
                 }
                 else
                 {
                     // Conditional jump
                     foreach (var target in gotoCmd.labelTargets)
                     {
-                        int targetLineNumber = GetBlockLineNumber(target);
-
                         // Note we use gotoCmdStats.Covered instead of gotoCmdStats.TotalJumps. The reason is that using
                         // TotalJumps can be confusing because this number can be greater than the number of times the
                         // GotoCmd was visited. E.g. We could say "4 out 9 times went to ..." when the GotoCmd was only visited
                         // 5 times.
-                        TW.WriteLine("jcnd={0}/{1} {2}", gotoCmdStats.GetJumpsTo(target), gotoCmdStats.Covered, targetLineNumber);
-                        TW.WriteLine("{0}", gotoCmd.tok.line);
+                        TW.WriteLine("jcnd={0}/{1} {2}", gotoCmdStats.GetJumpsTo(target), gotoCmdStats.Covered, GetLineNumber(target));
+                        TW.WriteLine("{0}", GetLineNumber(gotoCmd));
                     }
                 }
                 PrintCostLine(gotoCmd.tok.line, gotoCmdStats);
             }
         }
 
-        private int GetBlockLineNumber(Block bb)
+        private int GetLineNumber(Absy node)
         {
-            int line = bb.tok.line;
+            int line = node.tok.line;
             #if DEBUG
-            string filename = Path.GetFileName(bb.tok.filename);
+            string filename = Path.GetFileName(node.tok.filename);
             Debug.Assert(filename == Path.GetFileName(PathToProgram), "Mismatched tokens. Expected " + Path.GetFileName(PathToProgram) + ", got " + filename);
             #endif
             return line;
@@ -138,13 +135,13 @@ namespace Symbooglix
             TW.WriteLine("# Requires statements Start");
             foreach (var requires in proc.Requires)
             {
-                PrintCostLine(requires.tok.line, requires.GetInstructionStatistics());
+                PrintCostLine(GetLineNumber(requires), requires.GetInstructionStatistics());
             }
             TW.WriteLine("# Requires statements End");
             TW.WriteLine("# Ensures statements Start");
             foreach (var ensures in proc.Ensures)
             {
-                PrintCostLine(ensures.tok.line, ensures.GetInstructionStatistics());
+                PrintCostLine(GetLineNumber(ensures), ensures.GetInstructionStatistics());
             }
             TW.WriteLine("# Ensures statements End");
         }
@@ -164,7 +161,7 @@ namespace Symbooglix
             TW.WriteLine("# Start Axioms");
             TW.WriteLine("fn={0}", EntryPoint.Name);
             foreach (var axiom in TheProgram.TopLevelDeclarations.OfType<Axiom>())
-                PrintCostLine(axiom.tok.line, axiom.GetInstructionStatistics());
+                PrintCostLine(GetLineNumber(axiom), axiom.GetInstructionStatistics());
 
             TW.WriteLine("# End axioms");
 
