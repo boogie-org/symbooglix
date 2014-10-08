@@ -68,6 +68,35 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, breakPointsHit);
             Assert.AreEqual(2, statesTerminated);
         }
+
+        [Test()]
+        public void SpeculativeDueToUnsatAxiom()
+        {
+            p = loadProgram("programs/InconsistentAxioms.bpl");
+
+            // By using a dummy solver which always returns "UNKNOWN" every path should
+            // be consider to be speculative
+            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+
+            int statesTerminated = 0;
+            e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
+            {
+                Assert.IsInstanceOfType(typeof(TerminatedAtUnsatisfiableAxiom), data.State.TerminationType);
+                Assert.IsTrue(data.State.Speculative);
+                ++statesTerminated;
+            };
+
+            try
+            {
+                e.Run(getMain(p));
+            }
+            catch(ExecuteTerminatedStateException)
+            {
+                // Ignore
+            }
+
+            Assert.AreEqual(1, statesTerminated);
+        }
     }
 }
 

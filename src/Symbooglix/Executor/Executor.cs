@@ -239,7 +239,9 @@ namespace Symbooglix
                         case Symbooglix.Solver.Result.SAT:
                             break;
                         case Symbooglix.Solver.Result.UNSAT:
+                            goto default;
                         case Symbooglix.Solver.Result.UNKNOWN:
+                            InitialState.MakeSpeculative();
                             goto default; // Eurgh...
                         default:
                             var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
