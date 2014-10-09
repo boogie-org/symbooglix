@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Symbooglix
 {
@@ -94,12 +95,31 @@ namespace Symbooglix
 
             foreach (var terminationTypeCounterPair in Counters)
             {
-                output += "  " + terminationTypeCounterPair.Key.ToString() + "=" + terminationTypeCounterPair.Value + "\n";
+                output += "  " + StripPrefix(terminationTypeCounterPair.Key.ToString()) + "=" + terminationTypeCounterPair.Value + "\n";
             }
 
             output += "]\n";
 
             return output;
+        }
+
+
+        private string StripPrefix(string original)
+        {
+            int dotPosition = original.IndexOf('.');
+            Debug.Assert(dotPosition != -1, "Dot was not found");
+            return original.Substring(dotPosition +1);
+        }
+
+        public void WriteGnuPlotData(TextWriter TW)
+        {
+            TW.WriteLine("# Load with GNUPlot");
+            TW.WriteLine("#<TerminationType> <Counters>");
+
+            foreach (var terminationTypeCounterPair in Counters)
+            {
+                TW.WriteLine(StripPrefix(terminationTypeCounterPair.Key.ToString()) + " " + terminationTypeCounterPair.Value);
+            }
         }
 
     }

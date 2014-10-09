@@ -29,6 +29,7 @@ namespace Symbooglix
 
         private List<IExecutorEventHandler> Loggers;
 
+
         public ExecutorFileLoggerHandler(Executor executor, string path, bool makeDirectoryInPath)
         {
             this.TheExecutor = executor;
@@ -94,6 +95,7 @@ namespace Symbooglix
             Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
             Loggers.Add(new BoogieProgramLogger(this.RootDir.FullName));
+            Loggers.Add(new TerminationCounterLogger(this.RootDir.FullName));
         }
 
         private void Connect()
