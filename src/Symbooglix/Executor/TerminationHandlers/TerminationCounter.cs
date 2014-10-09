@@ -1,22 +1,31 @@
 ﻿using Microsoft.Boogie;
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Symbooglix
 {
     public class TerminationCounter : IExecutorEventHandler
     {
         // Counters
-        public int Sucesses { get; private set;}
-        public int FailingAsserts { get; private set;}
-        public int UnsatisfiableRequiresOnEntry { get; private set;}
-        public int FailingRequires { get; private set;}
-        public int FailingEnsures { get; private set;}
-        public int UnsatisfiableAssumes { get; private set;}
-        public int UnsatisfiableEnsures { get; private set; }
-        public int UnsatisfiableAxioms { get; private set;}
-        public int DisallowedSpeculativePaths { get; private set; }
-        public int UnexplorableGotos { get; private set; }
+        public int Sucesses { get { return GetCounter<TerminatedWithoutError>(); }}
+        public int FailingAsserts { get { return GetCounter<TerminatedAtFailingAssert>(); }}
+        public int UnsatisfiableRequiresOnEntry { get { return GetCounter<TerminatedAtUnsatisfiableEntryRequires>(); }}
+        public int FailingRequires { get { return GetCounter<TerminatedAtFailingRequires>(); }}
+        public int FailingEnsures { get { return GetCounter<TerminatedAtFailingEnsures>(); }}
+        public int UnsatisfiableAssumes { get { return GetCounter<TerminatedAtUnsatisfiableAssume>(); }}
+        public int UnsatisfiableEnsures { get { return GetCounter<TerminatedAtUnsatisfiableEnsures>(); } }
+        public int UnsatisfiableAxioms { get { return GetCounter<TerminatedAtUnsatisfiableAxiom>(); }}
+        public int DisallowedSpeculativePaths { get { return GetCounter<TerminatedWithDisallowedSpeculativePath>(); }}
+        public int UnexplorableGotos { get { return GetCounter<TerminatedAtGotoWithUnsatisfiableTargets>(); }}
+
+        private Dictionary<System.Type, int> Counters;
+
+        protected int GetCounter<T>()
+        {
+            Debug.Assert(Counters.ContainsKey(typeof(T)), "Requested an unhandled Termination type");
+            return Counters[typeof(T)];
+        }
 
         public int NumberOfFailures
         {
@@ -40,6 +49,7 @@ namespace Symbooglix
 
         public TerminationCounter()
         {
+            this.Counters = new Dictionary<System.Type, int>();
             reset();
         }
 
@@ -55,70 +65,41 @@ namespace Symbooglix
 
         private void handle(Object executor, Executor.ExecutionStateEventArgs arg)
         {
-            var terminationType = arg.State.TerminationType;
-            Debug.Assert(terminationType != null);
+            var terminationType = arg.State.TerminationType.GetType();
+            Debug.Assert(Counters.ContainsKey(terminationType), "Termination type not handled!");
 
-            if (terminationType is TerminatedWithoutError)
-                Sucesses++;
-            else if (terminationType is TerminatedAtUnsatisfiableEntryRequires)
-                UnsatisfiableRequiresOnEntry++;
-            else if (terminationType is TerminatedAtUnsatisfiableAssume)
-                UnsatisfiableAssumes++;
-            else if (terminationType is TerminatedAtFailingRequires)
-                FailingRequires++;
-            else if (terminationType is TerminatedAtFailingEnsures)
-                FailingEnsures++;
-            else if (terminationType is TerminatedAtFailingAssert)
-                FailingAsserts++;
-            else if (terminationType is TerminatedAtUnsatisfiableEnsures)
-                UnsatisfiableEnsures++;
-            else if (terminationType is TerminatedAtUnsatisfiableAxiom)
-                UnsatisfiableAxioms++;
-            else if (terminationType is TerminatedWithDisallowedSpeculativePath)
-                DisallowedSpeculativePaths++;
-            else if (terminationType is TerminatedAtGotoWithUnsatisfiableTargets)
-                UnexplorableGotos++;
-            else
-                throw new NotSupportedException("Can't handle Termination type " + terminationType.ToString());
+            var oldValue = Counters[terminationType];
+            Counters[terminationType] = ++oldValue;
         }
 
         public void reset()
         {
-            Sucesses = 0;
-            FailingAsserts = 0;
-            UnsatisfiableRequiresOnEntry = 0;
-            FailingRequires = 0;
-            FailingEnsures = 0;
-            UnsatisfiableAssumes = 0;
-            UnsatisfiableEnsures = 0;
-            DisallowedSpeculativePaths = 0;
-            UnexplorableGotos = 0;
+            Counters.Clear();
+            Counters.Add(typeof(TerminatedWithoutError), 0);
+            Counters.Add(typeof(TerminatedAtFailingAssert), 0);
+            Counters.Add(typeof(TerminatedAtUnsatisfiableEntryRequires), 0);
+            Counters.Add(typeof(TerminatedAtFailingRequires), 0);
+            Counters.Add(typeof(TerminatedAtFailingEnsures), 0);
+            Counters.Add(typeof(TerminatedAtUnsatisfiableAssume), 0);
+            Counters.Add(typeof(TerminatedAtUnsatisfiableEnsures), 0);
+            Counters.Add(typeof(TerminatedAtUnsatisfiableAxiom), 0);
+            Counters.Add(typeof(TerminatedWithDisallowedSpeculativePath), 0);
+            Counters.Add(typeof(TerminatedAtGotoWithUnsatisfiableTargets), 0);
         }
+
 
         public override string ToString()
         {
-            return string.Format("[TerminationCounter:\n" +
-                                 "  Sucesses={0}\n" +
-                                 "  FailingAsserts={1},\n" +
-                                 "  UnsatisfiableRequiresOnEntry={2}\n" +
-                                 "  FailingRequires={3}\n" +
-                                 "  FailingEnsures={4}\n" +
-                                 "  UnsatisfiableAssumes={5}\n" +
-                                 "  UnsatisfiableEnsures={6}\n" +
-                                 "  UnsatisfiableAxioms={7}\n" +
-                                 "  DisallowedSpeculativePath={8}\n" +
-                                 "  UnexplorableGotos={9}\n" +
-                                 "]",
-                                 Sucesses,
-                                 FailingAsserts,
-                                 UnsatisfiableRequiresOnEntry,
-                                 FailingRequires,
-                                 FailingEnsures,
-                                 UnsatisfiableAssumes,
-                                 UnsatisfiableEnsures,
-                                 UnsatisfiableAxioms,
-                                 DisallowedSpeculativePaths,
-                                 UnexplorableGotos);
+            var output = "[TerminationCounter:\n";
+
+            foreach (var terminationTypeCounterPair in Counters)
+            {
+                output += "  " + terminationTypeCounterPair.Key.ToString() + "=" + terminationTypeCounterPair.Value + "\n";
+            }
+
+            output += "]\n";
+
+            return output;
         }
 
     }
