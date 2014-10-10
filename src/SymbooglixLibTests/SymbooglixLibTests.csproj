@@ -116,6 +116,7 @@
     <Compile Include="Transforms\InstructionStatisticsAnnotation.cs" />
     <Compile Include="InstructionStatisticsTests.cs" />
     <Compile Include="EntryPoints.cs" />
+    <Compile Include="StateScheduling.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -291,6 +292,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\assume_nontrivial.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\SimpleLoop.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
