@@ -1,6 +1,7 @@
 ﻿using Microsoft.Boogie;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Symbooglix;
 
@@ -98,6 +99,63 @@ namespace SymbooglixLibTests
         public void ExploreAllStatesDFS()
         {
             SimpleLoop(new DFSStateScheduler());
+        }
+
+        [Test()]
+        public void ExploreOrderDFS()
+        {
+            p = loadProgram("programs/StateScheduleTest.bpl");
+            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            var main = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
+
+            var entryBlock = main.Blocks[0];
+            Assert.AreEqual("entry", entryBlock.Label);
+
+            // Collect "l<N>" blocks
+            var l = new List<Block>();
+            for (int index = 0; index <= 5; ++index)
+            {
+                l.Add(main.Blocks[index + 1]);
+                Assert.AreEqual("l" + index, l[index].Label);
+            }
+
+            int changed = 0;
+            e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs eventArgs)
+            {
+                switch(changed)
+                {
+                    case 0:
+                        Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
+                        Assert.AreSame(l[2],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[3],eventArgs.Next.GetCurrentBlock());
+                        break;
+                    case 1:
+                        Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
+                        Assert.AreSame(l[3],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[4],eventArgs.Next.GetCurrentBlock());
+                        break;
+                    case 2:
+                        Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
+                        Assert.AreSame(l[4],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[5],eventArgs.Next.GetCurrentBlock());
+                        break;
+                    default:
+                        Assert.Fail("Too many context changes");
+                        break;
+                }
+                ++changed;
+            };
+
+            e.Run(main);
+
+            Assert.AreEqual(3, changed);
         }
     }
 }
