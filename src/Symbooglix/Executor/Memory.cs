@@ -182,7 +182,7 @@ namespace Symbooglix
             TW.Write(indentStr + "Current instruction : ");
             if (CurrentInstruction.Current != null)
             {
-                TW.WriteLine(CurrentInstruction.Current.tok.filename + ":" +
+                TW.WriteLine("(" + CurrentInstruction.Current.tok.filename + ":" +
                 CurrentInstruction.Current.tok.line + ") " +
                 CurrentInstruction.Current.ToString().TrimEnd('\n')
                 );
