@@ -107,7 +107,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TerminateWithoutError()
         {
-            InitAndRun<TerminatedWithoutError>("programs/assert_true.bpl");
+            var terminationType = InitAndRun<TerminatedWithoutError>("programs/assert_true.bpl");
+            Assert.AreEqual(1, terminationType.State.Mem.Stack.Count);
         }
 
 

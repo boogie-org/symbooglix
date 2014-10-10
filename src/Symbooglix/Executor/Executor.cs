@@ -853,12 +853,11 @@ namespace Symbooglix
                 ImplementationLeft(this, new LeaveImplementationEventArgs(CurrentState.GetCurrentStackFrame().Impl));
 
             // Pop stack frame
-            CurrentState.LeaveImplementation();
-
-            // If the stack frame is empty after poping the previous stack then we have
-            // finished execution of the current state.
-            if (CurrentState.Mem.Stack.Count == 0)
+            if (CurrentState.Mem.Stack.Count > 1)
+                CurrentState.LeaveImplementation();
+            else
             {
+                // We've finished execution. We deliberately don't pop the stack frame so it can be examined
                 TerminateState(CurrentState, new TerminatedWithoutError(c));
             }
         }
