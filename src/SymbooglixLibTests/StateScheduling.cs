@@ -102,23 +102,36 @@ namespace SymbooglixLibTests
         }
 
         [Test()]
-        public void ExploreOrderDFS()
+        public void ExploreAllStatesUntilTerminationBFS()
+        {
+            SimpleLoop(new UntilTerminationBFSStateScheduler());
+        }
+
+        private void ExploreOrderInit(IStateScheduler scheduler, out Implementation main, out Block entryBlock, out List<Block> l)
         {
             p = loadProgram("programs/StateScheduleTest.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e = getExecutor(p, scheduler, GetSolver());
 
-            var main = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
-
-            var entryBlock = main.Blocks[0];
+            main = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
+            entryBlock = main.Blocks[0];
             Assert.AreEqual("entry", entryBlock.Label);
 
             // Collect "l<N>" blocks
-            var l = new List<Block>();
+            l = new List<Block>();
             for (int index = 0; index <= 5; ++index)
             {
                 l.Add(main.Blocks[index + 1]);
                 Assert.AreEqual("l" + index, l[index].Label);
             }
+        }
+
+        [Test()]
+        public void ExploreOrderDFS()
+        {
+            List<Block> l;
+            Block entryBlock;
+            Implementation main;
+            ExploreOrderInit(new DFSStateScheduler(), out main, out entryBlock, out l);
 
             int changed = 0;
             e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs eventArgs)
@@ -157,6 +170,60 @@ namespace SymbooglixLibTests
                     case 3:
                         Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
                         Assert.AreSame(l[4],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[5],eventArgs.Next.GetCurrentBlock());
+                        break;
+                    default:
+                        Assert.Fail("Too many context changes");
+                        break;
+                }
+                ++changed;
+            };
+
+            e.Run(main);
+
+            Assert.AreEqual(4, changed);
+        }
+
+        [Test()]
+        public void ExploreOrderUntilEndBFS()
+        {
+            List<Block> l;
+            Block entryBlock;
+            Implementation main;
+            ExploreOrderInit(new UntilTerminationBFSStateScheduler(), out main, out entryBlock, out l);
+
+            int changed = 0;
+            e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs eventArgs)
+            {
+                switch(changed)
+                {
+                    case 0:
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[2],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[1],eventArgs.Next.GetCurrentBlock());
+                        break;
+                    case 1:
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[4],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[2],eventArgs.Next.GetCurrentBlock());
+                        break;
+                    case 2:
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[3],eventArgs.Next.GetCurrentBlock());
+                        break;
+
+                    case 3:
+                        Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
+                        Assert.AreSame(l[3],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
                         Assert.IsFalse(eventArgs.Next.Finished());
                         Assert.AreSame(l[5],eventArgs.Next.GetCurrentBlock());
