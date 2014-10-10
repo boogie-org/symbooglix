@@ -126,20 +126,35 @@ namespace SymbooglixLibTests
                 switch(changed)
                 {
                     case 0:
-                        Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[2],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
                         Assert.IsFalse(eventArgs.Next.Finished());
                         Assert.AreSame(l[3],eventArgs.Next.GetCurrentBlock());
                         break;
                     case 1:
-                        Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[3],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
+                        /* FIXME: At a three way branch we schedule l0, l2, l1 rather than
+                         * l0, l1, l2. i.e. we aren't going left to right over the GotoCmd targets.
+                         * This is because the DFSScheduler executes the last added state first so it executes the ExecutionState
+                         * going to l2 before the state going to l1.
+                         *
+                         * I'm not sure this is desirable.
+                         */
                         Assert.IsFalse(eventArgs.Next.Finished());
-                        Assert.AreSame(l[4],eventArgs.Next.GetCurrentBlock());
+                        Assert.AreSame(l[2],eventArgs.Next.GetCurrentBlock());
                         break;
                     case 2:
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[1],eventArgs.Next.GetCurrentBlock());
+                        break;
+
+                    case 3:
                         Assert.IsTrue(eventArgs.Previous.TerminationType is TerminatedWithoutError);
                         Assert.AreSame(l[4],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
@@ -155,7 +170,7 @@ namespace SymbooglixLibTests
 
             e.Run(main);
 
-            Assert.AreEqual(3, changed);
+            Assert.AreEqual(4, changed);
         }
     }
 }

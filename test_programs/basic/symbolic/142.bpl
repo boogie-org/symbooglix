@@ -31,6 +31,6 @@ requires (x < 3);
 }
 
 // FIXME: This is fragile
-// CHECK-L: State 76: Terminated without error
-// CHECK-L: State 77: Terminated without error
+// CHECK-L: State 40: Terminated without error
+// CHECK-L: State 78: Terminated without error
 

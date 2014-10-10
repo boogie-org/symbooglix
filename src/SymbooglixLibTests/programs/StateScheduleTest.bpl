@@ -1,7 +1,7 @@
 procedure main(bound:int)
 {
     entry:
-        goto l0, l1;
+        goto l0, l1, l2;
 
     l0:
         goto l2, l3;

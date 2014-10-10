@@ -17,9 +17,6 @@ namespace SymbooglixLibTests
             e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs contextChangeEventArgs)
             {
                 ++count;
-
-                // This change in IDs only works with the DFSStateScheduler
-                Assert.IsTrue(contextChangeEventArgs.Previous.Id < contextChangeEventArgs.Next.Id, "Unexpected context change");
             };
 
             e.Run(getMain(p));
