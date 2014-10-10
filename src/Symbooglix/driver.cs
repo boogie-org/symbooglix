@@ -72,6 +72,15 @@ namespace Symbooglix
             [Option("output-dir", DefaultValue="", HelpText="Directory to place Executor log files. By default a symbooglix-<N> directory is used")]
             public string outputDir { get; set; }
 
+            public enum Scheduler
+            {
+                DFS,
+                UntilEndBFS
+            }
+
+            [Option("scheduler", DefaultValue = Scheduler.DFS, HelpText="State scheduler to use")]
+            public Scheduler scheduler { get; set; }
+
             // FIXME: The command line library should tell the user what are the valid values
             [Option("solver", DefaultValue = Solver.Z3, HelpText = "Solver to use (valid values CVC4, DUMMY, Z3)")]
             public Solver solver { get; set; }
@@ -200,7 +209,8 @@ namespace Symbooglix
             }
 
 
-            IStateScheduler scheduler = new DFSStateScheduler();
+            IStateScheduler scheduler = GetScheduler(options);
+            Console.WriteLine("Using Scheduler: {0}", scheduler.ToString());
 
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
@@ -355,6 +365,19 @@ namespace Symbooglix
                 Console.WriteLine(terminationCounter.ToString());
             }
             return 0;
+        }
+
+        public static IStateScheduler GetScheduler(CmdLineOpts options)
+        {
+            switch (options.scheduler)
+            {
+                case CmdLineOpts.Scheduler.DFS:
+                    return new DFSStateScheduler();
+                case CmdLineOpts.Scheduler.UntilEndBFS:
+                    return new UntilTerminationBFSStateScheduler();
+                default:
+                    throw new ArgumentException("Unsupported scheduler");
+            }
         }
 
         public static Solver.ISolver BuildSolverChain(CmdLineOpts options)
