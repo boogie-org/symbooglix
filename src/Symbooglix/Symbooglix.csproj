@@ -104,6 +104,7 @@
     <Compile Include="Executor\StateSchedulers\StateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\DFSStateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\UntilTerminationBFSStateScheduler.cs" />
+    <Compile Include="Executor\StateSchedulers\BFSStateScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

@@ -107,6 +107,13 @@ namespace SymbooglixLibTests
             SimpleLoop(new UntilTerminationBFSStateScheduler());
         }
 
+        [Test()]
+        public void ExploreAllStatesBFS()
+        {
+            // TODO: SimpleLoop() assumes DFS can't use it
+            //SimpleLoop(new BFSStateScheduler());
+        }
+
         private void ExploreOrderInit(IStateScheduler scheduler, out Implementation main, out Block entryBlock, out List<Block> l)
         {
             p = loadProgram("programs/StateScheduleTest.bpl");

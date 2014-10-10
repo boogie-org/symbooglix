@@ -75,6 +75,7 @@ namespace Symbooglix
             public enum Scheduler
             {
                 DFS,
+                BFS,
                 UntilEndBFS
             }
 
@@ -373,6 +374,8 @@ namespace Symbooglix
             {
                 case CmdLineOpts.Scheduler.DFS:
                     return new DFSStateScheduler();
+                case CmdLineOpts.Scheduler.BFS:
+                    return new BFSStateScheduler();
                 case CmdLineOpts.Scheduler.UntilEndBFS:
                     return new UntilTerminationBFSStateScheduler();
                 default:
