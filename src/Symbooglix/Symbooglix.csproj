@@ -102,6 +102,7 @@
     <Compile Include="Executor\CallGrindFilePrinter.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationCounterLogger.cs" />
     <Compile Include="Executor\StateSchedulers\StateScheduler.cs" />
+    <Compile Include="Executor\StateSchedulers\DFSStateScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
