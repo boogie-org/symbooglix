@@ -20,21 +20,6 @@ namespace Symbooglix
             return States[0];
         }
 
-        public void UpdateStates(List<ExecutionState> toAdd, List<ExecutionState> toRemove)
-        {
-            foreach(ExecutionState e in toRemove)
-            {
-                Debug.Assert(States.Contains(e));
-                States.Remove(e);
-            }
-
-            // Add to end of List
-            foreach(ExecutionState e in toAdd)
-            {
-                States.Add(e);
-            }
-        }
-
         public int GetNumberOfStates() { return States.Count;}
 
         public void AddState (ExecutionState toAdd)
