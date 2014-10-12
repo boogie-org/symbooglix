@@ -45,6 +45,7 @@ namespace Symbooglix
         public void AddChild(ExecutionTreeNode node)
         {
             Debug.Assert(node != null, "Child cannot be null");
+            Debug.Assert(node != this, "Cannot have cycles");
             Children.Add(node);
         }
 
