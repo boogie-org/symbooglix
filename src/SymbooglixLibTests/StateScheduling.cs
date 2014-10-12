@@ -201,6 +201,7 @@ namespace SymbooglixLibTests
             Implementation main;
             ExploreOrderInit(new UntilTerminationBFSStateScheduler(), out main, out entryBlock, out l);
 
+            // Is this actually correct?
             int changed = 0;
             e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs eventArgs)
             {
@@ -245,6 +246,117 @@ namespace SymbooglixLibTests
             e.Run(main);
 
             Assert.AreEqual(4, changed);
+        }
+
+        [Test()]
+        public void ExploreOrderBFS()
+        {
+            List<Block> l;
+            Block entryBlock;
+            Implementation main;
+            ExploreOrderInit(new BFSStateScheduler(), out main, out entryBlock, out l);
+
+            int changed = 0;
+            int previousStateId = 0;
+            e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs eventArgs)
+            {
+
+                switch(changed)
+                {
+                    case 0:
+                        Assert.IsFalse(eventArgs.Previous.Finished());
+                        Assert.AreSame(l[0],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(1, eventArgs.Previous.ExplicitBranchDepth);
+
+                        /* Depth 0 explored */
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[1],eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(1, eventArgs.Next.ExplicitBranchDepth);
+                        previousStateId = eventArgs.Next.Id;
+                        break;
+                    case 1:
+                        Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
+                        Assert.IsFalse(eventArgs.Previous.Finished());
+                        Assert.AreSame(l[4],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth); // Changing context because have gone deeper
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[2],eventArgs.Next.GetCurrentBlock());
+                        previousStateId = eventArgs.Next.Id;
+                        break;
+                    case 2:
+                        Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(1, eventArgs.Previous.ExplicitBranchDepth);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        // Now resuming execution of initial state
+                        Assert.AreSame(l[0],eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(1, eventArgs.Next.ExplicitBranchDepth);
+                        previousStateId = eventArgs.Next.Id;
+                        break;
+                    case 3:
+                        Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
+                        Assert.IsFalse(eventArgs.Previous.Finished());
+                        // Original state has made it to block l2
+                        Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth); // Changing context because have gone deeper
+
+                        /* Depth 1 explored ? */
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[5],eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Next.ExplicitBranchDepth);
+                        previousStateId = eventArgs.Next.Id;
+                        break;
+                    case 4:
+                        Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[5],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[4], eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Next.ExplicitBranchDepth);
+                        previousStateId = eventArgs.Next.Id;
+                        break;
+                    case 5:
+                        Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[4],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[3], eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Next.ExplicitBranchDepth);
+                        previousStateId = eventArgs.Next.Id;
+                        break;
+                    case 6:
+                        Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.AreSame(l[3],eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth);
+
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        Assert.AreSame(l[2], eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(2, eventArgs.Next.ExplicitBranchDepth);
+                        break;
+                    default:
+                        Assert.Fail("Too many context changes");
+                        break;
+                }
+                ++changed;
+            };
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+
+            e.Run(main);
+            Assert.AreEqual(7, changed);
+            Assert.AreEqual(5, tc.Sucesses);
+            Assert.AreEqual(5, tc.NumberOfTerminatedStates);
         }
     }
 }
