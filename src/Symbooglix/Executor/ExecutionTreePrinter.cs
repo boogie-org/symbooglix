@@ -53,9 +53,6 @@ namespace Symbooglix
 
         protected virtual void PrintNode(TextWriter TW, ExecutionTreeNode node)
         {
-            if (node.ChildrenCount == 0)
-                return;
-
             // Declare node
             TW.Write("{0} [", GetNodeID(node));
 
@@ -63,6 +60,9 @@ namespace Symbooglix
             TW.Write(GetNodeAttributes(node));
 
             TW.WriteLine("];");
+
+            if (node.ChildrenCount == 0)
+                return;
 
             // Visit Children
             for (int index = 0; index < node.ChildrenCount; ++index)
