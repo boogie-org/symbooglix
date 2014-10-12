@@ -24,6 +24,13 @@ namespace Symbooglix
             private set;
         }
 
+        public ExecutionTreeNode TreeNode
+        {
+            get;
+            internal set;
+        }
+
+
         /// <summary>
         /// Gets the explicit branch depth. This is considered to be the number of goto
         /// instructions the state has executed past that have more than one target.
@@ -67,6 +74,8 @@ namespace Symbooglix
             TerminationType = null;
             Speculative = false;
             ExplicitBranchDepth = 0;
+            TreeNode = new ExecutionTreeNode(this, null, null);
+
         }
 
         public ExecutionState DeepClone()

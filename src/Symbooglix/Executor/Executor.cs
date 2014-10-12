@@ -159,6 +159,17 @@ namespace Symbooglix
 
         public event EventHandler<ContextChangeEventArgs> ContextChanged;
 
+        public ExecutionTreeNode TreeRoot
+        {
+            get
+            {
+                if (InitialState == null)
+                    return null;
+                else
+                    return InitialState.TreeNode;
+            }
+        }
+
         private Object PrepareProgramLock = new object();
         public bool PrepareProgram(Transform.PassManager passManager = null)
         {
@@ -343,7 +354,7 @@ namespace Symbooglix
 
                 // Clone the state so we can keep the special initial state around
                 // if we want run() to be called again with a different entry point.
-                CurrentState = Fork(InitialState);
+                CurrentState = Fork(InitialState, null);
 
                 StateScheduler.AddState(CurrentState);
             
@@ -1049,7 +1060,7 @@ namespace Symbooglix
                 // We need to fork and duplicate the states
                 // Or do we? Copying the state just so we can inform
                 // the handlers about it seems wasteful...
-                ExecutionState failingState = Fork(CurrentState);
+                ExecutionState failingState = Fork(CurrentState, location);
 
                 if (failureIsSpeculative)
                     failingState.MakeSpeculative();
@@ -1174,7 +1185,7 @@ namespace Symbooglix
                 for (int targetId = 1, tEnd = c.labelTargets.Count; targetId < tEnd; ++targetId)
                 {
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
-                    newState = Fork(CurrentState); // FIXME: This is not memory efficient
+                    newState = Fork(CurrentState, c.GetProgramLocation()); // FIXME: This is not memory efficient
                     c.GetInstructionStatistics().IncrementForks();
                     newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
                     StateScheduler.AddState(newState);
@@ -1183,6 +1194,10 @@ namespace Symbooglix
 
             // The current execution state will always take the first target
             CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
+
+            // Create new node in ExecutionTree
+            var oldNode = CurrentState.TreeNode;
+            CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, oldNode, c.GetProgramLocation());
         }
 
         private struct LookAheadInfo
@@ -1266,7 +1281,7 @@ namespace Symbooglix
             // Create new ExecutionStates for the other blocks
             for (int index = 1; index < blocksToExecute.Count; ++index)
             {
-                var newState = Fork(CurrentState);
+                var newState = Fork(CurrentState, c.GetProgramLocation());
                 c.GetInstructionStatistics().IncrementForks();
                 forkingStates.Add(newState);
             }
@@ -1312,6 +1327,12 @@ namespace Symbooglix
                 // Add the new states to the scheduler
                 if (theState != CurrentState)
                     StateScheduler.AddState(theState);
+                else
+                {
+                    // Setup new node
+                    var oldNode = CurrentState.TreeNode;
+                    CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, oldNode, c.GetProgramLocation());
+                }
             }
         }
 
@@ -1368,9 +1389,13 @@ namespace Symbooglix
             throw new NotImplementedException ();
         }
 
-        protected ExecutionState Fork(ExecutionState stateToFork)
+        protected ExecutionState Fork(ExecutionState stateToFork, ProgramLocation createdAt)
         {
-            return stateToFork.DeepClone();
+            var newState = stateToFork.DeepClone();
+
+            // Should DeepClone() handle this instead?
+            newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);
+            return newState;
         }
 
     }

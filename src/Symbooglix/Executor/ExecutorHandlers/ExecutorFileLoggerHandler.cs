@@ -96,6 +96,7 @@ namespace Symbooglix
             Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
             Loggers.Add(new BoogieProgramLogger(this.RootDir.FullName));
             Loggers.Add(new TerminationCounterLogger(this.RootDir.FullName));
+            Loggers.Add(new ExecutionTreeLogger(this.RootDir.FullName));
         }
 
         private void Connect()
