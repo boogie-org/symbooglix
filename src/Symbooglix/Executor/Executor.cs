@@ -343,7 +343,7 @@ namespace Symbooglix
 
                 // Clone the state so we can keep the special initial state around
                 // if we want run() to be called again with a different entry point.
-                CurrentState = InitialState.DeepClone();
+                CurrentState = Fork(InitialState);
 
                 StateScheduler.AddState(CurrentState);
             
@@ -1049,7 +1049,7 @@ namespace Symbooglix
                 // We need to fork and duplicate the states
                 // Or do we? Copying the state just so we can inform
                 // the handlers about it seems wasteful...
-                ExecutionState failingState = CurrentState.DeepClone();
+                ExecutionState failingState = Fork(CurrentState);
 
                 if (failureIsSpeculative)
                     failingState.MakeSpeculative();
@@ -1174,7 +1174,7 @@ namespace Symbooglix
                 for (int targetId = 1, tEnd = c.labelTargets.Count; targetId < tEnd; ++targetId)
                 {
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
-                    newState = CurrentState.DeepClone(); // FIXME: This is not memory efficient
+                    newState = Fork(CurrentState); // FIXME: This is not memory efficient
                     c.GetInstructionStatistics().IncrementForks();
                     newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
                     StateScheduler.AddState(newState);
@@ -1266,7 +1266,7 @@ namespace Symbooglix
             // Create new ExecutionStates for the other blocks
             for (int index = 1; index < blocksToExecute.Count; ++index)
             {
-                var newState = CurrentState.DeepClone();
+                var newState = Fork(CurrentState);
                 c.GetInstructionStatistics().IncrementForks();
                 forkingStates.Add(newState);
             }
@@ -1366,6 +1366,11 @@ namespace Symbooglix
         {
             c.GetInstructionStatistics().IncrementCovered();
             throw new NotImplementedException ();
+        }
+
+        protected ExecutionState Fork(ExecutionState stateToFork)
+        {
+            return stateToFork.DeepClone();
         }
 
     }
