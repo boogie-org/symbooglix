@@ -167,7 +167,7 @@ namespace Symbooglix
             }
 
            
-            Program p = null;
+            Program program = null;
 
             if (options.Defines != null)
             {
@@ -175,7 +175,7 @@ namespace Symbooglix
                     Console.WriteLine("Adding define \"" + define + "\" to Boogie parser");
             }
 
-            int errors = Microsoft.Boogie.Parser.Parse(options.boogieProgramPath, options.Defines, out p);
+            int errors = Microsoft.Boogie.Parser.Parse(options.boogieProgramPath, options.Defines, out program);
 
             if (errors != 0)
             {
@@ -183,7 +183,7 @@ namespace Symbooglix
                 return 1;
             }
 
-            errors = p.Resolve();
+            errors = program.Resolve();
 
             if (errors != 0)
             {
@@ -199,10 +199,10 @@ namespace Symbooglix
                 // procedures in the program to be correct so that Boogie's Type checker doesn't
                 // produce an error.
                 var modsetAnalyser = new ModSetCollector();
-                modsetAnalyser.DoModSetAnalysis(p);
+                modsetAnalyser.DoModSetAnalysis(program);
             }
 
-            errors = p.Typecheck();
+            errors = program.Typecheck();
 
             if (errors != 0)
             {
@@ -217,7 +217,7 @@ namespace Symbooglix
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
             {
-                Executor e = new Executor(p, scheduler, solver);
+                Executor executor = new Executor(program, scheduler, solver);
 
                 // Check all implementations exist and build list of entry points to execute
                 var entryPoints = new List<Implementation>();
@@ -225,7 +225,7 @@ namespace Symbooglix
                 // This is specific to GPUVerify
                 if (options.gpuverifyEntryPoints)
                 {
-                    var kernels = p.TopLevelDeclarations.OfType<Implementation>().Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes,"kernel"));
+                    var kernels = program.TopLevelDeclarations.OfType<Implementation>().Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes,"kernel"));
                     foreach (var kernel in kernels)
                     {
                         entryPoints.Add(kernel);
@@ -245,7 +245,7 @@ namespace Symbooglix
 
                     foreach (var implString in options.entryPoints)
                     {
-                        Implementation entry = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == implString).FirstOrDefault();
+                        Implementation entry = program.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == implString).FirstOrDefault();
                         if (entry == null)
                         {
                             Console.WriteLine("Could not find implementation \"" + implString + "\" to use as entry point");
@@ -259,51 +259,51 @@ namespace Symbooglix
                 {
                     Console.WriteLine("Installing instruction printer");
                     var instrPrinter = new InstructionPrinter(Console.Out);
-                    instrPrinter.Connect(e);
+                    instrPrinter.Connect(executor);
                 }
 
                 if (options.useCallSequencePrinter)
                 {
                     Console.WriteLine("Installing call sequence printer");
                     var callPrinter = new CallPrinter(Console.Out);
-                    callPrinter.Connect(e);
+                    callPrinter.Connect(executor);
                 }
 
                 if (options.useConstantFolding > 0)
                 {
-                    e.UseConstantFolding = true;
+                    executor.UseConstantFolding = true;
                 }
                 else
                 {
-                    e.UseConstantFolding = false;
+                    executor.UseConstantFolding = false;
                 }
 
                 if (options.gotoAssumeLookAhead > 0)
                 {
-                    e.UseGotoLookAhead = true;
+                    executor.UseGotoLookAhead = true;
                 }
                 else
                 {
-                    e.UseGotoLookAhead = false;
+                    executor.UseGotoLookAhead = false;
                 }
 
                 // Just print a message about break points for now.
-                e.BreakPointReached += BreakPointPrinter.handleBreakPoint;
+                executor.BreakPointReached += BreakPointPrinter.handleBreakPoint;
 
                 // Write to the console about context changes
                 var contextChangeReporter = new ContextChangedReporter();
-                contextChangeReporter.Connect(e);
+                contextChangeReporter.Connect(executor);
 
                 var stateHandler = new TerminationConsoleReporter();
-                stateHandler.Connect(e);
+                stateHandler.Connect(executor);
 
                 var terminationCounter = new TerminationCounter();
-                terminationCounter.Connect(e);
+                terminationCounter.Connect(executor);
 
-                SetupFileLoggers(options, e);
+                SetupFileLoggers(options, executor);
 
                 // Supply our own PassManager for preparation so we can hook into its events
-                e.PrepareProgram(GetPassManager(options,p));
+                executor.PrepareProgram(GetPassManager(options,program));
 
                 foreach (var entryPoint in entryPoints)
                 {
@@ -313,7 +313,7 @@ namespace Symbooglix
 
                     try
                     {
-                        e.Run(entryPoint, options.timeout);
+                        executor.Run(entryPoint, options.timeout);
                     }
                     catch(ExecuteTerminatedStateException)
                     {
@@ -329,13 +329,13 @@ namespace Symbooglix
             return 0;
         }
 
-        public static void SetupFileLoggers(CmdLineOpts options, Executor e)
+        public static void SetupFileLoggers(CmdLineOpts options, Executor executor)
         {
             ExecutorFileLoggerHandler executorLogger = null;
             if (options.outputDir.Length == 0)
-                executorLogger = new ExecutorFileLoggerHandler(e, Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
+                executorLogger = new ExecutorFileLoggerHandler(executor, Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
             else
-                executorLogger = new ExecutorFileLoggerHandler(e, options.outputDir, /*makeDirectoryInPath=*/ false);
+                executorLogger = new ExecutorFileLoggerHandler(executor, options.outputDir, /*makeDirectoryInPath=*/ false);
 
             // Add our loggers
             executorLogger.AddRootDirLogger(new CallGrindFileLogger());
@@ -351,10 +351,10 @@ namespace Symbooglix
             Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
         }
 
-        public static Transform.PassManager GetPassManager(CmdLineOpts options, Program p)
+        public static Transform.PassManager GetPassManager(CmdLineOpts options, Program program)
         {
             // Supply our own PassManager for preparation so we can hook into its events
-            var PM = new Transform.PassManager(p);
+            var PM = new Transform.PassManager(program);
 
             // Use anonymous methods so we can use closure to read command line options
             Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
