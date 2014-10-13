@@ -258,7 +258,6 @@ namespace Symbooglix
                 if (options.useInstructionPrinter)
                 {
                     Console.WriteLine("Installing instruction printer");
-                    //e.RegisterPreEventHandler(new InstructionPrinter());
                     var instrPrinter = new InstructionPrinter(Console.Out);
                     instrPrinter.Connect(e);
                 }
@@ -266,7 +265,6 @@ namespace Symbooglix
                 if (options.useCallSequencePrinter)
                 {
                     Console.WriteLine("Installing call sequence printer");
-                    //e.RegisterPreEventHandler(new CallSequencePrinter());
                     var callPrinter = new CallPrinter(Console.Out);
                     callPrinter.Connect(e);
                 }
