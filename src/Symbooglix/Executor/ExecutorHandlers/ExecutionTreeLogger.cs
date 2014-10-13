@@ -68,10 +68,12 @@ namespace Symbooglix
 
         protected override void PrintAdditionalEdges(TextWriter TW, ExecutionTreeNode root)
         {
+            int counter = 0;
             TW.WriteLine("/* Context changes */");
             foreach (var pair in this.ContextChanges)
             {
-                TW.WriteLine("{0} -> {1} [color=red];", GetNodeID(pair.Item1.State.TreeNode), GetNodeID(pair.Item2.State.TreeNode));
+                TW.WriteLine("{0} -> {1} [color=red, label=\"{2}\"];", GetNodeID(pair.Item1.State.TreeNode), GetNodeID(pair.Item2.State.TreeNode), counter);
+                ++counter;
             }
         }
     }
