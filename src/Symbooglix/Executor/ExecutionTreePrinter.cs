@@ -87,7 +87,7 @@ namespace Symbooglix
             var attr = string.Format("shape=record,label=\"{0}", GetNodeID(node));
 
             if (node.CreatedAt != null)
-                attr += string.Format("\\n{0}:{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString().TrimEnd('\n'));
+                attr += string.Format("\\n{0}:{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString());
 
             bool terminated = ( node.ChildrenCount == 0 ) && node.State.TerminationType != null;
 

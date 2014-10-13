@@ -71,7 +71,7 @@ namespace Symbooglix
             TW.WriteLine("/* Context changes */");
             foreach (var pair in this.ContextChanges)
             {
-                TW.WriteLine(" {0} -> {1} [color=red];", GetNodeID(pair.Item1.State.TreeNode), GetNodeID(pair.Item2.State.TreeNode));
+                TW.WriteLine("{0} -> {1} [color=red];", GetNodeID(pair.Item1.State.TreeNode), GetNodeID(pair.Item2.State.TreeNode));
             }
         }
     }

@@ -75,17 +75,10 @@ namespace Symbooglix
             Debug.Assert(ExitLocation.IsTransferCmd && ExitLocation.AsTransferCmd is ReturnCmd);
 
             var returnCmd = ExitLocation.AsTransferCmd as ReturnCmd;
-            string line = "";
-            using (var SW = new StringWriter())
-            {
-                returnCmd.Emit(new TokenTextWriter("", SW, /*setTokens=*/false, /*pretty=*/false), 0);
-                line = SW.ToString();
-            }
-
             return "Terminated without error at " +
-                returnCmd.tok.filename + ":" +
-                returnCmd.tok.line + " " +
-                line;
+            returnCmd.tok.filename + ":" +
+            returnCmd.tok.line + " " +
+            returnCmd.GetProgramLocation().Line;
         }
 
         public ExecutionState State

@@ -31,6 +31,17 @@ namespace Symbooglix
             }
         }
 
+        public string Line
+        {
+            get
+            {
+                if (Location is Absy)
+                    return ( Location as Absy ).ToString().TrimEnd('\n');
+                else
+                    return "";
+            }
+        }
+
         public InstructionStatistics InstrStatistics
         {
             get
@@ -209,7 +220,7 @@ namespace Symbooglix
             else if (IsCmd)
                 return "[Cmd] " + AsCmd.ToString().TrimEnd('\n');
             else if (IsTransferCmd)
-                return "[TransferCmd] " + AsTransferCmd.ToString();
+                return "[TransferCmd] " + AsTransferCmd.ToString().TrimEnd('\n');
             else if (IsRequires)
                 return "[Requires] " + AsRequires.Condition.ToString();
             else if (IsEnsures)
