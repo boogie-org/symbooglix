@@ -79,9 +79,6 @@ namespace Symbooglix
         protected virtual string GetNodeID(ExecutionTreeNode node)
         {
             var id = string.Format("S{0}_{1}", (node.State.Id <0)?("m" + (node.State.Id*-1).ToString()):node.State.Id.ToString(), node.Depth);
-
-            if (node.ChildrenCount == 0)
-                id += "_term";
             return id;
         }
 
@@ -92,7 +89,9 @@ namespace Symbooglix
             if (node.CreatedAt != null)
                 attr += string.Format("\\n{0}:{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString());
 
-            if (node.ChildrenCount == 0)
+            bool terminated = ( node.ChildrenCount == 0 ) && node.State.TerminationType != null;
+
+            if (terminated)
             {
                 attr += "\\nTermination:" + EscapeLabelText(node.State.TerminationType.GetMessage());
             }
@@ -100,7 +99,7 @@ namespace Symbooglix
             // Close label
             attr += "\"";
 
-            if (node.ChildrenCount == 0)
+            if (terminated)
             {
                 attr += ",style=filled, fillcolor=";
                 if (node.State.TerminationType is TerminatedWithoutError)
