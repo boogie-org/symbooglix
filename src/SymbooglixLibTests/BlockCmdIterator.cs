@@ -27,7 +27,7 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(2, cmdStrings.Count);
             Assert.AreEqual("assert {:symbooglix_bp \"entry\"} true;\n", cmdStrings[0]);
-            Assert.AreEqual("Microsoft.Boogie.GotoCmd", cmdStrings[1]);
+            Assert.AreEqual("goto P0, P1, P2;\n", cmdStrings[1]);
         }
 
         [Test()]
@@ -88,7 +88,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual(1, blockEnumerator.Count);
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("Microsoft.Boogie.GotoCmd", blockEnumerator.Current.ToString());
+            Assert.AreEqual("goto end;\n", blockEnumerator.Current.ToString());
         }
 
         [Test()]
@@ -114,7 +114,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual("assert {:symbooglix_bp \"now_concrete\"} true;\n", blockEnumerator.Current.ToString());
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("Microsoft.Boogie.ReturnCmd", blockEnumerator.Current.ToString());
+            Assert.AreEqual("return;\n", blockEnumerator.Current.ToString());
         }
 
         [Test()]

@@ -14,7 +14,7 @@ namespace Symbooglix
         private void handle(Object executor, Executor.InstructionVisitEventArgs instructionVisitEventArgs)
         {
             var loc = instructionVisitEventArgs.Location;
-            TW.WriteLine(loc.FileName + ":" + loc.LineNumber + ": " + loc.ToString());
+            TW.WriteLine(loc.FileName + ":" + loc.LineNumber + ": " + loc.ToString().TrimEnd('\n'));
         }
 
         public void Connect(Executor e)
