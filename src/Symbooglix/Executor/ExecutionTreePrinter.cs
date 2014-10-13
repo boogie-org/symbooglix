@@ -85,7 +85,7 @@ namespace Symbooglix
 
         protected virtual string GetNodeAttributes(ExecutionTreeNode node)
         {
-            var attr = string.Format("shape=record,label=\"{0}", GetNodeID(node));
+            var attr = string.Format("shape=record,label=\"State:{0}", node.State.Id);
 
             if (node.CreatedAt != null)
                 attr += string.Format("\\nCreated at line {0}\\n{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString());
