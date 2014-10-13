@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 
@@ -138,10 +139,55 @@ namespace Symbooglix
             PrintStartGraph(ITW);
 
             PrintNode(ITW, this.Root);
-
+            PrintNodeRankings(ITW, this.Root);
             PrintAdditionalEdges(ITW, this.Root);
 
             PrintCloseGraph(ITW);
+        }
+
+        protected virtual void PrintNodeRankings(TextWriter TW, ExecutionTreeNode root)
+        {
+            TW.WriteLine("/* Node rankings to enforce tree structure */");
+
+            // Use BFS to group all nodes at the same depth together
+            var queue = new Queue<ExecutionTreeNode>();
+            int currentDepth = root.State.ExplicitBranchDepth -1; // This forces the first creation of a new level
+            bool isFirst = true;
+            queue.Enqueue(root);
+            while (queue.Count > 0)
+            {
+                var node = queue.Dequeue();
+
+                if (node.Depth > currentDepth)
+                {
+                    currentDepth = node.Depth;
+                    if (!isFirst)
+                    {
+                        PopIndent(TW);
+                        TW.WriteLine("}");
+                    }
+
+                    TW.WriteLine("{");
+                    PushIndent(TW);
+                    TW.WriteLine("rank=same;");
+                    isFirst = false;
+                }
+
+                // Output this node
+                TW.WriteLine(GetNodeID(node) + ";");
+
+                // Add its children
+                for (int index = 0; index < node.ChildrenCount; ++index)
+                    queue.Enqueue(node.GetChild(index));
+
+            }
+
+            // emit last closing brace if we created at least one.
+            if (!isFirst)
+            {
+                PopIndent(TW);
+                TW.WriteLine("}");
+            }
         }
     }
 }
