@@ -96,7 +96,6 @@
     <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\MemoryUsageLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorFileLoggerHandler.cs" />
-    <Compile Include="Executor\ExecutorHandlers\BoogieProgramLogger.cs" />
     <Compile Include="Executor\InstructionStatistics.cs" />
     <Compile Include="Annotation\InstructionStatisticsAnnotater.cs" />
     <Compile Include="Executor\CallGrindFilePrinter.cs" />
@@ -110,6 +109,7 @@
     <Compile Include="Executor\ExecutorHandlers\ExecutionTreeLogger.cs" />
     <Compile Include="Executor\StateSchedulers\AlternativeBFSStateScheduler.cs" />
     <Compile Include="Executor\ExecutorHandlers\AbstractExecutorFileLogger.cs" />
+    <Compile Include="Executor\ExecutorHandlers\CallGrindFileLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

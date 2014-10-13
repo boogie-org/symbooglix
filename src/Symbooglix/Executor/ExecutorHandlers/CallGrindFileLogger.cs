@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Symbooglix
 {
-    public class BoogieProgramLogger : AbstractExecutorFileLogger
+    public class CallGrindFileLogger : AbstractExecutorFileLogger
     {
         public string ProgramDestination
         {
@@ -22,7 +22,7 @@ namespace Symbooglix
             private set;
         }
 
-        public BoogieProgramLogger()
+        public CallGrindFileLogger()
         {
 
         }

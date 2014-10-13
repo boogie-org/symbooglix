@@ -342,7 +342,7 @@ namespace Symbooglix
                     executorLogger = new ExecutorFileLoggerHandler(e, options.outputDir, /*makeDirectoryInPath=*/ false);
 
                 // Add our loggers
-                executorLogger.AddRootDirLogger(new BoogieProgramLogger());
+                executorLogger.AddRootDirLogger(new CallGrindFileLogger());
                 executorLogger.AddRootDirLogger(new MemoryUsageLogger());
                 executorLogger.AddRootDirLogger(new TerminationCounterLogger());
                 executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
