@@ -108,6 +108,7 @@
     <Compile Include="Executor\ExecutionTreeNode.cs" />
     <Compile Include="Executor\ExecutionTreePrinter.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutionTreeLogger.cs" />
+    <Compile Include="Executor\StateSchedulers\AlternativeBFSStateScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

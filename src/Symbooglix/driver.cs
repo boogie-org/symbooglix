@@ -76,7 +76,8 @@ namespace Symbooglix
             {
                 DFS,
                 BFS,
-                UntilEndBFS
+                UntilEndBFS,
+                AltBFS
             }
 
             [Option("scheduler", DefaultValue = Scheduler.DFS, HelpText="State scheduler to use")]
@@ -378,6 +379,8 @@ namespace Symbooglix
                     return new BFSStateScheduler();
                 case CmdLineOpts.Scheduler.UntilEndBFS:
                     return new UntilTerminationBFSStateScheduler();
+                case CmdLineOpts.Scheduler.AltBFS:
+                    return new AlternativeBFSStateScheduler();
                 default:
                     throw new ArgumentException("Unsupported scheduler");
             }
