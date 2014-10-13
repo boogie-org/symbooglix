@@ -6,9 +6,6 @@ namespace Symbooglix
 {
     public class BFSStateScheduler : IStateScheduler
     {
-        List<ExecutionState> L1;
-        List<ExecutionState> L2;
-
         List<ExecutionState> AtDepthEqualToOrLessThanN; // It should usually be N
         List<ExecutionState> AtDepthGreaterThanN; // It should usually be N+1
 
@@ -16,11 +13,8 @@ namespace Symbooglix
 
         public BFSStateScheduler()
         {
-            L1 = new List<ExecutionState>();
-            L2 = new List<ExecutionState>();
-
-            AtDepthEqualToOrLessThanN = L1;
-            AtDepthGreaterThanN = L2;
+            AtDepthEqualToOrLessThanN = new List<ExecutionState>();
+            AtDepthGreaterThanN= new List<ExecutionState>();
             DepthN = 0;
         }
 
