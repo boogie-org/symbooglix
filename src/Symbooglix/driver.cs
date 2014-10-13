@@ -302,25 +302,7 @@ namespace Symbooglix
                 var terminationCounter = new TerminationCounter();
                 terminationCounter.Connect(e);
 
-
-                ExecutorFileLoggerHandler executorLogger = null;
-                if (options.outputDir.Length == 0)
-                    executorLogger = new ExecutorFileLoggerHandler(e, Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
-                else
-                    executorLogger = new ExecutorFileLoggerHandler(e, options.outputDir, /*makeDirectoryInPath=*/ false);
-
-                // Add our loggers
-                executorLogger.AddRootDirLogger(new CallGrindFileLogger());
-                executorLogger.AddRootDirLogger(new MemoryUsageLogger());
-                executorLogger.AddRootDirLogger(new TerminationCounterLogger());
-                executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
-
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger());
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger());
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger());
-                executorLogger.Connect();
-
-                Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
+                SetupFileLoggers(options, e);
 
                 // Supply our own PassManager for preparation so we can hook into its events
                 e.PrepareProgram(GetPassManager(options,p));
@@ -347,6 +329,28 @@ namespace Symbooglix
                 Console.WriteLine(terminationCounter.ToString());
             }
             return 0;
+        }
+
+        public static void SetupFileLoggers(CmdLineOpts options, Executor e)
+        {
+            ExecutorFileLoggerHandler executorLogger = null;
+            if (options.outputDir.Length == 0)
+                executorLogger = new ExecutorFileLoggerHandler(e, Directory.GetCurrentDirectory(), /*makeDirectoryInPath=*/ true);
+            else
+                executorLogger = new ExecutorFileLoggerHandler(e, options.outputDir, /*makeDirectoryInPath=*/ false);
+
+            // Add our loggers
+            executorLogger.AddRootDirLogger(new CallGrindFileLogger());
+            executorLogger.AddRootDirLogger(new MemoryUsageLogger());
+            executorLogger.AddRootDirLogger(new TerminationCounterLogger());
+            executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
+
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger());
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger());
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger());
+            executorLogger.Connect();
+
+            Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
         }
 
         public static Transform.PassManager GetPassManager(CmdLineOpts options, Program p)
