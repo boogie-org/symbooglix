@@ -87,13 +87,14 @@ namespace Symbooglix
             var attr = string.Format("shape=record,label=\"{0}", GetNodeID(node));
 
             if (node.CreatedAt != null)
-                attr += string.Format("\\n{0}:{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString());
+                attr += string.Format("\\n{0}:{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString().TrimEnd('\n'));
 
             bool terminated = ( node.ChildrenCount == 0 ) && node.State.TerminationType != null;
 
             if (terminated)
             {
-                attr += "\\nTermination:" + EscapeLabelText(node.State.TerminationType.GetMessage());
+                // FIXME: Fix trailing \n properly
+                attr += "\\nTermination:" + EscapeLabelText(node.State.TerminationType.GetMessage().TrimEnd('\n'));
             }
 
             // Close label
@@ -119,6 +120,11 @@ namespace Symbooglix
             temp = temp.Replace("}", "\\}");
             return temp;
         }
+
+        protected virtual void PrintAdditionalEdges(TextWriter TW, ExecutionTreeNode root)
+        {
+            // For clients to override
+        }
             
         public void Print(TextWriter TW)
         {
@@ -132,6 +138,8 @@ namespace Symbooglix
             PrintStartGraph(ITW);
 
             PrintNode(ITW, this.Root);
+
+            PrintAdditionalEdges(ITW, this.Root);
 
             PrintCloseGraph(ITW);
         }

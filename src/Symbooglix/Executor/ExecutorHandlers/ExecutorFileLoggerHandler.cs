@@ -90,13 +90,14 @@ namespace Symbooglix
 
         protected virtual void SetupLoggers()
         {
+            // FIXME: We should be able to add these dynamically
             Loggers.Add(new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
             Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
             Loggers.Add(new BoogieProgramLogger(this.RootDir.FullName));
             Loggers.Add(new TerminationCounterLogger(this.RootDir.FullName));
-            Loggers.Add(new ExecutionTreeLogger(this.RootDir.FullName));
+            Loggers.Add(new ExecutionTreeLogger(this.RootDir.FullName, true));
         }
 
         private void Connect()
