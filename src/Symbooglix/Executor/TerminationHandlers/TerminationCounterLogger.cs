@@ -3,23 +3,22 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class TerminationCounterLogger : IExecutorEventHandler
+    public class TerminationCounterLogger : AbstractExecutorFileLogger
     {
-        private string Directory;
         private TerminationCounter TCounter;
-        public TerminationCounterLogger(string directory)
+
+        public TerminationCounterLogger()
         {
-            this.Directory = directory;
             TCounter = new TerminationCounter();
         }
 
-        public void Connect(Executor e)
+        public override void Connect(Executor e)
         {
             TCounter.Connect(e);
             e.ExecutorTerminated += handleExecutorTerminated;
         }
 
-        public void Disconnect(Executor e)
+        public override void Disconnect(Executor e)
         {
             TCounter.Disconnect(e);
             e.ExecutorTerminated -= handleExecutorTerminated;

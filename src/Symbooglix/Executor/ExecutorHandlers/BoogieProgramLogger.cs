@@ -8,10 +8,8 @@ using System.Linq;
 
 namespace Symbooglix
 {
-    public class BoogieProgramLogger : IExecutorEventHandler
+    public class BoogieProgramLogger : AbstractExecutorFileLogger
     {
-        private string Directory;
-
         public string ProgramDestination
         {
             get;
@@ -24,14 +22,19 @@ namespace Symbooglix
             private set;
         }
 
-        public BoogieProgramLogger(string directory)
+        public BoogieProgramLogger()
         {
-            this.Directory = directory;
+
+        }
+
+        public override void SetDirectory(string directory)
+        {
+            base.SetDirectory(directory);
             this.ProgramDestination = Path.Combine(Directory, "program.bpl");
             this.CallGrindFileDestintation = Path.Combine(Directory, "instr_stats.callgrind");
         }
 
-        public void Connect(Executor e)
+        public override void Connect(Executor e)
         {
             e.ExecutorTerminated += HandleExecutorTerminated;
         }
@@ -63,7 +66,7 @@ namespace Symbooglix
             }
         }
 
-        public void Disconnect(Executor e)
+        public override void Disconnect(Executor e)
         {
             e.ExecutorTerminated -= HandleExecutorTerminated;
         }

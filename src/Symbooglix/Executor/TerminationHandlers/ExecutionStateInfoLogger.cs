@@ -5,10 +5,6 @@ namespace Symbooglix
 {
     public class ExecutionStateInfoLogger : ExecutionStateLogger
     {
-        public ExecutionStateInfoLogger(string directory) : base(directory)
-        {
-        }
-
         protected override void DoTask(Executor e, ExecutionState State)
         {
             string terminatationTypeName = State.TerminationType.GetType().ToString();

@@ -79,8 +79,6 @@ namespace Symbooglix
             }
 
             CreateDirectories();
-            SetupLoggers();
-            Connect();
         }
 
         protected virtual void CreateDirectories()
@@ -88,22 +86,31 @@ namespace Symbooglix
             TerminatedExecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.RootDir.FullName, "terminated_states"));
         }
 
-        protected virtual void SetupLoggers()
+        public void AddTerminatedStateDirLogger(AbstractExecutorFileLogger logger)
         {
-            // FIXME: We should be able to add these dynamically
-            Loggers.Add(new ExecutionStateConstraintLogger(this.TerminatedExecutionStatesDir.FullName));
-            Loggers.Add(new ExecutionStateUnSatCoreLogger(this.TerminatedExecutionStatesDir.FullName));
-            Loggers.Add(new ExecutionStateInfoLogger(this.TerminatedExecutionStatesDir.FullName));
-            Loggers.Add(new MemoryUsageLogger(this.RootDir.FullName));
-            Loggers.Add(new BoogieProgramLogger(this.RootDir.FullName));
-            Loggers.Add(new TerminationCounterLogger(this.RootDir.FullName));
-            Loggers.Add(new ExecutionTreeLogger(this.RootDir.FullName, true));
+            logger.SetDirectory(this.TerminatedExecutionStatesDir.FullName);
+            Loggers.Add(logger);
         }
 
-        private void Connect()
+        public void AddRootDirLogger(AbstractExecutorFileLogger logger)
         {
-            foreach (var logger in Loggers)
-                logger.Connect(TheExecutor);
+            logger.SetDirectory(this.RootDir.FullName);
+            Loggers.Add(logger);
+        }
+
+        private bool Connected = false;
+        public void Connect()
+        {
+            lock (Loggers)
+            {
+                if (Connected)
+                    throw new InvalidOperationException("Can't connect loggers again");
+
+                foreach (var logger in this.Loggers)
+                    logger.Connect(TheExecutor);
+
+                Connected = true;
+            }
         }
     }
 }

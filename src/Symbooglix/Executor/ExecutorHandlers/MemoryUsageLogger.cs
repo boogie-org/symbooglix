@@ -6,15 +6,10 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public class MemoryUsageLogger : IExecutorEventHandler
+    public class MemoryUsageLogger : AbstractExecutorFileLogger
     {
-        private string Directory;
         private bool Run = true;
         private Task MemoryLoggingTask;
-        public MemoryUsageLogger(string directory)
-        {
-            this.Directory = directory;
-        }
 
         protected void handleStart(Object executor, Executor.ExecutorStartedArgs args)
         {
@@ -44,14 +39,14 @@ namespace Symbooglix
             MemoryLoggingTask.Wait();
         }
 
-        public void Connect(Executor e)
+        public override void Connect(Executor e)
         {
             e.ExecutorStarted += handleStart;
             e.ExecutorTerminated += handleTerminate;
         }
 
 
-        public void Disconnect(Executor e)
+        public override void Disconnect(Executor e)
         {
             e.ExecutorStarted -= handleStart;
             e.ExecutorTerminated -= handleTerminate;

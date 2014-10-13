@@ -6,10 +6,6 @@ namespace Symbooglix
 {
     public class ExecutionStateConstraintLogger : ExecutionStateLogger
     {
-        public ExecutionStateConstraintLogger(string directory) : base(directory)
-        {
-        }
-
         protected override void DoTask(Executor e, ExecutionState State)
         {
             string terminatationTypeName = State.TerminationType.GetType().ToString();

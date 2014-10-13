@@ -341,6 +341,17 @@ namespace Symbooglix
                 else
                     executorLogger = new ExecutorFileLoggerHandler(e, options.outputDir, /*makeDirectoryInPath=*/ false);
 
+                // Add our loggers
+                executorLogger.AddRootDirLogger(new BoogieProgramLogger());
+                executorLogger.AddRootDirLogger(new MemoryUsageLogger());
+                executorLogger.AddRootDirLogger(new TerminationCounterLogger());
+                executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
+
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger());
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger());
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger());
+                executorLogger.Connect();
+
                 Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
 
                 e.PrepareProgram(PM);

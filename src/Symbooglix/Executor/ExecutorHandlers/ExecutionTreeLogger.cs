@@ -4,23 +4,21 @@ using System.Collections.Generic;
 
 namespace Symbooglix
 {
-    public class ExecutionTreeLogger : IExecutorEventHandler
+    public class ExecutionTreeLogger : AbstractExecutorFileLogger
     {
-        string Directory;
         bool AnnotateWithContextChanges = false;
         List<Tuple<ExecutionTreeNode,ExecutionTreeNode>> ContextChanges=null;
 
 
-        public ExecutionTreeLogger(string directory, bool annotateWithContextChanges=false)
+        public ExecutionTreeLogger(bool annotateWithContextChanges=false)
         {
-            this.Directory = directory;
             this.AnnotateWithContextChanges = annotateWithContextChanges;
 
             if (this.AnnotateWithContextChanges)
                 ContextChanges = new List<Tuple<ExecutionTreeNode, ExecutionTreeNode>>();
         }
 
-        public void Connect(Executor e)
+        public override void Connect(Executor e)
         {
             e.ExecutorTerminated += HandleExecutorTerminated;
 
@@ -49,7 +47,7 @@ namespace Symbooglix
             }
         }
 
-        public void Disconnect(Executor e)
+        public override void Disconnect(Executor e)
         {
             e.ExecutorTerminated -= HandleExecutorTerminated;
 

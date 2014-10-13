@@ -6,12 +6,10 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public abstract class ExecutionStateLogger : IExecutorEventHandler
+    public abstract class ExecutionStateLogger : AbstractExecutorFileLogger
     {
-        protected string Directory;
-        public ExecutionStateLogger(string directory)
+        public ExecutionStateLogger()
         {
-            this.Directory = directory;
         }
 
         private List<Task> ScheduledTasks = new List<Task>();
@@ -28,13 +26,13 @@ namespace Symbooglix
             }
         }
 
-        public void Connect(Executor e)
+        public override void Connect(Executor e)
         {
             e.StateTerminated += handle;
             e.ExecutorTerminated += Wait;
         }
 
-        public void Disconnect(Executor e)
+        public override void Disconnect(Executor e)
         {
             e.StateTerminated -= handle;
             e.ExecutorTerminated -= Wait;
