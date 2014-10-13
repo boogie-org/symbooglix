@@ -51,7 +51,7 @@ namespace Symbooglix
 
         public override string ToString()
         {
-            return string.Format ("[{0}.{1}]", State.Id, State.ExplicitBranchDepth);
+            return string.Format ("[{0}.{1}]", State.Id, this.Depth);
         }
     }
 }
