@@ -299,41 +299,9 @@ namespace Symbooglix
                 var stateHandler = new TerminationConsoleReporter();
                 stateHandler.Connect(e);
 
-                // Supply our own PassManager for preparation so we can hook into its events
-                var PM = new Transform.PassManager(p);
-
-                // Use anonymous methods so we can use closure to read command line options
-                Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Running pass " + eventArgs.ThePass.GetName());
-                    Console.ResetColor();
-                    if (options.emitProgramBefore)
-                    {
-                        Console.WriteLine("**** Program before pass:");
-                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
-                        Console.WriteLine("**** END Program before pass");
-                    }
-                };
-
-                Transform.PassManager.PassRunEvent afterPassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Finished running pass " + eventArgs.ThePass.GetName());
-                    Console.ResetColor();
-                    if (options.emitProgramAfter)
-                    {
-                        Console.WriteLine("**** Program after pass:");
-                        Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
-                        Console.WriteLine("**** END Program after pass:");
-                    }
-                };
-
                 var terminationCounter = new TerminationCounter();
                 terminationCounter.Connect(e);
 
-                PM.BeforePassRun += beforePassHandler;
-                PM.AfterPassRun += afterPassHandler;
 
                 ExecutorFileLoggerHandler executorLogger = null;
                 if (options.outputDir.Length == 0)
@@ -354,7 +322,8 @@ namespace Symbooglix
 
                 Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
 
-                e.PrepareProgram(PM);
+                // Supply our own PassManager for preparation so we can hook into its events
+                e.PrepareProgram(GetPassManager(options,p));
 
                 foreach (var entryPoint in entryPoints)
                 {
@@ -378,6 +347,44 @@ namespace Symbooglix
                 Console.WriteLine(terminationCounter.ToString());
             }
             return 0;
+        }
+
+        public static Transform.PassManager GetPassManager(CmdLineOpts options, Program p)
+        {
+            // Supply our own PassManager for preparation so we can hook into its events
+            var PM = new Transform.PassManager(p);
+
+            // Use anonymous methods so we can use closure to read command line options
+            Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Running pass " + eventArgs.ThePass.GetName());
+                Console.ResetColor();
+                if (options.emitProgramBefore)
+                {
+                    Console.WriteLine("**** Program before pass:");
+                    Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
+                    Console.WriteLine("**** END Program before pass");
+                }
+            };
+
+            Transform.PassManager.PassRunEvent afterPassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Finished running pass " + eventArgs.ThePass.GetName());
+                Console.ResetColor();
+                if (options.emitProgramAfter)
+                {
+                    Console.WriteLine("**** Program after pass:");
+                    Util.ProgramPrinter.Print(eventArgs.TheProgram, Console.Out, /*pretty=*/true, Symbooglix.Util.ProgramPrinter.PrintType.UNSTRUCTURED_ONLY);
+                    Console.WriteLine("**** END Program after pass:");
+                }
+            };
+
+            PM.BeforePassRun += beforePassHandler;
+            PM.AfterPassRun += afterPassHandler;
+
+            return PM;
         }
 
         public static IStateScheduler GetScheduler(CmdLineOpts options)
