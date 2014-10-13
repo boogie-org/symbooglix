@@ -1189,15 +1189,14 @@ namespace Symbooglix
                     c.GetInstructionStatistics().IncrementForks();
                     newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
                     StateScheduler.AddState(newState);
+
+                    // The Current state also needs a new node
+                    CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, CurrentState.TreeNode, c.GetProgramLocation());
                 }
             }
 
             // The current execution state will always take the first target
             CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
-
-            // Create new node in ExecutionTree
-            var oldNode = CurrentState.TreeNode;
-            CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, oldNode, c.GetProgramLocation());
         }
 
         private struct LookAheadInfo
@@ -1278,6 +1277,17 @@ namespace Symbooglix
             var forkingStates = new List<ExecutionState>();
             forkingStates.Add(CurrentState);
 
+            if (c.labelTargets.Count > 1)
+            {
+                // We only increment the branch depth if there is more than
+                // one target to follow. It is important that we do this before
+                // we fork from CurrentState so that the branch depth is inherited
+                // and in Fork() the creation of the ExecutionTreeNode has the correct
+                // depth.
+                // FIXME: Can we make this less fragile?
+                CurrentState.IncrementExplicitBranchDepth();
+            }
+
             // Create new ExecutionStates for the other blocks
             for (int index = 1; index < blocksToExecute.Count; ++index)
             {
@@ -1286,7 +1296,7 @@ namespace Symbooglix
                 forkingStates.Add(newState);
             }
 
-            // Finally Setup Modify each ExecutionState as appropriate and set it up to follow the appropriate path
+            // Finally Setup each ExecutionState as appropriate and set it up to follow the appropriate path
             Debug.Assert(forkingStates.Count == blocksToExecute.Count, "Created wrong number of states to Execute");
             foreach (var blockStatePair in blocksToExecute.Zip(forkingStates))
             {
@@ -1297,10 +1307,6 @@ namespace Symbooglix
                 {
                     theState.MakeSpeculative();
                 }
-
-                // We only count gotos that have more than one target
-                if (c.labelTargets.Count > 1)
-                    theState.IncrementExplicitBranchDepth();
 
                 // Transfer to the appropriate basic block
                 theState.GetCurrentStackFrame().TransferToBlock(theInfo.Target);
@@ -1327,12 +1333,12 @@ namespace Symbooglix
                 // Add the new states to the scheduler
                 if (theState != CurrentState)
                     StateScheduler.AddState(theState);
-                else
-                {
-                    // Setup new node
-                    var oldNode = CurrentState.TreeNode;
-                    CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, oldNode, c.GetProgramLocation());
-                }
+            }
+
+            if (c.labelTargets.Count > 1)
+            {
+                // We need to make a new ExecutionTree node for the CurrentState because it has gone deeper
+                CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, CurrentState.TreeNode, c.GetProgramLocation());
             }
         }
 

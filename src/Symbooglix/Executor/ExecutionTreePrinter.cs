@@ -78,7 +78,6 @@ namespace Symbooglix
 
         protected virtual string GetNodeID(ExecutionTreeNode node)
         {
-            // FIXME: This isn't working correctly
             var id = string.Format("S{0}_{1}", (node.State.Id <0)?("m" + (node.State.Id*-1).ToString()):node.State.Id.ToString(), node.Depth);
 
             if (node.ChildrenCount == 0)
@@ -88,7 +87,38 @@ namespace Symbooglix
 
         protected virtual string GetNodeAttributes(ExecutionTreeNode node)
         {
-            return "shape=record";
+            var attr = string.Format("shape=record,label=\"{0}", GetNodeID(node));
+
+            if (node.CreatedAt != null)
+                attr += string.Format("\\n{0}:{1}", node.CreatedAt.LineNumber, node.CreatedAt.ToString());
+
+            if (node.ChildrenCount == 0)
+            {
+                attr += "\\nTermination:" + EscapeLabelText(node.State.TerminationType.GetMessage());
+            }
+
+            // Close label
+            attr += "\"";
+
+            if (node.ChildrenCount == 0)
+            {
+                attr += ",style=filled, fillcolor=";
+                if (node.State.TerminationType is TerminatedWithoutError)
+                    attr += "\"green\"";
+                else
+                    attr += "\"red\"";
+            }
+
+            return attr;
+        }
+
+        protected string EscapeLabelText(string input)
+        {
+            var temp = input.Replace(">","\\>");
+            temp = temp.Replace("<", "\\<");
+            temp = temp.Replace("{", "\\{");
+            temp = temp.Replace("}", "\\}");
+            return temp;
         }
             
         public void Print(TextWriter TW)
