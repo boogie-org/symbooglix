@@ -48,8 +48,12 @@ namespace Symbooglix
 
         public void AddState(ExecutionState toAdd)
         {
-            if (!TerminateIfDepthExceeded(toAdd))
-                UnderlyingStateScheduler.AddState(toAdd);
+            // Don't remove state here even if its ExplicitBranchDepth is greater than what is allowed.
+            // If we terminate it here this leads to very unintuitive behaviour because
+            // it might be (and usually is) the case that toAdd is not currently being executed
+            // by the Executor as so terminating a state that isn't being executed or about to be
+            // Executed can be confusing.
+            UnderlyingStateScheduler.AddState(toAdd);
         }
 
         public void RemoveState(ExecutionState toRemove)

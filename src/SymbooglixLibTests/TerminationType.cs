@@ -259,6 +259,52 @@ namespace SymbooglixLibTests
             Assert.AreEqual(1, counter);
             Assert.AreEqual(1, terminationType.ExitLocation.AsTransferCmd.GetInstructionStatistics().Terminations);
         }
+
+        [Test()]
+        public void DisallowedDepth()
+        {
+            var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 1);
+            p = loadProgram("programs/SimpleLoop.bpl");
+            e = getExecutor(p, scheduler, GetSolver());
+
+            int hit = 0;
+            var main = getMain(p);
+
+            var loopBody = main.Blocks[2];
+            Assert.AreEqual("loopBody", loopBody.Label);
+            var loopDone = main.Blocks[3];
+            Assert.AreEqual("loopDone", loopDone.Label);
+
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
+            {
+                switch (hit)
+                {
+                    case 0:
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError), eventArgs.State.TerminationType);
+                        Assert.AreEqual(1, eventArgs.State.ExplicitBranchDepth);
+                        break;
+                    case 1:
+                        // We expect the first label (loopDone) to be killed first as the CurrentState always follows the left most available GotoCmd target
+                        Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedExplicitBranchDepth), eventArgs.State.TerminationType);
+                        Assert.AreEqual(2, eventArgs.State.ExplicitBranchDepth);
+                        Assert.AreEqual(loopDone, eventArgs.State.GetCurrentBlock());
+                        break;
+                    case 2:
+                        Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedExplicitBranchDepth), eventArgs.State.TerminationType);
+                        Assert.AreEqual(2, eventArgs.State.ExplicitBranchDepth);
+                        Assert.AreEqual(loopBody, eventArgs.State.GetCurrentBlock());
+                        break;
+                    default:
+                        Assert.Fail("To many terminations");
+                        break;
+                }
+                ++hit;
+            };
+
+
+            e.Run(main);
+            Assert.AreEqual(3, hit);
+        }
     }
 }
 
