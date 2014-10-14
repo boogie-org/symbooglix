@@ -362,7 +362,7 @@ namespace SymbooglixLibTests
         [Test()]
         public void DepthBound()
         {
-            var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 1);
+            var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 2);
             p = loadProgram("programs/SimpleLoop.bpl");
             e = getExecutor(p, scheduler, GetSolver());
 

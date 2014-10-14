@@ -18,11 +18,12 @@ namespace Symbooglix
         {
             if (state.ExplicitBranchDepth > MaxDepth)
             {
-                UnderlyingStateScheduler.RemoveState(state);
+                // Don't remove from the UnderlyingStateScheduler here as it might not have been added to the UnderlyingStateScheduler
+
                 Debug.Assert(TheExecutor != null, "TheExecutor cannot be null");
                 // Estimate where we terminate
                 var programLoc = state.GetCurrentStackFrame().CurrentInstruction.Current.GetProgramLocation(); 
-                TheExecutor.TerminateState(state, new TerminatedWithDisallowedExplicitBranchDepth(programLoc));
+                TheExecutor.TerminateState(state, new TerminatedWithDisallowedExplicitBranchDepth(programLoc), /*removeFromStateScheduler=*/ false);
                 return true;
             }
             else
@@ -37,6 +38,8 @@ namespace Symbooglix
 
                 if (!TerminateIfDepthExceeded(state))
                     return state;
+                else
+                    UnderlyingStateScheduler.RemoveState(state);
             }
 
             Debug.Assert(GetNumberOfStates() == 0, "Expected no states to remain");
