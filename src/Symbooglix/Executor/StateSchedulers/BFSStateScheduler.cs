@@ -87,6 +87,11 @@ namespace Symbooglix
         {
             return AtDepthEqualToOrLessThanN.Count + AtDepthGreaterThanN.Count;
         }
+
+        public void ReceiveExecutor(Executor executor)
+        {
+            // Not needed
+        }
     }
 }
 

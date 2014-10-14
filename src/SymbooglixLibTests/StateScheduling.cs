@@ -358,6 +358,23 @@ namespace SymbooglixLibTests
             Assert.AreEqual(5, tc.Sucesses);
             Assert.AreEqual(5, tc.NumberOfTerminatedStates);
         }
+
+        [Test()]
+        public void DepthBound()
+        {
+            var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 1);
+            p = loadProgram("programs/SimpleLoop.bpl");
+            e = getExecutor(p, scheduler, GetSolver());
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+
+            e.Run(getMain(p));
+
+            Assert.AreEqual(3, tc.NumberOfTerminatedStates);
+            Assert.AreEqual(2, tc.Sucesses);
+            Assert.AreEqual(1, tc.DisallowedPathDepths);
+        }
     }
 }
 

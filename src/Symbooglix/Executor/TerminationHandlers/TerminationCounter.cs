@@ -19,6 +19,7 @@ namespace Symbooglix
         public int UnsatisfiableAxioms { get { return GetCounter<TerminatedAtUnsatisfiableAxiom>(); }}
         public int DisallowedSpeculativePaths { get { return GetCounter<TerminatedWithDisallowedSpeculativePath>(); }}
         public int UnexplorableGotos { get { return GetCounter<TerminatedAtGotoWithUnsatisfiableTargets>(); }}
+        public int DisallowedPathDepths { get { return GetCounter<TerminatedWithDisallowedExplicitBranchDepth>(); } }
 
         private Dictionary<System.Type, int> Counters;
 
@@ -39,13 +40,13 @@ namespace Symbooglix
                 UnsatisfiableAssumes +
                 UnsatisfiableEnsures +
                 UnsatisfiableAxioms;
-                // Note we don't consider a DisallowedSpeculativePath or UnExplorableGotos to be failures
+                // Note we don't consider a DisallowedSpeculativePath or UnExplorableGotos or DisallowedPathDepths to be failures
             }
         }
 
         public int NumberOfTerminatedStates
         {
-            get { return NumberOfFailures + Sucesses + DisallowedSpeculativePaths + UnexplorableGotos; }
+            get { return NumberOfFailures + Sucesses + DisallowedSpeculativePaths + UnexplorableGotos + DisallowedPathDepths; }
         }
 
         public TerminationCounter()
@@ -86,6 +87,7 @@ namespace Symbooglix
             Counters.Add(typeof(TerminatedAtUnsatisfiableAxiom), 0);
             Counters.Add(typeof(TerminatedWithDisallowedSpeculativePath), 0);
             Counters.Add(typeof(TerminatedAtGotoWithUnsatisfiableTargets), 0);
+            Counters.Add(typeof(TerminatedWithDisallowedExplicitBranchDepth), 0);
         }
 
 

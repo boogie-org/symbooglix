@@ -356,6 +356,7 @@ namespace Symbooglix
                 // if we want run() to be called again with a different entry point.
                 CurrentState = Fork(InitialState, null);
 
+                StateScheduler.ReceiveExecutor(this);
                 StateScheduler.AddState(CurrentState);
             
                 // Check the provided entry point is actually in the program we are about to execute
@@ -432,7 +433,7 @@ namespace Symbooglix
         }
 
 
-        private void TerminateState(ExecutionState state, ITerminationType type, bool removeFromStateScheduler=true)
+        public void TerminateState(ExecutionState state, ITerminationType type, bool removeFromStateScheduler=true)
         {
             state.Terminate(type);
             type.ExitLocation.InstrStatistics.IncrementTerminations(); // Increment the Termination account at the relevant instruction

@@ -108,6 +108,11 @@ namespace Symbooglix
         {
             return NotAboutToDoGoto.Count + AboutToDoGoto.Count;
         }
+
+        public void ReceiveExecutor(Executor executor)
+        {
+            // Not needed
+        }
     }
 }
 

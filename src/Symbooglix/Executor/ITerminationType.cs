@@ -282,5 +282,41 @@ namespace Symbooglix
             internal set;
         }
     }
+
+    public class TerminatedWithDisallowedExplicitBranchDepth : ITerminationType
+    {
+        public TerminatedWithDisallowedExplicitBranchDepth(ProgramLocation location)
+        {
+            Debug.Assert(location != null, "location cannot be null");
+            this.ExitLocation = location;
+            State = null;
+        }
+
+        public string GetMessage()
+        {
+            var depth = State != null ? ( State.ExplicitBranchDepth ) : -1;
+            var s = "Terminated with Explicit branch depth exceeded (";
+
+            if (depth == -1)
+                s += "unknown";
+            else
+                s += depth.ToString();
+
+            s += ") at " + ExitLocation.ToString();
+            return s;
+        }
+
+        public ExecutionState State
+        {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation
+        {
+            get;
+            internal set;
+        }
+    }
 }
 

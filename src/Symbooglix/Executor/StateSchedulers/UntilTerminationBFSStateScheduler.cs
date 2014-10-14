@@ -42,6 +42,11 @@ namespace Symbooglix
         {
             States.RemoveAll(p);
         }
+
+        public void ReceiveExecutor(Executor executor)
+        {
+            // Not Needed
+        }
     }
 }
 

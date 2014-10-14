@@ -11,6 +11,7 @@ namespace Symbooglix
         void RemoveState(ExecutionState toRemove);
         void RemoveAll(Predicate<ExecutionState> p);
         int GetNumberOfStates();
+        void ReceiveExecutor(Executor executor);
     }
 }
 
