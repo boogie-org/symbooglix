@@ -30,7 +30,7 @@ namespace Symbooglix
             return Popped;
         }
 
-        public int GetNumberOfStates() { return States.Count;}
+        public int GetNumberOfStates() { return States.Count + ((Popped != null)?1:0) ;}
 
         public void AddState(ExecutionState toAdd)
         {
