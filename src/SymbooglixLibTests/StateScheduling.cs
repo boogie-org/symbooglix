@@ -360,9 +360,26 @@ namespace SymbooglixLibTests
         }
 
         [Test()]
-        public void DepthBound()
+        public void DepthBoundDFS()
         {
             var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 2);
+            p = loadProgram("programs/SimpleLoop.bpl");
+            e = getExecutor(p, scheduler, GetSolver());
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+
+            e.Run(getMain(p));
+
+            Assert.AreEqual(3, tc.NumberOfTerminatedStates);
+            Assert.AreEqual(2, tc.Sucesses);
+            Assert.AreEqual(1, tc.DisallowedPathDepths);
+        }
+
+        [Test()]
+        public void DepthBoundBFS()
+        {
+            var scheduler = new LimitExplicitDepthScheduler(new BFSStateScheduler(), 2);
             p = loadProgram("programs/SimpleLoop.bpl");
             e = getExecutor(p, scheduler, GetSolver());
 
