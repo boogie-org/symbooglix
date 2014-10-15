@@ -5,6 +5,8 @@ namespace Symbooglix
 {
     public class ExecutionStateUnSatCoreLogger : ExecutionStateLogger
     {
+        public ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType eventToLog) : base(eventToLog) { }
+
         protected override void DoTask(Executor e, ExecutionState State)
         {
             string terminatationTypeName = State.TerminationType.GetType().ToString();

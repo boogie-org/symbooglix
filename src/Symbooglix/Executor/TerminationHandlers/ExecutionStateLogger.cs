@@ -8,8 +8,16 @@ namespace Symbooglix
 {
     public abstract class ExecutionStateLogger : AbstractExecutorFileLogger
     {
-        public ExecutionStateLogger()
+        public enum ExecutorEventType
         {
+            TERMINATED_STATE,
+            NON_TERMINATED_STATE_REMOVED,
+        }
+        ExecutorEventType EventToLog;
+
+        public ExecutionStateLogger(ExecutorEventType EventToLog)
+        {
+            this.EventToLog = EventToLog;
         }
 
         private List<Task> ScheduledTasks = new List<Task>();
@@ -28,13 +36,35 @@ namespace Symbooglix
 
         public override void Connect(Executor e)
         {
-            e.StateTerminated += handle;
+            switch (EventToLog)
+            {
+                case ExecutorEventType.TERMINATED_STATE:
+                    e.StateTerminated += handle;
+                    break;
+                case ExecutorEventType.NON_TERMINATED_STATE_REMOVED:
+                    e.NonTerminatedStateRemoved += handle;
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported CaptureType");
+            }
+
             e.ExecutorTerminated += Wait;
         }
 
         public override void Disconnect(Executor e)
         {
-            e.StateTerminated -= handle;
+            switch (EventToLog)
+            {
+                case ExecutorEventType.TERMINATED_STATE:
+                    e.StateTerminated -= handle;
+                    break;
+                case ExecutorEventType.NON_TERMINATED_STATE_REMOVED:
+                    e.NonTerminatedStateRemoved -= handle;
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported CaptureType");
+            }
+
             e.ExecutorTerminated -= Wait;
         }
 

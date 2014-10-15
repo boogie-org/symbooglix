@@ -6,6 +6,8 @@ namespace Symbooglix
 {
     public class ExecutionStateConstraintLogger : ExecutionStateLogger
     {
+        public ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType eventToLog) : base(eventToLog) {}
+
         protected override void DoTask(Executor e, ExecutionState State)
         {
             string terminatationTypeName = State.TerminationType.GetType().ToString();

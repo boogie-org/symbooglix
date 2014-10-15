@@ -355,9 +355,9 @@ namespace Symbooglix
             executorLogger.AddRootDirLogger(new TerminationCounterLogger());
             executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
 
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger());
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger());
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger());
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
             executorLogger.Connect();
 
             Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
