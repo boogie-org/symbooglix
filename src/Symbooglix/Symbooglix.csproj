@@ -89,11 +89,7 @@
     <Compile Include="Executor\ExecutorHandlers\CallPrinter.cs" />
     <Compile Include="Executor\BlockCmdEnumerable.cs" />
     <Compile Include="Executor\ExecutorHandlers\ContextChangedReporter.cs" />
-    <Compile Include="Executor\TerminationHandlers\ExecutionStateConstraintLogger.cs" />
-    <Compile Include="Executor\TerminationHandlers\ExecutionStateUnSatCoreLogger.cs" />
-    <Compile Include="Executor\TerminationHandlers\ExecutionStateLogger.cs" />
     <Compile Include="Expr\DuplicationVerifier.cs" />
-    <Compile Include="Executor\TerminationHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\MemoryUsageLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorFileLoggerHandler.cs" />
     <Compile Include="Executor\InstructionStatistics.cs" />
@@ -111,6 +107,10 @@
     <Compile Include="Executor\ExecutorHandlers\AbstractExecutorFileLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\CallGrindFileLogger.cs" />
     <Compile Include="Executor\StateSchedulers\LimitExplicitDepthScheduler.cs" />
+    <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateLogger.cs" />
+    <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateConstraintLogger.cs" />
+    <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateInfoLogger.cs" />
+    <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateUnSatCoreLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
@@ -144,6 +144,7 @@
     <Folder Include="Analysis\" />
     <Folder Include="Annotation\" />
     <Folder Include="Executor\StateSchedulers\" />
+    <Folder Include="Executor\ExecutionStateHandlers\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
