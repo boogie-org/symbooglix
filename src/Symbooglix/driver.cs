@@ -93,7 +93,7 @@ namespace Symbooglix
             [Option("solver-path", DefaultValue = "", HelpText = "Path to the SMTLIBv2 solver")]
             public string pathToSolver { get; set; }
 
-            [Option("solver-timeout", DefaultValue=0, HelpText="Maximum time allowed for a single query")]
+            [Option("solver-timeout", DefaultValue=120, HelpText="Maximum time allowed for a single query")]
             public int solverTimeout {get; set;}
 
             [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
