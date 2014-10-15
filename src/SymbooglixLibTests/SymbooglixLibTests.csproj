@@ -117,6 +117,8 @@
     <Compile Include="InstructionStatisticsTests.cs" />
     <Compile Include="EntryPoints.cs" />
     <Compile Include="StateScheduling.cs" />
+    <Compile Include="ExecutorTimeout.cs" />
+    <Compile Include="ExecutorNonTerminatedStateRemovedEvent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -298,6 +300,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="programs\StateScheduleTest.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\InfiniteLoop.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

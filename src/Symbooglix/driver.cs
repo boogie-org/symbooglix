@@ -334,7 +334,7 @@ namespace Symbooglix
                         Console.ResetColor();
                     }
                 }
-
+                Console.WriteLine("Finished executing");
                 Console.WriteLine(solver.Statistics.ToString());
                 Console.WriteLine(terminationCounter.ToString());
             }

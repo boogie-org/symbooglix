@@ -74,6 +74,8 @@ namespace Symbooglix
         }
         public event EventHandler<ExecutionStateEventArgs> StateTerminated;
 
+        public event EventHandler<ExecutionStateEventArgs> NonTerminatedStateRemoved;
+
         public class ExecutorTerminatedArgs : EventArgs
         {
             // Empty right now
@@ -398,10 +400,16 @@ namespace Symbooglix
                     ExecuteInstruction();
                 }
 
-                Console.WriteLine("FIXME: Save state information");
-                Console.WriteLine("States left " + StateScheduler.GetNumberOfStates());
-                StateScheduler.RemoveAll(s => true);
-                Console.WriteLine("Finished executing all states");
+                // Remove any remaining states and notify about them
+                while (StateScheduler.GetNumberOfStates() > 0)
+                {
+                    var state = StateScheduler.GetNextState();
+
+                    if (NonTerminatedStateRemoved != null)
+                        NonTerminatedStateRemoved(this, new ExecutionStateEventArgs(state));
+
+                    StateScheduler.RemoveState(state);
+                }
 
                 if (ExecutorTerminated != null)
                 {
@@ -419,8 +427,7 @@ namespace Symbooglix
             // it to false here in another thread then execution can continue anyway.
             AllowExecutorToRun = false;
 
-            // Stop the solver from doing whatever its doing
-            TheSolver.Dispose();
+            // Don't dispose of the solver here. It can lead to races
 
             if (block)
             {
