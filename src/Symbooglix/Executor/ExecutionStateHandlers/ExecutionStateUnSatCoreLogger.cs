@@ -34,7 +34,12 @@ namespace Symbooglix
                 outputFile.AddDeclarations(terminationType.ConditionForSat);
 
                 outputFile.PrintSetOption("produce-unsat-cores", "true");
-                outputFile.PrintCommentLine(State.TerminationType.GetMessage());
+
+                if (State.TerminationType == null)
+                    outputFile.PrintCommentLine("Non terminated state");
+                else
+                    outputFile.PrintCommentLine(State.TerminationType.GetMessage());
+
                 outputFile.PrintFunctionDeclarations();
                 outputFile.PrintVariableDeclarations();
 

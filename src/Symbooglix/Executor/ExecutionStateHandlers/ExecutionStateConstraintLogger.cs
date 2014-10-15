@@ -10,7 +10,13 @@ namespace Symbooglix
 
         protected override void DoTask(Executor e, ExecutionState State)
         {
-            string terminatationTypeName = State.TerminationType.GetType().ToString();
+            string terminatationTypeName = null;
+
+            if (State.TerminationType == null)
+                terminatationTypeName = "NonTerminated";
+            else
+                terminatationTypeName = State.TerminationType.GetType().ToString();
+
             using (var SW = new StreamWriter(Path.Combine(Directory,State.Id + "-" + terminatationTypeName + ".smt2")))
             {
                 var outputFile = new SMTLIBQueryPrinter(SW, true);
@@ -32,7 +38,12 @@ namespace Symbooglix
                 }
 
                 outputFile.PrintSetOption("produce-models", "true");
-                outputFile.PrintCommentLine(State.TerminationType.GetMessage());
+
+                if (State.TerminationType == null)
+                    outputFile.PrintCommentLine("Non terminated state");
+                else
+                    outputFile.PrintCommentLine(State.TerminationType.GetMessage());
+
                 outputFile.PrintFunctionDeclarations();
                 outputFile.PrintVariableDeclarations();
 
