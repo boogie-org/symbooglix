@@ -27,6 +27,12 @@ namespace Symbooglix
             protected set;
         }
 
+        public DirectoryInfo NonTerminatedExcecutionStatesDir
+        {
+            get;
+            protected set;
+        }
+
         private List<IExecutorEventHandler> Loggers;
 
 
@@ -84,6 +90,7 @@ namespace Symbooglix
         protected virtual void CreateDirectories()
         {
             TerminatedExecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.RootDir.FullName, "terminated_states"));
+            NonTerminatedExcecutionStatesDir = Directory.CreateDirectory(Path.Combine(this.RootDir.FullName, "nonterminated_states"));
         }
 
         public void AddTerminatedStateDirLogger(AbstractExecutorFileLogger logger)
@@ -95,6 +102,12 @@ namespace Symbooglix
         public void AddRootDirLogger(AbstractExecutorFileLogger logger)
         {
             logger.SetDirectory(this.RootDir.FullName);
+            Loggers.Add(logger);
+        }
+
+        public void AddNonTerminatedStateDirLogger(AbstractExecutorFileLogger logger)
+        {
+            logger.SetDirectory(this.NonTerminatedExcecutionStatesDir.FullName);
             Loggers.Add(logger);
         }
 
