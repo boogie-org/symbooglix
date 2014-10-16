@@ -39,6 +39,9 @@ namespace Symbooglix
 
         // Real/Int operators
 
+
+        // Logical operators
+        Expr NotEq(Expr lhs, Expr rhs);
     }
 
     public class ExprBuilder : IExprBuilder
@@ -221,6 +224,13 @@ namespace Symbooglix
         {
             return GetUnaryBVFunction(BasicType.GetBvType(operand.Type.BvBits), "BVNEG", "bvneg", operand);
 
+        }
+
+        public Expr NotEq(Expr lhs, Expr rhs)
+        {
+            // FIXME: Factor some of this out.
+            // FIXME: Cache operators
+            return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Neq), new List<Expr> { lhs, rhs });
         }
     }
 }

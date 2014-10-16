@@ -119,6 +119,7 @@
     <Compile Include="StateScheduling.cs" />
     <Compile Include="ExecutorTimeout.cs" />
     <Compile Include="ExecutorNonTerminatedStateRemovedEvent.cs" />
+    <Compile Include="ExprSMTLIB\NotEq.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
