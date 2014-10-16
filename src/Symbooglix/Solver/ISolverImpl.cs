@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Symbooglix
 {
@@ -17,6 +18,7 @@ namespace Symbooglix
 
         public interface ISolverImplStatistics : Util.IDeepClone<ISolverImplStatistics>
         {
+            void Dump(TextWriter TW);
         }
     }
 }

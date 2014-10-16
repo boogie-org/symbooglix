@@ -345,17 +345,8 @@ namespace Symbooglix
 
         public static void DumpOtherStats(Executor executor, Solver.ISolver solver)
         {
-            // Dump other solverImpl stats
             var stats = solver.SolverImpl.GetStatistics();
-            if (!( stats is Solver.SimpleSMTLIBSolverStatistics ))
-                return;
-
-            // FIXME: We should add interface methods to SolverImplStatistics get this info as a string
-            var concreteStats = stats as Solver.SimpleSMTLIBSolverStatistics;
-
-            Console.WriteLine("ReadExpr time: {0} seconds", concreteStats.ReadExprTime.TotalSeconds);
-            Console.WriteLine("PrintExpr time:{0} seconds", concreteStats.PrintExprTime.TotalSeconds);
-            Console.WriteLine("Solver process time:{0}", concreteStats.SolverProcessTime.TotalSeconds);
+            stats.Dump(Console.Out);
         }
 
         public static void SetupFileLoggers(CmdLineOpts options, Executor executor)

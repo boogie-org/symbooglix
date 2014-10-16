@@ -296,6 +296,25 @@ namespace Symbooglix
             {
                 return (ISolverImplStatistics) this.MemberwiseClone();
             }
+
+            public void Dump(TextWriter TW)
+            {
+                TW.WriteLine("SolverProcessTime:{0} seconds", SolverProcessTime.TotalSeconds);
+                TW.WriteLine("ReadExprTime:{0} seconds", ReadExprTime.TotalSeconds);
+                TW.WriteLine("PrintExprTime:{0} seconds", PrintExprTime.TotalSeconds);
+            }
+
+            public override string ToString()
+            {
+                string result;
+                using (var SW = new StringWriter())
+                {
+                    Dump(SW);
+                    result = SW.ToString();
+                }
+
+                return result;
+            }
         }
     }
 }
