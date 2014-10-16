@@ -19,10 +19,10 @@ namespace Symbooglix
             private SMTLIBQueryPrinter Printer;
             private ConstraintManager CurrentConstraints = null;
             private int UseCounter=0;
-            public SMTLIBQueryLoggingSolverImpl(ISolverImpl underlyingImplementation, TextWriter TW, bool humanReadable)
+            public SMTLIBQueryLoggingSolverImpl(ISolverImpl underlyingImplementation, TextWriter TW, bool namedAttributeBindings, bool humanReadable)
             {
                 this.UnderlyingImpl = underlyingImplementation;
-                Printer = new SMTLIBQueryPrinter(TW, humanReadable);
+                Printer = new SMTLIBQueryPrinter(TW, namedAttributeBindings, humanReadable);
             }
 
             public void SetConstraints(ConstraintManager constraints)

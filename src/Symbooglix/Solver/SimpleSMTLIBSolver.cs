@@ -70,7 +70,7 @@ namespace Symbooglix
                 this.TheProcess = Process.Start(StartInfo);
 
                 if (Printer == null)
-                    Printer = new SMTLIBQueryPrinter(GetStdInput(), /*humanReadable=*/ false);
+                    Printer = new SMTLIBQueryPrinter(GetStdInput(), /*useNamedAttributeBindings*/ true, /*humanReadable=*/ false);
                 else
                     Printer.ChangeOutput(GetStdInput());
 

@@ -21,7 +21,7 @@ namespace Symbooglix
 
             using (var SW = new StreamWriter(Path.Combine(Directory,State.Id + "-" + terminatationTypeName + ".unsatcore.smt2")))
             {
-                var outputFile = new SMTLIBQueryPrinter(SW, true);
+                var outputFile = new SMTLIBQueryPrinter(SW, true, true);
 
                 outputFile.AnnotateAssertsWithNames = true; // Needed for unsat-core
 

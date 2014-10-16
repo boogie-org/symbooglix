@@ -49,7 +49,7 @@ namespace ExprSMTLIBTest
         {
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer);
+                var printer = new SMTLIBQueryPrinter(writer, false);
                 printer.PrintExpr(e);
                 Assert.IsTrue(writer.ToString() == expected);
             }

@@ -486,7 +486,7 @@ namespace Symbooglix
             {
                 // FIXME: How are we going to ensure this file gets closed properly?
                 StreamWriter QueryLogFile = new StreamWriter(options.queryLogPath, /*append=*/ options.appendLoggedQueries > 0);
-                solverImpl = new Solver.SMTLIBQueryLoggingSolverImpl(solverImpl, QueryLogFile, options.humanReadable > 0);
+                solverImpl = new Solver.SMTLIBQueryLoggingSolverImpl(solverImpl, QueryLogFile, /*useNamedAttributeBindings=*/true, options.humanReadable > 0);
             }
 
             // Only support this for now.

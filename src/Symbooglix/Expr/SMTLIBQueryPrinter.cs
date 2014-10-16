@@ -25,7 +25,14 @@ namespace Symbooglix
 
         private int AssertCounter = 0;
 
-        public SMTLIBQueryPrinter(TextWriter TW, bool humanReadable = true, int indent=2)
+        // Used for :named attributed expressions
+        private static readonly string BindingPrefix = "N";
+        private int NamedAttributeCounter = 0;
+        private Dictionary<Expr, int> Bindings;
+        private bool UseNamedAttributeBindings;
+        private ExprCountingVisitor BindingsFinder;
+
+        public SMTLIBQueryPrinter(TextWriter TW, bool useNamedAttributeBindings ,bool humanReadable = true,int indent=2)
         {
             this.HumanReadable = humanReadable; // Must be set before output is set
             ChangeOutput(TW);
@@ -35,6 +42,10 @@ namespace Symbooglix
             functionsToDeclare = new HashSet<Function>();
             FSV = new FindSymbolicsVisitor(symbolicsToDeclare); // Have the visitor use our container
             FFV = new FindFunctionsVisitor(functionsToDeclare); // Have the visitor use our container
+            BindingsFinder = new ExprCountingVisitor();
+
+            Bindings = new Dictionary<Expr, int>();
+            this.UseNamedAttributeBindings = useNamedAttributeBindings;
 
             TheTraverser = new SMTLIBTraverser(this);
         }
@@ -53,19 +64,84 @@ namespace Symbooglix
         // Eurgh this level of indirection... This needs rethinking
         public void PrintExpr(Expr root)
         {
-            TheTraverser.Traverse(root);
+            // We never want to use bindings for these
+            if (root is LiteralExpr || root is IdentifierExpr)
+            {
+                TheTraverser.Traverse(root);
+                return;
+            }
+
+            if (UseNamedAttributeBindings)
+            {
+                if (!BindingsFinder.ExpressionCount.ContainsKey(root))
+                {
+                    // FIXME: This can happen because we rewrite NotEq
+                    // as we print which the BindingsFinder has not seen!
+                    Console.Error.WriteLine("***FIXME: Potentially missed binding opportunity***");
+                    TheTraverser.Traverse(root);
+                    return;
+                }
+
+
+                int numberOfOccurances = BindingsFinder.ExpressionCount[root];
+                // The required threshold to make it worth using bindings
+                if (numberOfOccurances >= 2)
+                {
+                    if (Bindings.ContainsKey(root))
+                    {
+                        // Use the Binding assigned to this Expr
+                        TW.Write(BindingPrefix + Bindings[root].ToString());
+                        return;
+                    }
+                    else
+                    {
+                        // Print the Expr and give it a binding
+                        int bindingNumber = NamedAttributeCounter;
+                        var binding = BindingPrefix + bindingNumber.ToString();
+                        ++NamedAttributeCounter; // Increment for next user.
+
+                        TW.Write("(!");
+                        PrintSeperator();
+                        PushIndent();
+                        TheTraverser.Traverse(root);
+                        PrintSeperator();
+                        TW.Write(":named " + binding);
+                        PopIndent();
+                        PrintSeperator();
+                        TW.Write(")");
+
+                        // Save the binding
+                        Bindings[root] = bindingNumber;
+                    }
+                }
+                else
+                    TheTraverser.Traverse(root);
+            }
+            else
+                TheTraverser.Traverse(root);
         }
 
         public void ClearDeclarations()
         {
             symbolicsToDeclare.Clear();
             functionsToDeclare.Clear();
+
+            if (UseNamedAttributeBindings)
+            {
+                // FIXME: These don't really belong here
+                BindingsFinder.Clear();
+                Bindings.Clear();
+                NamedAttributeCounter = 0;
+            }
         }
 
         public void AddDeclarations(Expr e)
         {
             FSV.Visit(e);
             FFV.Visit(e);
+
+            if (UseNamedAttributeBindings)
+                BindingsFinder.Visit(e);
         }
 
         public enum Logic
@@ -805,6 +881,61 @@ namespace Symbooglix
 
 
 
+    }
+
+    public class ExprCountingVisitor : ReadOnlyVisitor
+    {
+        public Dictionary<Expr, int> ExpressionCount;
+
+        public void Clear()
+        {
+            ExpressionCount.Clear();
+        }
+
+        public ExprCountingVisitor()
+        {
+            this.ExpressionCount = new Dictionary<Expr, int>();
+        }
+
+        public override Expr VisitExpr(Expr node)
+        {
+            // This avoids recording the same node twice
+            // as VisitExpr() can call VisitNAryExpr()
+            if (node is NAryExpr)
+                return base.VisitExpr(node);
+
+            if (ExpressionCount.ContainsKey(node))
+            {
+                int currentCount = ExpressionCount[node];
+                ++currentCount;
+                ExpressionCount[node] = currentCount;
+            }
+            else
+            {
+                ExpressionCount[node] = 1;
+            }
+
+            return base.VisitExpr(node);
+        }
+
+        // This is necessary because the root of a tree might
+        // be an NAryExpr so the double dispatch won't call
+        // VisitExpr() but instead will call VisitNAryExpr
+        public override Expr VisitNAryExpr(NAryExpr node)
+        {
+            if (ExpressionCount.ContainsKey(node))
+            {
+                int currentCount = ExpressionCount[node];
+                ++currentCount;
+                ExpressionCount[node] = currentCount;
+            }
+            else
+            {
+                ExpressionCount[node] = 1;
+            }
+
+            return base.VisitNAryExpr(node);
+        }
     }
 }
 
