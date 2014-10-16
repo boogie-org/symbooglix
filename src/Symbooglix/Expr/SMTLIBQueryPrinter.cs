@@ -32,7 +32,7 @@ namespace Symbooglix
         private bool UseNamedAttributeBindings;
         private ExprCountingVisitor BindingsFinder;
 
-        public SMTLIBQueryPrinter(TextWriter TW, bool useNamedAttributeBindings ,bool humanReadable = true,int indent=2)
+        public SMTLIBQueryPrinter(TextWriter TW, bool useNamedAttributeBindings, bool humanReadable, int indent=2)
         {
             this.HumanReadable = humanReadable; // Must be set before output is set
             ChangeOutput(TW);
