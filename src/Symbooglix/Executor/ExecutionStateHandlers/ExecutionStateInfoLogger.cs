@@ -12,7 +12,7 @@ namespace Symbooglix
             string terminatationTypeName = null;
 
             if (State.TerminationType == null)
-                terminatationTypeName = "";
+                terminatationTypeName = "NonTerminated";
             else
                 terminatationTypeName = State.TerminationType.GetType().ToString();
 
