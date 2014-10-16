@@ -342,6 +342,10 @@ namespace Symbooglix
             TW.WriteLine("(exit)");
             TW.Flush();
             AssertCounter = 0;
+
+            // We need to clear the bindings because if we keep them
+            // they'll be used for subsequent printing without actually declaring them
+            Bindings.Clear();
         }
 
         // FIXME: This API is gross. Use enums instead
