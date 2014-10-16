@@ -65,50 +65,46 @@ namespace Symbooglix
         public void PrintExpr(Expr root)
         {
             // We never want to use bindings for these
-            if (root is LiteralExpr || root is IdentifierExpr)
+            if (!UseNamedAttributeBindings || root is LiteralExpr || root is IdentifierExpr)
             {
                 TheTraverser.Traverse(root);
                 return;
             }
 
-            if (UseNamedAttributeBindings)
+            int numberOfOccurances = BindingsFinder.ExpressionCount[root];
+            if (numberOfOccurances < 2)
             {
-                int numberOfOccurances = BindingsFinder.ExpressionCount[root];
-                // The required threshold to make it worth using bindings
-                if (numberOfOccurances >= 2)
-                {
-                    if (Bindings.ContainsKey(root))
-                    {
-                        // Use the Binding assigned to this Expr
-                        TW.Write(BindingPrefix + Bindings[root].ToString());
-                        return;
-                    }
-                    else
-                    {
-                        // Print the Expr and give it a binding
-                        int bindingNumber = NamedAttributeCounter;
-                        var binding = BindingPrefix + bindingNumber.ToString();
-                        ++NamedAttributeCounter; // Increment for next user.
+                TheTraverser.Traverse(root);
+                return;
+            }
 
-                        TW.Write("(!");
-                        PrintSeperator();
-                        PushIndent();
-                        TheTraverser.Traverse(root);
-                        PrintSeperator();
-                        TW.Write(":named " + binding);
-                        PopIndent();
-                        PrintSeperator();
-                        TW.Write(")");
-
-                        // Save the binding
-                        Bindings[root] = bindingNumber;
-                    }
-                }
-                else
-                    TheTraverser.Traverse(root);
+            Debug.Assert(numberOfOccurances >= 2);
+            if (Bindings.ContainsKey(root))
+            {
+                // Use the Binding assigned to this Expr
+                TW.Write(BindingPrefix + Bindings[root].ToString());
+                return;
             }
             else
+            {
+                // Print the Expr and give it a binding
+                int bindingNumber = NamedAttributeCounter;
+                var binding = BindingPrefix + bindingNumber.ToString();
+                ++NamedAttributeCounter; // Increment for next user.
+
+                TW.Write("(!");
+                PrintSeperator();
+                PushIndent();
                 TheTraverser.Traverse(root);
+                PrintSeperator();
+                TW.Write(":named " + binding);
+                PopIndent();
+                PrintSeperator();
+                TW.Write(")");
+
+                // Save the binding
+                Bindings[root] = bindingNumber;
+            }
         }
 
         public void ClearDeclarations()
