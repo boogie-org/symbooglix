@@ -31,7 +31,7 @@ namespace Symbooglix
                     outputFile.AddDeclarations(constraint);
                 }
 
-                outputFile.AddDeclarations(terminationType.ConditionForSat);
+                outputFile.AddDeclarations(terminationType.ConditionForUnsat);
 
                 outputFile.PrintSetOption("produce-unsat-cores", "true");
 
