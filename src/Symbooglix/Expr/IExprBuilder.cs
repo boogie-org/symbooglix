@@ -42,6 +42,7 @@ namespace Symbooglix
 
         // Logical operators
         Expr NotEq(Expr lhs, Expr rhs);
+        Expr Iff(Expr lhs, Expr rhs);
     }
 
     public class ExprBuilder : IExprBuilder
@@ -231,6 +232,13 @@ namespace Symbooglix
             // FIXME: Factor some of this out.
             // FIXME: Cache operators
             return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Neq), new List<Expr> { lhs, rhs });
+        }
+
+        public Expr Iff(Expr lhs, Expr rhs)
+        {
+            // FIXME: Factor some of this out.
+            // FIXME: Cache operators
+            return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Iff), new List<Expr> { lhs, rhs });
         }
     }
 }

@@ -632,9 +632,37 @@ namespace Symbooglix
 
         public Expr VisitIff(NAryExpr e)
         {
-            // There is not <==> operator in SMTLIBv2 so construct its equivalent
-            Expr temp = Expr.And(Expr.Imp(e.Args[0], e.Args[1]), Expr.Imp(e.Args[1], e.Args[0]));
-            PrintExpr(temp);
+            // There is not <==> operator in SMTLIBv2 so print its equivalent
+            // We cannot construct the equivalent and then print that because that would
+            // break the binding as we'd be introducing Expr that haven't been seen before.
+            TW.Write("(and");
+            PushIndent();
+
+            PrintSeperator();
+            TW.Write("(=>");
+            PushIndent();
+            PrintSeperator();
+            PrintExpr(e.Args[0]);
+            PrintSeperator();
+            PrintExpr(e.Args[1]);
+            PopIndent();
+            PrintSeperator();
+            TW.Write(")");
+
+            PrintSeperator();
+            TW.Write("(=>");
+            PushIndent();
+            PrintSeperator();
+            PrintExpr(e.Args[1]);
+            PrintSeperator();
+            PrintExpr(e.Args[0]);
+            PopIndent();
+            PrintSeperator();
+            TW.Write(")");
+
+            PopIndent();
+            PrintSeperator();
+            TW.Write(")");
             return e;
         }
 

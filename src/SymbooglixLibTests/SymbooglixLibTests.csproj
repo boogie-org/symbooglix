@@ -120,6 +120,7 @@
     <Compile Include="ExecutorTimeout.cs" />
     <Compile Include="ExecutorNonTerminatedStateRemovedEvent.cs" />
     <Compile Include="ExprSMTLIB\NotEq.cs" />
+    <Compile Include="ExprSMTLIB\Iff.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
