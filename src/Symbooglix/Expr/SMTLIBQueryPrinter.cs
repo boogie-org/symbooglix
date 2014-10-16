@@ -73,16 +73,6 @@ namespace Symbooglix
 
             if (UseNamedAttributeBindings)
             {
-                if (!BindingsFinder.ExpressionCount.ContainsKey(root))
-                {
-                    // FIXME: This can happen because we rewrite NotEq
-                    // as we print which the BindingsFinder has not seen!
-                    Console.Error.WriteLine("***FIXME: Potentially missed binding opportunity***");
-                    TheTraverser.Traverse(root);
-                    return;
-                }
-
-
                 int numberOfOccurances = BindingsFinder.ExpressionCount[root];
                 // The required threshold to make it worth using bindings
                 if (numberOfOccurances >= 2)
@@ -950,8 +940,8 @@ namespace Symbooglix
         public override Expr VisitExpr(Expr node)
         {
             // This avoids recording the same node twice
-            // as VisitExpr() can call VisitNAryExpr()
-            if (node is NAryExpr)
+            // as VisitExpr() can call VisitNAryExpr() and VisitQuantifier
+            if (node is NAryExpr || node is QuantifierExpr)
                 return base.VisitExpr(node);
 
             if (ExpressionCount.ContainsKey(node))
@@ -985,6 +975,23 @@ namespace Symbooglix
             }
 
             return base.VisitNAryExpr(node);
+        }
+
+        // This is necessary because the root of the Tree might be a QuantifierExpr
+        public override QuantifierExpr VisitQuantifierExpr(QuantifierExpr node)
+        {
+            if (ExpressionCount.ContainsKey(node))
+            {
+                int currentCount = ExpressionCount[node];
+                ++currentCount;
+                ExpressionCount[node] = currentCount;
+            }
+            else
+            {
+                ExpressionCount[node] = 1;
+            }
+
+            return base.VisitQuantifierExpr(node);
         }
     }
 }
