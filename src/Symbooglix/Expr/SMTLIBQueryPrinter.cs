@@ -80,7 +80,7 @@ namespace Symbooglix
             Debug.Assert(newTW != null, "New output cannot be null!");
             if (HumanReadable)
             {
-                this.TW = new IndentedTextWriter(newTW);
+                this.TW = new IndentedTextWriter(newTW," ");
             }
             else
                 this.TW = newTW;
