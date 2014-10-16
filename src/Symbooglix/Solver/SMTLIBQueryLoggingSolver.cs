@@ -27,6 +27,9 @@ namespace Symbooglix
 
             public void SetConstraints(ConstraintManager constraints)
             {
+                // Only clear the known declarations when we are given new constraints
+                Printer.ClearDeclarations();
+
                 // Let the printer find the declarations
                 CurrentConstraints = constraints;
                 foreach (var constraint in constraints.ConstraintExprs)
@@ -68,7 +71,6 @@ namespace Symbooglix
                 }
 
                 Printer.PrintExit();
-                Printer.ClearDeclarations();
                 Printer.PrintCommentLine("End of Query " + (UseCounter));
                 ++UseCounter;
                 return result;
