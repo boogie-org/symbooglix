@@ -940,21 +940,11 @@ namespace Symbooglix
         public override Expr VisitExpr(Expr node)
         {
             // This avoids recording the same node twice
-            // as VisitExpr() can call VisitNAryExpr() and VisitQuantifier
+            // as VisitExpr() can call VisitNAryExpr() and VisitQuantifier()
             if (node is NAryExpr || node is QuantifierExpr)
                 return base.VisitExpr(node);
 
-            if (ExpressionCount.ContainsKey(node))
-            {
-                int currentCount = ExpressionCount[node];
-                ++currentCount;
-                ExpressionCount[node] = currentCount;
-            }
-            else
-            {
-                ExpressionCount[node] = 1;
-            }
-
+            CountExpr(node);
             return base.VisitExpr(node);
         }
 
@@ -963,22 +953,18 @@ namespace Symbooglix
         // VisitExpr() but instead will call VisitNAryExpr
         public override Expr VisitNAryExpr(NAryExpr node)
         {
-            if (ExpressionCount.ContainsKey(node))
-            {
-                int currentCount = ExpressionCount[node];
-                ++currentCount;
-                ExpressionCount[node] = currentCount;
-            }
-            else
-            {
-                ExpressionCount[node] = 1;
-            }
-
+            CountExpr(node);
             return base.VisitNAryExpr(node);
         }
 
         // This is necessary because the root of the Tree might be a QuantifierExpr
         public override QuantifierExpr VisitQuantifierExpr(QuantifierExpr node)
+        {
+            CountExpr(node);
+            return base.VisitQuantifierExpr(node);
+        }
+
+        private void CountExpr(Expr node)
         {
             if (ExpressionCount.ContainsKey(node))
             {
@@ -990,8 +976,6 @@ namespace Symbooglix
             {
                 ExpressionCount[node] = 1;
             }
-
-            return base.VisitQuantifierExpr(node);
         }
     }
 }
