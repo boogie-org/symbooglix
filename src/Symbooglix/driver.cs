@@ -96,6 +96,9 @@ namespace Symbooglix
             [Option("solver-timeout", DefaultValue=120, HelpText="Maximum time allowed for a single query")]
             public int solverTimeout {get; set;}
 
+            [Option("solver-use-named-attr", DefaultValue=1, HelpText="Use named attributes with SMTLIB based solvers")]
+            public int UseNamedAttributes { get; set; }
+
             [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
             public int useModSetTransform { get; set; }
 
@@ -468,10 +471,10 @@ namespace Symbooglix
             switch (options.solver)
             {
                 case CmdLineOpts.Solver.CVC4:
-                    solverImpl = new Solver.CVC4SMTLIBSolver(options.pathToSolver);
+                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver);
                     break;
                 case CmdLineOpts.Solver.Z3:
-                    solverImpl = new Solver.Z3SMTLIBSolver(options.pathToSolver);
+                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver);
                     break;
                 case CmdLineOpts.Solver.DUMMY:
                     solverImpl = new Solver.DummySolver(Symbooglix.Solver.Result.UNKNOWN);

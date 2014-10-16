@@ -22,8 +22,9 @@ namespace Symbooglix
             private Stopwatch ReadExprTimer;
             private Stopwatch SolverProcessTimer;
             private Stopwatch PrintExprTimer;
+            private bool UseNamedAttributes;
 
-            protected SimpleSMTLIBSolver(string PathToSolverExecutable, string solverArguments)
+            protected SimpleSMTLIBSolver(bool useNamedAttributes, string PathToSolverExecutable, string solverArguments)
             {
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
@@ -31,6 +32,8 @@ namespace Symbooglix
                 ReadExprTimer = new Stopwatch();
                 SolverProcessTimer = new Stopwatch();
                 PrintExprTimer = new Stopwatch();
+
+                this.UseNamedAttributes = useNamedAttributes;
 
                 InternalStatistics = new SimpleSMTLIBSolverStatistics();
 
@@ -70,7 +73,7 @@ namespace Symbooglix
                 this.TheProcess = Process.Start(StartInfo);
 
                 if (Printer == null)
-                    Printer = new SMTLIBQueryPrinter(GetStdInput(), /*useNamedAttributeBindings*/ true, /*humanReadable=*/ false);
+                    Printer = new SMTLIBQueryPrinter(GetStdInput(), /*useNamedAttributeBindings*/ UseNamedAttributes, /*humanReadable=*/ false);
                 else
                     Printer.ChangeOutput(GetStdInput());
 
