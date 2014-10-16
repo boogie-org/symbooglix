@@ -45,6 +45,11 @@ namespace Symbooglix
                 // Dummy solver doesn't need to clean up anything
                 return;
             }
+
+            public ISolverImplStatistics GetStatistics()
+            {
+                throw new NotImplementedException();
+            }
                 
             private class DummyAssignment : IAssignment
             {

@@ -83,6 +83,11 @@ namespace Symbooglix
             {
                 UnderlyingImpl.Dispose();
             }
+
+            public ISolverImplStatistics GetStatistics()
+            {
+                return UnderlyingImpl.GetStatistics();
+            }
         }
     }
 }

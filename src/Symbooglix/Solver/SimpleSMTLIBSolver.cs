@@ -18,11 +18,21 @@ namespace Symbooglix
             private bool ReceivedResult = false;
             private Process TheProcess = null;
             private System.Text.Encoding TheEncoding = null;
+            private SimpleSMTLIBSolverStatistics InternalStatistics = null;
+            private Stopwatch ReadExprTimer;
+            private Stopwatch SolverProcessTimer;
+            private Stopwatch PrintExprTimer;
 
             protected SimpleSMTLIBSolver(string PathToSolverExecutable, string solverArguments)
             {
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
+
+                ReadExprTimer = new Stopwatch();
+                SolverProcessTimer = new Stopwatch();
+                PrintExprTimer = new Stopwatch();
+
+                InternalStatistics = new SimpleSMTLIBSolverStatistics();
 
                 StartInfo = new ProcessStartInfo(PathToSolverExecutable);
                 StartInfo.Arguments = solverArguments;
@@ -38,8 +48,22 @@ namespace Symbooglix
                 CreateNewProcess();
             }
 
+            public ISolverImplStatistics GetStatistics()
+            {
+                UpdateInternalStatistics(); // Only update the statistics when we really need to.
+                return InternalStatistics.DeepClone();
+            }
+
+            private void UpdateInternalStatistics()
+            {
+                InternalStatistics.PrintExprTime = PrintExprTimer.Elapsed;
+                InternalStatistics.ReadExprTime = ReadExprTimer.Elapsed;
+                InternalStatistics.SolverProcessTime = SolverProcessTimer.Elapsed;
+            }
+
             private void CreateNewProcess()
             {
+                SolverProcessTimer.Start(); // Include the process setup time in solver execution time
                 if (TheProcess != null)
                     TheProcess.Close();
 
@@ -56,6 +80,7 @@ namespace Symbooglix
                 TheProcess.ErrorDataReceived += ErrorHandler;
                 TheProcess.BeginOutputReadLine();
                 TheProcess.BeginErrorReadLine();
+                SolverProcessTimer.Stop();
             }
 
             private StreamWriter GetStdInput()
@@ -70,6 +95,7 @@ namespace Symbooglix
 
             public void SetConstraints(ConstraintManager cm)
             {
+                ReadExprTimer.Start();
                 Printer.ClearDeclarations();
 
                 // Let the printer find the declarations
@@ -78,6 +104,7 @@ namespace Symbooglix
                 {
                     Printer.AddDeclarations(constraint);
                 }
+                ReadExprTimer.Stop();
             }
 
             public void SetTimeout(int seconds)
@@ -131,15 +158,23 @@ namespace Symbooglix
                 {
                     ReceivedResult = false;
 
+                    ReadExprTimer.Start();
                     Printer.AddDeclarations(queryExpr);
+                    ReadExprTimer.Stop();
 
                     // Assume the process has already been setup
                     try
                     {
+                        PrintExprTimer.Start();
                         SetSolverOptions();
                         PrintDeclarationsAndConstraints();
                         Printer.PrintAssert(queryExpr);
+
+                        // Start the timer for the process now. The solver should start processing as soon as we write (check-sat)
+                        SolverProcessTimer.Start(); 
+
                         Printer.PrintCheckSat();
+                        PrintExprTimer.Stop();
                     }
                     catch(System.IO.IOException)
                     {
@@ -173,6 +208,9 @@ namespace Symbooglix
                         Console.Error.WriteLine("Failed to get solver result!");
                         SolverResult = Result.UNKNOWN;
                     }
+
+                    if (SolverProcessTimer.IsRunning)
+                        SolverProcessTimer.Stop();
 
                     CreateNewProcess(); // For next invocation
 
@@ -225,7 +263,6 @@ namespace Symbooglix
             }
         }
 
-
         public class SolverNotFoundException : Exception
         {
             public SolverNotFoundException(string path) : base("The Solver \"" + path + "\" could not be found")
@@ -239,6 +276,25 @@ namespace Symbooglix
             public NoSolverResultException(string msg) : base(msg)
             {
 
+            }
+        }
+
+        public class SimpleSMTLIBSolverStatistics : ISolverImplStatistics
+        {
+            public TimeSpan SolverProcessTime;
+            public TimeSpan ReadExprTime;
+            public TimeSpan PrintExprTime;
+
+            public SimpleSMTLIBSolverStatistics()
+            {
+                SolverProcessTime = TimeSpan.Zero;
+                ReadExprTime = TimeSpan.Zero;
+                PrintExprTime = TimeSpan.Zero;
+            }
+
+            public ISolverImplStatistics DeepClone()
+            {
+                return (ISolverImplStatistics) this.MemberwiseClone();
             }
         }
     }
