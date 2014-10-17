@@ -46,7 +46,7 @@ namespace ConstantFoldingTests
         }
 
         [Test()]
-        public void ConditionAndThenSameAndElseFalse()
+        public void IfConditionThenConditionAndElseFalse()
         {
             var v = new IdentifierExpr(Token.NoToken, new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "v", Microsoft.Boogie.Type.Bool)));
             var ifThenElse = builder.IfThenElse(v, v, builder.ConstantBool(false));
