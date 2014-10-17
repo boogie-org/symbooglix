@@ -738,6 +738,36 @@ namespace Symbooglix
                 }
             }
 
+            // if !<expr> then <expr> else true == <expr>
+            // e.g.
+            // p0$1:bool := (if !BV32_SLT(symbolic_5, 100bv32) then BV32_SLT(symbolic_5, 100bv32) else true)
+            if (e.Args[2] is LiteralExpr)
+            {
+                var elseExpr = e.Args[2] as LiteralExpr;
+
+                if (elseExpr.IsTrue)
+                {
+                    if (e.Args[0] is NAryExpr)
+                    {
+                        var conditionNAry = e.Args[0] as NAryExpr;
+                        if (conditionNAry.Fun is UnaryOperator)
+                        {
+                            var unary = conditionNAry.Fun as UnaryOperator;
+
+                            if (unary.Op == UnaryOperator.Opcode.Not)
+                            {
+                                // More expensive check
+                                if (conditionNAry.Args[0].Equals(e.Args[1]))
+                                {
+                                    return e.Args[1];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
 
             // we can't constant fold
             return e;

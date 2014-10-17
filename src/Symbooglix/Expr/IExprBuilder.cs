@@ -46,6 +46,7 @@ namespace Symbooglix
         Expr NotEq(Expr lhs, Expr rhs);
         Expr Iff(Expr lhs, Expr rhs);
         Expr IfThenElse(Expr condition, Expr thenExpr, Expr elseExpr);
+        Expr Not(Expr e);
     }
 
     public class ExprBuilder : IExprBuilder
@@ -263,6 +264,13 @@ namespace Symbooglix
             // FIXME: Factor some of this out.
             // FIXME: Cache operators
             return new NAryExpr(Token.NoToken, new Microsoft.Boogie.IfThenElse(Token.NoToken), new List<Expr> { condition, thenExpr, elseExpr });
+        }
+
+        public Expr Not(Expr e)
+        {
+            // FIXME: Factor some of this out.
+            // FIXME: Cache operators
+            return new NAryExpr(Token.NoToken, new UnaryOperator(Token.NoToken, UnaryOperator.Opcode.Not), new List<Expr> { e });
         }
     }
 }
