@@ -721,6 +721,24 @@ namespace Symbooglix
                 }
             }
 
+            // if <expr> then <expr> else false == <expr>
+            // e.g.
+            // p1$1:bool := (if BV32_SLT(symbolic_5, 100bv32) then BV32_SLT(symbolic_5, 100bv32) else false)
+            if (e.Args[2] is LiteralExpr)
+            {
+                var elseExpr = e.Args[2] as LiteralExpr;
+
+                if (elseExpr.IsFalse)
+                {
+                    // More expensive check
+                    if (e.Args[0].Equals(e.Args[1]))
+                    {
+                        return e.Args[0];
+                    }
+                }
+            }
+
+
             // we can't constant fold
             return e;
         }

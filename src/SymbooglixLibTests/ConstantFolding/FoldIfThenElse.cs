@@ -44,6 +44,17 @@ namespace ConstantFoldingTests
             // FIXME: Boogie should have a static method for building these
             return new NAryExpr(Token.NoToken, new IfThenElse(Token.NoToken), new List<Expr> { condition, resultIfTrue, resultIfFalse });
         }
+
+        [Test()]
+        public void ConditionAndThenSameAndElseFalse()
+        {
+            var v = new IdentifierExpr(Token.NoToken, new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "v", Microsoft.Boogie.Type.Bool)));
+            var ifThenElse = builder.IfThenElse(v, v, builder.ConstantBool(false));
+
+            var CFT = new ConstantFoldingTraverser();
+            var result = CFT.Traverse(ifThenElse);
+            Assert.AreSame(v, result);
+        }
     }
 }
 
