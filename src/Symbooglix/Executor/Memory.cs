@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class Memory : Util.IDeepClone<Memory>
+    public class Memory : Util.IDeepClone<Memory>, Util.IDumpable
     {
         public Memory()
         {
@@ -33,6 +33,11 @@ namespace Symbooglix
             }
 
             return other;
+        }
+
+        public void Dump(TextWriter TW)
+        {
+            Dump(TW, 4);
         }
 
         public void Dump(TextWriter TW, int indent)
@@ -80,7 +85,7 @@ namespace Symbooglix
         public Dictionary<Variable,Expr> Globals;
     }
 
-    public class StackFrame : Util.IDeepClone<StackFrame>
+    public class StackFrame : Util.IDeepClone<StackFrame>, Util.IDumpable
     {
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
@@ -165,6 +170,11 @@ namespace Symbooglix
             other.CurrentInstruction = CurrentInstruction.DeepClone();
 
             return other;
+        }
+
+        public void Dump(TextWriter TW)
+        {
+            Dump(TW, 4);
         }
 
         public void Dump(TextWriter TW, int indent)

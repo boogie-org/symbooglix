@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class ExecutionState : Util.IDeepClone<ExecutionState>
+    public class ExecutionState : Util.IDeepClone<ExecutionState>, Util.IDumpable
     {
         public Memory Mem;
         public List<SymbolicVariable> Symbolics;
@@ -101,9 +101,14 @@ namespace Symbooglix
             return true;
         }
 
+        public void Dump(TextWriter TW)
+        {
+            DumpState(TW, /*showConstraints=*/true);
+        }
+
         public void Dump()
         {
-            DumpState(Console.Error, true);
+            Dump(Console.Error);
         }
 
         public void DumpState(TextWriter TW, bool showConstraints, int indent=4)
