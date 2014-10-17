@@ -46,9 +46,12 @@ namespace Symbooglix
                 return;
             }
 
-            public ISolverImplStatistics GetStatistics()
+            public ISolverImplStatistics Statistics
             {
-                throw new NotImplementedException();
+                get
+                {
+                    throw new NotImplementedException();
+                }
             }
                 
             private class DummyAssignment : IAssignment

@@ -113,6 +113,7 @@
     <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateUnSatCoreLogger.cs" />
     <Compile Include="Util\IDumpable.cs" />
     <Compile Include="Executor\ExecutorStatistics.cs" />
+    <Compile Include="Executor\ExecutorHandlers\SolverStatisticsLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

@@ -51,10 +51,13 @@ namespace Symbooglix
                 CreateNewProcess();
             }
 
-            public ISolverImplStatistics GetStatistics()
+            public ISolverImplStatistics Statistics
             {
-                UpdateInternalStatistics(); // Only update the statistics when we really need to.
-                return InternalStatistics.DeepClone();
+                get
+                {
+                    UpdateInternalStatistics(); // Only update the statistics when we really need to.
+                    return InternalStatistics.DeepClone();
+                }
             }
 
             private void UpdateInternalStatistics()

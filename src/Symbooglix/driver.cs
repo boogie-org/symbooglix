@@ -315,7 +315,7 @@ namespace Symbooglix
                 var terminationCounter = new TerminationCounter();
                 terminationCounter.Connect(executor);
 
-                SetupFileLoggers(options, executor);
+                SetupFileLoggers(options, executor, solver);
 
                 // Supply our own PassManager for preparation so we can hook into its events
                 executor.PrepareProgram(GetPassManager(options,program));
@@ -348,12 +348,12 @@ namespace Symbooglix
 
         public static void DumpOtherStats(Executor executor, Solver.ISolver solver)
         {
-            var stats = solver.SolverImpl.GetStatistics();
+            var stats = solver.SolverImpl.Statistics;
             stats.Dump(Console.Out);
             executor.GetStatistics().Dump(Console.Out);
         }
 
-        public static void SetupFileLoggers(CmdLineOpts options, Executor executor)
+        public static void SetupFileLoggers(CmdLineOpts options, Executor executor, Solver.ISolver solver)
         {
             ExecutorFileLoggerHandler executorLogger = null;
             if (options.outputDir.Length == 0)
@@ -366,6 +366,7 @@ namespace Symbooglix
             executorLogger.AddRootDirLogger(new MemoryUsageLogger());
             executorLogger.AddRootDirLogger(new TerminationCounterLogger());
             executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
+            executorLogger.AddRootDirLogger(new SolverStatisticsLogger(solver));
 
             executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
             executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));

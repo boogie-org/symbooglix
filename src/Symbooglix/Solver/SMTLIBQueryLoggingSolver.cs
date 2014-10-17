@@ -86,9 +86,12 @@ namespace Symbooglix
                 UnderlyingImpl.Dispose();
             }
 
-            public ISolverImplStatistics GetStatistics()
+            public ISolverImplStatistics Statistics
             {
-                return UnderlyingImpl.GetStatistics();
+                get
+                {
+                    return UnderlyingImpl.Statistics;
+                }
             }
         }
     }

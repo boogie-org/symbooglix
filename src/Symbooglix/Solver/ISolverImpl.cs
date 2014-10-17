@@ -13,7 +13,7 @@ namespace Symbooglix
             void SetConstraints(ConstraintManager constraints);
             Tuple<Solver.Result, IAssignment> ComputeSatisfiability(Microsoft.Boogie.Expr queryExpr, bool computeAssignment);
             void SetTimeout(int seconds);
-            ISolverImplStatistics GetStatistics();
+            ISolverImplStatistics Statistics { get;}
         }
 
         public interface ISolverImplStatistics : Util.IDeepClone<ISolverImplStatistics>, Util.IDumpable
