@@ -76,6 +76,12 @@ namespace Symbooglix
             this.TheExecutor = executor;
             Debug.Assert(TheExecutor != null, "TheExecutor cannot be null");
         }
+
+        public void Dump(System.IO.TextWriter TW)
+        {
+            TW.WriteLine(this.GetType().ToString());
+            TW.WriteLine("Max depth:{0}", MaxDepth);
+        }
     }
 }
 

@@ -92,6 +92,11 @@ namespace Symbooglix
         {
             // Not needed
         }
+
+        public void Dump(System.IO.TextWriter TW)
+        {
+            TW.WriteLine(this.GetType().ToString());
+        }
     }
 }
 

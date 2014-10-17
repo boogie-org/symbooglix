@@ -47,6 +47,11 @@ namespace Symbooglix
         {
             // Not Needed
         }
+
+        public void Dump(System.IO.TextWriter TW)
+        {
+            TW.WriteLine(this.GetType().ToString());
+        }
     }
 }
 
