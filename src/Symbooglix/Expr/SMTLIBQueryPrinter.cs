@@ -79,14 +79,16 @@ namespace Symbooglix
             }
 
             Debug.Assert(numberOfOccurances >= 2);
-            if (Bindings.ContainsKey(root))
+            try
             {
-                // Use the Binding assigned to this Expr
+                // Use the Binding assigned to this Expr if it's available.
+                int BindingNumber = Bindings[root];
                 TW.Write(BindingPrefix + Bindings[root].ToString());
                 return;
             }
-            else
+            catch (KeyNotFoundException)
             {
+                // The binding hasn't been made yet so print it
                 // Print the Expr and give it a binding
                 int bindingNumber = NamedAttributeCounter;
                 var binding = BindingPrefix + bindingNumber.ToString();
@@ -962,13 +964,12 @@ namespace Symbooglix
 
         private void CountExpr(Expr node)
         {
-            if (ExpressionCount.ContainsKey(node))
+            try
             {
                 int currentCount = ExpressionCount[node];
-                ++currentCount;
-                ExpressionCount[node] = currentCount;
+                ExpressionCount[node] = currentCount +1;
             }
-            else
+            catch (KeyNotFoundException )
             {
                 ExpressionCount[node] = 1;
             }
