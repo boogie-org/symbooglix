@@ -53,7 +53,7 @@ namespace Symbooglix
             Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV);
         }
 
-        public class SolverStats : Util.IDeepClone<SolverStats>
+        public class SolverStats : Util.IDeepClone<SolverStats>, Util.IDumpable
         {
             // Stats on number of queries
             public int SatQueries { get; internal set; }
@@ -94,14 +94,24 @@ namespace Symbooglix
                 }
             }
 
+            public void Dump(System.IO.TextWriter TW)
+            {
+                TW.WriteLine("Sat queries:{0}", SatQueries);
+                TW.WriteLine("Unsat queries:{0}", UnsatQueries);
+                TW.WriteLine("Unknown queries:{0}", UnknownQueries);
+                TW.WriteLine("Total queries:{0}", TotalQueries);
+                TW.WriteLine("Total run time:{0} seconds", TotalRunTime.TotalSeconds);
+            }
+
             public override string ToString()
             {
-                return string.Format("[SolverStats: SatQueries={0}, UnsatQueries={1}, UnknownQueries={2}, TotalQueries={3}, TotalRunTime={4}s]",
-                                     SatQueries,
-                                     UnsatQueries,
-                                     UnknownQueries,
-                                     TotalQueries,
-                                     TotalRunTime.TotalSeconds);
+                string result;
+                using (var SW = new System.IO.StringWriter())
+                {
+                    Dump(SW);
+                    result = SW.ToString();
+                }
+                return result;
             }
 
             // Clients need to call this if they want an instance
