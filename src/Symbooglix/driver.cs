@@ -350,6 +350,7 @@ namespace Symbooglix
         {
             var stats = solver.SolverImpl.GetStatistics();
             stats.Dump(Console.Out);
+            executor.GetStatistics().Dump(Console.Out);
         }
 
         public static void SetupFileLoggers(CmdLineOpts options, Executor executor)

@@ -22,6 +22,9 @@ namespace Symbooglix
             this.TheSolver = solver;
             this.Duplicator = new NonSymbolicDuplicator();
             this.InternalRequestedEntryPoints = new List<Implementation>();
+            this.InternalStatistics = new ExecutorStatistics();
+            this.RunTimer = new Stopwatch();
+            this.PrepareTimer = new Stopwatch();
         }
 
         private IStateScheduler StateScheduler;
@@ -57,6 +60,22 @@ namespace Symbooglix
         public IEnumerable<Implementation> RequestedEntryPoints
         {
             get { return InternalRequestedEntryPoints; }
+        }
+
+        private ExecutorStatistics InternalStatistics;
+        private Stopwatch RunTimer;
+        private Stopwatch PrepareTimer;
+        public ExecutorStatistics GetStatistics()
+        {
+            UpdateStatistics(); // Update only when necessary
+            // Make sure clients get a copy
+            return InternalStatistics.DeepClone();
+        }
+
+        private void UpdateStatistics()
+        {
+            InternalStatistics.RunTime = RunTimer.Elapsed;
+            InternalStatistics.PrepareTime = PrepareTimer.Elapsed;
         }
 
         // Events
@@ -177,6 +196,8 @@ namespace Symbooglix
         {
             lock (PrepareProgramLock)
             {
+                PrepareTimer.Start();
+
                 if (HasBeenPrepared)
                     return true;
 
@@ -245,6 +266,7 @@ namespace Symbooglix
                 foreach (var axiom in axioms)
                 {
                     axiom.GetInstructionStatistics().IncrementCovered();
+                    ++InternalStatistics.InstructionsExecuted; // Increment now just in case we return early
 
                     // Check The axiom can be satisfied
                     TheSolver.SetConstraints(InitialState.Constraints);
@@ -275,14 +297,14 @@ namespace Symbooglix
                             // So here we assume
                             terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
 
-                            TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/ false);
+                            TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
                             HasBeenPrepared = true; // Don't allow this method to run again
+                            PrepareTimer.Stop();
                             return false;
                     }
 
                     InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
                     Debug.WriteLine("Adding constraint : " + constraint);
-
                 }
              
 
@@ -302,6 +324,7 @@ namespace Symbooglix
 
 
                 HasBeenPrepared = true;
+                PrepareTimer.Stop();
                 return true;
             }
         }
@@ -331,6 +354,7 @@ namespace Symbooglix
             // 2. Allows the Terminate() method to block on this method.
             lock (ExecutorLoopLock)
             {
+                RunTimer.Start();
                 SetupTimeout(timeout);
 
                 // Record the entry point that was requested
@@ -415,6 +439,8 @@ namespace Symbooglix
                 {
                     ExecutorTerminated(this, new ExecutorTerminatedArgs());
                 }
+
+                RunTimer.Stop();
             }
         }
 
@@ -473,6 +499,8 @@ namespace Symbooglix
 
             // FIXME: Use of "dynamic" might hinder performance
             this.Handle(currentInstruction as dynamic);
+
+            ++InternalStatistics.InstructionsExecuted; // Update # of instructions executed
 
             #if DEBUG
             Debug.Assert(original.Equals( currentInstruction.ToString()), "instruction was changed during execution!");
@@ -646,12 +674,13 @@ namespace Symbooglix
                     stillInState = HandleAssertLikeCommand(constraint, new TerminatedAtFailingRequires(r), r.GetProgramLocation());
                 }
 
+                ++InternalStatistics.InstructionsExecuted;
+
                 if (!stillInState)
                 {
                     // The current state was destroyed so we can't continue handling this command
                     return;
                 }
-
             }
 
             // We presume now that the CurrentState wasn't destroyed so its safe to continue
@@ -725,6 +754,7 @@ namespace Symbooglix
             foreach (var requires in proc.Requires)
             {
                 requires.GetInstructionStatistics().IncrementCovered();
+                ++InternalStatistics.InstructionsExecuted;
                 Expr condition = (Expr) VR.Visit(requires.Condition);
                 stillInState = HandleAssertLikeCommand(condition, new TerminatedAtFailingRequires(requires), requires.GetProgramLocation());
 
@@ -748,6 +778,7 @@ namespace Symbooglix
             foreach (var ensures in proc.Ensures)
             {
                 ensures.GetInstructionStatistics().IncrementCovered();
+                ++InternalStatistics.InstructionsExecuted;
                 Expr condition = (Expr) VR.Visit(ensures.Condition);
 
                 // FIXME: We should add an option to disable this because we might want to blindly
@@ -818,6 +849,7 @@ namespace Symbooglix
             foreach (var ensures in CurrentState.GetCurrentStackFrame().Impl.Proc.Ensures)
             {
                 ensures.GetInstructionStatistics().IncrementCovered();
+                ++InternalStatistics.InstructionsExecuted;
                 Expr remapped = VMR.Visit(ensures.Condition) as Expr;
 
                 if (UseConstantFolding)
