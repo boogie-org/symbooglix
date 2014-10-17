@@ -44,6 +44,24 @@ namespace ConstantFoldingTests
             else
                 return Expr.True;
         }
+
+        [Test()]
+        public void OneSideFalse()
+        {
+            var falseExpr = builder.ConstantBool(false);
+
+            var v = new IdentifierExpr(Token.NoToken, new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "v", Microsoft.Boogie.Type.Bool)));
+            var orExpr = builder.Or(falseExpr, v);
+
+            var CFT = new ConstantFoldingTraverser();
+            var result = CFT.Traverse(orExpr);
+            Assert.AreSame(v, result);
+
+            // other way round
+            var orExpr2 = builder.Or(v, falseExpr);
+            result = CFT.Traverse(orExpr2);
+            Assert.AreSame(v, result);
+        }
     }
 }
 

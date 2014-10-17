@@ -588,6 +588,20 @@ namespace Symbooglix
                 return Expr.False;
             }
 
+            // false OR <expr> == <expr>
+            for (int index = 0; index <= 1; ++index)
+            {
+                if (e.Args[index] is LiteralExpr)
+                {
+                    var literal = e.Args[index] as LiteralExpr;
+
+                    if (literal.IsFalse)
+                    {
+                        return e.Args[( index + 1 ) % 2];
+                    }
+                }
+            }
+
             // Can't constant fold
             return e;
         }
