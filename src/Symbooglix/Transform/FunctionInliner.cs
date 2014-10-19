@@ -117,7 +117,16 @@ namespace Symbooglix
                     // Using Closure :)
                     Substitution sub = delegate(Variable v)
                     {
-                        return varToExprMap[v];
+                        try
+                        {
+                            return varToExprMap[v];
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            // The substituter seems to expect null being
+                            // returned if we don't want to change the variable
+                            return null;
+                        }
                     };
                
                     // Return the Function expression with variables substituted for function arguments.

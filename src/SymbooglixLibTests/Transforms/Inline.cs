@@ -45,6 +45,20 @@ namespace TransformTests
             var assertCmd = program.TopLevelDeclarations.OfType<Implementation>().SelectMany(i => i.Blocks).SelectMany(cmd => cmd.Cmds).OfType<AssertCmd>().First();
             Assert.AreEqual("x == 0", assertCmd.Expr.ToString());
         }
+
+        [Test()]
+        public void InlineExistsWithFreeVariable()
+        {
+            Program program = SymbooglixTest.loadProgram("Transforms/programs/InlineExists.bpl");
+
+            var PM = new PassManager(program);
+            PM.Add(new FunctionInliningPass());
+            PM.Run();
+
+            // Check the requires on strLen
+            var strLenProc = program.TopLevelDeclarations.OfType<Procedure>().Where(proc => proc.Name == "strLen").First();
+            Assert.AreEqual("(exists x: int :: x >= 0 && s[x] == 0bv8)", strLenProc.Requires[0].Condition.ToString());
+        }
     }
 
 
