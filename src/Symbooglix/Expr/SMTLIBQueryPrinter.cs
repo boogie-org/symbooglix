@@ -30,6 +30,7 @@ namespace Symbooglix
         private int NamedAttributeCounter = 0;
         private Dictionary<Expr, int> Bindings;
         private bool UseNamedAttributeBindings;
+        private bool NamedBindingsDisabledInQuantifierExpr;
         private ExprCountingVisitor BindingsFinder;
 
         public SMTLIBQueryPrinter(TextWriter TW, bool useNamedAttributeBindings, bool humanReadable, int indent=2)
@@ -46,6 +47,7 @@ namespace Symbooglix
 
             Bindings = new Dictionary<Expr, int>();
             this.UseNamedAttributeBindings = useNamedAttributeBindings;
+            this.NamedBindingsDisabledInQuantifierExpr = false;
 
             TheTraverser = new SMTLIBTraverser(this);
         }
@@ -65,7 +67,7 @@ namespace Symbooglix
         public void PrintExpr(Expr root)
         {
             // We never want to use bindings for these
-            if (!UseNamedAttributeBindings || root is LiteralExpr || root is IdentifierExpr)
+            if (!UseNamedAttributeBindings || NamedBindingsDisabledInQuantifierExpr || root is LiteralExpr || root is IdentifierExpr)
             {
                 TheTraverser.Traverse(root);
                 return;
@@ -97,7 +99,20 @@ namespace Symbooglix
                 TW.Write("(!");
                 PrintSeperator();
                 PushIndent();
+
+                // Inside a Quantified Expr :named attributes are not allowed
+                // to contain free variables. We may miss opportunities here to
+                // add bindings but it is safer to just completly disable adding bindings
+                // inside a Quantified Expr
+                if (root is QuantifierExpr)
+                    NamedBindingsDisabledInQuantifierExpr = true;
+
                 TheTraverser.Traverse(root);
+
+                // Now we are outside a quantifier bindings can be allowed again
+                if (root is QuantifierExpr)
+                    NamedBindingsDisabledInQuantifierExpr = false;
+
                 PrintSeperator();
                 TW.Write(":named " + binding);
                 PopIndent();

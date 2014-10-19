@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out %s | %OutputCheck %s
 
 // Model a string as a map of integers to 8-bit vectors
 // where the value corresponds to ascii
@@ -40,4 +40,5 @@ procedure main()
 
    call length := strLen(myString);
    assert length == 2;
+   // CHECK-L: State 0: Terminated without error at ${CHECKFILE_ABS_PATH}:${LINE:+1} return;
 }
