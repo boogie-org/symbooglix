@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Boogie;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Symbooglix
 {
@@ -240,7 +241,24 @@ namespace Symbooglix
         {
             get
             {
-                return State.GetCurrentStackFrame().CurrentInstruction.Current.GetProgramLocation();
+                // FIXME: This might not be reliable. We should perhaps move this into
+                // "Find nearest instruction" helper class.
+
+                // Go through the stack frame backwards without modifying it
+                // We need to walk the stack frame back because we might be in the middle
+                // of setting up a call and so the Current instruction might not be
+                // available in the newest stackframe.
+                foreach (var stackFrame in Enumerable.Reverse(State.Mem.Stack))
+                {
+                    var currentInstruction = stackFrame.CurrentInstruction.Current;
+
+                    if (currentInstruction != null)
+                        return currentInstruction.GetProgramLocation();
+                }
+
+                // If we've exhausted the stack we don't really know where the error
+                // is. Not sure what to do next so lets not implement it for now
+                throw new NotImplementedException();
             }
         }
     }

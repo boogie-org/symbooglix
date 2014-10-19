@@ -1,6 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
 // RUN: %symbooglix --output-dir %t.symbooglix-out %s
-// XFAIL: *
 
 // Model a string as a map of integers to 8-bit vectors
 // where the value corresponds to ascii
