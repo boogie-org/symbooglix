@@ -942,6 +942,10 @@ namespace Symbooglix
             if (node is NAryExpr || node is QuantifierExpr)
                 return base.VisitExpr(node);
 
+            // We don't want to record anything for these
+            if (node is LiteralExpr || node is IdentifierExpr)
+                return base.VisitExpr(node);
+
             CountExpr(node);
             return base.VisitExpr(node);
         }
