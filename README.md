@@ -24,7 +24,7 @@ If using Linux
 If using Windows
 ----------------
 
-**I've not tested running under windows. Use at your own risk!**
+- NUnit 2.6.3. You should install the "NUnit Test Adapter" in Visual Studio so you can run the unit tests.
 
 Getting started
 ===============
@@ -57,7 +57,7 @@ NUnit tests
 ===========
 
 [NUnit](https://github.com/nunit) is used for unit testing. This comes preinstalled
-in mono 3.2 (and probably other versions). I'm not sure about Windows users.
+in mono 3.2 (and probably other versions).
 
 These tests are easy to run from within monodevelop.
 
