@@ -317,32 +317,51 @@ namespace Symbooglix
 
                 SetupFileLoggers(options, executor, solver);
 
-                // Supply our own PassManager for preparation so we can hook into its events
-                executor.PrepareProgram(GetPassManager(options,program));
-
-                foreach (var entryPoint in entryPoints)
+                try
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine("Entering Implementation " + entryPoint.Name + " as entry point");
-                    Console.ResetColor();
+                    // Supply our own PassManager for preparation so we can hook into its events
+                    executor.PrepareProgram(GetPassManager(options,program));
 
-                    try
+                    foreach (var entryPoint in entryPoints)
                     {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("Entering Implementation " + entryPoint.Name + " as entry point");
+                        Console.ResetColor();
                         executor.Run(entryPoint, options.timeout);
                     }
-                    catch(ExecuteTerminatedStateException)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
-                        Console.ResetColor();
-                    }
                 }
+                catch (ExecuteTerminatedStateException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
+                    Console.ResetColor();
+                    return 1;
+                }
+                catch (RecursiveFunctionDetectedException rfdException)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Error.WriteLine("Detected the following recursive functions");
+                    foreach (var function in rfdException.Functions)
+                    {
+                        Console.Error.Write(function.Name + ": ");
+                        if (function.Body != null)
+                            Console.Error.WriteLine(function.Body.ToString());
+
+                        if (function.DefinitionAxiom != null)
+                            Console.Error.WriteLine(function.DefinitionAxiom.Expr.ToString());
+                    }
+                    Console.ResetColor();
+                    return 1;
+                }
+
+
                 Console.WriteLine("Finished executing");
                 Console.WriteLine(solver.Statistics.ToString());
                 Console.WriteLine(terminationCounter.ToString());
 
                 DumpOtherStats(executor, solver);
             }
+
             return 0;
         }
 

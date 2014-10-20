@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Symbooglix
 {
@@ -27,6 +28,17 @@ namespace Symbooglix
         public InvalidEntryPoint(Executor executor, Microsoft.Boogie.Implementation impl) : base(executor, "Implementation in not a valid entry point")
         {
             this.Impl = impl;
+        }
+    }
+
+    public class RecursiveFunctionDetectedException : ExecutorException
+    {
+        public IEnumerable<Microsoft.Boogie.Function> Functions;
+
+        public RecursiveFunctionDetectedException(Executor executor, IEnumerable<Microsoft.Boogie.Function> functions): 
+        base(executor, "Recursive functions detected")
+        {
+            this.Functions = functions;
         }
     }
 }

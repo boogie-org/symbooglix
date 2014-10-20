@@ -224,20 +224,7 @@ namespace Symbooglix
                 // Don't allow recursive function for now as we can't handle them!
                 if (FRF.RecursiveFunctions.Count > 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Error.WriteLine("Detected the following recursive functions");
-                    foreach (var function in FRF.RecursiveFunctions)
-                    {
-                        Console.Error.Write(function.Name + ": ");
-                        if (function.Body != null)
-                            Console.Error.WriteLine(function.Body.ToString());
-
-                        if (function.DefinitionAxiom != null)
-                            Console.Error.WriteLine(function.DefinitionAxiom.Expr.ToString());
-                    }
-                    Console.ResetColor();
-
-                    throw new NotSupportedException("Cannot handle recursive functions");
+                    throw new RecursiveFunctionDetectedException(this, FRF.RecursiveFunctions);
                 }
 
                 // Create initial execution state
