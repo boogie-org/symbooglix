@@ -40,7 +40,7 @@ namespace ExprSMTLIBTest
                 printer.AddDeclarations(e);
                 printer.PrintFunctionDeclarations();
                 printer.PrintExpr(e);
-                Assert.AreEqual("(declare-fun uf (Int Real ) Bool)\n(uf 5 5.5  )", writer.ToString());
+                Assert.AreEqual("(declare-fun uf (Int Real ) Bool)" + Environment.NewLine + "(uf 5 5.5  )", writer.ToString());
             }
         }
     }

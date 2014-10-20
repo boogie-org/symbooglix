@@ -22,12 +22,12 @@ namespace SymbooglixLibTests
             var cmdStrings = new List<string>();
             foreach (var cmd in blockEnumerable)
             {
-                cmdStrings.Add(cmd.ToString());
+                cmdStrings.Add(TrimNewLines(cmd.ToString()));
             }
 
             Assert.AreEqual(2, cmdStrings.Count);
-            Assert.AreEqual("assert {:symbooglix_bp \"entry\"} true;\n", cmdStrings[0]);
-            Assert.AreEqual("goto P0, P1, P2;\n", cmdStrings[1]);
+            Assert.AreEqual("assert {:symbooglix_bp \"entry\"} true;", cmdStrings[0]);
+            Assert.AreEqual("goto P0, P1, P2;", cmdStrings[1]);
         }
 
         [Test()]
@@ -88,7 +88,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual(1, blockEnumerator.Count);
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("goto end;\n", blockEnumerator.Current.ToString());
+            Assert.AreEqual("goto end;", TrimNewLines(blockEnumerator.Current.ToString()));
         }
 
         [Test()]
@@ -102,19 +102,19 @@ namespace SymbooglixLibTests
             Assert.AreEqual(5, blockEnumerator.Count);
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("assert {:symbooglix_bp \"entry\"} true;\n", blockEnumerator.Current.ToString());
+            Assert.AreEqual("assert {:symbooglix_bp \"entry\"} true;", TrimNewLines(blockEnumerator.Current.ToString()));
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("a := 1bv8;\n", blockEnumerator.Current.ToString());
+            Assert.AreEqual("a := 1bv8;", TrimNewLines(blockEnumerator.Current.ToString()));
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("x := 2bv8;\n", blockEnumerator.Current.ToString());
+            Assert.AreEqual("x := 2bv8;", TrimNewLines(blockEnumerator.Current.ToString()));
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("assert {:symbooglix_bp \"now_concrete\"} true;\n", blockEnumerator.Current.ToString());
+            Assert.AreEqual("assert {:symbooglix_bp \"now_concrete\"} true;", TrimNewLines(blockEnumerator.Current.ToString()));
 
             blockEnumerator.MoveNext();
-            Assert.AreEqual("return;\n", blockEnumerator.Current.ToString());
+            Assert.AreEqual("return;", TrimNewLines(blockEnumerator.Current.ToString()));
         }
 
         [Test()]

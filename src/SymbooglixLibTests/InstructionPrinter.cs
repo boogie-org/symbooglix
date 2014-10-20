@@ -20,8 +20,8 @@ namespace SymbooglixLibTests
             e.Run(getMain(p));
 
             // FIXME: This is fragile
-            Assert.AreEqual("programs/assert_true.bpl:3: [Cmd] assert true;\n" + 
-                            "programs/assert_true.bpl:4: [TransferCmd] return;\n", SW.ToString());
+            Assert.AreEqual("programs/assert_true.bpl:3: [Cmd] assert true;" + Environment.NewLine +  
+                            "programs/assert_true.bpl:4: [TransferCmd] return;" + Environment.NewLine, SW.ToString());
         }
     }
 }

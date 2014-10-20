@@ -16,6 +16,11 @@ namespace SymbooglixLibTests
         protected Program p;
         protected Executor e;
 
+        public static string TrimNewLines(string original)
+        {
+            return original.TrimEnd(new char[] { '\n', '\r' });
+        }
+
         public static void setupDebug()
         {
             // Debug log output goes to standard error.

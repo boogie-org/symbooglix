@@ -215,12 +215,14 @@ namespace Symbooglix
 
         public override string ToString()
         {
+            char[] toTrim = { '\r', '\n' };
+
             if (IsVariable)
                 return "[Variable] " + AsVariable.ToString();
             else if (IsCmd)
-                return "[Cmd] " + AsCmd.ToString().TrimEnd('\n');
+                return "[Cmd] " + AsCmd.ToString().TrimEnd(toTrim);
             else if (IsTransferCmd)
-                return "[TransferCmd] " + AsTransferCmd.ToString().TrimEnd('\n');
+                return "[TransferCmd] " + AsTransferCmd.ToString().TrimEnd(toTrim);
             else if (IsRequires)
                 return "[Requires] " + AsRequires.Condition.ToString();
             else if (IsEnsures)
