@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: not %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
+// RUN: %not %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
 // CHECK-L: Detected the following recursive functions
 // CHECK-NEXT-L: foo
 // CHECK-NEXT-L: bar
