@@ -230,7 +230,7 @@ namespace Symbooglix
                 // The event handler might get called more than once.
                 // In fact for Z3 we get called twice, first with the result
                 // and then again with a blank line (why?)
-                if (stdoutLine.Data.Length == 0 || ReceivedResult)
+                if (String.IsNullOrEmpty(stdoutLine.Data) || ReceivedResult)
                     return;
 
                 ReceivedResult = true;
@@ -256,7 +256,7 @@ namespace Symbooglix
 
             protected virtual void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)
             {
-                if (stderrLine.Data.Length > 0)
+                if (!String.IsNullOrEmpty(stderrLine.Data))
                 {
                     Console.Error.WriteLine("Solver error received:");
                     Console.Error.WriteLine(stderrLine.Data);
