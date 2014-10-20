@@ -120,7 +120,7 @@ namespace Symbooglix
             }
             else if (Origin.IsCmd)
             {
-                s += " Cmd:" + Origin.AsCmd.ToString().TrimEnd('\n') + ")";
+                s += " Cmd:" + Origin.AsCmd.ToString().TrimEnd(new char[] {'\r', '\n'}) + ")";
             }
             else if (Origin.IsModifiesSet)
             {
