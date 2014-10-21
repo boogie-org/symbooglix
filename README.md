@@ -62,11 +62,12 @@ in mono 3.2 (and probably other versions).
 These tests are easy to run from within monodevelop.
 
 However you can run these tests from the console on Linux. To do so run
-the following.
+the following (replace ``Debug`` with another build configuration if you
+want to use that configuration's build instead).
 
 ```
-$ ./nunitconsole.sh symbooglix/SymbooglixLibTests/SymbooglixLibTests.csproj
-$ ./nunitconsole.sh symbooglix/BoogieTests/BoogieTests.csproj
+$ nunit-console4 src/BoogieTests/bin/Debug/BoogieTests.dll
+$ nunit-console4 src/SymbooglixLibTests/bin/Debug/SymbooglixLibTests.dll
 ```
 
 Driver tests
