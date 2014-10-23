@@ -145,7 +145,9 @@ namespace Symbooglix
                     Console.WriteLine("Cancelled reading stderr");
                     TheProcess.CancelOutputRead();
                     Console.WriteLine("Cancelled reading stdout");
-                    TheProcess.Kill();
+                    if (!TheProcess.HasExited)
+                        TheProcess.Kill();
+
                     Console.WriteLine("killed process");
                     lock (ComputeSatisfiabilityLock)
                     {
