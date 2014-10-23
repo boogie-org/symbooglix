@@ -317,6 +317,23 @@ namespace Symbooglix
 
                 SetupFileLoggers(options, executor, solver);
 
+                bool hitCancelOnce = false;
+                Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs eventArgs)
+                {
+                    if (hitCancelOnce)
+                    {
+                        Console.WriteLine("CTRL+C pressed again. Giving up and just exiting");
+                        eventArgs.Cancel = false; // Force exit
+                    }
+                    else
+                    {
+                        hitCancelOnce = true;
+                        Console.WriteLine("Received CTRL+C. Attempting to terminated Executor");
+                        executor.Terminate(/*block=*/ false);
+                        eventArgs.Cancel = true; // Don't exit yet
+                    }
+                };
+
                 try
                 {
                     // Supply our own PassManager for preparation so we can hook into its events
