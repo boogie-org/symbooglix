@@ -263,6 +263,10 @@ namespace Symbooglix
 
                     Expr constraint = (Expr) VMR.Visit(axiom.Expr);
 
+                    // Constant fold
+                    if (UseConstantFolding)
+                        constraint = CFT.Traverse(constraint);
+
                     Solver.Result result = TheSolver.IsQuerySat(constraint);
                     switch (result)
                     {
@@ -292,19 +296,23 @@ namespace Symbooglix
 
                     InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
                     Debug.WriteLine("Adding constraint : " + constraint);
-                }
-             
 
-                // See if we can concretise using the program's axioms
-                foreach (var axiom in axioms)
-                {
+                    // See if we can concretise using the program's axioms
+                    // Note we must use Expr that is not remapped (i.e. must contain original program variables)
                     LiteralExpr literal = null;
                     Variable assignedTo = null;
-                    if (FindLiteralAssignment.findAnyVariable(axiom.Expr, out assignedTo, out literal))
+                    var axiomExprToCheckForLiteralAssignment = axiom.Expr;
+                    if (UseConstantFolding)
+                    {
+                        // Make copy so we don't change the Program
+                        axiomExprToCheckForLiteralAssignment =  (Expr) Duplicator.Visit(axiom.Expr);
+                        axiomExprToCheckForLiteralAssignment = CFT.Traverse(axiomExprToCheckForLiteralAssignment);
+                    }
+                    if (FindLiteralAssignment.findAnyVariable(axiomExprToCheckForLiteralAssignment, out assignedTo, out literal))
                     {
                         // Axioms should only be able to refer to globals
                         Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
-                        Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo));
+                        Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo), "Cannot assign to global variable not in global memory");
                         InitialState.Mem.Globals[assignedTo] = literal;
                     }
                 }

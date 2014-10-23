@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F2D05CFA-9CF9-4853-8230-2C9566216DC0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>SymbooglixLibTests</RootNamespace>
@@ -121,6 +119,7 @@
     <Compile Include="ExecutorNonTerminatedStateRemovedEvent.cs" />
     <Compile Include="ExprSMTLIB\NotEq.cs" />
     <Compile Include="ExprSMTLIB\Iff.cs" />
+    <Compile Include="GPUVerify.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -308,6 +307,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Transforms\programs\InlineExists.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="programs\GPUVerifyAxiomAssignmentTest.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
