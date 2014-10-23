@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Boogie;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Basetypes;
 
@@ -383,7 +384,39 @@ namespace Symbooglix
                 }
                 else
                     throw new NotImplementedException(); // Unreachable?
+            }
 
+            // GPUVerify specific
+            // e.g. (in axioms)
+            // (if group_size_y == 1bv32 then 1bv1 else 0bv1) != 0bv1;
+            // fold to group_size_y == 1bv32
+            if (e.Args[1] is LiteralExpr && e.Args[0] is NAryExpr)
+            {
+                var ift = e.Args[0] as NAryExpr;
+                var constant = e.Args[1] as LiteralExpr;
+
+                if (ift.Fun is IfThenElse)
+                {
+                    Debug.Assert(ift.Args.Count == 3);
+                    var thenExpr = ift.Args[1];
+                    var elseExpr = ift.Args[2];
+
+                    if (thenExpr is LiteralExpr && elseExpr is LiteralExpr)
+                    {
+                        if (elseExpr.Equals(constant) && !( thenExpr.Equals(constant) ))
+                        {
+                            return ift.Args[0];
+                        }
+                        else if (!( elseExpr.Equals(constant) ) && thenExpr.Equals(constant))
+                        {
+                            // axiom (if group_size_y == 1bv32 then 0bv1 else 1bv1) != 0bv1;
+                            // fold to
+                            // ! (group_size_y == 1bv32 )
+                            // Can't use Expr.Not() because it may change
+                            return new NAryExpr(Token.NoToken, new UnaryOperator(Token.NoToken, UnaryOperator.Opcode.Not), new List<Expr>() { ift.Args[0] });
+                        }
+                    }
+                }
             }
 
             // Can't constant fold
