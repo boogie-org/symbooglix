@@ -17,8 +17,11 @@ namespace Symbooglix
             else
                 terminatationTypeName = State.TerminationType.GetType().ToString();
 
-            using (var SW = new StreamWriter(Path.Combine(Directory,State.Id + "-" + terminatationTypeName + ".smt2")))
+            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".smt2");
+
+            using (var SW = new StreamWriter(path))
             {
+                Console.WriteLine("Logging State {0} constraints to {1}", State.Id, path);
                 var outputFile = new SMTLIBQueryPrinter(SW, true, true);
 
                 outputFile.AnnotateAssertsWithNames = false; // Enabling this is really only useful for getting the unsat-core

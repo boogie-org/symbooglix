@@ -16,8 +16,10 @@ namespace Symbooglix
             else
                 terminatationTypeName = State.TerminationType.GetType().ToString();
 
-            using (var SW = new StreamWriter(Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".txt")))
+            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".txt");
+            using (var SW = new StreamWriter(path))
             {
+                Console.WriteLine("Logging State {0} info to {1}", State.Id, path);
                 State.DumpState(SW,/*showConstraints=*/true, 4);
             }
         }
