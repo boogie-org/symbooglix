@@ -66,6 +66,21 @@ namespace ConstantFoldingTests
             var result = CFT.Traverse(ifThenElse);
             Assert.AreSame(v, result);
         }
+
+        [Test()]
+        public void IfConditionThenTrueElseCondition()
+        {
+            var v = new IdentifierExpr(Token.NoToken, new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "v", Microsoft.Boogie.Type.Bool)));
+            var y = new IdentifierExpr(Token.NoToken, new GlobalVariable(Token.NoToken, new TypedIdent(Token.NoToken, "y", Microsoft.Boogie.Type.Bool)));
+            var vNotEqy = builder.NotEq(v, y);
+
+            var ife = builder.IfThenElse (vNotEqy, builder.ConstantBool(true), vNotEqy);
+            Assert.AreNotEqual(ife, vNotEqy);
+
+            var CFT = new ConstantFoldingTraverser();
+            var result = CFT.Traverse(ife);
+            Assert.AreSame(vNotEqy, result);
+        }
     }
 }
 

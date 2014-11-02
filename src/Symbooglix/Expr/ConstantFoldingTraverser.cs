@@ -801,6 +801,20 @@ namespace Symbooglix
             }
 
 
+            //  if <expr> then true else <expr> == <expr>
+            // e.g. (if BV32_SLT(symbolic_4, symbolic_20) then true else BV32_SLT(symbolic_4, symbolic_20))
+            if (e.Args[1] is LiteralExpr)
+            {
+                var thenExpr = e.Args[1] as LiteralExpr;
+                if (thenExpr.IsTrue)
+                {
+                    var elseExpr = e.Args[2];
+                    if (e.Args[0].Equals(elseExpr))
+                    {
+                        return e.Args[0];
+                    }
+                }
+            }
 
             // we can't constant fold
             return e;
