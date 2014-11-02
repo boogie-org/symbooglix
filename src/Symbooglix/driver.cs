@@ -37,6 +37,9 @@ namespace Symbooglix
                         HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
             public List<string> entryPoints { get; set; }
 
+            [Option("file-logging", DefaultValue=1, HelpText="Log information about execution to files (default=1)")]
+            public int FileLogging { get; set ; }
+
             [Option("goto-assume-look-ahead", DefaultValue= 1, HelpText="Prevent needless state creation and destruction by looking ahead at gotos")]
             public int gotoAssumeLookAhead { get; set; }
 
@@ -315,7 +318,8 @@ namespace Symbooglix
                 var terminationCounter = new TerminationCounter();
                 terminationCounter.Connect(executor);
 
-                SetupFileLoggers(options, executor, solver);
+                if (options.FileLogging > 0)
+                    SetupFileLoggers(options, executor, solver);
 
                 bool hitCancelOnce = false;
                 Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs eventArgs)
