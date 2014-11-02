@@ -45,7 +45,9 @@ namespace Symbooglix
             FFV = new FindFunctionsVisitor(functionsToDeclare); // Have the visitor use our container
             BindingsFinder = new ExprCountingVisitor();
 
-            Bindings = new Dictionary<Expr, int>();
+            // FIXME: This is a hack. Boogie's GetHashCode() is very expensive
+            // so we just check for reference equality instead
+            Bindings = new Dictionary<Expr, int>( new ExprReferenceCompare());
             this.UseNamedAttributeBindings = useNamedAttributeBindings;
             this.NamedBindingsDisabledInQuantifierExpr = false;
 
@@ -947,7 +949,9 @@ namespace Symbooglix
 
         public ExprCountingVisitor()
         {
-            this.ExpressionCount = new Dictionary<Expr, int>();
+            // FIXME: This is a hack. Boogie's GetHashCode() is very expensive
+            // so we just check for reference equality instead
+            this.ExpressionCount = new Dictionary<Expr, int>(new ExprReferenceCompare());
         }
 
         public override Expr VisitExpr(Expr node)
