@@ -25,6 +25,7 @@ namespace Symbooglix
                     {
                         var estimatedBytes = System.GC.GetTotalMemory(/*forceFullCollection=*/false);
                         SW.WriteLine("{0}, {1}", stopWatch.Elapsed.TotalSeconds, ( (double) estimatedBytes)/( 2 << 20));
+                        SW.Flush();
                         Thread.Sleep(1000);
                     }
                     Console.WriteLine("Stopping memory log");
