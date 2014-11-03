@@ -9,7 +9,7 @@ namespace Symbooglix
         ExecutionState GetNextState();
         void AddState(ExecutionState toAdd);
         void RemoveState(ExecutionState toRemove);
-        void RemoveAll(Predicate<ExecutionState> p);
+        void RemoveAll();
         int GetNumberOfStates();
         void ReceiveExecutor(Executor executor);
     }

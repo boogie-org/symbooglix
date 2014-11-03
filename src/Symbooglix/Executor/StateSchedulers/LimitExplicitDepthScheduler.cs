@@ -61,9 +61,9 @@ namespace Symbooglix
             UnderlyingStateScheduler.RemoveState(toRemove);
         }
 
-        public void RemoveAll(Predicate<ExecutionState> p)
+        public void RemoveAll()
         {
-            UnderlyingStateScheduler.RemoveAll(p);
+            UnderlyingStateScheduler.RemoveAll();
         }
 
         public int GetNumberOfStates()

@@ -38,9 +38,9 @@ namespace Symbooglix
             States.Remove(toRemove);
         }
 
-        public void RemoveAll(Predicate<ExecutionState> p)
+        public void RemoveAll()
         {
-            States.RemoveAll(p);
+            States.Clear();
         }
 
         public void ReceiveExecutor(Executor executor)

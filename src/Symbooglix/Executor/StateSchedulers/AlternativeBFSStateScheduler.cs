@@ -98,10 +98,10 @@ namespace Symbooglix
                 AboutToDoGoto.Remove(toRemove);
         }
 
-        public void RemoveAll(Predicate<ExecutionState> p)
+        public void RemoveAll()
         {
-            NotAboutToDoGoto.RemoveAll(p);
-            AboutToDoGoto.RemoveAll(p);
+            NotAboutToDoGoto.Clear();
+            AboutToDoGoto.Clear();
         }
 
         public int GetNumberOfStates()

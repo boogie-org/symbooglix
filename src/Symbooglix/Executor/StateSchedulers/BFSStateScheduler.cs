@@ -77,10 +77,10 @@ namespace Symbooglix
                 success = AtDepthGreaterThanN.Remove(toRemove);
         }
 
-        public void RemoveAll(Predicate<ExecutionState> p)
+        public void RemoveAll()
         {
-            AtDepthEqualToOrLessThanN.RemoveAll(p);
-            AtDepthGreaterThanN.RemoveAll(p);
+            AtDepthEqualToOrLessThanN.Clear();
+            AtDepthGreaterThanN.Clear();
         }
 
         public int GetNumberOfStates()
