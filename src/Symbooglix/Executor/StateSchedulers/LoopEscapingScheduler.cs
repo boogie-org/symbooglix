@@ -55,9 +55,7 @@ namespace Symbooglix
             // FIXME: This might be slow
             if (LoopEscapingStates.Contains(toRemove))
             {
-                #if DEBUG
                 int initialStates = LoopEscapingStates.Count;
-                #endif
 
                 // The item we want to remove is not on the top of the stack
                 // pop items until we find it, remove it and then pop the items back on
