@@ -56,7 +56,7 @@ namespace Symbooglix
             [Option("log-queries", DefaultValue = "", HelpText= "Path to file to log queries to. Blank means logging is disabled.")]
             public string queryLogPath { get; set; }
 
-            [Option("max-depth", DefaultValue=0, HelpText="Max ExplicitBranchDepth to explore. Default is 0 which means no limit")]
+            [Option("max-depth", DefaultValue=-1, HelpText="Max ExplicitBranchDepth to explore. Default is -1 which means no limit")]
             public int MaxDepth { get; set; }
 
             [Option("print-instr", DefaultValue = false, HelpText = "Print instructions during execution")]
@@ -226,7 +226,7 @@ namespace Symbooglix
             IStateScheduler scheduler = GetScheduler(options);
 
             // Limit Depth if necessary
-            if (options.MaxDepth > 0)
+            if (options.MaxDepth >= 0)
             {
                 scheduler = new LimitExplicitDepthScheduler(scheduler, options.MaxDepth);
                 Console.WriteLine("Using Depth limit:{0}", options.MaxDepth);
