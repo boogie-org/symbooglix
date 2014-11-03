@@ -62,6 +62,7 @@ namespace Symbooglix
 
             private void UpdateInternalStatistics()
             {
+                Debug.Assert(!ReadExprTimer.IsRunning && !SolverProcessTimer.IsRunning && !PrintExprTimer.IsRunning, "Tried to update statistics whilst timers were running");
                 InternalStatistics.PrintExprTime = PrintExprTimer.Elapsed;
                 InternalStatistics.ReadExprTime = ReadExprTimer.Elapsed;
                 InternalStatistics.SolverProcessTime = SolverProcessTimer.Elapsed;

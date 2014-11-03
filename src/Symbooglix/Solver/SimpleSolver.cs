@@ -88,6 +88,7 @@ namespace Symbooglix
 
             private void UpdateStatistics(Tuple<Result, IAssignment> result)
             {
+                Debug.Assert(!Timer.IsRunning, "Timer should not been running whilst statistics are being updated");
                 InternalStatistics.TotalRunTime = Timer.Elapsed;
                 InternalStatistics.Increment(result.Item1);
             }
