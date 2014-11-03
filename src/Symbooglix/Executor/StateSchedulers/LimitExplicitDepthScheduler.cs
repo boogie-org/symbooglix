@@ -75,6 +75,7 @@ namespace Symbooglix
         {
             this.TheExecutor = executor;
             Debug.Assert(TheExecutor != null, "TheExecutor cannot be null");
+            UnderlyingStateScheduler.ReceiveExecutor(executor);
         }
 
         public void Dump(System.IO.TextWriter TW)

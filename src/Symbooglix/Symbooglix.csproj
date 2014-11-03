@@ -112,6 +112,7 @@
     <Compile Include="Executor\ExecutorStatistics.cs" />
     <Compile Include="Executor\ExecutorHandlers\SolverStatisticsLogger.cs" />
     <Compile Include="Executor\StateSchedulers\IStateScheduler.cs" />
+    <Compile Include="Executor\StateSchedulers\LoopEscapingScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
@@ -133,6 +134,10 @@
     <ProjectReference Include="..\..\ExternalLibs\CommandLine\src\libcmdline\CommandLine.csproj">
       <Project>{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}</Project>
       <Name>CommandLine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Graph\Graph.csproj">
+      <Project>{69A2B0B8-BCAC-4101-AE7A-556FCC58C06E}</Project>
+      <Name>Graph</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -132,12 +132,20 @@ namespace Symbooglix
        
         public StackFrame GetCurrentStackFrame()
         {
-            return Mem.Stack.Last();
+            if (Mem.Stack.Count == 0)
+                return null;
+            else
+                return Mem.Stack.Last();
         }
 
         public Block GetCurrentBlock()
         {
-            return GetCurrentStackFrame().CurrentBlock;
+            var sf = GetCurrentStackFrame();
+
+            if (sf == null)
+                return null;
+            else
+                return sf.CurrentBlock;
         }
 
         public void EnterImplementation(Implementation impl)

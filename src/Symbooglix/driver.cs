@@ -62,6 +62,9 @@ namespace Symbooglix
             [Option("print-instr", DefaultValue = false, HelpText = "Print instructions during execution")]
             public bool useInstructionPrinter { get; set; }
 
+            [Option("prefer-loop-escaping-paths", DefaultValue =1, HelpText= "Prefer paths that escape loops (Default 1)")]
+            public int PreferLoopEscapingPaths { get; set; }
+
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
@@ -460,19 +463,29 @@ namespace Symbooglix
 
         public static IStateScheduler GetScheduler(CmdLineOpts options)
         {
+            IStateScheduler scheduler = null;
             switch (options.scheduler)
             {
                 case CmdLineOpts.Scheduler.DFS:
-                    return new DFSStateScheduler();
+                    scheduler = new DFSStateScheduler();
+                    break;
                 case CmdLineOpts.Scheduler.BFS:
-                    return new BFSStateScheduler();
+                    scheduler = new BFSStateScheduler();
+                    break;
                 case CmdLineOpts.Scheduler.UntilEndBFS:
-                    return new UntilTerminationBFSStateScheduler();
+                    scheduler = new UntilTerminationBFSStateScheduler();
+                    break;
                 case CmdLineOpts.Scheduler.AltBFS:
-                    return new AlternativeBFSStateScheduler();
+                    scheduler = new AlternativeBFSStateScheduler();
+                    break;
                 default:
                     throw new ArgumentException("Unsupported scheduler");
             }
+
+            if (options.PreferLoopEscapingPaths > 0)
+                scheduler = new LoopEscapingScheduler(scheduler);
+
+            return scheduler;
         }
 
         public static Solver.ISolver BuildSolverChain(CmdLineOpts options)

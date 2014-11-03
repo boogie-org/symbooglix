@@ -312,6 +312,9 @@
     <None Include="programs\GPUVerifyAxiomAssignmentTest.bpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="programs\TestLoopEscaping.bpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="programs\" />

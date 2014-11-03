@@ -392,6 +392,94 @@ namespace SymbooglixLibTests
             Assert.AreEqual(2, tc.Sucesses);
             Assert.AreEqual(1, tc.DisallowedPathDepths);
         }
+
+        [Test()]
+        public void ExploreOrderLoopEscapingScheduler()
+        {
+            var scheduler = new LoopEscapingScheduler(new DFSStateScheduler());
+            p = loadProgram("programs/TestLoopEscaping.bpl");
+
+            // Get the blocks we need to refer to
+            var main = getMain(p);
+            var loopBodyBlock = main.Blocks.Where(b => b.Label == "anon2_LoopBody").First();
+            var loopDoneBlock = main.Blocks.Where(b => b.Label == "anon2_LoopDone").First();
+
+            e = getExecutor(p, scheduler, GetSolver());
+            e.UseConstantFolding = true;
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+
+            int changed = 0;
+            e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs eventArgs)
+            {
+                switch (changed)
+                {
+                    case 0:
+                        Assert.AreSame(loopBodyBlock, eventArgs.Previous.GetCurrentBlock());
+                        Assert.IsFalse(eventArgs.Previous.Finished());
+
+                        Assert.AreSame(loopDoneBlock, eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(0, GetLoopCounter(eventArgs.Next));
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        break;
+                    case 1:
+                        Assert.AreSame(loopDoneBlock, eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(0, GetLoopCounter(eventArgs.Previous));
+                        Assert.IsTrue(eventArgs.Previous.Finished());
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError), eventArgs.Previous.TerminationType);
+
+                        Assert.AreSame(loopBodyBlock, eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(0, GetLoopCounter(eventArgs.Next));
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        break;
+                    case 2:
+                        Assert.AreSame(loopBodyBlock, eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(1, GetLoopCounter(eventArgs.Next));
+                        Assert.IsFalse(eventArgs.Next.Finished());
+
+                        Assert.AreSame(loopDoneBlock, eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(1, GetLoopCounter(eventArgs.Next));
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        break;
+                    case 3:
+                        Assert.AreSame(loopDoneBlock, eventArgs.Previous.GetCurrentBlock());
+                        Assert.AreEqual(1, GetLoopCounter(eventArgs.Previous));
+                        Assert.IsTrue(eventArgs.Previous.Finished());
+                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError), eventArgs.Previous.TerminationType);
+
+                        // About to execute last possible execution of loop body
+                        Assert.AreSame(loopBodyBlock, eventArgs.Next.GetCurrentBlock());
+                        Assert.AreEqual(1, GetLoopCounter(eventArgs.Next));
+                        Assert.IsFalse(eventArgs.Next.Finished());
+                        break;
+                    default:
+                        Assert.Fail("Too many context changes");
+                        break;
+
+                }
+                ++changed;
+            };
+
+            e.Run(main);
+
+            Assert.AreEqual(3, tc.NumberOfTerminatedStates);
+            Assert.AreEqual(3, tc.Sucesses);
+            Assert.AreEqual(4, changed);
+        }
+
+
+        private int GetLoopCounter(ExecutionState state)
+        {
+            var pair = state.GetInScopeVariableAndExprByName("counter");
+
+            Assert.IsInstanceOfType(typeof(LiteralExpr), pair.Value);
+
+            var value = pair.Value as LiteralExpr;
+            Assert.IsTrue(value.isBigNum);
+            return value.asBigNum.ToIntSafe;
+        }
     }
+
 }
 
