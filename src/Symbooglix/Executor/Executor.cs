@@ -423,11 +423,11 @@ namespace Symbooglix
                 while (StateScheduler.GetNumberOfStates() > 0)
                 {
                     var state = StateScheduler.GetNextState();
+                    StateScheduler.RemoveState(state);
 
                     if (NonTerminatedStateRemoved != null)
                         NonTerminatedStateRemoved(this, new ExecutionStateEventArgs(state));
 
-                    StateScheduler.RemoveState(state);
                 }
 
                 if (ExecutorTerminated != null)
