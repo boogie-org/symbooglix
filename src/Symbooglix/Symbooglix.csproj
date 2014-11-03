@@ -94,7 +94,6 @@
     <Compile Include="Annotation\InstructionStatisticsAnnotater.cs" />
     <Compile Include="Executor\CallGrindFilePrinter.cs" />
     <Compile Include="Executor\TerminationHandlers\TerminationCounterLogger.cs" />
-    <Compile Include="Executor\StateSchedulers\StateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\DFSStateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\UntilTerminationBFSStateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\BFSStateScheduler.cs" />
@@ -112,6 +111,7 @@
     <Compile Include="Util\IDumpable.cs" />
     <Compile Include="Executor\ExecutorStatistics.cs" />
     <Compile Include="Executor\ExecutorHandlers\SolverStatisticsLogger.cs" />
+    <Compile Include="Executor\StateSchedulers\IStateScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
