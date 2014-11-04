@@ -1275,26 +1275,48 @@ namespace Symbooglix
                 var assumeCmd = targetInstruction.Current as AssumeCmd;
 
                 Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
+
+                if (UseConstantFolding)
+                    dupAndRw = CFT.Traverse(dupAndRw);
+
                 info.ReWrittenAssumeExpr = dupAndRw;
 
-                // Ask to solver if the assume is satisfiable
-                TheSolver.SetConstraints(CurrentState.Constraints);
-                Solver.Result result = TheSolver.IsQuerySat(dupAndRw);
-                switch (result)
+                // Fast path
+                if (dupAndRw is LiteralExpr)
                 {
-                    case Symbooglix.Solver.Result.UNKNOWN:
-                        info.IsSpeculative = true;
+                    var lit = dupAndRw as LiteralExpr;
+                    Debug.Assert(lit.isBool, "Expression should be boolean");
+
+                    if (lit.asBool)
+                    {
                         blocksToExecute.Add(info);
-                        break;
-                    case Symbooglix.Solver.Result.SAT:
-                        blocksToExecute.Add(info);
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
+                    }
+                    else
+                    {
+                        // Infeasible path so don't add to blocksToExecute
+                    }
+                }
+                else
+                {
+                    // Ask to solver if the assume is satisfiable
+                    TheSolver.SetConstraints(CurrentState.Constraints);
+                    Solver.Result result = TheSolver.IsQuerySat(dupAndRw);
+                    switch (result)
+                    {
+                        case Symbooglix.Solver.Result.UNKNOWN:
+                            info.IsSpeculative = true;
+                            blocksToExecute.Add(info);
+                            break;
+                        case Symbooglix.Solver.Result.SAT:
+                            blocksToExecute.Add(info);
+                            break;
+                        case Symbooglix.Solver.Result.UNSAT:
                         // Following this path would lead to in an infeasiable execution state
                         // so drop it don't add it to blocksToExecute
-                        break;
-                    default:
-                        throw new NotImplementedException("Unhandled case");
+                            break;
+                        default:
+                            throw new NotImplementedException("Unhandled case");
+                    }
                 }
             }
 
