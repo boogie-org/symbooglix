@@ -654,6 +654,9 @@ namespace Symbooglix
                 r.GetInstructionStatistics().IncrementCovered();
                 Expr constraint = (Expr) VR.Visit(r.Condition);
 
+                if (UseConstantFolding)
+                    constraint = CFT.Traverse(constraint);
+
                 // We need to treat the semantics of requires differently depening on where
                 // we are
                 if (isProgramEntryPoint)
@@ -751,6 +754,10 @@ namespace Symbooglix
                 requires.GetInstructionStatistics().IncrementCovered();
                 ++InternalStatistics.InstructionsExecuted;
                 Expr condition = (Expr) VR.Visit(requires.Condition);
+
+                if (UseConstantFolding)
+                    condition = CFT.Traverse(condition);
+
                 stillInState = HandleAssertLikeCommand(condition, new TerminatedAtFailingRequires(requires), requires.GetProgramLocation());
 
                 // Check we're still in state
@@ -775,6 +782,9 @@ namespace Symbooglix
                 ensures.GetInstructionStatistics().IncrementCovered();
                 ++InternalStatistics.InstructionsExecuted;
                 Expr condition = (Expr) VR.Visit(ensures.Condition);
+
+                if (UseConstantFolding)
+                    condition = CFT.Traverse(condition);
 
                 // FIXME: We should add an option to disable this because we might want to blindly
                 // assume without checking if its feasible.
