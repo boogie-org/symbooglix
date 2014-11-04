@@ -46,6 +46,9 @@ namespace Symbooglix
             [Option("gpuverify-entry-points", DefaultValue=false, HelpText = "Use GPUVerify kernels as entry points")]
             public bool gpuverifyEntryPoints { get; set; }
 
+            [Option("gpuverify-ignore-invariants", DefaultValue=false, HelpText = "Ignore GPUVerify specific invariants")]
+            public bool GPUverifyIgnoreInvariants { get; set; }
+
             // FIXME: Booleans can't be disabled in the CommandLine library so use ints instead
             [Option("fold-constants", DefaultValue = 1, HelpText = "Use Constant folding during execution")]
             public int useConstantFolding { get; set; }
@@ -341,6 +344,8 @@ namespace Symbooglix
                     }
                 };
 
+                ApplyFilters(executor, options);
+
                 try
                 {
                     // Supply our own PassManager for preparation so we can hook into its events
@@ -551,6 +556,29 @@ namespace Symbooglix
             Solver.ISolver solver = new Solver.SimpleSolver(solverImpl);
             solver.SetTimeout(options.solverTimeout);
             return solver;
+        }
+
+        public static void ApplyFilters(Executor executor, CmdLineOpts options)
+        {
+            if (!options.GPUverifyIgnoreInvariants)
+                return;
+
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.Error.WriteLine("WARNING: GPUVerify invariants will be ignored!");
+            Console.ResetColor();
+
+            executor.AssertFilter = (AssertCmd c) =>
+            {
+                if (QKeyValue.FindBoolAttribute(c.Attributes, "originated_from_invariant"))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    Console.Error.WriteLine("WARNING: Ignoring invariant {0}", c.ToString());
+                    Console.ResetColor();
+                    return false;
+                }
+
+                return true;
+            };
         }
     }
 }

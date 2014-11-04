@@ -25,6 +25,7 @@ namespace Symbooglix
             this.InternalStatistics = new ExecutorStatistics();
             this.RunTimer = new Stopwatch();
             this.PrepareTimer = new Stopwatch();
+            AssertFilter = null;
         }
 
         private IStateScheduler StateScheduler;
@@ -42,6 +43,11 @@ namespace Symbooglix
         public ConstantFoldingTraverser CFT;
         public Solver.ISolver TheSolver;
         private bool AllowExecutorToRun= false;
+        public Predicate<AssertCmd> AssertFilter
+        {
+            get;
+            set;
+        }
 
         public bool UseConstantFolding
         {
@@ -974,6 +980,15 @@ namespace Symbooglix
         protected void Handle(AssertCmd c)
         {
             c.GetInstructionStatistics().IncrementCovered();
+
+            if (AssertFilter != null)
+            {
+                if (!AssertFilter(c))
+                {
+                    // Ignore the assertion
+                    return;
+                }
+            }
 
             HandleBreakPoints(c);
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
