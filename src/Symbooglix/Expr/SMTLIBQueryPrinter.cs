@@ -938,6 +938,8 @@ namespace Symbooglix
 
     }
 
+    // FIXME: This is not specific to the SMTLIBQueryPrinter and does not count all nodes.
+    // This should be made internal to the printer.
     public class ExprCountingVisitor : ReadOnlyVisitor
     {
         public Dictionary<Expr, int> ExpressionCount;
@@ -965,8 +967,16 @@ namespace Symbooglix
             if (node is LiteralExpr || node is IdentifierExpr)
                 return base.VisitExpr(node);
 
-            CountExpr(node);
-            return base.VisitExpr(node);
+            // We don't need to visit a nodes children if it
+            // was already seen before because that means it will
+            // get abbreviated in the printer. If we visit the children again we will over
+            // count because when the abbreviation happens in the printer
+            // the children won't be printed again.
+            bool goDeeper = CountExpr(node);
+            if (goDeeper)
+                return base.VisitExpr(node);
+            else
+                return node;
         }
 
         // This is necessary because the root of a tree might
@@ -974,27 +984,38 @@ namespace Symbooglix
         // VisitExpr() but instead will call VisitNAryExpr
         public override Expr VisitNAryExpr(NAryExpr node)
         {
-            CountExpr(node);
-            return base.VisitNAryExpr(node);
+            bool goDeeper = CountExpr(node);
+            if (goDeeper)
+                return base.VisitNAryExpr(node);
+            else
+                return node;
         }
 
         // This is necessary because the root of the Tree might be a QuantifierExpr
         public override QuantifierExpr VisitQuantifierExpr(QuantifierExpr node)
         {
-            CountExpr(node);
-            return base.VisitQuantifierExpr(node);
+            bool goDeeper = CountExpr(node);
+
+            if (goDeeper)
+                return base.VisitQuantifierExpr(node);
+            else
+                return node;
         }
 
-        private void CountExpr(Expr node)
+        // Return true iff the node has not been seen before, otherwise false
+        private bool CountExpr(Expr node)
         {
             try
             {
                 int currentCount = ExpressionCount[node];
+
                 ExpressionCount[node] = currentCount +1;
+                return false;
             }
             catch (KeyNotFoundException )
             {
                 ExpressionCount[node] = 1;
+                return true;
             }
         }
     }
