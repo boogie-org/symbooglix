@@ -6,3 +6,6 @@ Symbooglix/obj/
 
 # Monodevelop files
 Symbooglix.userprefs
+
+# NuGet packages
+packages/
