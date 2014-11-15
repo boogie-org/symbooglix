@@ -146,14 +146,14 @@ namespace SymbooglixLibTests
                 switch(changed)
                 {
                     case 0:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[2],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
                         Assert.IsFalse(eventArgs.Next.Finished());
                         Assert.AreSame(l[3],eventArgs.Next.GetCurrentBlock());
                         break;
                     case 1:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[3],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
                         /* FIXME: At a three way branch we schedule l0, l2, l1 rather than
@@ -167,7 +167,7 @@ namespace SymbooglixLibTests
                         Assert.AreSame(l[2],eventArgs.Next.GetCurrentBlock());
                         break;
                     case 2:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
 
                         Assert.IsFalse(eventArgs.Next.Finished());
@@ -208,21 +208,21 @@ namespace SymbooglixLibTests
                 switch(changed)
                 {
                     case 0:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[2],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
                         Assert.IsFalse(eventArgs.Next.Finished());
                         Assert.AreSame(l[1],eventArgs.Next.GetCurrentBlock());
                         break;
                     case 1:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[4],eventArgs.Previous.Mem.Stack[0].CurrentBlock);
 
                         Assert.IsFalse(eventArgs.Next.Finished());
                         Assert.AreSame(l[2],eventArgs.Next.GetCurrentBlock());
                         break;
                     case 2:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
 
                         Assert.IsFalse(eventArgs.Next.Finished());
@@ -287,7 +287,7 @@ namespace SymbooglixLibTests
                         break;
                     case 2:
                         Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[2],eventArgs.Previous.GetCurrentBlock());
                         Assert.AreEqual(1, eventArgs.Previous.ExplicitBranchDepth);
 
@@ -313,7 +313,7 @@ namespace SymbooglixLibTests
                         break;
                     case 4:
                         Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[5],eventArgs.Previous.GetCurrentBlock());
                         Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth);
 
@@ -324,7 +324,7 @@ namespace SymbooglixLibTests
                         break;
                     case 5:
                         Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[4],eventArgs.Previous.GetCurrentBlock());
                         Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth);
 
@@ -335,7 +335,7 @@ namespace SymbooglixLibTests
                         break;
                     case 6:
                         Assert.AreEqual(previousStateId, eventArgs.Previous.Id);
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError),eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
                         Assert.AreSame(l[3],eventArgs.Previous.GetCurrentBlock());
                         Assert.AreEqual(2, eventArgs.Previous.ExplicitBranchDepth);
 
@@ -427,7 +427,7 @@ namespace SymbooglixLibTests
                         Assert.AreSame(loopDoneBlock, eventArgs.Previous.GetCurrentBlock());
                         Assert.AreEqual(0, GetLoopCounter(eventArgs.Previous));
                         Assert.IsTrue(eventArgs.Previous.Finished());
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError), eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
 
                         Assert.AreSame(loopBodyBlock, eventArgs.Next.GetCurrentBlock());
                         Assert.AreEqual(0, GetLoopCounter(eventArgs.Next));
@@ -446,7 +446,7 @@ namespace SymbooglixLibTests
                         Assert.AreSame(loopDoneBlock, eventArgs.Previous.GetCurrentBlock());
                         Assert.AreEqual(1, GetLoopCounter(eventArgs.Previous));
                         Assert.IsTrue(eventArgs.Previous.Finished());
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError), eventArgs.Previous.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.Previous.TerminationType);
 
                         // About to execute last possible execution of loop body
                         Assert.AreSame(loopBodyBlock, eventArgs.Next.GetCurrentBlock());
@@ -473,7 +473,7 @@ namespace SymbooglixLibTests
         {
             var pair = state.GetInScopeVariableAndExprByName("counter");
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), pair.Value);
+            Assert.IsInstanceOf<LiteralExpr>(pair.Value);
 
             var value = pair.Value as LiteralExpr;
             Assert.IsTrue(value.isBigNum);

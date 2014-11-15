@@ -19,7 +19,7 @@ namespace ConstantFoldingTests
 
             var result = CFT.Traverse(equals);
             result.Typecheck(TC);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBool);
             Assert.IsTrue(literal.asBool);
@@ -35,7 +35,7 @@ namespace ConstantFoldingTests
 
             var result = CFT.Traverse(equals);
             result.Typecheck(TC);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBool);
             Assert.IsFalse(literal.asBool);
@@ -134,7 +134,7 @@ namespace ConstantFoldingTests
             var result = CFT.Traverse(equals);
             result.Typecheck(TC);
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBool);
             Assert.IsTrue(literal.asBool);

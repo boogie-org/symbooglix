@@ -17,7 +17,7 @@ namespace ConstantFoldingTests
             var neg = builder.BVNEG(arg0);
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(neg);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             Assert.IsTrue(( result as LiteralExpr ).isBvConst);
             Assert.AreEqual(new BigInteger(9), ( result as LiteralExpr ).asBvConst.Value.ToBigInteger);
             Assert.IsTrue(builder.ConstantBV(-7, 4).Equals(result));
@@ -31,7 +31,7 @@ namespace ConstantFoldingTests
             var neg = builder.BVNEG(arg0);
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(neg);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             Assert.IsTrue(( result as LiteralExpr ).isBvConst);
             Assert.AreEqual(new BigInteger(5), ( result as LiteralExpr ).asBvConst.Value.ToBigInteger);
             Assert.IsTrue(builder.ConstantBV(5, 4).Equals(result));
@@ -45,7 +45,7 @@ namespace ConstantFoldingTests
             var neg = builder.BVNEG(arg0);
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(neg);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             Assert.IsTrue(( result as LiteralExpr ).isBvConst);
             Assert.AreEqual(new BigInteger(0), ( result as LiteralExpr ).asBvConst.Value.ToBigInteger);
             Assert.IsTrue(builder.ConstantBV(0, 4).Equals(result));

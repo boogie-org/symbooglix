@@ -18,7 +18,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
 
             var result = CFT.Traverse(mul);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBigNum);
             Assert.IsTrue(literal.asBigNum.ToBigInteger == 10);
@@ -34,7 +34,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
 
             var result = CFT.Traverse(mul);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBigDec);
             Assert.AreEqual("7.5", literal.asBigDec.ToDecimalString());

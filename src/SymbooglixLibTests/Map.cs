@@ -23,9 +23,9 @@ namespace SymbooglixLibTests
                 if (data.Name == "check_read_map")
                 {
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a"); // a := symbolic_0[0bv8]
-                    Assert.IsInstanceOfType(typeof(NAryExpr), a.Value);
+                    Assert.IsInstanceOf<NAryExpr>(a.Value);
                     NAryExpr mapSelect = a.Value as NAryExpr;
-                    Assert.IsInstanceOfType(typeof(MapSelect), mapSelect.Fun);
+                    Assert.IsInstanceOf<MapSelect>(mapSelect.Fun);
                     Assert.AreEqual(2, mapSelect.Args.Count);
 
                     // [0] should be map Identifier
@@ -38,9 +38,9 @@ namespace SymbooglixLibTests
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m"); // m := symbolic_0[3bv8 := 12bv32]
                     simpleMapStoreIntermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
-                    Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
+                    Assert.IsInstanceOf<NAryExpr>(m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
-                    Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun);
+                    Assert.IsInstanceOf<MapStore>(mapStore.Fun);
                     Assert.AreEqual(3, mapStore.Args.Count);
 
                     // [0] should be map Identifier
@@ -57,9 +57,9 @@ namespace SymbooglixLibTests
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
                     nestedMapStoreintermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
-                    Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
+                    Assert.IsInstanceOf<NAryExpr>(m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
-                    Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
+                    Assert.IsInstanceOf<MapStore>(mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
                     Assert.AreEqual(3, mapStore.Args.Count);
 
                     // [0] Is Map written to which should we wrote to earlier so should also be MapStore
@@ -70,9 +70,9 @@ namespace SymbooglixLibTests
                     CheckIsLiteralBVConstWithValue(mapStore.Args[1], BigNum.FromInt(1)); // 1bv8
 
                     // [2] is value to write which is actually a value inside own map
-                    Assert.IsInstanceOfType(typeof(NAryExpr), mapStore.Args[2]);
+                    Assert.IsInstanceOf<NAryExpr>(mapStore.Args[2]);
                     NAryExpr WrittenValue = mapStore.Args[2] as NAryExpr; // symbolic_0[0bv8]
-                    Assert.IsInstanceOfType(typeof(MapSelect), WrittenValue.Fun);
+                    Assert.IsInstanceOf<MapSelect>(WrittenValue.Fun);
 
 
                     {
@@ -87,9 +87,9 @@ namespace SymbooglixLibTests
                 {
                     // Expecting m := symbolic_0[3bv8 := 12bv32][1bv8 := symbolic_0[0bv8]][symbolic_2 := 7bv32]
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
-                    Assert.IsInstanceOfType(typeof(NAryExpr), m.Value);
+                    Assert.IsInstanceOf<NAryExpr>(m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
-                    Assert.IsInstanceOfType(typeof(MapStore), mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
+                    Assert.IsInstanceOf<MapStore>(mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
                     Assert.AreEqual(3, mapStore.Args.Count);
 
                     // [0] Should be the map written to which should be equivalent to the expression recorded in "intermediate"

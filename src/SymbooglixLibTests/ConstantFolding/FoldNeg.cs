@@ -15,7 +15,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), e);
+            Assert.IsInstanceOf<LiteralExpr>(e);
             var literal = e as LiteralExpr;
             Assert.IsTrue(literal.isBigNum);
             Assert.AreEqual(literal.asBigNum.ToInt, -1);
@@ -28,7 +28,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), e);
+            Assert.IsInstanceOf<LiteralExpr>(e);
             var literal = e as LiteralExpr;
             Assert.IsTrue(literal.isBigNum);
             Assert.AreEqual(literal.asBigNum.ToInt, 1);
@@ -41,7 +41,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), e);
+            Assert.IsInstanceOf<LiteralExpr>(e);
             var literal = e as LiteralExpr;
             Assert.IsTrue(literal.isBigDec);
             Assert.AreEqual(literal.asBigDec.ToString(), "-2e0");
@@ -54,7 +54,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
             var e = CFT.Traverse(negation);
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), e);
+            Assert.IsInstanceOf<LiteralExpr>(e);
             var literal = e as LiteralExpr;
             Assert.IsTrue(literal.isBigDec);
             Assert.AreEqual(literal.asBigDec.ToString(), "2e0");

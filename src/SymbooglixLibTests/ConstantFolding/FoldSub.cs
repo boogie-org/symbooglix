@@ -15,7 +15,7 @@ namespace ConstantFoldingTests
             var sub = Expr.Sub(TestBase.getConstantInt(-1), TestBase.getConstantInt(-2));
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(sub);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var resultAsLiteral = result as LiteralExpr;
             Assert.IsTrue(resultAsLiteral.isBigNum);
             Assert.IsTrue(resultAsLiteral.asBigNum == BigNum.FromInt(1));
@@ -27,7 +27,7 @@ namespace ConstantFoldingTests
             var sub = Expr.Sub(TestBase.getConstantInt(1), TestBase.getConstantInt(2));
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(sub);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var resultAsLiteral = result as LiteralExpr;
             Assert.IsTrue(resultAsLiteral.isBigNum);
             Assert.IsTrue(resultAsLiteral.asBigNum == BigNum.FromInt(-1));
@@ -39,7 +39,7 @@ namespace ConstantFoldingTests
             var sub = Expr.Sub(TestBase.getConstantReal("-1.5"), TestBase.getConstantReal("-2.5"));
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(sub);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var resultAsLiteral = result as LiteralExpr;
             Assert.IsTrue(resultAsLiteral.isBigDec);
             Assert.AreEqual(BigDec.FromString("1.0"), resultAsLiteral.asBigDec);
@@ -51,7 +51,7 @@ namespace ConstantFoldingTests
             var sub = Expr.Sub(TestBase.getConstantReal("1.5"), TestBase.getConstantReal("2.6"));
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(sub);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
             var resultAsLiteral = result as LiteralExpr;
             Assert.IsTrue(resultAsLiteral.isBigDec);
             Assert.AreEqual(BigDec.FromString("-1.1"), resultAsLiteral.asBigDec);

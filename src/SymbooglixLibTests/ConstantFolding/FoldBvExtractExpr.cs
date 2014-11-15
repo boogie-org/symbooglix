@@ -24,7 +24,7 @@ namespace ConstantFoldingTests
             var CFT = new ConstantFoldingTraverser();
             Expr replacement = CFT.Traverse(extractExpr);
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), replacement);
+            Assert.IsInstanceOf<LiteralExpr>(replacement);
             var replacementAsLiteralExpr = replacement as LiteralExpr;
             Assert.IsTrue(replacementAsLiteralExpr.isBvConst);
             var resultBv = replacementAsLiteralExpr.asBvConst;

@@ -18,7 +18,7 @@ namespace ConstantFoldingTests
             var artCoe = new NAryExpr(Token.NoToken, new ArithmeticCoercion(Token.NoToken, ArithmeticCoercion.CoercionType.ToInt), args);
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(artCoe);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
 
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBigNum);
@@ -32,7 +32,7 @@ namespace ConstantFoldingTests
             var artCoe = new NAryExpr(Token.NoToken, new ArithmeticCoercion(Token.NoToken, ArithmeticCoercion.CoercionType.ToReal), args);
             var CFT = new ConstantFoldingTraverser();
             var result = CFT.Traverse(artCoe);
-            Assert.IsInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsInstanceOf<LiteralExpr>(result);
 
             var literal = result as LiteralExpr;
             Assert.IsTrue(literal.isBigDec);

@@ -48,10 +48,10 @@ namespace SymbooglixLibTests
                 // Check that global variable c is symbolic and the origin is from bar()'s modset
                 var tuple = e.CurrentState.GetInScopeVariableAndExprByName("c");
                 var cVar = tuple.Key;
-                Assert.IsInstanceOfType(typeof(GlobalVariable), cVar);
+                Assert.IsInstanceOf<GlobalVariable>(cVar);
                 var cExpr = tuple.Value;
-                Assert.IsInstanceOfType(typeof(IdentifierExpr), cExpr);
-                Assert.IsInstanceOfType(typeof(SymbolicVariable), (cExpr as IdentifierExpr).Decl);
+                Assert.IsInstanceOf<IdentifierExpr>(cExpr);
+                Assert.IsInstanceOf<SymbolicVariable>((cExpr as IdentifierExpr).Decl);
                 var cSymbolicVar = (cExpr as IdentifierExpr).Decl as SymbolicVariable;
                 Assert.IsTrue(cSymbolicVar.Origin.IsModifiesSet);
 
@@ -111,7 +111,7 @@ namespace SymbooglixLibTests
                 // Check for "requires a > 0" constraint which is "2 > 0" where 2 is the value of a
                 var aTuple = e.CurrentState.GetInScopeVariableAndExprByName("a");
                 var aExpr = aTuple.Value;
-                Assert.IsInstanceOfType(typeof(LiteralExpr), aExpr);
+                Assert.IsInstanceOf<LiteralExpr>(aExpr);
                 Assert.AreEqual(BigNum.FromInt(2), (aExpr as LiteralExpr).asBigNum);
                 var expectedConstraint3 = Expr.Gt(aExpr, Builder.ConstantInt(0));
                 int hasConstraint3 = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint3)).Count();
@@ -142,8 +142,8 @@ namespace SymbooglixLibTests
                 // Check for "ensures r > 0" constraint which is assigned to b
                 var bTuple = e.CurrentState.GetInScopeVariableAndExprByName("b");
                 var bExpr = bTuple.Value;
-                Assert.IsInstanceOfType(typeof(IdentifierExpr), bExpr);
-                Assert.IsInstanceOfType(typeof(SymbolicVariable), (bExpr as IdentifierExpr).Decl);
+                Assert.IsInstanceOf<IdentifierExpr>(bExpr);
+                Assert.IsInstanceOf<SymbolicVariable>((bExpr as IdentifierExpr).Decl);
                 var symbolicForB = (bExpr as IdentifierExpr).Decl as SymbolicVariable;
                 Assert.IsTrue(symbolicForB.Origin.IsVariable);
                 var rVar = barProcedure.OutParams[0];

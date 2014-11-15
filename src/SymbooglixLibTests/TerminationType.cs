@@ -17,7 +17,7 @@ namespace SymbooglixLibTests
             T terminationType = null;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
             {
-                Assert.IsInstanceOfType(typeof(T), eventArgs.State.TerminationType);
+                Assert.IsInstanceOf<T>(eventArgs.State.TerminationType);
                 terminationType = eventArgs.State.TerminationType as T;
                 ++counter;
 
@@ -64,7 +64,7 @@ namespace SymbooglixLibTests
             }
 
             Assert.AreEqual(2, counter);
-            Assert.IsInstanceOfType(typeof(T), terminationType);
+            Assert.IsInstanceOf<T>(terminationType);
             return terminationType;
         }
 
@@ -226,7 +226,7 @@ namespace SymbooglixLibTests
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs stateArgs)
             {
                 terminationType = stateArgs.State.TerminationType;
-                Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedSpeculativePath), terminationType);
+                Assert.IsInstanceOf<TerminatedWithDisallowedSpeculativePath>(terminationType);
                 ++counter;
                 Assert.IsTrue(stateArgs.State.Speculative);
             };
@@ -249,7 +249,7 @@ namespace SymbooglixLibTests
             ITerminationType terminationType = null;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs executionStateEventArgs)
             {
-                Assert.IsInstanceOfType(typeof(TerminatedAtGotoWithUnsatisfiableTargets), executionStateEventArgs.State.TerminationType);
+                Assert.IsInstanceOf<TerminatedAtGotoWithUnsatisfiableTargets>(executionStateEventArgs.State.TerminationType);
                 terminationType = executionStateEventArgs.State.TerminationType;
                 ++counter;
                 Assert.IsFalse(executionStateEventArgs.State.Speculative);
@@ -280,17 +280,17 @@ namespace SymbooglixLibTests
                 switch (hit)
                 {
                     case 0:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithoutError), eventArgs.State.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithoutError>(eventArgs.State.TerminationType);
                         Assert.AreEqual(1, eventArgs.State.ExplicitBranchDepth);
                         break;
                     case 1:
                         // We expect the first label (loopDone) to be killed first as the CurrentState always follows the left most available GotoCmd target
-                        Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedExplicitBranchDepth), eventArgs.State.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithDisallowedExplicitBranchDepth>(eventArgs.State.TerminationType);
                         Assert.AreEqual(2, eventArgs.State.ExplicitBranchDepth);
                         Assert.AreEqual(loopDone, eventArgs.State.GetCurrentBlock());
                         break;
                     case 2:
-                        Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedExplicitBranchDepth), eventArgs.State.TerminationType);
+                        Assert.IsInstanceOf<TerminatedWithDisallowedExplicitBranchDepth>(eventArgs.State.TerminationType);
                         Assert.AreEqual(2, eventArgs.State.ExplicitBranchDepth);
                         Assert.AreEqual(loopBody, eventArgs.State.GetCurrentBlock());
                         break;

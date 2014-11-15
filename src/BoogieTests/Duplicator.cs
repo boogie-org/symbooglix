@@ -76,7 +76,7 @@ namespace BoogieTests
             foreach (var g in p2.TopLevelDeclarations)
             {
                 ++counter;
-                Assert.IsInstanceOfType(typeof(GlobalVariable), g);
+                Assert.IsInstanceOf<GlobalVariable>(g);
                 gv2 = g as GlobalVariable;
             }
             Assert.AreEqual(1, counter);
@@ -93,7 +93,7 @@ namespace BoogieTests
             foreach (var g in p2.TopLevelDeclarations)
             {
                 ++counter;
-                Assert.IsInstanceOfType(typeof(GlobalVariable), g);
+                Assert.IsInstanceOf<GlobalVariable>(g);
             }
             Assert.AreEqual(2, counter);
 
@@ -102,7 +102,7 @@ namespace BoogieTests
             foreach (var g in p.TopLevelDeclarations)
             {
                 ++counter;
-                Assert.IsInstanceOfType(typeof(GlobalVariable), g);
+                Assert.IsInstanceOf<GlobalVariable>(g);
                 Assert.AreSame(g, gv);
             }
 

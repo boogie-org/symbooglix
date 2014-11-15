@@ -30,7 +30,7 @@ namespace ConstantFoldingTests
 
         public void testTruth(Expr constantBool)
         {
-            Assert.IsInstanceOfType(typeof(LiteralExpr), constantBool);
+            Assert.IsInstanceOf<LiteralExpr>(constantBool);
             var boundVars = new List<Variable>();
             boundVars.Add(new BoundVariable(Token.NoToken, new TypedIdent(Token.NoToken, "bool", constantBool.Type)));
             Expr e = new ExistsExpr(Token.NoToken, boundVars, constantBool);

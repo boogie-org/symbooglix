@@ -32,7 +32,7 @@ namespace SymbooglixLibTests
 
                 checkg = true;
                 var gTuple = e.CurrentState.GetInScopeVariableAndExprByName("g");
-                Assert.IsInstanceOfType(typeof(LiteralExpr), gTuple.Value);
+                Assert.IsInstanceOf<LiteralExpr>(gTuple.Value);
                 Assert.IsTrue((gTuple.Value as LiteralExpr).isBigNum);
                 Assert.AreEqual(BigNum.FromInt(2), (gTuple.Value as LiteralExpr).asBigNum);
 
@@ -50,8 +50,8 @@ namespace SymbooglixLibTests
                 var g2Expr = g2Tuple.Value;
                 Assert.IsTrue(e.IsSymbolic(g2Tuple.Key));
 
-                Assert.IsInstanceOfType(typeof(IdentifierExpr), g2Expr);
-                Assert.IsInstanceOfType(typeof(SymbolicVariable), (g2Expr as IdentifierExpr).Decl);
+                Assert.IsInstanceOf<IdentifierExpr>(g2Expr);
+                Assert.IsInstanceOf<SymbolicVariable>((g2Expr as IdentifierExpr).Decl);
 
                 var expectedConstraint = Expr.Eq(g2Expr, Builder.ConstantInt(3));
                 int found = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint)).Count();
@@ -80,7 +80,7 @@ namespace SymbooglixLibTests
 
                 checka = true;
                 var aTuple = e.CurrentState.GetInScopeVariableAndExprByName("a");
-                Assert.IsInstanceOfType(typeof(LiteralExpr), aTuple.Value);
+                Assert.IsInstanceOf<LiteralExpr>(aTuple.Value);
                 Assert.IsTrue((aTuple.Value as LiteralExpr).isBigNum);
                 Assert.AreEqual(BigNum.FromInt(2), (aTuple.Value as LiteralExpr).asBigNum);
 
@@ -98,8 +98,8 @@ namespace SymbooglixLibTests
                 var bExpr = bTuple.Value;
                 Assert.IsTrue(e.IsSymbolic(bTuple.Key));
 
-                Assert.IsInstanceOfType(typeof(IdentifierExpr), bExpr);
-                Assert.IsInstanceOfType(typeof(SymbolicVariable), (bExpr as IdentifierExpr).Decl);
+                Assert.IsInstanceOf<IdentifierExpr>(bExpr);
+                Assert.IsInstanceOf<SymbolicVariable>((bExpr as IdentifierExpr).Decl);
 
                 var expectedConstraint = Expr.Eq(bExpr, Builder.ConstantInt(3));
                 int found = e.CurrentState.Constraints.Constraints.Where( c => c.Condition.Equals(expectedConstraint)).Count();

@@ -93,7 +93,7 @@ namespace SymbooglixLibTests
             int statesTerminated = 0;
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
             {
-                Assert.IsInstanceOfType(typeof(TerminatedAtUnsatisfiableAxiom), data.State.TerminationType);
+                Assert.IsInstanceOf<TerminatedAtUnsatisfiableAxiom>(data.State.TerminationType);
                 Assert.IsTrue(data.State.Speculative);
                 ++statesTerminated;
             };
@@ -157,7 +157,7 @@ namespace SymbooglixLibTests
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
             {
                 Assert.IsTrue(data.State.Speculative);
-                Assert.IsInstanceOfType(typeof(TerminatedWithDisallowedSpeculativePath), data.State.TerminationType);
+                Assert.IsInstanceOf<TerminatedWithDisallowedSpeculativePath>(data.State.TerminationType);
 
                 Assert.IsTrue(data.State.GetCurrentStackFrame().CurrentInstruction.Current is Microsoft.Boogie.AssumeCmd);
 

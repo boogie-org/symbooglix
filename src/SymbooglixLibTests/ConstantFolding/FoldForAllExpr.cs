@@ -28,7 +28,7 @@ namespace ConstantFoldingTests
             // FIXME:
             SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
 
-            Assert.IsInstanceOfType(typeof(LiteralExpr), constantBool);
+            Assert.IsInstanceOf<LiteralExpr>(constantBool);
             var boundVars = new List<Variable>();
             boundVars.Add(new BoundVariable(Token.NoToken, new TypedIdent(Token.NoToken, "bool", constantBool.Type)));
             Expr e = new ForallExpr(Token.NoToken, boundVars, constantBool);
