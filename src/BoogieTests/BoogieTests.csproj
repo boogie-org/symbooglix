@@ -34,12 +34,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Duplicator.cs" />
-    <Compile Include="BigDecParseFromString.cs" />
     <Compile Include="BadTokenLocations.cs" />
     <Compile Include="MissingStdDispatchInAbsyNode.cs" />
     <Compile Include="BoogieTest.cs" />
-    <Compile Include="ExprEquality.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
