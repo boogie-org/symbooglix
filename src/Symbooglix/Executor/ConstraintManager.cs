@@ -41,11 +41,10 @@ namespace Symbooglix
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
             other.InternalConstraints = new List<Constraint>();
 
-            // FIXME: Cloning constraints is probably wasteful. They shouldn't
-            // really be changing.
+            // Constraints should be immutable so we don't need to clone the Expr
             foreach (var c in this.InternalConstraints)
             {
-                other.InternalConstraints.Add(c.DeepClone());
+                other.InternalConstraints.Add(c);
             }
 
             return other;
@@ -68,6 +67,7 @@ namespace Symbooglix
                 {
                     TW.WriteLine(indentStr + "Origin:" + e.Origin);
                     TW.WriteLine(indentStr + "Expr:" + e.Condition);
+                    TW.WriteLine(indentStr + "# of used variables:" + e.UsedVariables.Count);
                     TW.WriteLine("");
                 }
             }
@@ -90,35 +90,33 @@ namespace Symbooglix
         }
     }
 
-    public class Constraint : Util.IDeepClone<Constraint>
+    public class Constraint
     {
         public Expr Condition { get; private set;}
         public ProgramLocation Origin { get; private set;}
+        public HashSet<SymbolicVariable> UsedVariables { get; private set; }
 
         public Constraint(Expr condition)
         {
             Condition = condition;
             Debug.Assert(condition.Type.IsBool, "Constraint must be a boolean expression!");
             Origin = null;
+            ComputeUsedVariables();
         }
 
         public Constraint(Expr condition, ProgramLocation location) : this(condition)
         {
             Debug.Assert(location != null);
             Origin = location;
+            ComputeUsedVariables();
         }
 
-        public Constraint DeepClone()
+        private void ComputeUsedVariables()
         {
-            var duplicator = new NonSymbolicDuplicator();
-            Constraint other = (Constraint) this.MemberwiseClone();
-            other.Condition = (Expr) duplicator.Visit(this.Condition);
-
-            // There isn't a need to deep clone the origin
-            other.Origin = this.Origin;
-            return other;
+            this.UsedVariables = new HashSet<SymbolicVariable>();
+            var fsv = new FindSymbolicsVisitor(this.UsedVariables);
+            fsv.Visit(this.Condition);
         }
-
     }
 }
 
