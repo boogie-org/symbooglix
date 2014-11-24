@@ -28,7 +28,7 @@ namespace Symbooglix
                 outputFile.AnnotateAssertsWithNames = true; // Needed for unsat-core
 
                 // FIXME: This **all** needs to be refactored. The solvers do something very similar
-                foreach (var constraint in State.Constraints.ConstraintExprs)
+                foreach (var constraint in State.Constraints.Constraints)
                 {
                     outputFile.AddDeclarations(constraint);
                 }

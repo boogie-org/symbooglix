@@ -140,14 +140,30 @@ namespace Symbooglix
             }
         }
 
+        // For this verion of AddDeclarations we already know what variables are used.
+        public void AddDeclarations(Constraint c)
+        {
+            FFV.Visit(c.Condition);
+
+            // Add variables used in Constraint
+            foreach (var usedVariable in c.UsedVariables)
+            {
+                symbolicsToDeclare.Add(usedVariable);
+            }
+
+            if (UseNamedAttributeBindings)
+                BindingsFinder.Visit(c.Condition);
+        }
+
         public void AddDeclarations(Expr e)
         {
-            FSV.Visit(e);
+            FSV.Visit(e); // We don't know what variables are used here so find them by traversing the Expr
             FFV.Visit(e);
 
             if (UseNamedAttributeBindings)
                 BindingsFinder.Visit(e);
         }
+
 
         public enum Logic
         {
