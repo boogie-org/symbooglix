@@ -94,7 +94,10 @@ namespace Symbooglix
     {
         public Expr Condition { get; private set;}
         public ProgramLocation Origin { get; private set;}
-        public HashSet<SymbolicVariable> UsedVariables { get; private set; }
+
+        // Hide the implementation of the Set
+        private HashSet<SymbolicVariable> InternalUsedVariables;
+        public ISet<SymbolicVariable> UsedVariables { get { return InternalUsedVariables; } }
 
         public Constraint(Expr condition)
         {
@@ -113,8 +116,8 @@ namespace Symbooglix
 
         private void ComputeUsedVariables()
         {
-            this.UsedVariables = new HashSet<SymbolicVariable>();
-            var fsv = new FindSymbolicsVisitor(this.UsedVariables);
+            this.InternalUsedVariables = new HashSet<SymbolicVariable>();
+            var fsv = new FindSymbolicsVisitor(this.InternalUsedVariables);
             fsv.Visit(this.Condition);
         }
     }
