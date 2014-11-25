@@ -16,8 +16,9 @@ namespace Symbooglix
             ISolverImplStatistics Statistics { get;}
         }
 
-        public interface ISolverImplStatistics : Util.IDeepClone<ISolverImplStatistics>, Util.IDumpable
+        public interface ISolverImplStatistics : Util.IDumpable
         {
+            void Reset();
         }
     }
 }

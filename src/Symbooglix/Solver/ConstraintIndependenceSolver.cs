@@ -17,7 +17,7 @@ namespace Symbooglix
             public ConstraintIndependenceSolver(ISolverImpl underlyingSolver)
             {
                 this.UnderlyingSolver = underlyingSolver;
-                InternalStatistics = new ConstraintIndepenceSolverStatistics(null);
+                InternalStatistics.Reset();
             }
 
             public void SetConstraints(IConstraintManager constraints)
@@ -107,20 +107,22 @@ namespace Symbooglix
                 get
                 {
                     InternalStatistics.UnderlyingSolverStats = UnderlyingSolver.Statistics;
-                    return InternalStatistics.DeepClone();
+                    return InternalStatistics; // Return a copy
                 }
             }
         }
 
-        class ConstraintIndepenceSolverStatistics : ISolverImplStatistics
+        struct ConstraintIndepenceSolverStatistics : ISolverImplStatistics
         {
-            public int ConstraintSetsReduced = 0;
-            public int ConstraintSetsLeftUnchanged = 0;
+            public int ConstraintSetsReduced;
+            public int ConstraintSetsLeftUnchanged;
             public ISolverImplStatistics UnderlyingSolverStats;
 
-            public ConstraintIndepenceSolverStatistics(ISolverImplStatistics underlyingStats)
+            public void Reset()
             {
-                UnderlyingSolverStats = underlyingStats;
+                ConstraintSetsReduced = 0;
+                ConstraintSetsLeftUnchanged = 0;
+                UnderlyingSolverStats = null;
             }
 
             public void Dump(System.IO.TextWriter TW)
@@ -134,11 +136,6 @@ namespace Symbooglix
                 TW.WriteLine("");
                 TW.WriteLine("Underlying solver stats:");
                 UnderlyingSolverStats.Dump(TW);
-            }
-
-            public ISolverImplStatistics DeepClone()
-            {
-                return (ISolverImplStatistics) this.MemberwiseClone();
             }
         }
     }

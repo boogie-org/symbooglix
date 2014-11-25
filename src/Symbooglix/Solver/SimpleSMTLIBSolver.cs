@@ -18,7 +18,7 @@ namespace Symbooglix
             private bool ReceivedResult = false;
             private Process TheProcess = null;
             private System.Text.Encoding TheEncoding = null;
-            private SimpleSMTLIBSolverStatistics InternalStatistics = null;
+            private SimpleSMTLIBSolverStatistics InternalStatistics;
             private Stopwatch ReadExprTimer;
             private Stopwatch SolverProcessTimer;
             private Stopwatch PrintExprTimer;
@@ -35,7 +35,7 @@ namespace Symbooglix
 
                 this.UseNamedAttributes = useNamedAttributes;
 
-                InternalStatistics = new SimpleSMTLIBSolverStatistics();
+                InternalStatistics.Reset();
 
                 StartInfo = new ProcessStartInfo(PathToSolverExecutable);
                 StartInfo.Arguments = solverArguments;
@@ -56,7 +56,7 @@ namespace Symbooglix
                 get
                 {
                     UpdateInternalStatistics(); // Only update the statistics when we really need to.
-                    return InternalStatistics.DeepClone();
+                    return InternalStatistics;
                 }
             }
 
@@ -288,22 +288,17 @@ namespace Symbooglix
             }
         }
 
-        public class SimpleSMTLIBSolverStatistics : ISolverImplStatistics
+        public struct SimpleSMTLIBSolverStatistics : ISolverImplStatistics
         {
             public TimeSpan SolverProcessTime;
             public TimeSpan ReadExprTime;
             public TimeSpan PrintExprTime;
 
-            public SimpleSMTLIBSolverStatistics()
+            public void Reset()
             {
                 SolverProcessTime = TimeSpan.Zero;
                 ReadExprTime = TimeSpan.Zero;
                 PrintExprTime = TimeSpan.Zero;
-            }
-
-            public ISolverImplStatistics DeepClone()
-            {
-                return (ISolverImplStatistics) this.MemberwiseClone();
             }
 
             public void Dump(TextWriter TW)

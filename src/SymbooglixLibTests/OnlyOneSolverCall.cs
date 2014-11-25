@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            SolverStats beforeAssert = null;
-            SolverStats afterAssert = null;
+            SolverStats beforeAssert;
+            SolverStats afterAssert;
             p = loadProgram("programs/OnlyOneSolverCall.bpl");
             ISolver Solver = GetSolver();
             e = getExecutor(p, new DFSStateScheduler(), Solver);
