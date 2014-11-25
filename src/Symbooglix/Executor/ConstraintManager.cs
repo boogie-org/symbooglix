@@ -27,10 +27,11 @@ namespace Symbooglix
 
     public class ConstraintManager : IConstraintManager
     {
-        // The implementation is deliberatly hidden from users
-        // because we might later change to container. E.g. perhaps
-        // we might move to a set rather than a list.
-        private List<Constraint> InternalConstraints;
+        // FIXME: We are doing reference equality here
+        // we can't move towards doing Expr equality checks
+        // until Expr.GetHashCode() is fixed to be a constant time
+        // operation
+        private HashSet<Constraint> InternalConstraints;
 
         public int Count
         {
@@ -50,13 +51,13 @@ namespace Symbooglix
 
         public ConstraintManager()
         {
-            InternalConstraints = new List<Constraint>();
+            InternalConstraints = new HashSet<Constraint>();
         }
 
         public IConstraintManager DeepClone()
         {
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
-            other.InternalConstraints = new List<Constraint>();
+            other.InternalConstraints = new HashSet<Constraint>();
 
             // Constraints should be immutable so we don't need to clone the Expr
             foreach (var c in this.InternalConstraints)
