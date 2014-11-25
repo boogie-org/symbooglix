@@ -167,6 +167,7 @@ namespace Symbooglix
 
         public enum Logic
         {
+            DO_NOT_SET, /* Special Value that won't be printed */
             QF_BV,
             QF_ABV,
             ALL_SUPPORTED // CVC4 specific
@@ -303,7 +304,8 @@ namespace Symbooglix
 
         public void PrintSetLogic(Logic L)
         {
-            TW.WriteLine("(set-logic " + L.ToString() + " )");
+            if ( L != Logic.DO_NOT_SET)
+                TW.WriteLine("(set-logic " + L.ToString() + " )");
         }
 
         public void PrintAssert(Expr e)

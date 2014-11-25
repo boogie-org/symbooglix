@@ -40,6 +40,9 @@ namespace Symbooglix
             [Option("file-logging", DefaultValue=1, HelpText="Log information about execution to files (default=1)")]
             public int FileLogging { get; set ; }
 
+            [Option("force-qfabv", DefaultValue= false, HelpText="HACK: Force solver to use qf_abv logic")]
+            public bool ForceQFABV { get; set; }
+
             [Option("goto-assume-look-ahead", DefaultValue= 1, HelpText="Prevent needless state creation and destruction by looking ahead at gotos")]
             public int gotoAssumeLookAhead { get; set; }
 
@@ -531,13 +534,16 @@ namespace Symbooglix
                 }
             }
 
+            // HACK: THIS IS GROSS! REMOVE THIS ASAP AND FIND A CLEAN WAY OF DOING THIS!!!!!!!!!!!!
+            var logicToUse = options.ForceQFABV ? SMTLIBQueryPrinter.Logic.QF_ABV : SMTLIBQueryPrinter.Logic.DO_NOT_SET;
+
             switch (options.solver)
             {
                 case CmdLineOpts.Solver.CVC4:
-                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver);
+                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, logicToUse);
                     break;
                 case CmdLineOpts.Solver.Z3:
-                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver);
+                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, logicToUse);
                     break;
                 case CmdLineOpts.Solver.DUMMY:
                     solverImpl = new Solver.DummySolver(Symbooglix.Solver.Result.UNKNOWN);
