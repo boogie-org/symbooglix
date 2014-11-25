@@ -113,6 +113,7 @@
     <Compile Include="Executor\ExecutorHandlers\SolverStatisticsLogger.cs" />
     <Compile Include="Executor\StateSchedulers\IStateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\LoopEscapingScheduler.cs" />
+    <Compile Include="Solver\ConstraintIndependenceSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

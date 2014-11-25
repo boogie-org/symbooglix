@@ -77,7 +77,30 @@ namespace Symbooglix
 
         public IConstraintManager GetSubSet(ISet<Constraint> subset)
         {
-            throw new NotImplementedException();
+            // Don't make a new ConstraintManager if the constraints are the same.
+            if (InternalConstraints.SetEquals(subset))
+                return this;
+
+            // Is this the most efficient way to do this?
+            ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
+            Debug.Assert(subset.IsSubsetOf(InternalConstraints), "argument ``subset`` is not a valid subset");
+
+            if (subset is HashSet<Constraint>)
+            {
+                // Reuse the container for efficiency
+                // This doesn't feel very safe...
+                other.InternalConstraints = (HashSet<Constraint>) subset;
+            }
+            else
+            {
+                other.InternalConstraints = new HashSet<Constraint>();
+                foreach (var constraint in subset)
+                {
+                    other.InternalConstraints.Add(constraint);
+                }
+            }
+
+            return other;
         }
 
         public void Dump(TextWriter TW, bool showConstraints)
