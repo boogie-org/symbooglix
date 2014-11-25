@@ -12,7 +12,7 @@ namespace Symbooglix
         {
             public int Timeout { get; private set;}
             protected SMTLIBQueryPrinter Printer = null;
-            protected ConstraintManager CurrentConstraints = null;
+            protected IConstraintManager CurrentConstraints = null;
             protected ProcessStartInfo StartInfo;
             private Result SolverResult = Result.UNKNOWN;
             private bool ReceivedResult = false;
@@ -100,7 +100,7 @@ namespace Symbooglix
                 return streamWriter;
             }
 
-            public void SetConstraints(ConstraintManager cm)
+            public void SetConstraints(IConstraintManager cm)
             {
                 ReadExprTimer.Start();
                 Printer.ClearDeclarations();

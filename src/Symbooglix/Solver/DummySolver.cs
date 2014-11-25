@@ -21,7 +21,7 @@ namespace Symbooglix
                 this.ResultIsAlways = resultIsAlways;
             }
 
-            public void SetConstraints(ConstraintManager cm)
+            public void SetConstraints(IConstraintManager cm)
             {
                 // The dummy solver doesn't care about these 
             }

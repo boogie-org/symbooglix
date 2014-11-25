@@ -13,7 +13,7 @@ namespace Symbooglix
         // is designed around the needs of the Executor rather than the solver
         public interface ISolver : IDisposable
         {
-            void SetConstraints(ConstraintManager cm);
+            void SetConstraints(IConstraintManager cm);
 
             void SetTimeout(int seconds);
 

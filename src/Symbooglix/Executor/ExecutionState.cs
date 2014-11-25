@@ -11,7 +11,7 @@ namespace Symbooglix
     {
         public Memory Mem;
         public List<SymbolicVariable> Symbolics;
-        public ConstraintManager Constraints;
+        public IConstraintManager Constraints;
         public int Id
         {
             get;
@@ -125,8 +125,9 @@ namespace Symbooglix
             // FIXME: These don't get indented properly
             Mem.Dump(TW, indent);
 
+            // FIXME: Do indentation in a cleaner way to manage indentation
             if (showConstraints)
-                Constraints.Dump(TW, showConstraints, indent);
+                Constraints.Dump(TW);
         }
 
        

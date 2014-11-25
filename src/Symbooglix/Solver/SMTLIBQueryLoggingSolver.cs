@@ -17,7 +17,7 @@ namespace Symbooglix
         {
             private ISolverImpl UnderlyingImpl;
             private SMTLIBQueryPrinter Printer;
-            private ConstraintManager CurrentConstraints = null;
+            private IConstraintManager CurrentConstraints = null;
             private int UseCounter=0;
             public SMTLIBQueryLoggingSolverImpl(ISolverImpl underlyingImplementation, TextWriter TW, bool namedAttributeBindings, bool humanReadable)
             {
@@ -25,7 +25,7 @@ namespace Symbooglix
                 Printer = new SMTLIBQueryPrinter(TW, namedAttributeBindings, humanReadable);
             }
 
-            public void SetConstraints(ConstraintManager constraints)
+            public void SetConstraints(IConstraintManager constraints)
             {
                 // Only clear the known declarations when we are given new constraints
                 Printer.ClearDeclarations();

@@ -7,8 +7,25 @@ using System.IO;
 
 namespace Symbooglix
 {
+    public interface IConstraintManager : Util.IDeepClone<IConstraintManager>, Util.IDumpable
+    {
+        int Count { get; }
+        IEnumerable<Expr> ConstraintExprs{ get; }
+        IEnumerable<Constraint> Constraints { get; }
+        void AddConstraint(Expr e, ProgramLocation location);
 
-    public class ConstraintManager : Util.IDeepClone<ConstraintManager>
+        /// <summary>
+        /// Returns
+        /// </summary>
+        /// <returns>A new constraint manager containing a subset of the constraints if "subset" is a true
+        /// subset otherwise it returns itself
+        /// </returns>
+        /// <param name="subset">This should be a subset of the constraints in the IConstraintManager
+        /// </param>
+        IConstraintManager GetSubSet(ISet<Constraint> subset);
+    }
+
+    public class ConstraintManager : IConstraintManager
     {
         // The implementation is deliberatly hidden from users
         // because we might later change to container. E.g. perhaps
@@ -36,7 +53,7 @@ namespace Symbooglix
             InternalConstraints = new List<Constraint>();
         }
 
-        public ConstraintManager DeepClone()
+        public IConstraintManager DeepClone()
         {
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
             other.InternalConstraints = new List<Constraint>();
@@ -55,22 +72,31 @@ namespace Symbooglix
             InternalConstraints.Add(new Constraint(e, location));
         }
 
-        public void Dump(TextWriter TW,  bool showConstraints, int indent)
+        public IConstraintManager GetSubSet(ISet<Constraint> subset)
         {
-            string indentStr = new string(' ', indent);
+            throw new NotImplementedException();
+        }
+
+        public void Dump(TextWriter TW, bool showConstraints)
+        {
             TW.WriteLine("[Constraints]");
-            TW.WriteLine(indentStr + InternalConstraints.Count + " constraint(s)");
+            TW.WriteLine(InternalConstraints.Count + " constraint(s)");
 
             if (showConstraints)
             {
                 foreach (var e in InternalConstraints)
                 {
-                    TW.WriteLine(indentStr + "Origin:" + e.Origin);
-                    TW.WriteLine(indentStr + "Expr:" + e.Condition);
-                    TW.WriteLine(indentStr + "# of used variables:" + e.UsedVariables.Count);
+                    TW.WriteLine("Origin:" + e.Origin);
+                    TW.WriteLine("Expr:" + e.Condition);
+                    TW.WriteLine("# of used variables:" + e.UsedVariables.Count);
                     TW.WriteLine("");
                 }
             }
+        }
+
+        public void Dump(TextWriter TW)
+        {
+            Dump(TW, true);
         }
 
         public override string ToString()
@@ -83,7 +109,7 @@ namespace Symbooglix
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW, showConstraints ,4);
+                Dump(SW, showConstraints);
                 result = SW.ToString();
             }
             return result;

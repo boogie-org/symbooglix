@@ -23,7 +23,7 @@ namespace Symbooglix
                 Timer = new Stopwatch();
             }
 
-            public void SetConstraints(ConstraintManager cm)
+            public void SetConstraints(IConstraintManager cm)
             {
                 SolverImpl.SetConstraints(cm);
             }

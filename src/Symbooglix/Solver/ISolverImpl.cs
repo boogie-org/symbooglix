@@ -10,7 +10,7 @@ namespace Symbooglix
         // as opposed to the Executor.
         public interface ISolverImpl : IDisposable
         {
-            void SetConstraints(ConstraintManager constraints);
+            void SetConstraints(IConstraintManager constraints);
             Tuple<Solver.Result, IAssignment> ComputeSatisfiability(Microsoft.Boogie.Expr queryExpr, bool computeAssignment);
             void SetTimeout(int seconds);
             ISolverImplStatistics Statistics { get;}
