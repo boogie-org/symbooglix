@@ -69,6 +69,8 @@ namespace Symbooglix
 
         public void AddConstraint(Expr e, ProgramLocation location)
         {
+            Debug.Assert(e.ShallowType.IsBool, "Constraints stored must be boolean");
+
             InternalConstraints.Add(new Constraint(e, location));
         }
 
