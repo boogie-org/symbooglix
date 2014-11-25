@@ -53,7 +53,8 @@ namespace Symbooglix
             Microsoft.Boogie.LiteralExpr GetAssignment(SymbolicVariable SV);
         }
 
-        public class SolverStats : Util.IDeepClone<SolverStats>, Util.IDumpable
+        // This is a struct so clients always get a copy when they try to access this.
+        public struct SolverStats : Util.IDumpable
         {
             // Stats on number of queries
             public int SatQueries { get; internal set; }
@@ -64,7 +65,7 @@ namespace Symbooglix
                 get { return SatQueries + UnsatQueries + UnknownQueries; }
             }
 
-            public SolverStats()
+            public void Reset()
             {
                 SatQueries = 0;
                 UnsatQueries = 0;
@@ -112,15 +113,6 @@ namespace Symbooglix
                     result = SW.ToString();
                 }
                 return result;
-            }
-
-            // Clients need to call this if they want an instance
-            // not is guaranteed not to change when the solver is
-            // invoked again.
-            public SolverStats DeepClone()
-            {
-                // This should be fine because all the types are value types
-                return this.MemberwiseClone() as SolverStats;
             }
         }
 

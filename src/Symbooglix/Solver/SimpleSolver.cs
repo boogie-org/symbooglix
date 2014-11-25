@@ -19,7 +19,7 @@ namespace Symbooglix
             public SimpleSolver(ISolverImpl solverImpl)
             {
                 this.SolverImpl = solverImpl;
-                InternalStatistics = new SolverStats();
+                InternalStatistics.Reset();
                 Timer = new Stopwatch();
             }
 
@@ -99,7 +99,7 @@ namespace Symbooglix
                 // when the solver is invoked again.
                 get
                 {
-                    return InternalStatistics.DeepClone();
+                    return InternalStatistics;
                 }
             }
         }
