@@ -1,3 +1,4 @@
+// FIXME: We have to use the gross --force-qfabv otherwise the solver gets stuck! We need to do this in a cleaner way.
 // RUN: %rmdir %t.symbooglix-out
 // RUN: %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points --force-qfabv %s
 type _SIZE_T_TYPE = bv32;
