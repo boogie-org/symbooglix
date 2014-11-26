@@ -88,8 +88,8 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
-            Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("0 <= symbolic_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("~sb_x_0 < 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 <= ~sb_x_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -100,7 +100,7 @@ namespace SymbooglixLibTests
             Assert.IsNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
-            Assert.AreEqual("0 < symbolic_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("0 < ~sb_x_0", terminationType.ConditionForSat.ToString());
             Assert.AreEqual(1, terminationType.ExitLocation.AsCmd.GetInstructionStatistics().Terminations);
         }
 
@@ -127,7 +127,7 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableAssume>("programs/UnsatisfiableAssume.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
-            Assert.AreEqual("symbolic_0 * symbolic_0 < symbolic_0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("~sb_x_0 * ~sb_x_0 < ~sb_x_0", terminationType.ConditionForUnsat.ToString());
         }
 
 
@@ -137,7 +137,7 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableEntryRequires>("programs/UnsatisfiableEntryRequires.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
-            Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("~sb_x_0 < 0", terminationType.ConditionForUnsat.ToString());
         }
 
 
@@ -149,8 +149,8 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
-            Assert.AreEqual("symbolic_0 > 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("0 >= symbolic_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("~sb_x_0 > 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 >= ~sb_x_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -161,7 +161,7 @@ namespace SymbooglixLibTests
             Assert.IsNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
-            Assert.AreEqual("0 >= symbolic_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("0 >= ~sb_x_0", terminationType.ConditionForSat.ToString());
             Assert.AreEqual(1, terminationType.ExitLocation.AsRequires.GetInstructionStatistics().Terminations);
         }
 
@@ -173,8 +173,8 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
-            Assert.AreEqual("symbolic_1 > 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("0 >= symbolic_1", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("~sb_x_0 > 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("0 >= ~sb_x_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -185,7 +185,7 @@ namespace SymbooglixLibTests
             Assert.IsNull(terminationType.ConditionForUnsat);
             Assert.IsNotNull(terminationType.ConditionForSat);
 
-            Assert.AreEqual("0 >= symbolic_1", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("0 >= ~sb_x_0", terminationType.ConditionForSat.ToString());
             Assert.AreEqual(1, terminationType.ExitLocation.AsEnsures.GetInstructionStatistics().Terminations);
         }
 
@@ -195,10 +195,10 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableEnsures>("programs/UnsatisfiableEnsures.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
-            Assert.AreEqual("symbolic_1 > 20", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("~sb_r_0 > 20", terminationType.ConditionForUnsat.ToString());
 
             Assert.IsNotNull(terminationType.ConditionForSat);
-            Assert.AreEqual("20 >= symbolic_1", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("20 >= ~sb_r_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -207,9 +207,9 @@ namespace SymbooglixLibTests
             var terminationType = InitAndRun<TerminatedAtUnsatisfiableAxiom>("programs/InconsistentAxioms.bpl");
 
             Assert.IsNotNull(terminationType.ConditionForUnsat);
-            Assert.AreEqual("symbolic_0 < 0", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("~sb_g_0 < 0", terminationType.ConditionForUnsat.ToString());
             Assert.IsNotNull(terminationType.ConditionForSat);
-            Assert.AreEqual("0 <= symbolic_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("0 <= ~sb_g_0", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]

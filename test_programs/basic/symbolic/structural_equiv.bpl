@@ -8,7 +8,7 @@ procedure main(x:int, y:int)
     a := x + y;
     b := x + y;
 
-    // CHECK-L: Mutating tree: 'symbolic_0 + symbolic_1 == symbolic_0 + symbolic_1' => 'true'
+    // CHECK-L: Mutating tree: '~sb_x_0 + ~sb_y_0 == ~sb_x_0 + ~sb_y_0' => 'true'
     // CHECK-L: Assert : true
 
     assert a == b;
