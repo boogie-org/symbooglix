@@ -1443,7 +1443,12 @@ namespace Symbooglix
 
             foreach (Expr e in c.Ins)
             {
-                args.Add( (Expr) reWritter.Visit(e) );
+                var arg = (Expr) reWritter.Visit(e);
+
+                if (UseConstantFolding)
+                    arg = CFT.Traverse(arg);
+
+                args.Add( arg );
             }
 
 
