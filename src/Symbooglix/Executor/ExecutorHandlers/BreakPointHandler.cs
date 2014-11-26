@@ -1,6 +1,7 @@
 using System;
 using Symbooglix;
 using Microsoft.Boogie;
+using System.Diagnostics;
 
 namespace Symbooglix
 {
@@ -10,6 +11,15 @@ namespace Symbooglix
         {
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
             Console.WriteLine("Hit break point " + eventArgs.Name);
+
+            if (Debugger.IsAttached)
+            {
+                Debugger.Break();
+            }
+            else
+            {
+                Console.WriteLine("Could not Break because debugger was not attached");
+            }
             Console.ResetColor();
         }
     }
