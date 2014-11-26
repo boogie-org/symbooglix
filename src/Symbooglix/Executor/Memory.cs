@@ -179,13 +179,16 @@ namespace Symbooglix
 
         public void Dump(TextWriter TW, int indent)
         {
+            string indentStr = new string(' ', indent);
             if (IsDummy)
             {
                 TW.WriteLine("[Dummy Stack frame for " + Proc.Name + "]");
+                foreach (var tuple in Locals.Keys.Zip(Locals.Values))
+                {
+                    TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
+                }
                 return;
             }
-
-            string indentStr = new string(' ', indent);
 
             TW.WriteLine("[Stack frame for " + Impl.Name + "]");
             TW.WriteLine(indentStr + "Current block :" + CurrentBlock);
