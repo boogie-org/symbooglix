@@ -38,9 +38,9 @@ namespace SymbooglixLibTests
         public static Program loadProgram(String path)
         {
             setupDebug();
-            Assert.IsTrue(File.Exists(path));
-
             setupCmdLineParser();
+            Assert.IsNotNullOrEmpty(path);
+            Assert.IsTrue(File.Exists(path));
 
             int errors = 0;
             Program p = null;
@@ -49,6 +49,12 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, errors);
             Assert.IsNotNull(p);
 
+            return ResolveAndTypeCheck(p);
+        }
+
+        private static Program ResolveAndTypeCheck(Program p)
+        {
+            int errors = 0;
             // Resolve
             errors = p.Resolve();
             Assert.AreEqual(0, errors);
@@ -58,6 +64,23 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, errors);
 
             return p;
+        }
+
+        public static Program LoadProgramFrom(string text, string fileName)
+        {
+            setupDebug();
+            setupCmdLineParser();
+            Assert.IsNotNullOrEmpty(text);
+            Assert.IsNotNullOrEmpty(fileName);
+
+            int errors = 0;
+            Program program = null;
+            List<string> defines = null;
+            errors = Parser.Parse(fileName, defines, out program);
+            Assert.AreEqual(0, errors);
+            Assert.IsNotNull(program);
+
+            return ResolveAndTypeCheck(program);
         }
 
         public static ISolver GetSolver()
