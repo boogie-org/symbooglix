@@ -208,6 +208,64 @@ namespace SymbooglixLibTests
             e.Run(GetMain(p));
             Assert.AreEqual(2, count);
         }
+
+        [Test()]
+        public void ParallelSymbolicAssignment()
+        {
+            p = LoadProgramFrom(@"
+                procedure main()
+                {
+                    var x:int;
+                    var y:int;
+                    assert {:symbooglix_bp ""before""} true;
+                    x, y := y, x;
+                    assert {:symbooglix_bp ""after""} true;
+                }
+            ", "file.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            int count = 0;
+            IdentifierExpr symbolicForx = null;
+            IdentifierExpr symbolicFory = null;
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                switch (eventArgs.Name)
+                {
+                    case "before":
+                        {
+                            var vAndExprForx = e.CurrentState.GetInScopeVariableAndExprByName("x");
+                            Assert.IsInstanceOf<IdentifierExpr>(vAndExprForx.Value);
+                            Assert.IsInstanceOf<SymbolicVariable>((vAndExprForx.Value as IdentifierExpr).Decl);
+                            symbolicForx = vAndExprForx.Value as IdentifierExpr;
+
+                            var vAndExprFory = e.CurrentState.GetInScopeVariableAndExprByName("y");
+                            Assert.IsInstanceOf<IdentifierExpr>(vAndExprFory.Value);
+                            Assert.IsInstanceOf<SymbolicVariable>((vAndExprFory.Value as IdentifierExpr).Decl);
+                            symbolicFory = vAndExprFory.Value as IdentifierExpr;
+                        }
+                        break;
+                    case "after":
+                        {
+                            Assert.IsNotNull(symbolicForx);
+                            Assert.IsNotNull(symbolicFory);
+
+                            // Check that swapped happened
+                            var vAndExprForNewx = e.CurrentState.GetInScopeVariableAndExprByName("x");
+                            Assert.AreSame(symbolicFory, vAndExprForNewx.Value);
+
+                            var vAndExprForNewy = e.CurrentState.GetInScopeVariableAndExprByName("y");
+                            Assert.AreSame(symbolicForx, vAndExprForNewy.Value);
+                        }
+                        break;
+                    default:
+                        Assert.Fail("unrecognised breakpoint");
+                        break;
+                }
+                ++count;
+            };
+            e.Run(GetMain(p));
+            Assert.AreEqual(2, count);
+        }
     }
 }
 
