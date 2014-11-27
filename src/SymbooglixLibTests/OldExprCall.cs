@@ -11,8 +11,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void Impl()
         {
-            p = loadProgram("programs/OldExprCallImpl.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/OldExprCallImpl.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             var TSC = new TerminationCounter();
             TSC.Connect(e);
@@ -28,7 +28,7 @@ namespace SymbooglixLibTests
                 ++bpCount;
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(1, TSC.Sucesses);
             Assert.AreEqual(0, TSC.NumberOfFailures);
@@ -39,13 +39,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void Proc()
         {
-            p = loadProgram("programs/OldExprCallProc.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/OldExprCallProc.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             var TSC = new TerminationCounter();
             TSC.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(0, TSC.Sucesses);
             Assert.AreEqual(1, TSC.NumberOfFailures);

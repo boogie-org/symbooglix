@@ -14,9 +14,9 @@ namespace SymbooglixLibTests
         {
             SolverStats beforeAssert;
             SolverStats afterAssert;
-            p = loadProgram("programs/OnlyOneSolverCall.bpl");
+            p = LoadProgramFrom("programs/OnlyOneSolverCall.bpl");
             ISolver Solver = GetSolver();
-            e = getExecutor(p, new DFSStateScheduler(), Solver);
+            e = GetExecutor(p, new DFSStateScheduler(), Solver);
 
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
@@ -33,7 +33,7 @@ namespace SymbooglixLibTests
             };
 
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.IsNotNull(beforeAssert);
             Assert.IsNotNull(afterAssert);
 

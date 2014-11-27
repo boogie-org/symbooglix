@@ -10,8 +10,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoMultiplePaths.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             int count = 0;
             e.ContextChanged += delegate(object sender, Executor.ContextChangeEventArgs contextChangeEventArgs)
@@ -19,7 +19,7 @@ namespace SymbooglixLibTests
                 ++count;
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(2, count);
         }

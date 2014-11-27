@@ -11,8 +11,8 @@ namespace SymbooglixLibTests
         public void InitAndRun(string program)
         {
             bool hit = false;
-            p = loadProgram(program);
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom(program);
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             e.ExecutorTerminated += delegate(object sender, Executor.ExecutorTerminatedArgs executorTerminatedArgs)
             {
@@ -20,7 +20,7 @@ namespace SymbooglixLibTests
             };
             try
             {
-                e.Run(getMain(p));
+                e.Run(GetMain(p));
             }
             catch (ExecuteTerminatedStateException)
             {
@@ -85,18 +85,18 @@ namespace SymbooglixLibTests
         [Test()]
         public void DisallowedSpeculativeExecutionPath()
         {
-            p = loadProgram("programs/TwoPaths.bpl");
+            p = LoadProgramFrom("programs/TwoPaths.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
             bool hit = false;
             e.ExecutorTerminated += delegate(object sender, Executor.ExecutorTerminatedArgs executorEventArgs)
             {
                 hit = true;
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.IsTrue(hit);
         }
     }

@@ -10,8 +10,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p = loadProgram("programs/GotoSinglePath.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/GotoSinglePath.bpl");
+            e = GetExecutor(p);
 
             bool started = false;
             e.ExecutorStarted += delegate(object sender, Executor.ExecutorStartedArgs executorStartedArgs)
@@ -19,7 +19,7 @@ namespace SymbooglixLibTests
                 started = true;
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(started);
         }

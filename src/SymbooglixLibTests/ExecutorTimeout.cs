@@ -10,15 +10,15 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p = loadProgram("programs/InfiniteLoop.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/InfiniteLoop.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             var tc = new TerminationCounter();
 
             tc.Connect(e);
 
             // Run with timeout
-            e.Run(getMain(p),3);
+            e.Run(GetMain(p),3);
             Assert.AreEqual(0, tc.NumberOfTerminatedStates);
 
         }

@@ -10,12 +10,12 @@ namespace SymbooglixLibTests
         [Test()]
         public void InvalidRequires()
         {
-            p = loadProgram("programs/CallInconsistentSpecification.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/CallInconsistentSpecification.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             var TC = new TerminationCounter();
             TC.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(0, TC.Sucesses);
             Assert.AreEqual(2, TC.FailingRequires);

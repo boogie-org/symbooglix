@@ -21,24 +21,24 @@ namespace SymbooglixLibTests
             return original.TrimEnd(new char[] { '\n', '\r' });
         }
 
-        public static void setupDebug()
+        public static void SetupDebug()
         {
             // Debug log output goes to standard error.
             // Failing System.Diagnostics failures trigger NUnit assertion failures
             Debug.Listeners.Add(new AssertionTextWriterTraceListener(Console.Error));
         }
 
-        public static void setupCmdLineParser()
+        public static void SetupCmdLineParser()
         {
             // THIS IS A HACK. Boogie's methods
             // depend on its command line parser being set!
             CommandLineOptions.Install(new Microsoft.Boogie.CommandLineOptions());
         }
 
-        public static Program loadProgram(String path)
+        public static Program LoadProgramFrom(String path)
         {
-            setupDebug();
-            setupCmdLineParser();
+            SetupDebug();
+            SetupCmdLineParser();
             Assert.IsNotNullOrEmpty(path);
             Assert.IsTrue(File.Exists(path));
 
@@ -68,8 +68,8 @@ namespace SymbooglixLibTests
 
         public static Program LoadProgramFrom(string text, string fileName)
         {
-            setupDebug();
-            setupCmdLineParser();
+            SetupDebug();
+            SetupCmdLineParser();
             Assert.IsNotNullOrEmpty(text);
             Assert.IsNotNullOrEmpty(fileName);
 
@@ -110,7 +110,7 @@ namespace SymbooglixLibTests
 
         }
 
-        public static Executor getExecutor(Program p, IStateScheduler scheduler = null, ISolver solver = null)
+        public static Executor GetExecutor(Program p, IStateScheduler scheduler = null, ISolver solver = null)
         {
             if (scheduler == null )
                 scheduler = new DFSStateScheduler();
@@ -123,14 +123,14 @@ namespace SymbooglixLibTests
             return e;
         }
 
-        public static Implementation getMain(Program p)
+        public static Implementation GetMain(Program p)
         {
             var imp = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
             Assert.AreNotEqual(null, imp);
             return imp;
         }
 
-        public static BvConst getBVFromLiteral(Expr l)
+        public static BvConst GetBVFromLiteral(Expr l)
         {
             Assert.IsTrue(l is LiteralExpr);
             LiteralExpr litExpr = l as LiteralExpr;

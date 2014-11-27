@@ -12,9 +12,9 @@ namespace SymbooglixLibTests
         [Test()]
         public void Enumerator()
         {
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
+            p = LoadProgramFrom("programs/GotoMultiplePaths.bpl");
 
-            var block = getMain(p).Blocks[0];
+            var block = GetMain(p).Blocks[0];
 
             // Try using the Enumerable so we can use in foreach loop
             var blockEnumerable= new BlockCmdEnumerable(block);
@@ -33,8 +33,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void EnumeratorHitEnd()
         {
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
-            var block = getMain(p).Blocks[0];
+            p = LoadProgramFrom("programs/GotoMultiplePaths.bpl");
+            var block = GetMain(p).Blocks[0];
 
             var blockEnumerator = new BlockCmdEnumerator(block);
 
@@ -55,8 +55,8 @@ namespace SymbooglixLibTests
         [Test(),ExpectedException(typeof(InvalidOperationException))]
         public void EnumeratorMovePastEnd()
         {
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
-            var block = getMain(p).Blocks[0];
+            p = LoadProgramFrom("programs/GotoMultiplePaths.bpl");
+            var block = GetMain(p).Blocks[0];
 
             var blockEnumerator = new BlockCmdEnumerator(block);
 
@@ -80,8 +80,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void EntryWithImmediateGoto()
         {
-            p = loadProgram("programs/EntryWithImmediateGoto.bpl");
-            var block = getMain(p).Blocks[0];
+            p = LoadProgramFrom("programs/EntryWithImmediateGoto.bpl");
+            var block = GetMain(p).Blocks[0];
 
             var blockEnumerator = new BlockCmdEnumerator(block);
 
@@ -94,8 +94,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void EnumeratorMultipleCmds()
         {
-            p = loadProgram("programs/Concretise.bpl");
-            var block = getMain(p).Blocks[0];
+            p = LoadProgramFrom("programs/Concretise.bpl");
+            var block = GetMain(p).Blocks[0];
 
             var blockEnumerator = new BlockCmdEnumerator(block);
 
@@ -120,8 +120,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void EnumeratorClone()
         {
-            p = loadProgram("programs/Concretise.bpl");
-            var block = getMain(p).Blocks[0];
+            p = LoadProgramFrom("programs/Concretise.bpl");
+            var block = GetMain(p).Blocks[0];
 
             var blockEnumerator = new BlockCmdEnumerator(block);
 

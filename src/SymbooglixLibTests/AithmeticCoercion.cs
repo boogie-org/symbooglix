@@ -10,10 +10,10 @@ namespace SymbooglixLibTests
     {
         public void Init(string program)
         {
-            this.p = loadProgram(program);
+            this.p = LoadProgramFrom(program);
 
             var solver = GetSolver();
-            this.e = getExecutor(this.p, new DFSStateScheduler(), solver);
+            this.e = GetExecutor(this.p, new DFSStateScheduler(), solver);
 
             // Needed so that the ArithmeticCoercion reaches the solver
             this.e.UseConstantFolding = false;
@@ -25,7 +25,7 @@ namespace SymbooglixLibTests
             var counter = new TerminationCounter();
             Init("programs/RealToInt.bpl");
             counter.Connect(e);
-            e.Run(getMain(this.p));
+            e.Run(GetMain(this.p));
             checkCounter(counter);
         }
 
@@ -35,7 +35,7 @@ namespace SymbooglixLibTests
             var counter = new TerminationCounter();
             Init("programs/IntToReal.bpl");
             counter.Connect(e);
-            e.Run(getMain(this.p));
+            e.Run(GetMain(this.p));
             checkCounter(counter);
         }
 

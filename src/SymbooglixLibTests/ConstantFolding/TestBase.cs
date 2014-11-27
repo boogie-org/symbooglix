@@ -11,8 +11,8 @@ namespace ConstantFoldingTests
         protected Symbooglix.IExprBuilder builder;
         public TestBase()
         {
-            SymbooglixLibTests.SymbooglixTest.setupDebug();
-            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser(); // HACK
+            SymbooglixLibTests.SymbooglixTest.SetupDebug();
+            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser(); // HACK
             builder = new Symbooglix.ExprBuilder();
         }
 

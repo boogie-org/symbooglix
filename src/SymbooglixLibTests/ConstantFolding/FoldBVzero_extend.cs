@@ -15,7 +15,7 @@ namespace ConstantFoldingTests
         {
             // Boogie hits NullPtrException if the cmdline parser
             // isn't setup. This is sooo annoying!
-            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
+            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
         }
 
         [Test()]

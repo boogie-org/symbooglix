@@ -159,7 +159,7 @@ namespace TransformTests
 
         private void LoadProgram()
         {
-            prog = SymbooglixTest.loadProgram("Transforms/programs/OldExprCanonicalise.bpl");
+            prog = SymbooglixTest.LoadProgramFrom("Transforms/programs/OldExprCanonicalise.bpl");
         }
 
         private void RunPass()

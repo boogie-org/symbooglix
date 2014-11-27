@@ -47,8 +47,8 @@ namespace SymbooglixLibTests
         public void concreteLocal()
         {
             bool reachable = false;
-            p = loadProgram("programs/RequiresConcreteLocal.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/RequiresConcreteLocal.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.BreakPointReached += checkConcrete;
 
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
@@ -60,7 +60,7 @@ namespace SymbooglixLibTests
                 else
                     Assert.Fail("Unexpected break point \"" + data.Name + "\"");
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(reachable); // Check the assertion passed by checkng we explore beyond it
         }
@@ -69,8 +69,8 @@ namespace SymbooglixLibTests
         public void concreteGlobal()
         {
             bool reachable = false;
-            p = loadProgram("programs/RequiresConcreteGlobal.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/RequiresConcreteGlobal.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.BreakPointReached += checkConcrete;
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
@@ -81,7 +81,7 @@ namespace SymbooglixLibTests
                 else
                     Assert.Fail("Unexpected break point \"" + data.Name + "\"");
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }
@@ -90,8 +90,8 @@ namespace SymbooglixLibTests
         public void concreteLocalBool()
         {
             bool reachable = false;
-            p = loadProgram("programs/RequiresConcreteLocalBool.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/RequiresConcreteLocalBool.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.BreakPointReached += checkConcrete;
 
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
@@ -104,7 +104,7 @@ namespace SymbooglixLibTests
                     Assert.Fail("Unexpected break point \"" + data.Name + "\"");
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(reachable, "Did not reach last assertion"); // Check the assertion passed by checkng we explore beyond it
         }

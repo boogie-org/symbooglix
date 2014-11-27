@@ -13,7 +13,7 @@ namespace ExprSMTLIBTest
         IExprBuilder Builder;
         public Literal()
         {
-            SymbooglixLibTests.SymbooglixTest.setupDebug();
+            SymbooglixLibTests.SymbooglixTest.SetupDebug();
             Builder = new ExprBuilder();
         }
 

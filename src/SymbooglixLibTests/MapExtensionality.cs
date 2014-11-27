@@ -10,8 +10,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p= loadProgram("programs/MapExtensionality.bpl");
-            var executor = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p= LoadProgramFrom("programs/MapExtensionality.bpl");
+            var executor = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             executor.StateTerminated += delegate(object e, Executor.ExecutionStateEventArgs data) 
             {
                 var terminationType = data.State.TerminationType;
@@ -21,7 +21,7 @@ namespace SymbooglixLibTests
                 if (terminationType is TerminatedAtUnsatisfiableAssume)
                     Assert.Fail("Boogie assume failed");
             };
-            executor.Run(getMain(p));
+            executor.Run(GetMain(p));
 
         }
     }

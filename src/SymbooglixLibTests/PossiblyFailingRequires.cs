@@ -10,8 +10,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p = loadProgram("programs/PossiblyFailingRequires.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/PossiblyFailingRequires.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             bool inFoo = false;
             bool pastAssertion = false;
@@ -34,7 +34,7 @@ namespace SymbooglixLibTests
             var terminationCounter = new TerminationCounter();
             terminationCounter.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.IsTrue(inFoo);
             Assert.IsTrue(pastAssertion);
 

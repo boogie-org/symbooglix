@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void GlobalSymbolicConstant()
         {
-            p = loadProgram("programs/GlobalSymbolicConstant.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/GlobalSymbolicConstant.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 Assert.IsTrue(data.Name == "entry");
@@ -24,14 +24,14 @@ namespace SymbooglixLibTests
 
                 // No constraint for a constant
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
         }
 
         [Test()]
         public void GlobalConstantWithAxiom()
         {
-            p = loadProgram("programs/GlobalConstantWithAxiom.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/GlobalConstantWithAxiom.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 Assert.IsTrue(data.Name == "entry");
@@ -57,14 +57,14 @@ namespace SymbooglixLibTests
                 }
                 Assert.IsTrue(found, "Did not find expected equality constraint");
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
         }
 
         [Test()]
         public void GlobalConstantWithWeakerAxiom()
         {
-            p = loadProgram("programs/GlobalConstantWithWeakerAxiom.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/GlobalConstantWithWeakerAxiom.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 Assert.IsTrue(data.Name == "entry");
@@ -98,7 +98,7 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(found, "Did not find expected Neq constraint");
 
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
         }
     }
 }

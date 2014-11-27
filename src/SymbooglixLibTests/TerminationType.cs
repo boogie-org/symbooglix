@@ -11,8 +11,8 @@ namespace SymbooglixLibTests
         public T InitAndRun<T>(string program) where T:class,ITerminationType
         {
             int counter = 0;
-            p = loadProgram(program);
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom(program);
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             T terminationType = null;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
@@ -27,7 +27,7 @@ namespace SymbooglixLibTests
 
             try
             {
-                e.Run(getMain(p));
+                e.Run(GetMain(p));
             }
             catch (ExecuteTerminatedStateException)
             {
@@ -41,8 +41,8 @@ namespace SymbooglixLibTests
         public T InitAndRunWithSuccessAndFailure<T>(string program) where T:class
         {
             int counter = 0;
-            p = loadProgram(program);
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom(program);
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             T terminationType = null;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
@@ -56,7 +56,7 @@ namespace SymbooglixLibTests
 
             try
             {
-                e.Run(getMain(p));
+                e.Run(GetMain(p));
             }
             catch (ExecuteTerminatedStateException)
             {
@@ -215,11 +215,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void DisallowedSpeculativeExecutionPath()
         {
-            p = loadProgram("programs/TwoPaths.bpl");
+            p = LoadProgramFrom("programs/TwoPaths.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
             int counter = 0;
             ITerminationType terminationType = null;
@@ -231,7 +231,7 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(stateArgs.State.Speculative);
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(2, counter);
 
             // Check Terminations statistic
@@ -241,8 +241,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void UnexplorableGotos()
         {
-            p = loadProgram("programs/GotoUnsatTargets.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoUnsatTargets.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = true;
 
             int counter = 0;
@@ -254,7 +254,7 @@ namespace SymbooglixLibTests
                 ++counter;
                 Assert.IsFalse(executionStateEventArgs.State.Speculative);
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(1, counter);
             Assert.AreEqual(1, terminationType.ExitLocation.AsTransferCmd.GetInstructionStatistics().Terminations);
@@ -264,11 +264,11 @@ namespace SymbooglixLibTests
         public void DisallowedDepth()
         {
             var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 1);
-            p = loadProgram("programs/SimpleLoop.bpl");
-            e = getExecutor(p, scheduler, GetSolver());
+            p = LoadProgramFrom("programs/SimpleLoop.bpl");
+            e = GetExecutor(p, scheduler, GetSolver());
 
             int hit = 0;
-            var main = getMain(p);
+            var main = GetMain(p);
 
             var loopBody = main.Blocks[2];
             Assert.AreEqual("loopBody", loopBody.Label);

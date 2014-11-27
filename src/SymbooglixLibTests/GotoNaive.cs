@@ -10,13 +10,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void AllTargetsUnSat()
         {
-            p = loadProgram("programs/GotoUnsatTargets.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoUnsatTargets.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = false;
 
             var counter = new TerminationCounter();
             counter.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(3, counter.UnsatisfiableAssumes);
             Assert.AreEqual(0, counter.Sucesses);
@@ -26,13 +26,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void AllTargetsWithSatisfiableAssumes()
         {
-            p = loadProgram("programs/GotoAllSatTargets.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoAllSatTargets.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = false;
 
             var counter = new TerminationCounter();
             counter.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(3, counter.Sucesses);
             Assert.AreEqual(0, counter.NumberOfFailures);
@@ -41,13 +41,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void AllTargetsWithoutAssumes()
         {
-            p = loadProgram("programs/GotoAllTargetsWithoutAssumes.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoAllTargetsWithoutAssumes.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = false;
 
             var counter = new TerminationCounter();
             counter.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(3, counter.Sucesses);
             Assert.AreEqual(0, counter.NumberOfFailures);
@@ -56,8 +56,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TargetsMixedAssumes()
         {
-            p = loadProgram("programs/GotoTargetsMixedAssumes.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoTargetsMixedAssumes.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = false;
 
             var counter = new TerminationCounter();
@@ -69,7 +69,7 @@ namespace SymbooglixLibTests
                 ++breakpointCounter;
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(3, counter.Sucesses);
             Assert.AreEqual(1, counter.UnsatisfiableAssumes);

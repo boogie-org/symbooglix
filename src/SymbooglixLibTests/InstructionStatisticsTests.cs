@@ -12,11 +12,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void LookAheadGoto()
         {
-            p = loadProgram("programs/InstructionStatistics.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/InstructionStatistics.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = true;
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             DoTest(4, 1, 3, 3, 1);
         }
 
@@ -90,11 +90,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void NaiveGoto()
         {
-            p = loadProgram("programs/InstructionStatistics.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/InstructionStatistics.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = false;
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             DoTest(8, 4, 4, 4, 4);
 
             // Check the terminations as the AssumeCmds
@@ -124,36 +124,36 @@ namespace SymbooglixLibTests
         [Test()]
         public void MultipleForksLookAhead()
         {
-            p = loadProgram("programs/MultipleForks.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/MultipleForks.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = true;
 
             var tc = new TerminationCounter();
             tc.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(5, tc.Sucesses);
 
             // LoopHead goto
-            var gotoCmd = getMain(p).Blocks[2].TransferCmd;
+            var gotoCmd = GetMain(p).Blocks[2].TransferCmd;
             Assert.AreEqual(4, gotoCmd.GetInstructionStatistics().Forks);
         }
 
         [Test()]
         public void MultipleForksNaiveGoto()
         {
-            p = loadProgram("programs/MultipleForks.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/MultipleForks.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = false;
 
             var tc = new TerminationCounter();
             tc.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(5, tc.Sucesses);
 
             // LoopHead goto
-            var gotoCmd = getMain(p).Blocks[2].TransferCmd;
+            var gotoCmd = GetMain(p).Blocks[2].TransferCmd;
             Assert.AreEqual(5, gotoCmd.GetInstructionStatistics().Forks);
         }
     }

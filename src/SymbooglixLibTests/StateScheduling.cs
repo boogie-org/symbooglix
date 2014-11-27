@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
     {
         private void SimpleLoop(IStateScheduler scheduler)
         {
-            p = loadProgram("programs/SimpleLoop.bpl");
-            e = getExecutor(p, scheduler, GetSolver());
+            p = LoadProgramFrom("programs/SimpleLoop.bpl");
+            e = GetExecutor(p, scheduler, GetSolver());
             e.UseConstantFolding = true;
 
             var main = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
@@ -116,8 +116,8 @@ namespace SymbooglixLibTests
 
         private void ExploreOrderInit(IStateScheduler scheduler, out Implementation main, out Block entryBlock, out List<Block> l)
         {
-            p = loadProgram("programs/StateScheduleTest.bpl");
-            e = getExecutor(p, scheduler, GetSolver());
+            p = LoadProgramFrom("programs/StateScheduleTest.bpl");
+            e = GetExecutor(p, scheduler, GetSolver());
 
             main = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
             entryBlock = main.Blocks[0];
@@ -363,13 +363,13 @@ namespace SymbooglixLibTests
         public void DepthBoundDFS()
         {
             var scheduler = new LimitExplicitDepthScheduler(new DFSStateScheduler(), 2);
-            p = loadProgram("programs/SimpleLoop.bpl");
-            e = getExecutor(p, scheduler, GetSolver());
+            p = LoadProgramFrom("programs/SimpleLoop.bpl");
+            e = GetExecutor(p, scheduler, GetSolver());
 
             var tc = new TerminationCounter();
             tc.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(3, tc.NumberOfTerminatedStates);
             Assert.AreEqual(2, tc.Sucesses);
@@ -380,13 +380,13 @@ namespace SymbooglixLibTests
         public void DepthBoundBFS()
         {
             var scheduler = new LimitExplicitDepthScheduler(new BFSStateScheduler(), 2);
-            p = loadProgram("programs/SimpleLoop.bpl");
-            e = getExecutor(p, scheduler, GetSolver());
+            p = LoadProgramFrom("programs/SimpleLoop.bpl");
+            e = GetExecutor(p, scheduler, GetSolver());
 
             var tc = new TerminationCounter();
             tc.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(3, tc.NumberOfTerminatedStates);
             Assert.AreEqual(2, tc.Sucesses);
@@ -397,14 +397,14 @@ namespace SymbooglixLibTests
         public void ExploreOrderLoopEscapingScheduler()
         {
             var scheduler = new LoopEscapingScheduler(new DFSStateScheduler());
-            p = loadProgram("programs/TestLoopEscaping.bpl");
+            p = LoadProgramFrom("programs/TestLoopEscaping.bpl");
 
             // Get the blocks we need to refer to
-            var main = getMain(p);
+            var main = GetMain(p);
             var loopBodyBlock = main.Blocks.Where(b => b.Label == "anon2_LoopBody").First();
             var loopDoneBlock = main.Blocks.Where(b => b.Label == "anon2_LoopDone").First();
 
-            e = getExecutor(p, scheduler, GetSolver());
+            e = GetExecutor(p, scheduler, GetSolver());
             e.UseConstantFolding = true;
 
             var tc = new TerminationCounter();

@@ -9,8 +9,8 @@ namespace SymbooglixLibTests
     {
         private void SingleGoto(bool useGotoLookAhead)
         {
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoMultiplePaths.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = useGotoLookAhead;
 
             int successCounter = 0;
@@ -23,7 +23,7 @@ namespace SymbooglixLibTests
                 }
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(3, successCounter);
         }
 
@@ -42,8 +42,8 @@ namespace SymbooglixLibTests
 
         private void ConcreteLoop(bool useGotoLookAhead)
         {
-            p = loadProgram("programs/ConcreteLoop.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/ConcreteLoop.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = useGotoLookAhead;
 
             int successCounter = 0;
@@ -57,7 +57,7 @@ namespace SymbooglixLibTests
                 }
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(1, successCounter);
         }
 
@@ -75,8 +75,8 @@ namespace SymbooglixLibTests
 
         private void SingleGotoOneTarget(bool useGotoLookAhead)
         {
-            p = loadProgram("programs/GotoSinglePath.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoSinglePath.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = useGotoLookAhead;
 
             int successCounter = 0;
@@ -87,7 +87,7 @@ namespace SymbooglixLibTests
                 ++successCounter;
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(1, successCounter);
         }
 

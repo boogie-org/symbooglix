@@ -13,10 +13,10 @@ namespace SymbooglixLibTests
         [Test()]
         public void RecordedEntryPoints()
         {
-            p = loadProgram("programs/InstructionStatistics.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/InstructionStatistics.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
-            var main = getMain(p);
+            var main = GetMain(p);
             var foo = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "foo").First();
 
             e.Run(main);
@@ -33,10 +33,10 @@ namespace SymbooglixLibTests
         [Test()]
         public void RecordEntryPointEarly()
         {
-            p = loadProgram("programs/InconsistentAxioms.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/InconsistentAxioms.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
-            var main = getMain(p);
+            var main = GetMain(p);
 
             var counter = new TerminationCounter();
             counter.Connect(e);

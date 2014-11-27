@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void AssignmentOfConcreteValuesFromAxioms()
         {
-            p = loadProgram("programs/GPUVerifyAxiomAssignmentTest.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GPUVerifyAxiomAssignmentTest.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseConstantFolding = true;
 
             int counter = 0;
@@ -44,7 +44,7 @@ namespace SymbooglixLibTests
             var tc = new TerminationCounter();
             tc.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(1, counter);
             Assert.AreEqual(1, tc.Sucesses);
             Assert.AreEqual(1, tc.NumberOfTerminatedStates);

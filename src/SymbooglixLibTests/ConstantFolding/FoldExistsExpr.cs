@@ -13,7 +13,7 @@ namespace ConstantFoldingTests
         {
             // Boogie hits NullPtrException if the cmdline parser
             // isn't setup when printing forallExpr. This is sooo annoying!
-            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
+            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
         }
 
         [Test()]

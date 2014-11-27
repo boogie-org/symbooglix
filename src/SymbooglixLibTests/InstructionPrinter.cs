@@ -11,13 +11,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p = loadProgram("programs/assert_true.bpl");
+            p = LoadProgramFrom("programs/assert_true.bpl");
             var SW = new StringWriter();
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             var printer = new Symbooglix.InstructionPrinter(SW);
             printer.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             // FIXME: This is fragile
             Assert.AreEqual("programs/assert_true.bpl:3: [Cmd] assert true;" + Environment.NewLine +  

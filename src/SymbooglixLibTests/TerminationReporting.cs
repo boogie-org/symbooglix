@@ -13,13 +13,13 @@ namespace SymbooglixLibTests
         public void InitAndRun(string program)
         {
             Counter = new TerminationCounter();
-            p = loadProgram(program);
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom(program);
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             Counter.Connect(e);
 
             try
             {
-                e.Run(getMain(p));
+                e.Run(GetMain(p));
             }
             catch (ExecuteTerminatedStateException)
             {
@@ -97,16 +97,16 @@ namespace SymbooglixLibTests
         [Test()]
         public void DisallowedSpeculativeExecutionPath()
         {
-            p = loadProgram("programs/TwoPaths.bpl");
+            p = LoadProgramFrom("programs/TwoPaths.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
             this.Counter = new TerminationCounter();
             Counter.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(2, Counter.DisallowedSpeculativePaths);
             Assert.AreEqual(0, Counter.Sucesses);
@@ -116,13 +116,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void UnexplorableGotos()
         {
-            p = loadProgram("programs/GotoUnsatTargets.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/GotoUnsatTargets.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = true;
 
             var counter = new TerminationCounter();
             counter.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(0, counter.Sucesses);
             Assert.AreEqual(1, counter.UnexplorableGotos);

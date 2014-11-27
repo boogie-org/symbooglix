@@ -19,8 +19,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void Global()
         {
-            p = loadProgram("programs/CallAssignsToGlobal.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/CallAssignsToGlobal.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             bool checkg = false;
             bool checkg2 = false;
@@ -58,7 +58,7 @@ namespace SymbooglixLibTests
                 Assert.AreEqual(1, found);
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(checkg);
             Assert.IsTrue(checkg2);
@@ -67,8 +67,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void Local()
         {
-            p = loadProgram("programs/CallAssignsToLocal.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/CallAssignsToLocal.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             bool checka= false;
             bool checkb = false;
@@ -106,7 +106,7 @@ namespace SymbooglixLibTests
                 Assert.AreEqual(1, found);
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(checka);
             Assert.IsTrue(checkb);

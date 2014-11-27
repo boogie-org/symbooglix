@@ -12,7 +12,7 @@ namespace ExprSMTLIBTest
     {
         public UninterpretedFunction()
         {
-            SymbooglixLibTests.SymbooglixTest.setupDebug();
+            SymbooglixLibTests.SymbooglixTest.SetupDebug();
             Builder = new ExprBuilder();
         }
 

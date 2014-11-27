@@ -16,8 +16,8 @@ namespace SymbooglixLibTests
             int hits = 0;
             Expr nestedMapStoreintermediate = null;
             Expr simpleMapStoreIntermediate = null;
-            p = loadProgram("programs/SimpleMap.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/SimpleMap.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 if (data.Name == "check_read_map")
@@ -109,7 +109,7 @@ namespace SymbooglixLibTests
 
                 ++hits;
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(4, hits);
 
         }
@@ -117,13 +117,13 @@ namespace SymbooglixLibTests
         [Test(),Ignore()]
         public void TwoDMap()
         {
-            p = loadProgram("programs/2DMap.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/2DMap.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 throw new NotImplementedException();
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
         }
     }

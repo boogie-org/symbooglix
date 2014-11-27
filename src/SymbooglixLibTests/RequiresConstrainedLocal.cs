@@ -11,15 +11,15 @@ namespace SymbooglixLibTests
     {
         public RequiresConstrainedLocal()
         {
-            setupDebug();
-            setupCmdLineParser();
+            SetupDebug();
+            SetupCmdLineParser();
         }
 
         [Test()]
         public void NonRecursive()
         {
-            p = loadProgram("programs/RequiresConstrainedLocal.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/RequiresConstrainedLocal.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 // Find the "a" local variable
@@ -36,7 +36,7 @@ namespace SymbooglixLibTests
                 Assert.AreEqual(e.CurrentState.Constraints.Count, 1);
                 Assert.IsTrue(e.CurrentState.Constraints.Constraints.Where( c => c.Condition.ToString() == expected).Count() == 1);
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
         }
     }
 }

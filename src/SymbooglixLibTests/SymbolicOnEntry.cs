@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         [SetUp()]
         public void Init()
         {
-            p = loadProgram("programs/SymbolicOnEntry.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/SymbolicOnEntry.bpl");
+            e = GetExecutor(p);
         }
 
         [Test()]
@@ -29,7 +29,7 @@ namespace SymbooglixLibTests
                     Assert.IsTrue(e.IsSymbolic(GV));
                 }
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
         }
 
         [Test()]
@@ -46,7 +46,7 @@ namespace SymbooglixLibTests
                 }
 
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
         }
 
 

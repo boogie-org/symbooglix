@@ -15,8 +15,8 @@ namespace SymbooglixLibTests
 
         private void Init()
         {
-            p = loadProgram("programs/SimpleCallSummary.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/SimpleCallSummary.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             Builder = new ExprBuilder();
         }
 
@@ -27,7 +27,7 @@ namespace SymbooglixLibTests
 
             var counter = new TerminationCounter();
             counter.Connect(e);
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(1, counter.Sucesses);
             Assert.AreEqual(0, counter.NumberOfFailures);
         }
@@ -59,7 +59,7 @@ namespace SymbooglixLibTests
                 Assert.AreSame((cSymbolicVar.Origin.AsModifiesSet).Proc, barProcedure);
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(hitExpectedBreakPoint);
         }
@@ -90,7 +90,7 @@ namespace SymbooglixLibTests
                 Assert.AreEqual(1, hasConstraint);
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(hitExpectedBreakPoint);
         }
@@ -120,7 +120,7 @@ namespace SymbooglixLibTests
 
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(hitExpectedBreakPoint);
         }
@@ -154,7 +154,7 @@ namespace SymbooglixLibTests
 
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.IsTrue(hitExpectedBreakPoint);
         }

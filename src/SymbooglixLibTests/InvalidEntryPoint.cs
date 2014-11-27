@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         public void TestCase()
         {
             // It doesn't matter which program we load
-            p = loadProgram("programs/assert_true.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/assert_true.bpl");
+            e = GetExecutor(p);
 
             var impl = new Implementation(Token.NoToken, "dummy", null, null, null, null, new List<Block>());
             e.Run(impl);

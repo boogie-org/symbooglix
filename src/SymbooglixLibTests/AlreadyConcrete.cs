@@ -10,13 +10,13 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            p = loadProgram("programs/AlreadyConcrete.bpl");
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            p = LoadProgramFrom("programs/AlreadyConcrete.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             var counter = new TerminationCounter();
             counter.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(1, counter.Sucesses);
             Assert.AreEqual(0, counter.NumberOfFailures);

@@ -16,7 +16,7 @@ namespace TransformTests
         [Test()]
         public void TestCase()
         {
-            Prog = SymbooglixTest.loadProgram("Transforms/programs/AnnotationPass.bpl");
+            Prog = SymbooglixTest.LoadProgramFrom("Transforms/programs/AnnotationPass.bpl");
 
             var pm = new PassManager(Prog);
             pm.Add(new Symbooglix.Annotation.ProgramLocationAnnotater());

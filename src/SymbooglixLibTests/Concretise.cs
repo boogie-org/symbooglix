@@ -15,8 +15,8 @@ namespace SymbooglixLibTests
         [SetUp()]
         public void Init()
         {
-            p = loadProgram("programs/Concretise.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/Concretise.bpl");
+            e = GetExecutor(p);
         }
 
         public void checkConcrete(Object executor, Executor.BreakPointEventArgs eventArgs)
@@ -58,7 +58,7 @@ namespace SymbooglixLibTests
         public void Run()
         {
             e.BreakPointReached += checkConcrete;
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(2, hits);
         }
 

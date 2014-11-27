@@ -11,11 +11,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void NonSpeculative()
         {
-            p = loadProgram("programs/TwoPaths.bpl");
+            p = LoadProgramFrom("programs/TwoPaths.bpl");
 
             // By using a real solver both paths will not be speculative because the
             // solver is guaranteed to not return UNKNOWN because the paths are so simple
-            e = getExecutor(p, new DFSStateScheduler(), GetSolver());
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
 
             int pathCount = 0;
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
@@ -32,7 +32,7 @@ namespace SymbooglixLibTests
             var counter = new TerminationCounter();
             counter.Connect(e);
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(2, pathCount);
 
@@ -42,11 +42,11 @@ namespace SymbooglixLibTests
 
         private void SpeculativeTest(bool useLookAheadGoto)
         {
-            p = loadProgram("programs/TwoPaths.bpl");
+            p = LoadProgramFrom("programs/TwoPaths.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
             e.UseGotoLookAhead = useLookAheadGoto;
 
             int breakPointsHit = 0;
@@ -63,7 +63,7 @@ namespace SymbooglixLibTests
                 ++statesTerminated;
             };
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
 
             Assert.AreEqual(0, breakPointsHit);
             Assert.AreEqual(2, statesTerminated);
@@ -84,11 +84,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void SpeculativeDueToUnsatAxiom()
         {
-            p = loadProgram("programs/InconsistentAxioms.bpl");
+            p = LoadProgramFrom("programs/InconsistentAxioms.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
             int statesTerminated = 0;
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
@@ -100,7 +100,7 @@ namespace SymbooglixLibTests
 
             try
             {
-                e.Run(getMain(p));
+                e.Run(GetMain(p));
             }
             catch(ExecuteTerminatedStateException)
             {
@@ -113,11 +113,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void SpeculativeDueToFailingAssert()
         {
-            p = loadProgram("programs/assert_nontrivial.bpl");
+            p = LoadProgramFrom("programs/assert_nontrivial.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
             int statesTerminated = 0;
             bool hitFailingAssert = false;
@@ -133,7 +133,7 @@ namespace SymbooglixLibTests
 
             try
             {
-                e.Run(getMain(p));
+                e.Run(GetMain(p));
             }
             catch(ExecuteTerminatedStateException)
             {
@@ -147,11 +147,11 @@ namespace SymbooglixLibTests
         [Test()]
         public void SpeculativeAtAssume()
         {
-            p = loadProgram("programs/assume_nontrivial.bpl");
+            p = LoadProgramFrom("programs/assume_nontrivial.bpl");
 
             // By using a dummy solver which always returns "UNKNOWN" every path should
             // be consider to be speculative
-            e = getExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
             int statesTerminated = 0;
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
@@ -165,7 +165,7 @@ namespace SymbooglixLibTests
             };
 
 
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(1, statesTerminated);
         }
     }

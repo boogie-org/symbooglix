@@ -12,8 +12,8 @@ namespace SymbooglixLibTests
         public void SingleTarget()
         {
             int hits = 0;
-            p = loadProgram("programs/GotoSinglePath.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/GotoSinglePath.bpl");
+            e = GetExecutor(p);
             //var handler = new SingleTargetHandler();
             //e.RegisterBreakPointHandler(handler);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
@@ -34,7 +34,7 @@ namespace SymbooglixLibTests
                     Assert.Fail("Unexpected break point");
                 }
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(2, hits);
 
         }
@@ -43,8 +43,8 @@ namespace SymbooglixLibTests
         public void MultipleTargets()
         {
             int hits = 0;
-            p = loadProgram("programs/GotoMultiplePaths.bpl");
-            e = getExecutor(p);
+            p = LoadProgramFrom("programs/GotoMultiplePaths.bpl");
+            e = GetExecutor(p);
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 if (data.Name == "entry")
@@ -58,14 +58,14 @@ namespace SymbooglixLibTests
                     ++hits;
 
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a");
-                    BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
+                    BvConst aBV = GetBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(7, aBV.Value.ToInt);
                 }
                 else if (data.Name == "path1")
                 {
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a");
                     Assert.AreEqual("P1", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
-                    BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
+                    BvConst aBV = GetBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(8, aBV.Value.ToInt);
                     ++hits;
                 }
@@ -73,7 +73,7 @@ namespace SymbooglixLibTests
                 {
                     var a = e.CurrentState.GetInScopeVariableAndExprByName("a");
                     Assert.AreEqual("P2", e.CurrentState.GetCurrentStackFrame().CurrentBlock.Label);
-                    BvConst aBV = getBVFromLiteral(a.Value as LiteralExpr);
+                    BvConst aBV = GetBVFromLiteral(a.Value as LiteralExpr);
                     Assert.AreEqual(9, aBV.Value.ToInt);
                     ++hits;
                 }
@@ -82,7 +82,7 @@ namespace SymbooglixLibTests
                     Assert.Fail("Unexpected break point");
                 }
             };
-            e.Run(getMain(p));
+            e.Run(GetMain(p));
             Assert.AreEqual(4, hits);
         }
     }

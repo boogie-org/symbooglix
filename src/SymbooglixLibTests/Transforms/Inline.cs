@@ -14,7 +14,7 @@ namespace TransformTests
         [Test()]
         public void TestCase()
         {
-            Program program = SymbooglixTest.loadProgram("Transforms/programs/simple_function_inline.bpl");
+            Program program = SymbooglixTest.LoadProgramFrom("Transforms/programs/simple_function_inline.bpl");
 
             var PM = new PassManager(program);
             PM.Add(new FunctionInliningPass());
@@ -49,7 +49,7 @@ namespace TransformTests
         [Test()]
         public void InlineExistsWithFreeVariable()
         {
-            Program program = SymbooglixTest.loadProgram("Transforms/programs/InlineExists.bpl");
+            Program program = SymbooglixTest.LoadProgramFrom("Transforms/programs/InlineExists.bpl");
 
             var PM = new PassManager(program);
             PM.Add(new FunctionInliningPass());

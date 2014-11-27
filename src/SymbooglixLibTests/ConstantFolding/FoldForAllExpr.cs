@@ -26,7 +26,7 @@ namespace ConstantFoldingTests
             // Boogie hits NullPtrException if the cmdline parser
             // isn't setup when printing forallExpr. This is sooo dumb!
             // FIXME:
-            SymbooglixLibTests.SymbooglixTest.setupCmdLineParser();
+            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
 
             Assert.IsInstanceOf<LiteralExpr>(constantBool);
             var boundVars = new List<Variable>();
