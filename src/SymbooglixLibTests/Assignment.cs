@@ -103,6 +103,8 @@ namespace SymbooglixLibTests
                     assert {:symbooglix_bp ""before""} true;
                     x[true] :=  8;
                     assert {:symbooglix_bp ""after""} true;
+                    x[false] := 7;
+                    assert {:symbooglix_bp ""after2""} true;
                 }
             ", "file.bpl");
             e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
@@ -126,6 +128,25 @@ namespace SymbooglixLibTests
                         Assert.IsInstanceOf<MapStore>((vAndExpr.Value as NAryExpr).Fun);
                         Assert.AreEqual(symbolic.Name + "[true := 8]", vAndExpr.Value.ToString());
                         break;
+                    case "after2":
+                        Assert.IsNotNull(symbolic);
+                        vAndExpr = e.CurrentState.GetInScopeVariableAndExprByName("x");
+                        Assert.IsInstanceOf<NAryExpr>(vAndExpr.Value);
+                        Assert.IsInstanceOf<MapStore>((vAndExpr.Value as NAryExpr).Fun);
+                        Assert.AreEqual(symbolic.Name + "[true := 8][false := 7]", vAndExpr.Value.ToString());
+
+                        // Check order on the assign, false key should be outer most
+                        var mapStore = vAndExpr.Value as NAryExpr;
+                        Assert.IsInstanceOf<NAryExpr>(mapStore.Args[0]);
+                        Assert.AreEqual(symbolic.Name + "[true := 8]", mapStore.Args[0].ToString());
+
+                        Assert.IsInstanceOf<LiteralExpr>(mapStore.Args[1]);
+                        Assert.IsTrue((mapStore.Args[1] as LiteralExpr).IsFalse);
+
+                        Assert.IsInstanceOf<LiteralExpr>(mapStore.Args[2]);
+                        Assert.IsTrue((mapStore.Args[2] as LiteralExpr).isBigNum);
+                        Assert.AreEqual(7, (mapStore.Args[2] as LiteralExpr).asBigNum.ToInt);
+                        break;
                     default:
                         Assert.Fail("unrecognised breakpoint");
                         break;
@@ -133,7 +154,7 @@ namespace SymbooglixLibTests
                 ++count;
             };
             e.Run(GetMain(p));
-            Assert.AreEqual(2, count);
+            Assert.AreEqual(3, count);
         }
     }
 }
