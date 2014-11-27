@@ -75,8 +75,7 @@ namespace SymbooglixLibTests
 
             int errors = 0;
             Program program = null;
-            List<string> defines = null;
-            errors = Parser.Parse(fileName, defines, out program);
+            errors = Parser.Parse(text, fileName, out program);
             Assert.AreEqual(0, errors);
             Assert.IsNotNull(program);
 

@@ -122,6 +122,7 @@
     <Compile Include="ExprSMTLIB\NotEq.cs" />
     <Compile Include="ExprSMTLIB\Iff.cs" />
     <Compile Include="GPUVerify.cs" />
+    <Compile Include="Assignment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
