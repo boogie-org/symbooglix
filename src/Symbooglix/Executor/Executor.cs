@@ -931,6 +931,8 @@ namespace Symbooglix
 
             int index=0;
             VariableMapRewriter r = new VariableMapRewriter(CurrentState);
+            Dictionary<Variable, Expr> storedAssignments = new Dictionary<Variable, Expr>();
+
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
             {
@@ -970,10 +972,15 @@ namespace Symbooglix
                     throw new NotSupportedException("Unknown type of assignment");
                 }
 
-                CurrentState.AssignToVariableInScope(lvalue, rvalue);
-
-                Debug.WriteLine("Assignment : " + lvalue + " := " + rvalue);
+                storedAssignments[lvalue] = rvalue;
                 ++index;
+            }
+
+            // Now do the assignments safely
+            foreach (var assignment in storedAssignments)
+            {
+                CurrentState.AssignToVariableInScope(assignment.Key, assignment.Value);
+                Debug.WriteLine("Assignment : " + assignment.Key + " := " + assignment.Value);
             }
         }
 
