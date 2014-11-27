@@ -156,6 +156,58 @@ namespace SymbooglixLibTests
             e.Run(GetMain(p));
             Assert.AreEqual(3, count);
         }
+
+        [Test()]
+        public void ParallelConcreteAssignment()
+        {
+            p = LoadProgramFrom(@"
+                procedure main()
+                {
+                    var x:int;
+                    var y:int;
+                    assert {:symbooglix_bp ""before""} true;
+                    x, y := 5, 6;
+                    assert {:symbooglix_bp ""after""} true;
+                }
+            ", "file.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            int count = 0;
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                switch (eventArgs.Name)
+                {
+                    case "before":
+                        var vAndExprForx = e.CurrentState.GetInScopeVariableAndExprByName("x");
+                        Assert.IsInstanceOf<IdentifierExpr>(vAndExprForx.Value);
+                        Assert.IsInstanceOf<SymbolicVariable>((vAndExprForx.Value as IdentifierExpr).Decl);
+
+                        var vAndExprFory = e.CurrentState.GetInScopeVariableAndExprByName("y");
+                        Assert.IsInstanceOf<IdentifierExpr>(vAndExprFory.Value);
+                        Assert.IsInstanceOf<SymbolicVariable>((vAndExprFory.Value as IdentifierExpr).Decl);
+                        break;
+                    case "after":
+                        vAndExprForx = e.CurrentState.GetInScopeVariableAndExprByName("x");
+                        Assert.IsInstanceOf<LiteralExpr>(vAndExprForx.Value);
+                        var literal = vAndExprForx.Value as LiteralExpr;
+                        Assert.IsTrue(literal.isBigNum);
+                        Assert.AreEqual(5, literal.asBigNum.ToInt);
+
+                        vAndExprFory = e.CurrentState.GetInScopeVariableAndExprByName("y");
+                        Assert.IsInstanceOf<LiteralExpr>(vAndExprFory.Value);
+                        literal = vAndExprFory.Value as LiteralExpr;
+                        Assert.IsTrue(literal.isBigNum);
+                        Assert.AreEqual(6, literal.asBigNum.ToInt);
+                        break;
+                    default:
+                        Assert.Fail("unrecognised breakpoint");
+                        break;
+                }
+                ++count;
+            };
+            e.Run(GetMain(p));
+            Assert.AreEqual(2, count);
+        }
     }
 }
 
