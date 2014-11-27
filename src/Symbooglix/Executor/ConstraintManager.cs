@@ -72,6 +72,13 @@ namespace Symbooglix
         {
             Debug.Assert(e.ShallowType.IsBool, "Constraints stored must be boolean");
 
+            // Drop Literal constraints (i.e. "True")
+            if (e is LiteralExpr)
+            {
+                Debug.Assert(( e as LiteralExpr ).asBool, "Constraint cannot be false");
+                return;
+            }
+
             InternalConstraints.Add(new Constraint(e, location));
         }
 
