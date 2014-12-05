@@ -5,6 +5,10 @@ using System.IO;
 using Microsoft;
 using System.Linq;
 using Microsoft.Boogie;
+using Symbooglix;
+using Solver = Symbooglix.Solver;
+using Transform = Symbooglix.Transform;
+using Util = Symbooglix.Util;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,9 +16,9 @@ using System.Threading.Tasks;
 
 
 
-namespace Symbooglix
+namespace SymbooglixDriver
 {
-    public class driver
+    public class Driver
     {
         public class CmdLineOpts
         {

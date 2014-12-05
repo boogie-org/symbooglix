@@ -4,9 +4,9 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{69F04878-1CD0-454C-87A6-6B155D2D4855}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Symbooglix</RootNamespace>
-    <AssemblyName>symbooglix</AssemblyName>
+    <AssemblyName>Symbooglix</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -37,7 +37,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="driver.cs" />
     <Compile Include="Expr\FindSymbolicsVisitor.cs" />
     <Compile Include="Expr\FindLiteralAssignment.cs" />
     <Compile Include="Util\IDeepClone.cs" />
