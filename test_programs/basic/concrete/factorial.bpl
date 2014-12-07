@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s | %OutputCheck %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=1 %s | %OutputCheck %s
 procedure fact(N:int) returns(r:int);
 
 implementation fact(N:int) returns(r:int)
@@ -23,5 +23,5 @@ requires (N == 4);
     assert local == 24;
 }
 
-// CHECK-L: State 4: Terminated without error
+// CHECK-L: State 0: Terminated without error
 

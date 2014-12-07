@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s 2>&1 | %OutputCheck %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=1 %s 2>&1 | %OutputCheck %s
 // Bitvector functions
 function {:bvbuiltin "bvadd"} bv8add(bv8,bv8) returns(bv8);
 function {:bvbuiltin "bvult"} bv8ult(bv8,bv8) returns(bool);
@@ -21,5 +21,4 @@ requires N == 10bv8;
     assert r == 20bv8;
 }
 
-// FIXME: All this unnecessary forking is less than ideal
-// CHECK-L: State 10: Terminated without error
+// CHECK-L: State 0: Terminated without error

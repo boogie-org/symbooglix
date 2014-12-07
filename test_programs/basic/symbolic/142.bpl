@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s 2>&1 | %OutputCheck %s
+// RUN: %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=1 %s 2>&1 | %OutputCheck %s
 procedure {:inline 1} next(x : int) returns (y : int) {
 
   if((x mod 2) == 0) {
@@ -30,7 +30,6 @@ requires (x < 3);
 
 }
 
-// FIXME: This is fragile
-// CHECK-L: State 40: Terminated without error
-// CHECK-L: State 78: Terminated without error
+// CHECK-L: State 0: Terminated without error
+// CHECK-L: State 1: Terminated without error
 

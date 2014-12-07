@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --print-instr %s 2>&1 | %OutputCheck %s
+// RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out --print-instr %s 2>&1 | %OutputCheck %s
 
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 

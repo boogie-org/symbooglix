@@ -161,6 +161,28 @@ namespace SymbooglixDriver
             }
         }
 
+        public enum ExitCode : int
+        {
+            // For Executor
+            NO_ERRORS_NO_TIMEOUT = 0,
+            ERRORS_NO_TIMEOUT,
+            NO_ERRORS_TIMEOUT,
+            ERRORS_TIMEOUT,
+            OUT_OF_MEMORY,
+
+            // Other stuff
+            COMMAND_LINE_ERROR = 128,
+            PARSE_ERROR,
+            RESOLVE_ERROR,
+            TYPECHECK_ERROR,
+            RECURSIVE_FUNCTIONS_FOUND_ERROR,
+            SOLVER_NOT_FOUND,
+            ENTRY_POINT_NOT_FOUND_ERROR
+
+
+
+        }
+
         public static int Main(String[] args)
         {
             // Debug log output goes to standard error.
@@ -176,19 +198,19 @@ namespace SymbooglixDriver
             if (! CommandLine.Parser.Default.ParseArguments(args, options))
             {
                 Console.WriteLine("Failed to parse args");
-                return 1;
+                return (int) ExitCode.COMMAND_LINE_ERROR;
             }
 
             if (options.boogieProgramPath == null)
             {
                 Console.WriteLine("A boogie program must be specified. See --help");
-                return 1;
+                return (int) ExitCode.COMMAND_LINE_ERROR;
             }
 
             if (!File.Exists(options.boogieProgramPath))
             {
                 Console.WriteLine("Boogie program \"" + options.boogieProgramPath + "\" does not exist");
-                return 1;
+                return (int) ExitCode.COMMAND_LINE_ERROR;
             }
 
            
@@ -205,7 +227,7 @@ namespace SymbooglixDriver
             if (errors != 0)
             {
                 Console.WriteLine("Failed to parse");
-                return 1;
+                return (int) ExitCode.PARSE_ERROR;
             }
 
             errors = program.Resolve();
@@ -213,7 +235,7 @@ namespace SymbooglixDriver
             if (errors != 0)
             {
                 Console.WriteLine("Failed to resolve.");
-                return 1;
+                return (int) ExitCode.RESOLVE_ERROR;
             }
 
             if (options.useModSetTransform > 0)
@@ -232,7 +254,7 @@ namespace SymbooglixDriver
             if (errors != 0)
             {
                 Console.WriteLine("Failed to Typecheck.");
-                return 1;
+                return (int) ExitCode.TYPECHECK_ERROR;
             }
 
 
@@ -248,6 +270,7 @@ namespace SymbooglixDriver
 
             Console.WriteLine("Using Scheduler: {0}", scheduler.ToString());
 
+            var terminationCounter = new TerminationCounter();
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
             {
@@ -268,7 +291,7 @@ namespace SymbooglixDriver
                     if (entryPoints.Count() == 0)
                     {
                         Console.WriteLine("Could not find any kernel entry points");
-                        return 1;
+                        return (int) ExitCode.ENTRY_POINT_NOT_FOUND_ERROR;
                     }
                 }
                 else
@@ -283,7 +306,7 @@ namespace SymbooglixDriver
                         if (entry == null)
                         {
                             Console.WriteLine("Could not find implementation \"" + implString + "\" to use as entry point");
-                            return 1;
+                            return (int) ExitCode.ENTRY_POINT_NOT_FOUND_ERROR;
                         }
                         entryPoints.Add(entry);
                     }
@@ -331,7 +354,6 @@ namespace SymbooglixDriver
                 var stateHandler = new TerminationConsoleReporter();
                 stateHandler.Connect(executor);
 
-                var terminationCounter = new TerminationCounter();
                 terminationCounter.Connect(executor);
 
                 if (options.FileLogging > 0)
@@ -374,7 +396,7 @@ namespace SymbooglixDriver
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
                     Console.ResetColor();
-                    return 1;
+                    return (int) ExitCode.ERRORS_NO_TIMEOUT;
                 }
                 catch (RecursiveFunctionDetectedException rfdException)
                 {
@@ -390,7 +412,12 @@ namespace SymbooglixDriver
                             Console.Error.WriteLine(function.DefinitionAxiom.Expr.ToString());
                     }
                     Console.ResetColor();
-                    return 1;
+                    return (int) ExitCode.RECURSIVE_FUNCTIONS_FOUND_ERROR;
+                }
+                catch (OutOfMemoryException)
+                {
+                    Console.Error.WriteLine("Ran out of memory!");
+                    return (int) ExitCode.OUT_OF_MEMORY;
                 }
 
 
@@ -401,7 +428,8 @@ namespace SymbooglixDriver
                 DumpOtherStats(executor, solver);
             }
 
-            return 0;
+            // FIXME: Handle timeout
+            return (int) ( (terminationCounter.NumberOfFailures > 0) ? ExitCode.ERRORS_NO_TIMEOUT : ExitCode.NO_ERRORS_NO_TIMEOUT);
         }
 
         public static void DumpOtherStats(Executor executor, Solver.ISolver solver)
@@ -533,7 +561,7 @@ namespace SymbooglixDriver
                     else
                     {
                         Console.Error.WriteLine("Could not find \"{0}\" (also without .exe)", pathToSolver);
-                        System.Environment.Exit(1);
+                        System.Environment.Exit((int) ExitCode.SOLVER_NOT_FOUND);
                     }
                 }
             }
