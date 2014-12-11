@@ -43,6 +43,7 @@ namespace Symbooglix
         public ConstantFoldingTraverser CFT;
         public Solver.ISolver TheSolver;
         private bool AllowExecutorToRun= false;
+        private bool TimeoutHit = false;
         public Predicate<AssertCmd> AssertFilter
         {
             get;
@@ -103,7 +104,16 @@ namespace Symbooglix
 
         public class ExecutorTerminatedArgs : EventArgs
         {
-            // Empty right now
+            public readonly bool TimeoutHit;
+            public ExecutorTerminatedArgs(Executor theExecutor)
+            {
+                TimeoutHit = theExecutor.TimeoutHit;
+            }
+        }
+
+        public class ExecutorTimeoutReachedArgs : EventArgs
+        {
+            // Empty for now
         }
 
         public class ExecutorStartedArgs : EventArgs
@@ -112,6 +122,7 @@ namespace Symbooglix
         }
         public event EventHandler<ExecutorTerminatedArgs> ExecutorTerminated;
         public event EventHandler<ExecutorStartedArgs> ExecutorStarted;
+        public event EventHandler<ExecutorTimeoutReachedArgs> ExecutorTimeoutReached;
 
         public class InstructionVisitEventArgs : EventArgs
         {
@@ -332,6 +343,8 @@ namespace Symbooglix
 
         protected void SetupTimeout(int timeout)
         {
+            TimeoutHit = false;
+
             if (timeout <= 0)
                 return;
 
@@ -339,8 +352,15 @@ namespace Symbooglix
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(timeout * 1000); // argument is in milliseconds
-                // FIXME: Emit as event
-                Console.WriteLine("Timeout hit. Terminating Executor");
+                this.TimeoutHit = true;
+
+                // Notify
+                if (ExecutorTimeoutReached != null)
+                {
+                    var eventArg = new ExecutorTimeoutReachedArgs();
+                    ExecutorTimeoutReached(this, eventArg );
+                }
+
                 this.Terminate();
             }, TaskCreationOptions.LongRunning);
         }
@@ -374,7 +394,7 @@ namespace Symbooglix
                 if (InitialState.Finished())
                 {
                     if (ExecutorTerminated != null)
-                        ExecutorTerminated(this, new ExecutorTerminatedArgs());
+                        ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
 
                     throw new ExecuteTerminatedStateException(this, InitialState);
                 }
@@ -438,7 +458,7 @@ namespace Symbooglix
 
                 if (ExecutorTerminated != null)
                 {
-                    ExecutorTerminated(this, new ExecutorTerminatedArgs());
+                    ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
                 }
 
                 RunTimer.Stop();
