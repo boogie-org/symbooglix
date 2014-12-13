@@ -353,7 +353,6 @@ namespace Symbooglix
             {
                 Thread.Sleep(timeout * 1000); // argument is in milliseconds
                 this.TimeoutHit = true;
-
                 // Notify
                 if (ExecutorTimeoutReached != null)
                 {
