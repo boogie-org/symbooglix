@@ -72,7 +72,14 @@ namespace Symbooglix
             {
                 SolverProcessTimer.Start(); // Include the process setup time in solver execution time
                 if (TheProcess != null)
+                {
+                    // Process.Close() does not kill the process
+                    // so we need to kill it first if necessary
+                    if (!TheProcess.HasExited)
+                        TheProcess.Kill();
+
                     TheProcess.Close();
+                }
 
                 this.TheProcess = Process.Start(StartInfo);
 
