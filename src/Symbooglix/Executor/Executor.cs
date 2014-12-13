@@ -219,10 +219,7 @@ namespace Symbooglix
                     return true;
 
                 if (passManager == null)
-                    passManager = new Transform.PassManager(TheProgram);
-
-                if (passManager.TheProgram != TheProgram)
-                    throw new InvalidOperationException("PassManager must use same program as executor");
+                    passManager = new Transform.PassManager();
 
                 var FRF = new FindRecursiveFunctionsPass();
                 passManager.Add(FRF);
@@ -236,7 +233,7 @@ namespace Symbooglix
                 passManager.Add(new Annotation.InstructionStatisticsAnnotater());
 
                 // Run our passes and any user requested passes
-                passManager.Run();
+                passManager.Run(TheProgram);
 
                 // Don't allow recursive function for now as we can't handle them!
                 if (FRF.RecursiveFunctions.Count > 0)

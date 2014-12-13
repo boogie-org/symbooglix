@@ -29,6 +29,12 @@ namespace Symbooglix
                 this.AnnotateProceduresAndImplementations = annotateProceduresAndImplementations;
             }
 
+            public void Reset()
+            {
+                GlobalsInsideOldExprUsedByProcedure.Clear();
+                GlobalsInsideOldExprUsedByImpl.Clear();
+            }
+
             public bool RunOn(Program prog, PassInfo passInfo)
             {
                 var canonicaliser = new OldExprCanonicaliserVisitor();

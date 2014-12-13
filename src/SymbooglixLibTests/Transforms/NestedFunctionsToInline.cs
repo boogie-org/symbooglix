@@ -16,9 +16,9 @@ namespace TransformTests
         {
             Program program = SymbooglixTest.LoadProgramFrom("Transforms/programs/NestedFunctionsToInline.bpl");
 
-            var PM = new PassManager(program);
+            var PM = new PassManager();
             PM.Add(new FunctionInliningPass());
-            PM.Run();
+            PM.Run(program);
 
             // Check the Expression on the AssertCmd was inlined as expected
             var assert = SymbooglixTest.GetMain(program).Blocks[0].Cmds[0] as AssertCmd;

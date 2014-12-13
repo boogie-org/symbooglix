@@ -35,6 +35,11 @@ namespace Symbooglix
             // No dependencies
             return;
         }
+
+        public void Reset()
+        {
+            RecursiveFunctions.Clear();
+        }
     }
 
     // This supports looking for mutually recursive functions

@@ -22,6 +22,10 @@ namespace Symbooglix
         {
             return;
         }
+
+        public void Reset()
+        {
+        }
     }
 }
 

@@ -32,6 +32,10 @@ namespace Symbooglix
                 return;
             }
 
+            public void Reset()
+            {
+            }
+
         }
 
         class ProgramLocationAnnotationVisitor : StandardVisitor

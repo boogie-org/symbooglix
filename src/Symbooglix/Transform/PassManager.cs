@@ -11,11 +11,6 @@ namespace Symbooglix
         public class PassManager
         {
             protected List<Tuple<IPass,PassInfo>> Passes;
-            public Program TheProgram
-            {
-                get;
-                private set;
-            }
 
 
             public class PassManagerEventArgs : EventArgs
@@ -30,10 +25,9 @@ namespace Symbooglix
             public event PassRunEvent Finished;
 
 
-            public PassManager(Program prog)
+            public PassManager()
             {
                 Passes = new List<Tuple<IPass,PassInfo>>();
-                TheProgram = prog;
             }
 
             public void Add(IPass pass)
@@ -78,7 +72,7 @@ namespace Symbooglix
                 Passes.Add(tuple);
             }
                 
-            public void Run()
+            public void Run(Microsoft.Boogie.Program program)
             {
                 foreach (var passTuple in Passes)
                 {
@@ -86,16 +80,19 @@ namespace Symbooglix
                     var passInfo = passTuple.Item2;
 
                     if (BeforePassRun != null)
-                        BeforePassRun(this, new PassManagerEventArgs(pass, TheProgram));
+                        BeforePassRun(this, new PassManagerEventArgs(pass, program));
 
-                    pass.RunOn(TheProgram, passInfo);
+                    // Wipe any state the pass may have
+                    pass.Reset();
+
+                    pass.RunOn(program, passInfo);
 
                     if (AfterPassRun != null)
-                        AfterPassRun(this, new PassManagerEventArgs(pass, TheProgram));
+                        AfterPassRun(this, new PassManagerEventArgs(pass, program));
                 }
 
                 if (Finished != null)
-                    Finished(this, new PassManagerEventArgs(null, TheProgram));
+                    Finished(this, new PassManagerEventArgs(null, program));
             }
         }
 

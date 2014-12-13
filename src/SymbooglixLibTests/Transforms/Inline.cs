@@ -16,9 +16,9 @@ namespace TransformTests
         {
             Program program = SymbooglixTest.LoadProgramFrom("Transforms/programs/simple_function_inline.bpl");
 
-            var PM = new PassManager(program);
+            var PM = new PassManager();
             PM.Add(new FunctionInliningPass());
-            PM.Run();
+            PM.Run(program);
 
             // Now check what we expected to be inlined was inlined
 
@@ -51,9 +51,9 @@ namespace TransformTests
         {
             Program program = SymbooglixTest.LoadProgramFrom("Transforms/programs/InlineExists.bpl");
 
-            var PM = new PassManager(program);
+            var PM = new PassManager();
             PM.Add(new FunctionInliningPass());
-            PM.Run();
+            PM.Run(program);
 
             // Check the requires on strLen
             var strLenProc = program.TopLevelDeclarations.OfType<Procedure>().Where(proc => proc.Name == "strLen").First();

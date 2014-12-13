@@ -164,10 +164,10 @@ namespace TransformTests
 
         private void RunPass()
         {
-            var PM = new PassManager(prog);
+            var PM = new PassManager();
             this.pass = new Symbooglix.Transform.OldExprCanonicaliser(/*annotateProceduresAndImplementations=*/ true);
             PM.Add(this.pass);
-            PM.Run();
+            PM.Run(prog);
         }
     }
 }

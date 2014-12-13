@@ -398,7 +398,7 @@ namespace SymbooglixDriver
                 try
                 {
                     // Supply our own PassManager for preparation so we can hook into its events
-                    executor.PrepareProgram(GetPassManager(options,program));
+                    executor.PrepareProgram(GetPassManager(options));
 
                     foreach (var entryPoint in entryPoints)
                     {
@@ -490,10 +490,10 @@ namespace SymbooglixDriver
             Console.WriteLine("Logging to directory: " + executorLogger.RootDir.FullName);
         }
 
-        public static Transform.PassManager GetPassManager(CmdLineOpts options, Program program)
+        public static Transform.PassManager GetPassManager(CmdLineOpts options)
         {
             // Supply our own PassManager for preparation so we can hook into its events
-            var PM = new Transform.PassManager(program);
+            var PM = new Transform.PassManager();
 
             // Use anonymous methods so we can use closure to read command line options
             Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)

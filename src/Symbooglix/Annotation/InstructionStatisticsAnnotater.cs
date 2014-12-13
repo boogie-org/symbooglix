@@ -28,6 +28,10 @@ namespace Symbooglix
 
                 return false; // We don't consider adding annotations as modifying the program
             }
+
+            public void Reset()
+            {
+            }
         }
 
         class InstructionStatisticsAnnotatationVisitor : ReadOnlyVisitor

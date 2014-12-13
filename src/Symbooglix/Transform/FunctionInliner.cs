@@ -18,6 +18,10 @@ namespace Symbooglix
                 this.Condition = condition;
             }
 
+            public void Reset()
+            {
+            }
+
             // The default Inliner inlines function marked with the standard attribute
             public FunctionInliningPass() : this( f => QKeyValue.FindBoolAttribute(f.Attributes,"inline"))
             {

@@ -18,9 +18,9 @@ namespace TransformTests
         {
             Prog = SymbooglixTest.LoadProgramFrom("Transforms/programs/AnnotationPass.bpl");
 
-            var pm = new PassManager(Prog);
+            var pm = new PassManager();
             pm.Add(new Symbooglix.Annotation.ProgramLocationAnnotater());
-            pm.Run();
+            pm.Run(Prog);
 
             // Check Variables (Global and constant)
             foreach (var variable in Prog.TopLevelDeclarations.OfType<Variable>())

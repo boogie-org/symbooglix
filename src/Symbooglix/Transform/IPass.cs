@@ -11,6 +11,7 @@ namespace Symbooglix
             string GetName();
             void SetPassInfo(ref PassInfo passInfo);
             bool RunOn(Program prog, PassInfo passInfo);
+            void Reset();
         }
     }
 }

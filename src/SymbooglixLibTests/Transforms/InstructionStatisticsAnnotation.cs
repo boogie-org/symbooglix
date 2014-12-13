@@ -18,9 +18,9 @@ namespace TransformTests
         {
             Prog = SymbooglixTest.LoadProgramFrom("Transforms/programs/AnnotationPass.bpl");
 
-            var pm = new PassManager(Prog);
+            var pm = new PassManager();
             pm.Add(new Symbooglix.Annotation.InstructionStatisticsAnnotater());
-            pm.Run();
+            pm.Run(Prog);
 
             // Check Axioms
             foreach (var axiom in Prog.TopLevelDeclarations.OfType<Axiom>())
