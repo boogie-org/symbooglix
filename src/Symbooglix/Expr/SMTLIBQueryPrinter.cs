@@ -12,6 +12,7 @@ namespace Symbooglix
     {
         private HashSet<SymbolicVariable> symbolicsToDeclare = null;
         private HashSet<Microsoft.Boogie.Function> functionsToDeclare = null;
+        private HashSet<Microsoft.Boogie.TypeCtorDecl> sortsToDeclare = null;
         private FindSymbolicsVisitor FSV = null;
         private FindFunctionsVisitor FFV = null;
         private TextWriter TW = null;
@@ -41,6 +42,7 @@ namespace Symbooglix
 
             symbolicsToDeclare = new HashSet<SymbolicVariable>();
             functionsToDeclare = new HashSet<Function>();
+            sortsToDeclare = new HashSet<TypeCtorDecl>();
             FSV = new FindSymbolicsVisitor(symbolicsToDeclare); // Have the visitor use our container
             FFV = new FindFunctionsVisitor(functionsToDeclare); // Have the visitor use our container
             BindingsFinder = new ExprCountingVisitor();
@@ -130,6 +132,7 @@ namespace Symbooglix
         {
             symbolicsToDeclare.Clear();
             functionsToDeclare.Clear();
+            sortsToDeclare.Clear();
 
             if (UseNamedAttributeBindings)
             {
@@ -202,6 +205,54 @@ namespace Symbooglix
 
             if (HumanReadable)
                 PrintCommentLine("End variable declarations");
+        }
+
+        private void AddSort(Microsoft.Boogie.Type typ)
+        {
+            if (typ.IsCtor)
+            {
+                var typAsCtor = typ.AsCtor;
+                if (typAsCtor.Arguments.Count > 0)
+                    throw new NotSupportedException("Can't handle constructor types with arguments");
+
+                sortsToDeclare.Add(typ.AsCtor.Decl);
+            }
+        }
+
+        private static string GetCustomSortName(Microsoft.Boogie.TypeCtorDecl typeDecl)
+        {
+            // FIXME: Do proper mangling to avoid name clashes
+            return "@" + typeDecl.Name;
+        }
+
+        public void PrintSortDeclarations()
+        {
+            if (HumanReadable)
+                PrintCommentLine("Start custom sort declarations");
+
+            // Compute sorts used (we assume all AddDeclaration(...) calls have been made)
+            foreach (var v in symbolicsToDeclare)
+            {
+                AddSort(v.TypedIdent.Type);
+            }
+
+            foreach (var f in functionsToDeclare)
+            {
+                foreach (var arg in f.InParams.Concat(f.OutParams))
+                {
+                    AddSort(arg.TypedIdent.Type);
+                }
+            }
+
+            // FIXME: We probably need to check free variables too!
+
+            foreach (var sort in sortsToDeclare)
+            {
+                TW.WriteLine("(declare-sort " + GetCustomSortName(sort) + ")");
+            }
+
+            if (HumanReadable)
+                PrintCommentLine("End custom sort declarations");
         }
 
         public void PrintFunctionDeclarations()
@@ -295,6 +346,11 @@ namespace Symbooglix
                     mapTypeAsString += ")";
                 }
                 return mapTypeAsString;
+            }
+            else if (theType is CtorType)
+            {
+                var CT = theType as CtorType;
+                return GetCustomSortName(CT.Decl);
             }
             else
             {

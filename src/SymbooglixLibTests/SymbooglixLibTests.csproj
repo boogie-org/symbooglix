@@ -123,6 +123,7 @@
     <Compile Include="ExprSMTLIB\Iff.cs" />
     <Compile Include="GPUVerify.cs" />
     <Compile Include="Assignment.cs" />
+    <Compile Include="ExprSMTLIB\TypeCtor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

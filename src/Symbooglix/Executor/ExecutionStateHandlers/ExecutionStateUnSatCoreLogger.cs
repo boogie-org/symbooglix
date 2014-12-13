@@ -42,6 +42,7 @@ namespace Symbooglix
                 else
                     outputFile.PrintCommentLine(State.TerminationType.GetMessage());
 
+                outputFile.PrintSortDeclarations();
                 outputFile.PrintFunctionDeclarations();
                 outputFile.PrintVariableDeclarations();
 

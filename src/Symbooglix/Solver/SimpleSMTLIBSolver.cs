@@ -131,6 +131,7 @@ namespace Symbooglix
 
             private void PrintDeclarationsAndConstraints()
             {
+                Printer.PrintSortDeclarations();
                 Printer.PrintVariableDeclarations();
                 Printer.PrintFunctionDeclarations();
                 Printer.PrintCommentLine(CurrentConstraints.Count.ToString() +  " Constraints");
