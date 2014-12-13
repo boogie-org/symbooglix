@@ -398,7 +398,7 @@ namespace SymbooglixDriver
                 try
                 {
                     // Supply our own PassManager for preparation so we can hook into its events
-                    executor.PrepareProgram(GetPassManager(options));
+                    executor.PreparationPassManager = GetPassManager(options);
 
                     foreach (var entryPoint in entryPoints)
                     {

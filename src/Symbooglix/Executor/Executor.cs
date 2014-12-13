@@ -25,6 +25,7 @@ namespace Symbooglix
             this.InternalStatistics = new ExecutorStatistics();
             this.RunTimer = new Stopwatch();
             this.PrepareTimer = new Stopwatch();
+            this.InternalPreparationPassManager = new Transform.PassManager();
             AssertFilter = null;
         }
 
@@ -35,6 +36,7 @@ namespace Symbooglix
             get;
             private set;
         }
+
 
         public Program TheProgram;
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
@@ -208,133 +210,144 @@ namespace Symbooglix
             }
         }
 
-        private Object PrepareProgramLock = new object();
-        public bool PrepareProgram(Transform.PassManager passManager = null)
+        private bool PrepareProgram()
         {
-            lock (PrepareProgramLock)
-            {
-                PrepareTimer.Start();
+            PrepareTimer.Start();
 
-                if (HasBeenPrepared)
-                    return true;
-
-                if (passManager == null)
-                    passManager = new Transform.PassManager();
-
-                var FRF = new FindRecursiveFunctionsPass();
-                passManager.Add(FRF);
-                passManager.Add(new Transform.FunctionInliningPass());
-                passManager.Add(new Transform.OldExprCanonicaliser());
-
-                // We need ProgramLocation annotations to work out where stuff comes from
-                passManager.Add(new Annotation.ProgramLocationAnnotater());
-
-                // For profiling Boogie Program execution
-                passManager.Add(new Annotation.InstructionStatisticsAnnotater());
-
-                // Run our passes and any user requested passes
-                passManager.Run(TheProgram);
-
-                // Don't allow recursive function for now as we can't handle them!
-                if (FRF.RecursiveFunctions.Count > 0)
-                {
-                    throw new RecursiveFunctionDetectedException(this, FRF.RecursiveFunctions);
-                }
-
-                // Create initial execution state
-                InitialState = CurrentState = new ExecutionState();
-
-                // Load Global Variables and Constants
-                var GVs = TheProgram.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
-                var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
-                foreach (Variable gv in GVs)
-                {
-                    if (gv.TypedIdent.WhereExpr != null)
-                        throw new NotImplementedException("WhereExpr on globals not supported");
-
-                    // Make symbolic
-                    var s = SymbolicPool.getFreshSymbolic(gv);
-                    Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
-                    InitialState.Mem.Globals.Add(gv, s.Expr);
-                    InitialState.Symbolics.Add(s);
-
-                }
-
-                // Add the axioms as path constraints
-                // We must do this before concretising any variables
-                // otherwise we might end up adding constraints like
-                // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
-                foreach (var axiom in axioms)
-                {
-                    axiom.GetInstructionStatistics().IncrementCovered();
-                    ++InternalStatistics.InstructionsExecuted; // Increment now just in case we return early
-
-                    // Check The axiom can be satisfied
-                    TheSolver.SetConstraints(InitialState.Constraints);
-
-                    var VMR = new VariableMapRewriter(InitialState);
-                    VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
-
-                    Expr constraint = (Expr) VMR.Visit(axiom.Expr);
-
-                    // Constant fold
-                    if (UseConstantFolding)
-                        constraint = CFT.Traverse(constraint);
-
-                    Solver.Result result = TheSolver.IsQuerySat(constraint);
-                    switch (result)
-                    {
-                        case Symbooglix.Solver.Result.SAT:
-                            break;
-                        case Symbooglix.Solver.Result.UNSAT:
-                            goto default;
-                        case Symbooglix.Solver.Result.UNKNOWN:
-                            InitialState.MakeSpeculative();
-                            goto default; // Eurgh...
-                        default:
-                            var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
-                            terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
-
-                            // Expr.Not(constraint) will only be satisfiable if
-                            // the original constraints are satisfiable
-                            // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
-                            // ∀ x constraints(x) ∧ ¬query(x)
-                            // So here we assume
-                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
-
-                            TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
-                            HasBeenPrepared = true; // Don't allow this method to run again
-                            PrepareTimer.Stop();
-                            return false;
-                    }
-
-                    InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
-                    Debug.WriteLine("Adding constraint : " + constraint);
-
-                    // See if we can concretise using the program's axioms
-                    // Note we must use Expr that is not remapped (i.e. must contain original program variables)
-                    LiteralExpr literal = null;
-                    Variable assignedTo = null;
-                    var axiomExprToCheckForLiteralAssignment = axiom.Expr;
-                    if (UseConstantFolding)
-                    {
-                        // Make copy so we don't change the Program
-                        axiomExprToCheckForLiteralAssignment =  (Expr) Duplicator.Visit(axiom.Expr);
-                        axiomExprToCheckForLiteralAssignment = CFT.Traverse(axiomExprToCheckForLiteralAssignment);
-                    }
-                    if (FindLiteralAssignment.findAnyVariable(axiomExprToCheckForLiteralAssignment, out assignedTo, out literal))
-                    {
-                        // Axioms should only be able to refer to globals
-                        Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
-                        Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo), "Cannot assign to global variable not in global memory");
-                        InitialState.Mem.Globals[assignedTo] = literal;
-                    }
-                }
-
-
-                HasBeenPrepared = true;
-                PrepareTimer.Stop();
+            if (HasBeenPrepared)
                 return true;
+
+            var FRF = new FindRecursiveFunctionsPass();
+            InternalPreparationPassManager.Add(FRF);
+            InternalPreparationPassManager.Add(new Transform.FunctionInliningPass());
+            InternalPreparationPassManager.Add(new Transform.OldExprCanonicaliser());
+
+            // We need ProgramLocation annotations to work out where stuff comes from
+            InternalPreparationPassManager.Add(new Annotation.ProgramLocationAnnotater());
+
+            // For profiling Boogie Program execution
+            InternalPreparationPassManager.Add(new Annotation.InstructionStatisticsAnnotater());
+
+            // Run our passes and any user requested passes
+            InternalPreparationPassManager.Run(TheProgram);
+
+            // Don't allow recursive function for now as we can't handle them!
+            if (FRF.RecursiveFunctions.Count > 0)
+            {
+                throw new RecursiveFunctionDetectedException(this, FRF.RecursiveFunctions);
+            }
+
+            // Create initial execution state
+            InitialState = CurrentState = new ExecutionState();
+
+            // Load Global Variables and Constants
+            var GVs = TheProgram.TopLevelDeclarations.OfType<Variable>().Where(g => g is GlobalVariable || g is Constant);
+            var axioms = TheProgram.TopLevelDeclarations.OfType<Axiom>();
+            foreach (Variable gv in GVs)
+            {
+                if (gv.TypedIdent.WhereExpr != null)
+                    throw new NotImplementedException("WhereExpr on globals not supported");
+
+                // Make symbolic
+                var s = SymbolicPool.getFreshSymbolic(gv);
+                Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
+                InitialState.Mem.Globals.Add(gv, s.Expr);
+                InitialState.Symbolics.Add(s);
+
+            }
+
+            // Add the axioms as path constraints
+            // We must do this before concretising any variables
+            // otherwise we might end up adding constraints like
+            // 0bv8 == 0bv8, instead of symbolic_0 == 0bv8
+            foreach (var axiom in axioms)
+            {
+                axiom.GetInstructionStatistics().IncrementCovered();
+                ++InternalStatistics.InstructionsExecuted; // Increment now just in case we return early
+
+                // Check The axiom can be satisfied
+                TheSolver.SetConstraints(InitialState.Constraints);
+
+                var VMR = new VariableMapRewriter(InitialState);
+                VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
+
+                Expr constraint = (Expr) VMR.Visit(axiom.Expr);
+
+                // Constant fold
+                if (UseConstantFolding)
+                    constraint = CFT.Traverse(constraint);
+
+                Solver.Result result = TheSolver.IsQuerySat(constraint);
+                switch (result)
+                {
+                    case Symbooglix.Solver.Result.SAT:
+                        break;
+                    case Symbooglix.Solver.Result.UNSAT:
+                        goto default;
+                    case Symbooglix.Solver.Result.UNKNOWN:
+                        InitialState.MakeSpeculative();
+                        goto default; // Eurgh...
+                    default:
+                        var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
+                        terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
+
+                        // Expr.Not(constraint) will only be satisfiable if
+                        // the original constraints are satisfiable
+                        // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
+                        // ∀ x constraints(x) ∧ ¬query(x)
+                        // So here we assume
+                        terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
+
+                        TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
+                        HasBeenPrepared = true; // Don't allow this method to run again
+                        PrepareTimer.Stop();
+                        return false;
+                }
+
+                InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
+                Debug.WriteLine("Adding constraint : " + constraint);
+
+                // See if we can concretise using the program's axioms
+                // Note we must use Expr that is not remapped (i.e. must contain original program variables)
+                LiteralExpr literal = null;
+                Variable assignedTo = null;
+                var axiomExprToCheckForLiteralAssignment = axiom.Expr;
+                if (UseConstantFolding)
+                {
+                    // Make copy so we don't change the Program
+                    axiomExprToCheckForLiteralAssignment =  (Expr) Duplicator.Visit(axiom.Expr);
+                    axiomExprToCheckForLiteralAssignment = CFT.Traverse(axiomExprToCheckForLiteralAssignment);
+                }
+                if (FindLiteralAssignment.findAnyVariable(axiomExprToCheckForLiteralAssignment, out assignedTo, out literal))
+                {
+                    // Axioms should only be able to refer to globals
+                    Debug.WriteLine("Concretising " + assignedTo.Name + " := " + literal.ToString());
+                    Debug.Assert(InitialState.Mem.Globals.ContainsKey(assignedTo), "Cannot assign to global variable not in global memory");
+                    InitialState.Mem.Globals[assignedTo] = literal;
+                }
+            }
+
+
+            HasBeenPrepared = true;
+            PrepareTimer.Stop();
+            return true;
+        }
+
+
+        private Transform.PassManager InternalPreparationPassManager;
+        public Transform.PassManager PreparationPassManager
+        {
+            get
+            {
+                return InternalPreparationPassManager;
+            }
+            set
+            {
+                // The PassManager should not be changed during execution
+                lock (ExecutorLoopLock)
+                {
+                    InternalPreparationPassManager = value;
+                }
             }
         }
 
@@ -377,11 +390,8 @@ namespace Symbooglix
                 // Record the entry point that was requested
                 InternalRequestedEntryPoints.Add(entryPoint);
 
-                lock (PrepareProgramLock)
-                {
-                    if (!HasBeenPrepared)
-                        PrepareProgram();
-                }
+                if (!HasBeenPrepared)
+                    PrepareProgram();
 
                 // Notify
                 if (ExecutorStarted != null)
