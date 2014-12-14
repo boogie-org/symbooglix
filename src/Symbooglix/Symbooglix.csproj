@@ -114,6 +114,7 @@
     <Compile Include="Solver\ConstraintIndependenceSolver.cs" />
     <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
     <Compile Include="Transform\GlobalDeadDeclEliminationPass .cs" />
+    <Compile Include="Transform\UniqueVariableEnforcingPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

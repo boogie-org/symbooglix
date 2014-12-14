@@ -232,6 +232,7 @@ namespace Symbooglix
                 InternalPreparationPassManager.Add(new Transform.GlobalDeadDeclEliminationPass());
 
             InternalPreparationPassManager.Add(new Transform.OldExprCanonicaliser());
+            InternalPreparationPassManager.Add(new Transform.UniqueVariableEnforcingPass());
 
             // We need ProgramLocation annotations to work out where stuff comes from
             InternalPreparationPassManager.Add(new Annotation.ProgramLocationAnnotater());

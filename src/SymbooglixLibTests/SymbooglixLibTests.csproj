@@ -125,6 +125,8 @@
     <Compile Include="Assignment.cs" />
     <Compile Include="ExprSMTLIB\TypeCtor.cs" />
     <Compile Include="Transforms\GlobalDDE.cs" />
+    <Compile Include="Transforms\UniqueVariableEnforcing.cs" />
+    <Compile Include="UniqueVariables.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

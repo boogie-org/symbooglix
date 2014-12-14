@@ -49,8 +49,18 @@ namespace Symbooglix
             else
                 color = ConsoleColor.Red;
             
+            msg += args.State.TerminationType.GetMessage();
 
-            WriteLine(color, msg + args.State.TerminationType.GetMessage());
+
+            if (args.State.TerminationType is TerminatedAtUnsatisfiableAxiom)
+            {
+                var tt = args.State.TerminationType as TerminatedAtUnsatisfiableAxiom;
+                var enforced = tt.ExitLocation.AsAxiom.FindAttribute("symbooglix_enforce_unique");
+                if (enforced != null)
+                    msg += System.Environment.NewLine + "This axiom was generated to enforce the unique keyword.";
+            }
+
+            WriteLine(color, msg );
         }
     }
 }
