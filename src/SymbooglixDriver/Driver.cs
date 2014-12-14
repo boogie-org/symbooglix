@@ -56,6 +56,10 @@ namespace SymbooglixDriver
             [Option("gpuverify-ignore-invariants", DefaultValue=false, HelpText = "Ignore GPUVerify specific invariants")]
             public bool GPUverifyIgnoreInvariants { get; set; }
 
+            [Option("globaldde", DefaultValue=1, HelpText="Run Global Dead Declaration eliminiation(default 1)")]
+            public int GlobalDDE { get; set; }
+              
+
             // FIXME: Booleans can't be disabled in the CommandLine library so use ints instead
             [Option("fold-constants", DefaultValue = 1, HelpText = "Use Constant folding during execution")]
             public int useConstantFolding { get; set; }
@@ -359,6 +363,14 @@ namespace SymbooglixDriver
                 {
                     executor.UseGotoLookAhead = false;
                 }
+
+                if (options.GlobalDDE > 0)
+                {
+                    executor.UseGlobalDDE = true;
+                    Console.WriteLine("WARNING: Using GlobalDDE. This may remove unsatisfiable axioms");
+                }
+                else
+                    executor.UseGlobalDDE = false;
 
                 // Just print a message about break points for now.
                 executor.BreakPointReached += BreakPointPrinter.handleBreakPoint;

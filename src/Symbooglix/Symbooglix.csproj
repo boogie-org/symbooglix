@@ -69,7 +69,6 @@
     <Compile Include="Transform\PassManager.cs" />
     <Compile Include="Transform\FunctionInliner.cs" />
     <Compile Include="Analysis\DummyPass.cs" />
-    <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
     <Compile Include="Solver\ISolverImpl.cs" />
     <Compile Include="Solver\SimpleSolver.cs" />
     <Compile Include="Executor\ITerminationType.cs" />
@@ -113,6 +112,8 @@
     <Compile Include="Executor\StateSchedulers\IStateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\LoopEscapingScheduler.cs" />
     <Compile Include="Solver\ConstraintIndependenceSolver.cs" />
+    <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
+    <Compile Include="Transform\GlobalDeadDeclEliminationPass .cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

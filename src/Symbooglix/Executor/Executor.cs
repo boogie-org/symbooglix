@@ -19,6 +19,7 @@ namespace Symbooglix
             CFT = new ConstantFoldingTraverser();
             UseConstantFolding = false;
             UseGotoLookAhead = true;
+            UseGlobalDDE = true;
             this.TheSolver = solver;
             this.Duplicator = new NonSymbolicDuplicator();
             this.InternalRequestedEntryPoints = new List<Implementation>();
@@ -59,6 +60,12 @@ namespace Symbooglix
         }
 
         public bool UseGotoLookAhead
+        {
+            get;
+            set;
+        }
+
+        public bool UseGlobalDDE
         {
             get;
             set;
@@ -220,6 +227,10 @@ namespace Symbooglix
             var FRF = new FindRecursiveFunctionsPass();
             InternalPreparationPassManager.Add(FRF);
             InternalPreparationPassManager.Add(new Transform.FunctionInliningPass());
+
+            if (UseGlobalDDE)
+                InternalPreparationPassManager.Add(new Transform.GlobalDeadDeclEliminationPass());
+
             InternalPreparationPassManager.Add(new Transform.OldExprCanonicaliser());
 
             // We need ProgramLocation annotations to work out where stuff comes from

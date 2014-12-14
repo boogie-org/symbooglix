@@ -1,6 +1,7 @@
 // RUN: %rmdir %t.symbooglix-out
 // RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
 procedure main(p1:int, p2:bv8) returns (r:bv8);
+requires g == 0bv8; // Required to prevent GlobalDDE from removing "g"
 
 // Bitvector functions
 function {:bvbuiltin "bvadd"} bv8add(bv8,bv8) returns(bv8);

@@ -14,6 +14,7 @@ namespace SymbooglixLibTests
         {
             p = LoadProgramFrom("programs/GlobalSymbolicConstant.bpl");
             e = GetExecutor(p);
+            e.UseGlobalDDE = false; // Need to disable otherwise "a" will be removed
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 Assert.IsTrue(data.Name == "entry");

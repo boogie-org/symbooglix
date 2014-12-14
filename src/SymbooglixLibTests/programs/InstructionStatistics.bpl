@@ -1,7 +1,8 @@
-axiom true;
+const g:bool;
+axiom g == true;
 
 procedure main();
-
+requires g == true; // Prevent GDDE from removing axiom
 
 implementation main()
 {
