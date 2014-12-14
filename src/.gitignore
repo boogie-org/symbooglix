@@ -9,3 +9,4 @@ Symbooglix.userprefs
 
 # NuGet packages
 packages/
+.nuget
