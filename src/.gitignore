@@ -3,6 +3,8 @@ BoogieTests/bin/
 BoogieTests/obj/
 Symbooglix/bin/
 Symbooglix/obj/
+SymbooglixDriver/bin/
+SymbooglixDriver/obj/
 
 # Monodevelop files
 Symbooglix.userprefs
