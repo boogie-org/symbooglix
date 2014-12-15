@@ -174,6 +174,7 @@ namespace SymbooglixDriver
             ERRORS_TIMEOUT,
             OUT_OF_MEMORY,
 
+
             // Other stuff
             COMMAND_LINE_ERROR = 128,
             PARSE_ERROR,
@@ -182,10 +183,8 @@ namespace SymbooglixDriver
             RECURSIVE_FUNCTIONS_FOUND_ERROR,
             SOLVER_NOT_FOUND,
             ENTRY_POINT_NOT_FOUND_ERROR,
-            CTRL_C_FORCED_EXIT
-
-
-
+            CTRL_C_FORCED_EXIT,
+            EXCEPTION_RAISED
         }
 
         private static bool TimeoutHit = false;
@@ -198,6 +197,23 @@ namespace SymbooglixDriver
         }
 
         public static int Main(String[] args)
+        {
+            // We use this to capture if an unhandled exception was
+            // raised and exit with the appropriate exit code if this happens.
+            try
+            {
+                return RealMain(args);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("Exception raised");
+                Console.Error.WriteLine(e.ToString());
+                ExitWith(ExitCode.EXCEPTION_RAISED);
+                return (int)ExitCode.EXCEPTION_RAISED; // Keep compiler happy
+            }
+        }
+
+        public static int RealMain(String[] args)
         {
             // Debug log output goes to standard error.
             Debug.Listeners.Add(new ExceptionThrowingTextWritierTraceListener(Console.Error));
