@@ -106,19 +106,12 @@ namespace Symbooglix
                 var axiomsMustKeep = new HashSet<Axiom>();
                 foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
                 {
-                    var liveVars = new HashSet<Variable>();
-                    var liveFuncs = new HashSet<Function>();
-
-                    if (FFV.VarsUsedInAxiom.ContainsKey(axiom))
-                        liveVars.UnionWith(FFV.VarsUsedInAxiom[axiom]);
-
-                    if (FFV.FuncsUsedInAxiom.ContainsKey(axiom))
-                        liveFuncs.UnionWith(FFV.FuncsUsedInAxiom[axiom]);
-
-                    // Remove the variables that we plan to remove from the set so we are only left with live variables
+                    var liveVars = new HashSet<Variable>(FFV.VarsUsedInAxiom[axiom]);
+                    // Remove the variables (that we plan to remove) from the set so we are only left with live variables
                     liveVars.ExceptWith(gvsToRemove);
 
-                    // Remove the functions that we plan to remove from the set so we are only left with live functions
+                    var liveFuncs = new HashSet<Function>(FFV.FuncsUsedInAxiom[axiom]);
+                    // Remove the functions (that we plan to remove) from the set so we are only left with live functions
                     liveFuncs.ExceptWith(functionsToRemove);
 
                     if (liveVars.Count == 0 && liveFuncs.Count == 0)
