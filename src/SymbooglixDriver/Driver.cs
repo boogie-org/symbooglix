@@ -173,6 +173,8 @@ namespace SymbooglixDriver
             NO_ERRORS_TIMEOUT,
             ERRORS_TIMEOUT,
             OUT_OF_MEMORY,
+            NOT_IMPLEMENTED_EXCEPTION,
+            NOT_SUPPORTED_EXCEPTION,
 
 
             // Other stuff
@@ -184,8 +186,6 @@ namespace SymbooglixDriver
             SOLVER_NOT_FOUND,
             ENTRY_POINT_NOT_FOUND_ERROR,
             CTRL_C_FORCED_EXIT,
-            NOT_IMPLEMENTED_EXCEPTION,
-            NOT_SUPPORTED_EXCEPTION,
             EXCEPTION_RAISED,
         }
 
@@ -205,20 +205,6 @@ namespace SymbooglixDriver
             try
             {
                 return RealMain(args);
-            }
-            catch (NotImplementedException e)
-            {
-                Console.Error.WriteLine("Exception raised");
-                Console.Error.WriteLine(e.ToString());
-                ExitWith(ExitCode.NOT_IMPLEMENTED_EXCEPTION);
-                return (int)ExitCode.NOT_IMPLEMENTED_EXCEPTION; // Keep compiler happy
-            }
-            catch (NotSupportedException e)
-            {
-                Console.Error.WriteLine("Exception raised");
-                Console.Error.WriteLine(e.ToString());
-                ExitWith(ExitCode.NOT_SUPPORTED_EXCEPTION);
-                return (int)ExitCode.NOT_SUPPORTED_EXCEPTION; // Keep compiler happy
             }
             catch (Exception e)
             {
@@ -479,6 +465,18 @@ namespace SymbooglixDriver
                 {
                     Console.Error.WriteLine("Ran out of memory!");
                     ExitWith(ExitCode.OUT_OF_MEMORY);
+                }
+                catch (NotImplementedException e)
+                {
+                    Console.Error.WriteLine("Feature not implemented!");
+                    Console.Error.WriteLine(e.ToString());
+                    ExitWith(ExitCode.NOT_IMPLEMENTED_EXCEPTION);
+                }
+                catch (NotSupportedException e)
+                {
+                    Console.Error.WriteLine("Feature not supported!");
+                    Console.Error.WriteLine(e.ToString());
+                    ExitWith(ExitCode.NOT_SUPPORTED_EXCEPTION);
                 }
 
 
