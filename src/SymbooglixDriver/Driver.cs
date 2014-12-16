@@ -184,7 +184,9 @@ namespace SymbooglixDriver
             SOLVER_NOT_FOUND,
             ENTRY_POINT_NOT_FOUND_ERROR,
             CTRL_C_FORCED_EXIT,
-            EXCEPTION_RAISED
+            NOT_IMPLEMENTED_EXCEPTION,
+            NOT_SUPPORTED_EXCEPTION,
+            EXCEPTION_RAISED,
         }
 
         private static bool TimeoutHit = false;
@@ -203,6 +205,20 @@ namespace SymbooglixDriver
             try
             {
                 return RealMain(args);
+            }
+            catch (NotImplementedException e)
+            {
+                Console.Error.WriteLine("Exception raised");
+                Console.Error.WriteLine(e.ToString());
+                ExitWith(ExitCode.NOT_IMPLEMENTED_EXCEPTION);
+                return (int)ExitCode.NOT_IMPLEMENTED_EXCEPTION; // Keep compiler happy
+            }
+            catch (NotSupportedException e)
+            {
+                Console.Error.WriteLine("Exception raised");
+                Console.Error.WriteLine(e.ToString());
+                ExitWith(ExitCode.NOT_SUPPORTED_EXCEPTION);
+                return (int)ExitCode.NOT_SUPPORTED_EXCEPTION; // Keep compiler happy
             }
             catch (Exception e)
             {
