@@ -7,7 +7,7 @@ namespace Symbooglix
 {
     namespace Transform
     {
-        public class UniqueVariableEnforcingPass : IPass
+        public class UniqueVariableEnforcingPass : IPass, IErrorSink
         {
             public HashSet<Axiom> InternalAddedAxioms;
             public IEnumerable<Axiom> AddedAxioms
@@ -30,11 +30,19 @@ namespace Symbooglix
                 return;
             }
 
+            public void Error(IToken tok, string msg)
+            {
+                // FIXME: Create an exception type for type checking failures
+                throw new InvalidProgramException("Type checking failed:" + msg);
+            }
+
             public bool RunOn(Program prog, PassInfo passInfo)
             {
                 // We assume that types are uniqued so "GroupBy" works correctly
                 var groupedVariables = prog.TopLevelDeclarations.OfType<Constant>().Where( c => c.Unique).GroupBy( c => c.TypedIdent.Type);
                 bool changed = false;
+
+                var tc = new TypecheckingContext(this);
 
                 foreach (var pair in groupedVariables)
                 {
@@ -64,6 +72,10 @@ namespace Symbooglix
                                     axiomExpr = Expr.And(axiomExpr, notEq);
                             }
                         }
+
+                        // Type check the expression. Symbooglix expects the program to have been type checked.
+                        // FIXME: For some reason boogie rewrites a != b to a <==> b when we type check!
+                        axiomExpr.Typecheck(tc);
 
                         // Create the Axiom
                         var axiom = new Axiom(Token.NoToken, axiomExpr);
