@@ -41,9 +41,69 @@ namespace Symbooglix
 
                 // We don't Initialise with all declared axioms
                 var axiomsToRemove = new HashSet<Axiom>();
-                // Code cannot use axioms so we can't reduce the set
+
+                // Compute transitive closure of axiom dependencies.
+                // Some axioms may share variables for example
+                // axiom e > f;
+                // axiom f > g;
+                // axiom g > h;
+                //
+                // if we decide that only variable h is live we need to keep all three axioms
+                // which requires that we know how axioms depend on each other
+                //
+                // An axiom A is directly dependent on axiom B iff they share any common
+                // functions or global variables.
+                //
+                // Axioms can be transitively dependent on each other
+                Dictionary<Axiom, HashSet<Axiom>> axiomDeps = new Dictionary<Axiom, HashSet<Axiom>>();
+                foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
+                {
+                    axiomDeps[axiom] = new HashSet<Axiom>();
+                }
+
+                // Compute direct dependencies
+                foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
+                {
+                    foreach (var otherAxiom in prog.TopLevelDeclarations.OfType<Axiom>().Where( a => a != axiom))
+                    {
+                        if (axiomDeps[axiom].Contains(otherAxiom))
+                            continue;
+
+                        if ( FFV.FuncsUsedInAxiom[axiom].Overlaps( FFV.FuncsUsedInAxiom[otherAxiom]) ||
+                             FFV.VarsUsedInAxiom[axiom].Overlaps( FFV.VarsUsedInAxiom[otherAxiom])
+                           )
+                        {
+                            axiomDeps[axiom].Add(otherAxiom);
+                            axiomDeps[otherAxiom].Add(axiom);
+                        }
+                    }
+                }
+
+                // For each axiom compute the transistive closure of dependencies by reaching a fixed point for each axiom
+                foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
+                {
+                    bool setChanged = false;
+                    do
+                    {
+                        var axiomsToAdd = new HashSet<Axiom>();
+                        setChanged = false;
+
+                        foreach (var dep in axiomDeps[axiom])
+                        {
+                            axiomsToAdd.UnionWith(axiomDeps[dep]);
+                        }
+
+                        int previousNumberOfDeps = axiomDeps[axiom].Count;
+                        axiomDeps[axiom].UnionWith(axiomsToAdd);
+
+                        if (axiomDeps[axiom].Count > previousNumberOfDeps)
+                            setChanged = true;
+
+                    } while (setChanged);
+                }
 
                 // Work out which axioms to remove
+                var axiomsMustKeep = new HashSet<Axiom>();
                 foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
                 {
                     var liveVars = new HashSet<Variable>();
@@ -62,8 +122,21 @@ namespace Symbooglix
                     liveFuncs.ExceptWith(functionsToRemove);
 
                     if (liveVars.Count == 0 && liveFuncs.Count == 0)
+                    {
                         axiomsToRemove.Add(axiom);
+                    }
+                    else
+                    {
+                        // Can't remove axiom. This means we shouldn't remove any of its dependencies
+                        // We can't modify axiomsToRemove directly (i.e. axiomsToRemove.ExceptWith(axiomDeps[axiom]) )
+                        // because the dependencies might be added to axiomsToRemove in a later iteration of this loop
+                        axiomsMustKeep.UnionWith(axiomDeps[axiom]);
+                    }
                 }
+
+                // Remove any axioms from the set that we discovered must be kept.
+                axiomsToRemove.ExceptWith(axiomsMustKeep);
+
 
                 // Work out which functions to remove
                 var newFunctionsToRemove = new HashSet<Function>(); // can't modify set whilst iterating so write into temp
@@ -139,7 +212,8 @@ namespace Symbooglix
                 }
 
                 // FIXME: We need some way of validating the Boogie Program to make sure
-                // all function Calls point to top level declared functions
+                // all function Calls point to top level declared functions and that reference globals
+                // are still top level declarations.
                 return changed;
             }
 
@@ -219,9 +293,18 @@ namespace Symbooglix
                 // Entering an Axiom
                 InAxiom = true;
                 CurrentAxiom = node;
+
+                // Initialise HashSets for this axiom
+                if (!FuncsUsedInAxiom.ContainsKey(node))
+                    FuncsUsedInAxiom[node] = new HashSet<Function>();
+
+                if (!VarsUsedInAxiom.ContainsKey(node))
+                    VarsUsedInAxiom[node] = new HashSet<Variable>();
+
                 var result = base.VisitAxiom(node);
-                CurrentAxiom = null;
+
                 // Leaving an Axiom
+                CurrentAxiom = null;
                 InAxiom = false;
                 return result;
             }
@@ -248,10 +331,7 @@ namespace Symbooglix
                     }
                     AxiomsUsingFunc[node.Func].Add(CurrentAxiom);
 
-                    if (!FuncsUsedInAxiom.ContainsKey(CurrentAxiom))
-                    {
-                        FuncsUsedInAxiom[CurrentAxiom] = new HashSet<Function>();
-                    }
+                    // Assume Hash set has already been initialised
                     FuncsUsedInAxiom[CurrentAxiom].Add(node.Func);
                 }
                 else
@@ -278,10 +358,7 @@ namespace Symbooglix
                     }
                     AxiomsUsingVar[node].Add(CurrentAxiom);
 
-                    if (!VarsUsedInAxiom.ContainsKey(CurrentAxiom))
-                    {
-                        VarsUsedInAxiom[CurrentAxiom] = new HashSet<Variable>();
-                    }
+                    // Assume Hash set has already been initialised
                     VarsUsedInAxiom[CurrentAxiom].Add(node);
                 }
                 else

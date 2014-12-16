@@ -364,8 +364,8 @@ namespace TransformTests
             Assert.AreEqual(1, AxiomCount(prog));
         }
 
-        [Test(),Ignore("FIXME: This is broken")]
-        public void TransitiveAxiomDependency()
+        [Test()]
+        public void TransitiveAxiomFunctionDependency()
         {
             var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
                 function f(int) returns (int);
@@ -387,6 +387,103 @@ namespace TransformTests
             RunGDDE(prog);
             Assert.AreEqual(3, FunctionCount(prog));
             Assert.AreEqual(2, AxiomCount(prog));
+        }
+
+        [Test()]
+        public void TransitiveAxiomGlobalDependency()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                const f:int;
+                const g:int;
+                const h:int;
+
+                axiom f > g; // Should not remove
+                axiom g > h; // Should not remove
+
+                procedure main(a:int)
+                requires h > 0;
+                {
+                    assert true;
+                }
+                ", "test.bpl");
+
+            Assert.AreEqual(3, GlobalVariableCount(prog));
+            Assert.AreEqual(2, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(3, GlobalVariableCount(prog));
+            Assert.AreEqual(2, AxiomCount(prog));
+        }
+
+        [Test()]
+        public void TransitiveAxiomGlobalAndFunctionDependency()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                const e:int;
+                const f:int;
+                function g(int) returns (int);
+                const h:int;
+
+                axiom (e == f); // Should not remove
+                axiom (forall x:int :: f > g(x)); // Should not remove
+                axiom (forall x:int :: g(x) > h); // Should not remove
+
+                procedure main(a:int)
+                requires h > 0;
+                {
+                    assert true;
+                }
+                ", "test.bpl");
+
+            Assert.AreEqual(3, GlobalVariableCount(prog));
+            Assert.AreEqual(1, FunctionCount(prog));
+            Assert.AreEqual(3, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(3, GlobalVariableCount(prog));
+            Assert.AreEqual(1, FunctionCount(prog));
+            Assert.AreEqual(3, AxiomCount(prog));
+        }
+
+        [Test()]
+        public void TransitiveAxiomTwoSets()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                const e:int;
+                const f:int;
+                function g(int) returns (int);
+                const h:int;
+
+                // One set the based on transitivity should not be removed
+                axiom (e == f);
+                axiom (forall x:int :: f > g(x));
+                axiom (forall x:int :: g(x) > h);
+
+                // Another set that based on transitivity should not be removed
+                function w(int) returns (int);
+                const x:int;
+                const y:int;
+                const z:int;
+                axiom x > y;
+                axiom y > z;
+                axiom (forall n:int :: w(n) > z);
+
+                // Should be removed
+                axiom false;
+
+                procedure main(a:int)
+                requires h > 0;
+                requires z > 0;
+                {
+                    assert true;
+                }
+                ", "test.bpl");
+
+            Assert.AreEqual(6, GlobalVariableCount(prog));
+            Assert.AreEqual(2, FunctionCount(prog));
+            Assert.AreEqual(7, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(6, GlobalVariableCount(prog));
+            Assert.AreEqual(2, FunctionCount(prog));
+            Assert.AreEqual(6, AxiomCount(prog));
         }
 
         public void RunGDDE(Program prog)
