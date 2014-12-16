@@ -364,6 +364,31 @@ namespace TransformTests
             Assert.AreEqual(1, AxiomCount(prog));
         }
 
+        [Test(),Ignore("FIXME: This is broken")]
+        public void TransitiveAxiomDependency()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                function f(int) returns (int);
+                function g(int) returns (int);
+                function h(int) returns (int);
+
+                axiom (forall x:int :: f(x) > g(x)); // Should not remove
+                axiom (forall x:int :: g(x) > h(x)); // Should not remove
+
+                procedure main(a:int)
+                requires h(a) > 0;
+                {
+                    assert true;
+                }
+                ", "test.bpl");
+
+            Assert.AreEqual(3, FunctionCount(prog));
+            Assert.AreEqual(2, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(3, FunctionCount(prog));
+            Assert.AreEqual(2, AxiomCount(prog));
+        }
+
         public void RunGDDE(Program prog)
         {
             var GDDE = new Symbooglix.Transform.GlobalDeadDeclEliminationPass();
