@@ -519,6 +519,7 @@ namespace SymbooglixDriver
             executorLogger.AddRootDirLogger(new TerminationCounterLogger());
             executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
             executorLogger.AddRootDirLogger(new SolverStatisticsLogger(solver));
+            executorLogger.AddRootDirLogger(new ExecutorStatisticsLogger());
 
             executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
             executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
