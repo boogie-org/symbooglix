@@ -502,7 +502,7 @@ namespace SymbooglixDriver
         {
             var stats = solver.SolverImpl.Statistics;
             stats.Dump(Console.Out);
-            executor.GetStatistics().Dump(Console.Out);
+            executor.Statistics.Dump(Console.Out);
         }
 
         public static void SetupFileLoggers(CmdLineOpts options, Executor executor, Solver.ISolver solver)

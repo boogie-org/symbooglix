@@ -23,7 +23,7 @@ namespace Symbooglix
             this.TheSolver = solver;
             this.Duplicator = new NonSymbolicDuplicator();
             this.InternalRequestedEntryPoints = new List<Implementation>();
-            this.InternalStatistics = new ExecutorStatistics();
+            this.InternalStatistics.Reset();
             this.RunTimer = new Stopwatch();
             this.PrepareTimer = new Stopwatch();
             this.InternalPreparationPassManager = new Transform.PassManager();
@@ -81,11 +81,13 @@ namespace Symbooglix
         private ExecutorStatistics InternalStatistics;
         private Stopwatch RunTimer;
         private Stopwatch PrepareTimer;
-        public ExecutorStatistics GetStatistics()
+        public ExecutorStatistics Statistics
         {
-            UpdateStatistics(); // Update only when necessary
-            // Make sure clients get a copy
-            return InternalStatistics.DeepClone();
+            get
+            {
+                UpdateStatistics();
+                return InternalStatistics;
+            }
         }
 
         private void UpdateStatistics()
