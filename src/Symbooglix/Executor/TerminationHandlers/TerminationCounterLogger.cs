@@ -26,11 +26,19 @@ namespace Symbooglix
 
         private void handleExecutorTerminated(Object executor, Executor.ExecutorTerminatedArgs args)
         {
+            // Write GNUPlot data
             string path = Path.Combine(Directory, "termination_counters.txt");
             Console.WriteLine("Writing termination counts to {0}", path);
             using (var SW = new StreamWriter(path))
             {
-                TCounter.WriteGnuPlotData(SW);
+                TCounter.WriteAsGnuPlotData(SW);
+            }
+
+            path = Path.Combine(Directory, "termination_counters.yml");
+            Console.WriteLine("Writing termination counts to {0}", path);
+            using (var SW = new StreamWriter(path))
+            {
+                TCounter.WriteAsYAML(SW);
             }
         }
     }

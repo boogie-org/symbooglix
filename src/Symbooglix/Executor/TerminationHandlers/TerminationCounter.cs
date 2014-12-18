@@ -113,7 +113,7 @@ namespace Symbooglix
             return original.Substring(dotPosition +1);
         }
 
-        public void WriteGnuPlotData(TextWriter TW)
+        public void WriteAsGnuPlotData(TextWriter TW)
         {
             TW.WriteLine("# Load with GNUPlot");
             TW.WriteLine("#<TerminationType> <Counters>");
@@ -121,6 +121,15 @@ namespace Symbooglix
             foreach (var terminationTypeCounterPair in Counters)
             {
                 TW.WriteLine(StripPrefix(terminationTypeCounterPair.Key.ToString()) + " " + terminationTypeCounterPair.Value);
+            }
+        }
+
+        public void WriteAsYAML(TextWriter TW)
+        {
+            TW.WriteLine("# Termination Counter info");
+            foreach (var terminationTypeCounterPair in Counters)
+            {
+                TW.WriteLine("{0}: {1}", StripPrefix(terminationTypeCounterPair.Key.ToString()), terminationTypeCounterPair.Value.ToString());
             }
         }
 

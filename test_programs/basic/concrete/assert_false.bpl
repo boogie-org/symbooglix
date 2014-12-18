@@ -1,5 +1,7 @@
 // RUN: %rmdir %t.symbooglix-out
 // RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out %s | %OutputCheck %s
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingAssert 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 0
 procedure main(p1:bv8)
 requires p1 == 0bv8;
 {
