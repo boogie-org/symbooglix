@@ -149,13 +149,17 @@ namespace Symbooglix
                 {
                     if (HasBeenDisposed)
                         return;
+                    try
+                    {
+                        TheProcess.CancelErrorRead();
+                        Console.WriteLine("Cancelled reading stderr");
+                        TheProcess.CancelOutputRead();
+                        Console.WriteLine("Cancelled reading stdout");
 
-                    TheProcess.CancelErrorRead();
-                    Console.WriteLine("Cancelled reading stderr");
-                    TheProcess.CancelOutputRead();
-                    Console.WriteLine("Cancelled reading stdout");
-                    if (!TheProcess.HasExited)
-                        TheProcess.Kill();
+                        if (!TheProcess.HasExited)
+                            TheProcess.Kill();
+                    }
+                    catch (InvalidOperationException) {}
 
                     Console.WriteLine("killed process");
                     lock (ComputeSatisfiabilityLock)
