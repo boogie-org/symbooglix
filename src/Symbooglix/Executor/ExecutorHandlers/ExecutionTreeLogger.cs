@@ -35,6 +35,13 @@ namespace Symbooglix
         {
             var path = Path.Combine(this.Directory, "execution_tree.dot");
             var executor = (Executor) sender;
+
+            if (executor.TreeRoot == null)
+            {
+                Console.Error.WriteLine("Can't create {0}, tree root is null", path.ToString());
+                return;
+            }
+
             using (var SW = new StreamWriter(path))
             {
                 ExecutionTreePrinter etp = null;

@@ -44,6 +44,12 @@ namespace Symbooglix
             var executor = sender as Executor;
             Debug.Assert(sender is Executor, "Expected Executor");
 
+            if (!executor.HasBeenPrepared)
+            {
+                Console.Error.WriteLine("Can't log callgrind output because program was not prepared");
+                return;
+            }
+
             Program clonedProgram = null;
             using (var SW = new StreamWriter(this.ProgramDestination))
             {

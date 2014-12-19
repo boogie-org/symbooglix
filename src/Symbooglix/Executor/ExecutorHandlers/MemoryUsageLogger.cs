@@ -37,7 +37,8 @@ namespace Symbooglix
         protected void handleTerminate(Object executor, Executor.ExecutorTerminatedArgs args)
         {
             Run = false;
-            MemoryLoggingTask.Wait();
+            if (MemoryLoggingTask != null)
+                MemoryLoggingTask.Wait();
         }
 
         public override void Connect(Executor e)

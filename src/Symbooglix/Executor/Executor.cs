@@ -29,6 +29,7 @@ namespace Symbooglix
             this.InternalPreparationPassManager = new Transform.PassManager();
             AssertFilter = null;
             TerminationType = ExecutorTerminationType.UNKNOWN;
+            HasBeenPrepared = false;
         }
 
         private IStateScheduler StateScheduler;
@@ -43,7 +44,11 @@ namespace Symbooglix
         public Program TheProgram;
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
         private SymbolicPool SymbolicPool;
-        private bool HasBeenPrepared = false;
+        public bool HasBeenPrepared
+        {
+            get;
+            private set;
+        }
         public ConstantFoldingTraverser CFT;
         public Solver.ISolver TheSolver;
         private bool AllowExecutorToRun= false;
@@ -400,7 +405,6 @@ namespace Symbooglix
             }, TaskCreationOptions.LongRunning);
         }
 
-        private Object ExecutorLoopLock = new object();
         public void Run(Implementation entryPoint, int timeout=0)
         {
             // This lock exists for two reasons
@@ -408,97 +412,133 @@ namespace Symbooglix
             // 2. Allows the Terminate() method to block on this method.
             lock (ExecutorLoopLock)
             {
-                AllowExecutorToRun = true;
-                RunTimer.Start();
-                SetupTimeout(timeout);
+                List<char> preAllocated = null;
 
-                // Record the entry point that was requested
-                InternalRequestedEntryPoints.Add(entryPoint);
+                OutOfMemoryException oome = null;
 
-                if (!HasBeenPrepared)
-                    PrepareProgram();
-
-                // Notify
-                if (ExecutorStarted != null)
-                    ExecutorStarted(this, new ExecutorStartedArgs());
-
-                if (InitialState.Finished())
+                try
                 {
+                    // HACK: pre-allocate 10MiB that we can free if we run out of memory
+                    // to allow us to do clean up
+                    preAllocated = new List<char>(10 << 20);
+                    preAllocated.Add('a'); // Prevent not-used warning
+                    InternalRun(entryPoint, timeout);
+                }
+                catch (OutOfMemoryException e)
+                {
+                    Console.Error.WriteLine("Executor ran out of memory!");
+                    preAllocated = null; // Remove "root" to this so GC can clean up
+                    System.GC.Collect();
+                    this.TerminationType = ExecutorTerminationType.OUT_OF_MEMORY;
+                    oome = e;
+                }
+                finally
+                {
+                    Console.WriteLine("Notifying listeners of Executor termination");
+                    // Notify listeners that the Executor finished.
+
+
+                    // If we ran out of memory the hope is that we free'd enough
+                    // for the listeners to be able to complete but this is not guaranteed.
                     if (ExecutorTerminated != null)
+                    {
                         ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
-
-                    throw new ExecuteTerminatedStateException(this, InitialState);
-                }
-
-                // Clone the state so we can keep the special initial state around
-                // if we want run() to be called again with a different entry point.
-                CurrentState = Fork(InitialState, null);
-
-                StateScheduler.ReceiveExecutor(this);
-                StateScheduler.AddState(CurrentState);
-            
-                // Check the provided entry point is actually in the program we are about to execute
-                if (TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl == entryPoint).Count() == 0)
-                {
-                    throw new InvalidEntryPoint(this, entryPoint);
-                }
-
-                // Push entry point onto stack frame
-                EnterImplementation(entryPoint, null);
-
-                var oldState = CurrentState;
-                while (AllowExecutorToRun)
-                {
-                    CurrentState = StateScheduler.GetNextState();
-                    if (CurrentState == null)
-                    {
-                        // No states left
-                        break;
                     }
-
-                    if (CurrentState.Speculative)
-                    {
-                        // FIXME: Report hiting a speculative execution state as an event!
-                        Console.WriteLine("Not executing a speculative Execution State!");
-                        this.TerminateState(CurrentState, new TerminatedWithDisallowedSpeculativePath());
-                        continue;
-                    }
-
-                    Debug.Assert(!CurrentState.Finished(), "Cannot execute a terminated state!");
-
-                    // Notify that the Executed state has changed.
-                    if (ContextChanged != null & oldState != CurrentState)
-                        ContextChanged(this, new ContextChangeEventArgs(oldState, CurrentState));
-
-                    oldState = CurrentState;
-
-                    CurrentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
-                    ExecuteInstruction();
                 }
 
-                // Remove any remaining states and notify about them
-                while (StateScheduler.GetNumberOfStates() > 0)
-                {
-                    var state = StateScheduler.GetNextState();
-                    StateScheduler.RemoveState(state);
-
-                    if (NonTerminatedStateRemoved != null)
-                        NonTerminatedStateRemoved(this, new ExecutionStateEventArgs(state));
-
-                }
-
-                if (this.TerminationType == ExecutorTerminationType.UNKNOWN)
-                {
-                    this.TerminationType = ExecutorTerminationType.FINISHED;
-                }
-
-                if (ExecutorTerminated != null)
-                {
-                    ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
-                }
-
-                RunTimer.Stop();
+                // Now that we've finished notifying, rethrow the exception if necessary
+                if (oome != null)
+                    throw oome;
             }
+        }
+
+        private Object ExecutorLoopLock = new object();
+        private void InternalRun(Implementation entryPoint, int timeout=0)
+        {
+            AllowExecutorToRun = true;
+            RunTimer.Start();
+            SetupTimeout(timeout);
+
+            // Record the entry point that was requested
+            InternalRequestedEntryPoints.Add(entryPoint);
+
+            if (!HasBeenPrepared)
+                PrepareProgram();
+
+            // Notify
+            if (ExecutorStarted != null)
+                ExecutorStarted(this, new ExecutorStartedArgs());
+
+            if (InitialState.Finished())
+            {
+                if (ExecutorTerminated != null)
+                    ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
+
+                throw new ExecuteTerminatedStateException(this, InitialState);
+            }
+
+            // Clone the state so we can keep the special initial state around
+            // if we want run() to be called again with a different entry point.
+            CurrentState = Fork(InitialState, null);
+
+            StateScheduler.ReceiveExecutor(this);
+            StateScheduler.AddState(CurrentState);
+
+            // Check the provided entry point is actually in the program we are about to execute
+            if (TheProgram.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl == entryPoint).Count() == 0)
+            {
+                throw new InvalidEntryPoint(this, entryPoint);
+            }
+
+            // Push entry point onto stack frame
+            EnterImplementation(entryPoint, null);
+
+            var oldState = CurrentState;
+            while (AllowExecutorToRun)
+            {
+                CurrentState = StateScheduler.GetNextState();
+                if (CurrentState == null)
+                {
+                    // No states left
+                    break;
+                }
+
+                if (CurrentState.Speculative)
+                {
+                    // FIXME: Report hiting a speculative execution state as an event!
+                    Console.WriteLine("Not executing a speculative Execution State!");
+                    this.TerminateState(CurrentState, new TerminatedWithDisallowedSpeculativePath());
+                    continue;
+                }
+
+                Debug.Assert(!CurrentState.Finished(), "Cannot execute a terminated state!");
+
+                // Notify that the Executed state has changed.
+                if (ContextChanged != null & oldState != CurrentState)
+                    ContextChanged(this, new ContextChangeEventArgs(oldState, CurrentState));
+
+                oldState = CurrentState;
+
+                CurrentState.GetCurrentStackFrame().CurrentInstruction.MoveNext();
+                ExecuteInstruction();
+            }
+
+            // Remove any remaining states and notify about them
+            while (StateScheduler.GetNumberOfStates() > 0)
+            {
+                var state = StateScheduler.GetNextState();
+                StateScheduler.RemoveState(state);
+
+                if (NonTerminatedStateRemoved != null)
+                    NonTerminatedStateRemoved(this, new ExecutionStateEventArgs(state));
+
+            }
+
+            if (this.TerminationType == ExecutorTerminationType.UNKNOWN)
+            {
+                this.TerminationType = ExecutorTerminationType.FINISHED;
+            }
+            RunTimer.Stop();
         }
 
         public void Terminate(bool block=false)

@@ -461,9 +461,10 @@ namespace SymbooglixDriver
                     Console.ResetColor();
                     ExitWith(ExitCode.RECURSIVE_FUNCTIONS_FOUND_ERROR);
                 }
-                catch (OutOfMemoryException)
+                catch (OutOfMemoryException e)
                 {
                     Console.Error.WriteLine("Ran out of memory!");
+                    Console.Error.WriteLine(e.ToString());
                     ExitWith(ExitCode.OUT_OF_MEMORY);
                 }
                 catch (NotImplementedException e)
