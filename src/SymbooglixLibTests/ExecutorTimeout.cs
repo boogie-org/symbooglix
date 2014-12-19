@@ -25,7 +25,7 @@ namespace SymbooglixLibTests
 
             e.ExecutorTerminated += delegate(object sender, Executor.ExecutorTerminatedArgs eventArgs)
             {
-                Assert.IsTrue(eventArgs.TimeoutHit);
+                Assert.AreEqual(Executor.ExecutorTerminationType.TIMEOUT, eventArgs.TerminationType);
             };
 
             // Run with timeout

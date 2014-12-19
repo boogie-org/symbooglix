@@ -28,6 +28,7 @@ namespace Symbooglix
             this.PrepareTimer = new Stopwatch();
             this.InternalPreparationPassManager = new Transform.PassManager();
             AssertFilter = null;
+            TerminationType = ExecutorTerminationType.UNKNOWN;
         }
 
         private IStateScheduler StateScheduler;
@@ -46,7 +47,6 @@ namespace Symbooglix
         public ConstantFoldingTraverser CFT;
         public Solver.ISolver TheSolver;
         private bool AllowExecutorToRun= false;
-        private bool TimeoutHit = false;
         public Predicate<AssertCmd> AssertFilter
         {
             get;
@@ -113,12 +113,26 @@ namespace Symbooglix
 
         public event EventHandler<ExecutionStateEventArgs> NonTerminatedStateRemoved;
 
+        public enum ExecutorTerminationType
+        {
+            UNKNOWN,
+            FINISHED,
+            TIMEOUT,
+            OUT_OF_MEMORY
+        }
+
+        public ExecutorTerminationType TerminationType
+        {
+            get;
+            private set;
+        }
+
         public class ExecutorTerminatedArgs : EventArgs
         {
-            public readonly bool TimeoutHit;
+            public readonly ExecutorTerminationType TerminationType;
             public ExecutorTerminatedArgs(Executor theExecutor)
             {
-                TimeoutHit = theExecutor.TimeoutHit;
+                TerminationType = theExecutor.TerminationType;
             }
         }
 
@@ -367,8 +381,6 @@ namespace Symbooglix
 
         protected void SetupTimeout(int timeout)
         {
-            TimeoutHit = false;
-
             if (timeout <= 0)
                 return;
 
@@ -376,7 +388,7 @@ namespace Symbooglix
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(timeout * 1000); // argument is in milliseconds
-                this.TimeoutHit = true;
+                this.TerminationType = ExecutorTerminationType.TIMEOUT;
                 // Notify
                 if (ExecutorTimeoutReached != null)
                 {
@@ -474,6 +486,11 @@ namespace Symbooglix
                     if (NonTerminatedStateRemoved != null)
                         NonTerminatedStateRemoved(this, new ExecutionStateEventArgs(state));
 
+                }
+
+                if (this.TerminationType == ExecutorTerminationType.UNKNOWN)
+                {
+                    this.TerminationType = ExecutorTerminationType.FINISHED;
                 }
 
                 if (ExecutorTerminated != null)
