@@ -403,13 +403,12 @@ namespace Symbooglix
         private Object ExecutorLoopLock = new object();
         public void Run(Implementation entryPoint, int timeout=0)
         {
-            AllowExecutorToRun = true;
-
             // This lock exists for two reasons
             // 1. Force calls to this method to be serialised.
             // 2. Allows the Terminate() method to block on this method.
             lock (ExecutorLoopLock)
             {
+                AllowExecutorToRun = true;
                 RunTimer.Start();
                 SetupTimeout(timeout);
 
