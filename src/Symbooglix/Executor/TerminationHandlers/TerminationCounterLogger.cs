@@ -37,9 +37,15 @@ namespace Symbooglix
 
             path = Path.Combine(Directory, "termination_counters.yml");
             Console.WriteLine("Writing termination counts to {0}", path);
-            using (var SW = new IndentedTextWriter(new StreamWriter(path), "  "))
+
+            // It is necessary to use to "using" blocks because IndentedTextWriter.Dispose()
+            // does not seem to call Dispose() on the underlying stream
+            using (var SW = new StreamWriter(path))
             {
-                TCounter.WriteAsYAML(SW);
+                using (var ITT = new IndentedTextWriter(SW, " "))
+                {
+                    TCounter.WriteAsYAML(ITT);
+                }
             }
         }
     }

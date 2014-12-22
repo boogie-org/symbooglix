@@ -18,9 +18,15 @@ namespace Symbooglix
         void HandleExecutorTerminated(object sender, Executor.ExecutorTerminatedArgs e)
         {
             var executor = sender as Executor;
-            using (var SW = new IndentedTextWriter(new StreamWriter(Path.Combine(Directory, "executor_statistics.yml")), "  "))
+
+            // It is necessary to use to "using" blocks because IndentedTextWriter.Dispose()
+            // does not seem to call Dispose() on the underlying stream
+            using (var SW = new StreamWriter(Path.Combine(Directory, "executor_statistics.yml")))
             {
-                executor.Statistics.WriteAsYAML(SW);
+                using (var ITT = new IndentedTextWriter(SW, " "))
+                {
+                    executor.Statistics.WriteAsYAML(ITT);
+                }
             }
         }
         public override void Disconnect(Executor e)

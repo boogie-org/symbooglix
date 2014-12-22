@@ -34,6 +34,7 @@ def main(args):
 
   assert len(pargs.key) > 0
   assert len(pargs.expected_value) > 0
+  assert data != None
 
   if not pargs.key in data:
     logging.error('{key} is not a top level key in the YAML file'.format(key=pargs.key))
