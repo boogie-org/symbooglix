@@ -124,7 +124,7 @@ namespace Symbooglix
             }
         }
 
-        public void WriteAsYAML(TextWriter TW)
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
             TW.WriteLine("# Termination Counter info");
             foreach (var terminationTypeCounterPair in Counters)

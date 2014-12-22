@@ -6,7 +6,7 @@ namespace Symbooglix
     {
         public interface IYAMLWriter
         {
-            void WriteAsYAML(System.IO.TextWriter TW);
+            void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW);
         }
     }
 }

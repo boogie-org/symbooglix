@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.CodeDom.Compiler;
 
 namespace Symbooglix
 {
@@ -36,7 +37,7 @@ namespace Symbooglix
 
             path = Path.Combine(Directory, "termination_counters.yml");
             Console.WriteLine("Writing termination counts to {0}", path);
-            using (var SW = new StreamWriter(path))
+            using (var SW = new IndentedTextWriter(new StreamWriter(path), "  "))
             {
                 TCounter.WriteAsYAML(SW);
             }

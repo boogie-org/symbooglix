@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.CodeDom.Compiler;
 
 namespace Symbooglix
 {
@@ -17,7 +18,7 @@ namespace Symbooglix
         void HandleExecutorTerminated(object sender, Executor.ExecutorTerminatedArgs e)
         {
             var executor = sender as Executor;
-            using (var SW = new StreamWriter(Path.Combine(Directory, "executor_statistics.yml")))
+            using (var SW = new IndentedTextWriter(new StreamWriter(Path.Combine(Directory, "executor_statistics.yml")), "  "))
             {
                 executor.Statistics.WriteAsYAML(SW);
             }

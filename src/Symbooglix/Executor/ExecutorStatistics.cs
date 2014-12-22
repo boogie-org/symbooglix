@@ -38,7 +38,7 @@ namespace Symbooglix
             return result;
         }
 
-        public void WriteAsYAML (TextWriter TW)
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
             TW.WriteLine("#Executor statistics as YAML. Times are in seconds");
             TW.WriteLine("prepare_time: {0}", PrepareTime.TotalSeconds);
