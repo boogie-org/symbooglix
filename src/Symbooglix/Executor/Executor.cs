@@ -28,7 +28,7 @@ namespace Symbooglix
             this.PrepareTimer = new Stopwatch();
             this.InternalPreparationPassManager = new Transform.PassManager();
             AssertFilter = null;
-            TerminationType = ExecutorTerminationType.UNKNOWN;
+            this.TerminationType = ExecutorTerminationType.UNKNOWN;
             HasBeenPrepared = false;
         }
 
@@ -128,8 +128,14 @@ namespace Symbooglix
 
         public ExecutorTerminationType TerminationType
         {
-            get;
-            private set;
+            get
+            {
+                return InternalStatistics.TerminationType;
+            }
+            private set
+            {
+                InternalStatistics.TerminationType = value;
+            }
         }
 
         public class ExecutorTerminatedArgs : EventArgs

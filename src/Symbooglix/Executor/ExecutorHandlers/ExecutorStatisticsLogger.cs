@@ -17,9 +17,9 @@ namespace Symbooglix
         void HandleExecutorTerminated(object sender, Executor.ExecutorTerminatedArgs e)
         {
             var executor = sender as Executor;
-            using (var SW = new StreamWriter(Path.Combine(Directory, "executor_statistics.txt")))
+            using (var SW = new StreamWriter(Path.Combine(Directory, "executor_statistics.yml")))
             {
-                executor.Statistics.Dump(SW);
+                executor.Statistics.WriteAsYAML(SW);
             }
         }
         public override void Disconnect(Executor e)

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class TerminationCounter : IExecutorEventHandler
+    public class TerminationCounter : IExecutorEventHandler, Util.IYAMLWriter
     {
         // Counters
         public int Sucesses { get { return GetCounter<TerminatedWithoutError>(); }}
