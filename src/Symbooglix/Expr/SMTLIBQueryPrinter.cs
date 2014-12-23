@@ -14,7 +14,7 @@ namespace Symbooglix
         private HashSet<Microsoft.Boogie.Function> functionsToDeclare = null;
         private HashSet<Microsoft.Boogie.TypeCtorDecl> sortsToDeclare = null;
         private FindSymbolicsVisitor FSV = null;
-        private FindFunctionsVisitor FFV = null;
+        private FindUinterpretedFunctionsVisitor FFV = null;
         private TextWriter TW = null;
         private Traverser TheTraverser = null;
         public bool HumanReadable;
@@ -44,7 +44,7 @@ namespace Symbooglix
             functionsToDeclare = new HashSet<Function>();
             sortsToDeclare = new HashSet<TypeCtorDecl>();
             FSV = new FindSymbolicsVisitor(symbolicsToDeclare); // Have the visitor use our container
-            FFV = new FindFunctionsVisitor(functionsToDeclare); // Have the visitor use our container
+            FFV = new FindUinterpretedFunctionsVisitor(functionsToDeclare); // Have the visitor use our container
             BindingsFinder = new ExprCountingVisitor();
 
             // FIXME: This is a hack. Boogie's GetHashCode() is very expensive
@@ -143,7 +143,7 @@ namespace Symbooglix
             }
         }
 
-        // For this verion of AddDeclarations we already know what variables 
+        // For this verion of AddDeclarations we already know what variables
         // and uninterpreted functions are used.
         public void AddDeclarations(Constraint c)
         {

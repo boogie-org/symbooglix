@@ -45,7 +45,6 @@
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />
     <Compile Include="Expr\DFSPostOrderTraverser.cs" />
     <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
-    <Compile Include="Expr\FindFunctionsVisitor.cs" />
     <Compile Include="Expr\NonSymbolicDuplicator.cs" />
     <Compile Include="Util\ExceptionThrowingTextWriterTraceListener.cs" />
     <Compile Include="Solver\DummySolver.cs" />
@@ -117,6 +116,7 @@
     <Compile Include="Transform\GlobalDeadDeclEliminationPass.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorStatisticsLogger.cs" />
     <Compile Include="Util\IYAMLWriter.cs" />
+    <Compile Include="Expr\FindUinterpretedFunctionsVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

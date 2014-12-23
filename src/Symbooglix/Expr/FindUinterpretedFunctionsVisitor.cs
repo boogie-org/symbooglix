@@ -5,18 +5,18 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public class FindFunctionsVisitor : ReadOnlyVisitor
+    public class FindUinterpretedFunctionsVisitor : ReadOnlyVisitor
     {
         public ICollection<Function> foundFuctions;
 
         // Internal container
-        public FindFunctionsVisitor()
+        public FindUinterpretedFunctionsVisitor()
         {
             foundFuctions = new List<Function>();
         }
 
         // External container
-        public FindFunctionsVisitor(ICollection<Function> externalContainer)
+        public FindUinterpretedFunctionsVisitor(ICollection<Function> externalContainer)
         {
             foundFuctions = externalContainer;
         }

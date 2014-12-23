@@ -40,7 +40,7 @@ namespace Symbooglix
                 HashSet<SymbolicVariable> usedVariables = new HashSet<SymbolicVariable>();
                 HashSet<Function> usedUinterpretedFunctions = new HashSet<Function>();
                 var FSV = new FindSymbolicsVisitor(usedVariables);
-                var FUFV = new FindFunctionsVisitor(usedUinterpretedFunctions);
+                var FUFV = new FindUinterpretedFunctionsVisitor(usedUinterpretedFunctions);
                 FSV.Visit(queryExpr);
                 FUFV.Visit(queryExpr);
 

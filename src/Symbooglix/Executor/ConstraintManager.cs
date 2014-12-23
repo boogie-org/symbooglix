@@ -183,7 +183,7 @@ namespace Symbooglix
             fsv.Visit(this.Condition);
 
             this.InternalUsedUninterpretedFunctions = new HashSet<Function>();
-            var ffv = new FindFunctionsVisitor(this.InternalUsedUninterpretedFunctions);
+            var ffv = new FindUinterpretedFunctionsVisitor(this.InternalUsedUninterpretedFunctions);
             ffv.Visit(this.Condition);
         }
     }
