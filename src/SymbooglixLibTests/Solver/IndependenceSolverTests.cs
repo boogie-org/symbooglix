@@ -58,7 +58,8 @@ namespace SolverTests
             var dummyVarBv = new GlobalVariable(Token.NoToken, bv8TypeIdent);
 
             // dummyVar needs a programLocation, otherwise SymbolicVariable constructor raises an exception
-            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(dummyVarBv));
+            var progLoc = new ProgramLocation(dummyVarBv);
+            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, progLoc);
 
             var s0 = new SymbolicVariable("s0", dummyVarBv).Expr;
             var s1 = new SymbolicVariable("s1", dummyVarBv).Expr;
@@ -68,8 +69,8 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            CM.AddConstraint(c0, null);
-            CM.AddConstraint(c1, null);
+            CM.AddConstraint(c0, progLoc);
+            CM.AddConstraint(c1, progLoc);
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
@@ -109,7 +110,8 @@ namespace SolverTests
             var dummyVarBv = new GlobalVariable(Token.NoToken, bv8TypeIdent);
 
             // dummyVar needs a programLocation, otherwise SymbolicVariable constructor raises an exception
-            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(dummyVarBv));
+            var progLoc = new ProgramLocation(dummyVarBv);
+            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, progLoc);
 
             var s0 = new SymbolicVariable("s0", dummyVarBv).Expr;
             var s1 = new SymbolicVariable("s1", dummyVarBv).Expr;
@@ -119,8 +121,8 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            CM.AddConstraint(c0, null);
-            CM.AddConstraint(c1, null);
+            CM.AddConstraint(c0, progLoc);
+            CM.AddConstraint(c1, progLoc);
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
@@ -150,7 +152,8 @@ namespace SolverTests
             var dummyVarBv = new GlobalVariable(Token.NoToken, bv8TypeIdent);
 
             // dummyVar needs a programLocation, otherwise SymbolicVariable constructor raises an exception
-            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(dummyVarBv));
+            var progLoc = new ProgramLocation(dummyVarBv);
+            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, progLoc);
 
             var s0 = new SymbolicVariable("s0", dummyVarBv).Expr;
             var s1 = new SymbolicVariable("s1", dummyVarBv).Expr;
@@ -164,9 +167,9 @@ namespace SolverTests
             // foobar(0bv8) == 0bv8
             Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
 
-            CM.AddConstraint(c0, null);
-            CM.AddConstraint(c1, null);
-            CM.AddConstraint(c2, null);
+            CM.AddConstraint(c0, progLoc);
+            CM.AddConstraint(c1, progLoc);
+            CM.AddConstraint(c2, progLoc);
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
@@ -215,7 +218,8 @@ namespace SolverTests
             var dummyVarBv = new GlobalVariable(Token.NoToken, bv8TypeIdent);
 
             // dummyVar needs a programLocation, otherwise SymbolicVariable constructor raises an exception
-            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(dummyVarBv));
+            var progLoc = new ProgramLocation(dummyVarBv);
+            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, progLoc);
 
             var s0 = new SymbolicVariable("s0", dummyVarBv).Expr;
             var s1 = new SymbolicVariable("s1", dummyVarBv).Expr;
@@ -229,9 +233,9 @@ namespace SolverTests
             // foobar(0bv8) == 0bv8
             Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
 
-            CM.AddConstraint(c0, null);
-            CM.AddConstraint(c1, null);
-            CM.AddConstraint(c2, null);
+            CM.AddConstraint(c0, progLoc);
+            CM.AddConstraint(c1, progLoc);
+            CM.AddConstraint(c2, progLoc);
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);

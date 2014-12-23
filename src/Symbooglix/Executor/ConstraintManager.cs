@@ -164,7 +164,7 @@ namespace Symbooglix
         public Constraint(Expr condition)
         {
             Condition = condition;
-            Debug.Assert(condition.Type.IsBool, "Constraint must be a boolean expression!");
+            Debug.Assert(condition.ShallowType.IsBool, "Constraint must be a boolean expression!");
             Origin = null;
             ComputeUsedVariablesAndUninterpretedFunctions();
         }
