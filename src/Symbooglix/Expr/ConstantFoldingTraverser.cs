@@ -263,7 +263,18 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                Debug.Assert(( e.Args[0] as LiteralExpr ).isBigNum, "numerator is wrong type");
+                Debug.Assert(( e.Args[1] as LiteralExpr ).isBigNum, "denominator is wrong type");
+                var numerator = (e.Args[0] as LiteralExpr).asBigNum;
+                var denominator = (e.Args[1] as LiteralExpr).asBigNum;
+
+                if (denominator.IsZero)
+                {
+                    // Can't do division by zero so leave the expression as it is
+                    return e;
+                }
+
+                return new LiteralExpr(Token.NoToken, numerator / denominator);
             }
             else
                 return e;
@@ -274,7 +285,18 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                Debug.Assert(( e.Args[0] as LiteralExpr ).isBigNum, "numerator is wrong type");
+                Debug.Assert(( e.Args[1] as LiteralExpr ).isBigNum, "denominator is wrong type");
+                var numerator = (e.Args[0] as LiteralExpr).asBigNum;
+                var denominator = (e.Args[1] as LiteralExpr).asBigNum;
+
+                if (denominator.IsZero)
+                {
+                    // Can't do modulo by zero so leave the expression as it is
+                    return e;
+                }
+
+                return new LiteralExpr(Token.NoToken, numerator % denominator);
             }
             else
                 return e;
