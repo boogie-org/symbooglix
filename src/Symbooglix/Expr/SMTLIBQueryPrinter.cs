@@ -655,6 +655,11 @@ namespace Symbooglix
             return PrintBinaryOperator("/", e);
         }
 
+        public Expr VisitPow(NAryExpr e)
+        {
+            throw new NotImplementedException();
+        }
+
         public Expr VisitEq(NAryExpr e)
         {
             return PrintBinaryOperator("=", e);

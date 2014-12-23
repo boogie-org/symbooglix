@@ -319,6 +319,11 @@ namespace Symbooglix
                 return e;
         }
 
+        public Expr VisitPow(NAryExpr e)
+        {
+            throw new NotImplementedException();
+        }
+
         public Expr VisitEq(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);

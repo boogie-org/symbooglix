@@ -32,6 +32,7 @@ namespace Symbooglix
         Expr VisitMod(NAryExpr e);
         Expr VisitRem(NAryExpr e); // This is a Z3 extension
         Expr VisitRealDiv(NAryExpr e);
+        Expr VisitPow(NAryExpr e);
 
         // Comparision operators for all types
         Expr VisitEq(NAryExpr e);

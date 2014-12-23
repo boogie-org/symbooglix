@@ -82,7 +82,7 @@ namespace Symbooglix
                 var B = (BinaryOperator) e.Fun;
                 switch (B.Op)
                 {
-                    // Real number operators
+                    // Integer or Real number operators
                     case BinaryOperator.Opcode.Add:
                         return Visitor.VisitAdd(e);
                     case BinaryOperator.Opcode.Sub:
@@ -95,6 +95,8 @@ namespace Symbooglix
                         return Visitor.VisitMod(e);
                     case BinaryOperator.Opcode.RealDiv:
                         return Visitor.VisitRealDiv(e);
+                    case BinaryOperator.Opcode.Pow:
+                        return Visitor.VisitPow(e);
                     
                     // Comparision operators
                     case BinaryOperator.Opcode.Eq:
