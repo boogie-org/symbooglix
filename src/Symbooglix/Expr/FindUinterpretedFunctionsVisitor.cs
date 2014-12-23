@@ -32,6 +32,10 @@ namespace Symbooglix
             if (QKeyValue.FindStringAttribute(FC.Func.Attributes, "bvbuiltin") != null)
                 return base.VisitNAryExpr(node);
 
+            // Don't collect other builtins
+            if (QKeyValue.FindStringAttribute(FC.Func.Attributes, "builtin") != null)
+                return base.VisitNAryExpr(node);
+
             foundFuctions.Add(FC.Func);
             return base.VisitNAryExpr(node); // Make sure we visit children
         }

@@ -30,6 +30,7 @@ namespace Symbooglix
         Expr VisitMul(NAryExpr e);
         Expr VisitDiv(NAryExpr e); // Is this flooring division?
         Expr VisitMod(NAryExpr e);
+        Expr VisitRem(NAryExpr e); // This is a Z3 extension
         Expr VisitRealDiv(NAryExpr e);
 
         // Comparision operators for all types

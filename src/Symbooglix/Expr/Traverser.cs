@@ -55,6 +55,10 @@ namespace Symbooglix
                 }
                 else
                 {
+                    string builtin = QKeyValue.FindStringAttribute(FC.Func.Attributes, "builtin");
+                    if (builtin != null)
+                        return HandlerBuiltIns(e, builtin);
+
                     // Not a bvbuiltin so treat as generic function call.
                     return Visitor.VisitFunctionCall(e);
                 }
@@ -145,6 +149,22 @@ namespace Symbooglix
             }
 
             throw new NotImplementedException("NAry not handled!");
+        }
+
+        protected Expr HandlerBuiltIns(NAryExpr e, string builtin)
+        {
+            // We support very few builtins here. People shouldn't be using them
+            switch (builtin)
+            {
+                case "div":
+                    return Visitor.VisitDiv(e);
+                case "mod":
+                    return Visitor.VisitMod(e);
+                case "rem":
+                    return Visitor.VisitRem(e);
+                default:
+                    throw new NotImplementedException("Builtin \"" + builtin + "\" not supported");
+            }
         }
 
         protected Expr HandlerBvBuiltIns(NAryExpr e, string builtin)

@@ -637,6 +637,13 @@ namespace Symbooglix
             return PrintBinaryOperator("div", e);
         }
 
+        public Expr VisitRem(NAryExpr e)
+        {
+            // FIXME: This is a Z3 extension, we need to emit something different for other solvers
+            Debug.Assert(( e.Args[0] as Expr ).Type.IsInt && ( e.Args[1] as Expr ).Type.IsInt, "wrong types given to rem");
+            return PrintBinaryOperator("rem", e);
+        }
+
         public Expr VisitMod(NAryExpr e)
         {
             return PrintBinaryOperator("mod", e);

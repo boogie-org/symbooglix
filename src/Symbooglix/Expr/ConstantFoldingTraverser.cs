@@ -302,6 +302,12 @@ namespace Symbooglix
                 return e;
         }
 
+        public Expr VisitRem(NAryExpr e)
+        {
+            // This is a Z3 extension. Don't try constant folding for now
+            return e;
+        }
+
         public Expr VisitRealDiv(NAryExpr e)
         {
             Debug.Assert(e.Args.Count == 2);
