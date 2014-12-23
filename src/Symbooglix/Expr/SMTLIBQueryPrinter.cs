@@ -143,15 +143,20 @@ namespace Symbooglix
             }
         }
 
-        // For this verion of AddDeclarations we already know what variables are used.
+        // For this verion of AddDeclarations we already know what variables 
+        // and uninterpreted functions are used.
         public void AddDeclarations(Constraint c)
         {
-            FFV.Visit(c.Condition);
-
             // Add variables used in Constraint
             foreach (var usedVariable in c.UsedVariables)
             {
                 symbolicsToDeclare.Add(usedVariable);
+            }
+
+            // Add uninterpreted functions used in Constraint
+            foreach (var usedUninterpretedFunction in c.UsedUninterpretedFunctions)
+            {
+                functionsToDeclare.Add(usedUninterpretedFunction);
             }
 
             if (UseNamedAttributeBindings)
@@ -161,7 +166,7 @@ namespace Symbooglix
         public void AddDeclarations(Expr e)
         {
             FSV.Visit(e); // We don't know what variables are used here so find them by traversing the Expr
-            FFV.Visit(e);
+            FFV.Visit(e); // We don't know what uninterpreted functions are sued here so find them by traversing Expr
 
             if (UseNamedAttributeBindings)
                 BindingsFinder.Visit(e);
