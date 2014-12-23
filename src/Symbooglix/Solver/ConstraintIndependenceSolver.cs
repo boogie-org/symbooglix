@@ -38,8 +38,12 @@ namespace Symbooglix
                 }
 
                 HashSet<SymbolicVariable> usedVariables = new HashSet<SymbolicVariable>();
+                HashSet<Function> usedUinterpretedFunctions = new HashSet<Function>();
                 var FSV = new FindSymbolicsVisitor(usedVariables);
+                var FUFV = new FindFunctionsVisitor(usedUinterpretedFunctions);
                 FSV.Visit(queryExpr);
+                FUFV.Visit(queryExpr);
+
 
                 // FIXME: We might get called again with the negation of the previous query.
                 // we SHOULD OPTIMISE FOR THIS CASE (no recomputation needed, the used varaibles and hence
@@ -59,7 +63,8 @@ namespace Symbooglix
                             continue;
                         }
 
-                        if (constraint.UsedVariables.Overlaps( usedVariables ))
+                        if (constraint.UsedVariables.Overlaps( usedVariables ) || 
+                            constraint.UsedUninterpretedFunctions.Overlaps( usedUinterpretedFunctions ))
                         {
                             // This constraint is relevant so we should pass it to
                             // the underlying solver. We also need to add the variables
@@ -67,6 +72,7 @@ namespace Symbooglix
                             // transitively propagate the usedVariables
                             relevantConstraints.Add(constraint);
                             usedVariables.UnionWith(constraint.UsedVariables);
+                            usedUinterpretedFunctions.UnionWith(constraint.UsedUninterpretedFunctions);
                             changed = true;
                         }
                     }

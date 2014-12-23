@@ -158,26 +158,33 @@ namespace Symbooglix
         private HashSet<SymbolicVariable> InternalUsedVariables;
         public ISet<SymbolicVariable> UsedVariables { get { return InternalUsedVariables; } }
 
+        private HashSet<Function> InternalUsedUninterpretedFunctions;
+        public ISet<Function> UsedUninterpretedFunctions { get { return InternalUsedUninterpretedFunctions; } }
+
         public Constraint(Expr condition)
         {
             Condition = condition;
             Debug.Assert(condition.Type.IsBool, "Constraint must be a boolean expression!");
             Origin = null;
-            ComputeUsedVariables();
+            ComputeUsedVariablesAndUninterpretedFunctions();
         }
 
         public Constraint(Expr condition, ProgramLocation location) : this(condition)
         {
             Debug.Assert(location != null);
             Origin = location;
-            ComputeUsedVariables();
+            ComputeUsedVariablesAndUninterpretedFunctions();
         }
 
-        private void ComputeUsedVariables()
+        private void ComputeUsedVariablesAndUninterpretedFunctions()
         {
             this.InternalUsedVariables = new HashSet<SymbolicVariable>();
             var fsv = new FindSymbolicsVisitor(this.InternalUsedVariables);
             fsv.Visit(this.Condition);
+
+            this.InternalUsedUninterpretedFunctions = new HashSet<Function>();
+            var ffv = new FindFunctionsVisitor(this.InternalUsedUninterpretedFunctions);
+            ffv.Visit(this.Condition);
         }
     }
 }
