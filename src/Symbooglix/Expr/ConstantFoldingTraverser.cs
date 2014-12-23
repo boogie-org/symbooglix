@@ -1320,7 +1320,12 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 1);
             if (e.Args[0] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var arg0 = e.Args[0] as LiteralExpr;
+                Debug.Assert(arg0.isBvConst);
+                var bitWidth = ( arg0.asBvConst.Bits );
+                var bitMask = BigInteger.Pow(2, bitWidth) -1; // Decimal representation of all ones
+                var result = arg0.asBvConst.Value.ToBigInteger ^ bitMask; // Using Xor with all ones will invert all the bits
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
             }
             else
                 return e;

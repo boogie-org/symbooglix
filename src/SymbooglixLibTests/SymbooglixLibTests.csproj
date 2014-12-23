@@ -128,6 +128,7 @@
     <Compile Include="Transforms\UniqueVariableEnforcing.cs" />
     <Compile Include="UniqueVariables.cs" />
     <Compile Include="Solver\IndependenceSolverTests.cs" />
+    <Compile Include="ConstantFolding\FoldBvnot.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -35,6 +35,7 @@ namespace Symbooglix
         Expr BVSREM(Expr lhs, Expr rhs);
 
         Expr BVNEG(Expr operand);
+        Expr BVNOT(Expr operand);
 
 
         // Real/Int operators
@@ -229,6 +230,12 @@ namespace Symbooglix
         public Expr BVNEG(Expr operand)
         {
             return GetUnaryBVFunction(BasicType.GetBvType(operand.Type.BvBits), "BVNEG", "bvneg", operand);
+
+        }
+
+        public Expr BVNOT(Expr operand)
+        {
+            return GetUnaryBVFunction(BasicType.GetBvType(operand.Type.BvBits), "BVNOT", "bvnot", operand);
 
         }
 
