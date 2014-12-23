@@ -119,7 +119,7 @@ namespace Symbooglix
                         return Visitor.VisitSubType(e);
                     
                     default:
-                        throw new NotImplementedException("Boolean operator not supported!");
+                        throw new NotImplementedException("Binary operator not supported!");
 
                 }
             }
