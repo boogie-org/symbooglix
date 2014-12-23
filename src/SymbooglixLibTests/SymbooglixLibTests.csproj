@@ -127,6 +127,7 @@
     <Compile Include="Transforms\GlobalDDE.cs" />
     <Compile Include="Transforms\UniqueVariableEnforcing.cs" />
     <Compile Include="UniqueVariables.cs" />
+    <Compile Include="Solver\IndependenceSolverTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -330,6 +331,7 @@
     <Folder Include="ExprSMTLIB\" />
     <Folder Include="Transforms\" />
     <Folder Include="Transforms\programs\" />
+    <Folder Include="Solver\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Basetypes\Basetypes.csproj">
