@@ -74,6 +74,9 @@ namespace Symbooglix
             if (QKeyValue.FindStringAttribute(node.Attributes, "bvbuiltin") != null)
                 return node;
 
+            if (QKeyValue.FindStringAttribute(node.Attributes, "builtin") != null)
+                return node;
+
             // Pop on to stack
             CallStack.Add(node);
             if (node.Body != null)
