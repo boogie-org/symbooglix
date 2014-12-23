@@ -137,6 +137,132 @@ namespace SolverTests
             var singleConstraint = mockSolver.Constraints.First();
             Assert.AreEqual(c0, singleConstraint.Condition);
         }
+
+        [Test()]
+        public void RemoveNoConstraintsBasedOnVarsAndFunctions()
+        {
+            IConstraintManager CM = new ConstraintManager();
+            ExprBuilder builder = new ExprBuilder(); // FIXME: We depend on CreateFunctionCall()
+
+            // Dummy Boogie variable
+            var bv8Type = Microsoft.Boogie.Type.GetBvType(8);
+            var bv8TypeIdent = new TypedIdent(Token.NoToken, "bv8", bv8Type);
+            var dummyVarBv = new GlobalVariable(Token.NoToken, bv8TypeIdent);
+
+            // dummyVar needs a programLocation, otherwise SymbolicVariable constructor raises an exception
+            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(dummyVarBv));
+
+            var s0 = new SymbolicVariable("s0", dummyVarBv).Expr;
+            var s1 = new SymbolicVariable("s1", dummyVarBv).Expr;
+            var s2 = new SymbolicVariable("s2", dummyVarBv).Expr;
+
+            // Construct some constraints
+            Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
+            Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
+
+            var UFC = builder.CreateFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
+            // foobar(0bv8) == 0bv8
+            Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
+
+            CM.AddConstraint(c0, null);
+            CM.AddConstraint(c1, null);
+            CM.AddConstraint(c2, null);
+
+            var mockSolver = new MockSolver();
+            var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
+            indepenceSolver.SetConstraints(CM);
+
+            // The query expression uses the "foobar" function so we need to keep constraints on that function
+            Expr queryExpr = builder.And( builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8)), 
+                                          new NAryExpr(Token.NoToken, UFC, new List<Expr>() { s1})
+                              );
+
+            indepenceSolver.ComputeSatisfiability(queryExpr, false);
+
+            // Check no constraints were removed
+            Assert.AreEqual(3, mockSolver.Constraints.Count);
+            Assert.AreSame(queryExpr, mockSolver.QueryExpr);
+
+            bool c0Found = false;
+            bool c1Found = false;
+            bool c2Found = false;
+            foreach (var constraint in mockSolver.Constraints)
+            {
+                if (c0 == constraint.Condition)
+                    c0Found = true;
+
+                if (c1 == constraint.Condition)
+                    c1Found = true;
+
+                if (c2 == constraint.Condition)
+                    c2Found = true;
+            }
+
+            Assert.IsTrue(c0Found);
+            Assert.IsTrue(c1Found);
+            Assert.IsTrue(c2Found);
+        }
+
+        [Test()]
+        public void RemoveOneConstraintBasedOnVarsAndFunctions()
+        {
+            IConstraintManager CM = new ConstraintManager();
+            ExprBuilder builder = new ExprBuilder(); // FIXME: We depend on CreateFunctionCall()
+
+            // Dummy Boogie variable
+            var bv8Type = Microsoft.Boogie.Type.GetBvType(8);
+            var bv8TypeIdent = new TypedIdent(Token.NoToken, "bv8", bv8Type);
+            var dummyVarBv = new GlobalVariable(Token.NoToken, bv8TypeIdent);
+
+            // dummyVar needs a programLocation, otherwise SymbolicVariable constructor raises an exception
+            dummyVarBv.SetMetadata<ProgramLocation>( (int) Symbooglix.Annotation.AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(dummyVarBv));
+
+            var s0 = new SymbolicVariable("s0", dummyVarBv).Expr;
+            var s1 = new SymbolicVariable("s1", dummyVarBv).Expr;
+            var s2 = new SymbolicVariable("s2", dummyVarBv).Expr;
+
+            // Construct some constraints
+            Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
+            Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
+
+            var UFC = builder.CreateFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
+            // foobar(0bv8) == 0bv8
+            Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
+
+            CM.AddConstraint(c0, null);
+            CM.AddConstraint(c1, null);
+            CM.AddConstraint(c2, null);
+
+            var mockSolver = new MockSolver();
+            var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
+            indepenceSolver.SetConstraints(CM);
+
+            // The query expression does not use the "foobar" function so we don't need to keep constraints on that function
+            Expr queryExpr = builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8));
+
+
+            indepenceSolver.ComputeSatisfiability(queryExpr, false);
+
+            // Check no constraints were removed
+            Assert.AreEqual(2, mockSolver.Constraints.Count);
+            Assert.AreSame(queryExpr, mockSolver.QueryExpr);
+
+            bool c0Found = false;
+            bool c1Found = false;
+            foreach (var constraint in mockSolver.Constraints)
+            {
+                if (c0 == constraint.Condition)
+                    c0Found = true;
+
+                if (c1 == constraint.Condition)
+                    c1Found = true;
+
+
+            }
+
+            Assert.IsTrue(c0Found);
+            Assert.IsTrue(c1Found);
+        }
     }
 }
 
