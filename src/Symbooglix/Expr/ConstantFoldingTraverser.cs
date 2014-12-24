@@ -1022,6 +1022,13 @@ namespace Symbooglix
                 Debug.Assert(arg0.isBvConst);
                 Debug.Assert(arg1.isBvConst);
                 Debug.Assert(arg0.asBvConst.Bits == arg1.asBvConst.Bits);
+
+                if (arg1.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return e;
+                }
+
                 var MaxValuePlusOne = (new BigInteger(1)) << arg0.asBvConst.Bits ; // 2^( number of bits)
                 Debug.Assert(!arg0.asBvConst.Value.IsNegative);
                 Debug.Assert(!arg1.asBvConst.Value.IsNegative);
