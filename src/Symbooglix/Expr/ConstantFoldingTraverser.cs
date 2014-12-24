@@ -1058,6 +1058,11 @@ namespace Symbooglix
                 Debug.Assert(denominator.isBvConst);
                 Debug.Assert(numerator .asBvConst.Bits == denominator.asBvConst.Bits);
 
+                if (denominator.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return e;
+                }
 
                 // (bvsdiv s t) abbreviates
                 // (let ((?msb_s ((_ extract |m-1| |m-1|) s))
