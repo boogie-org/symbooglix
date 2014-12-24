@@ -1177,7 +1177,93 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                Debug.Assert(( e.Args[0] as LiteralExpr ).isBvConst);
+                Debug.Assert(( e.Args[1] as LiteralExpr ).isBvConst);
+                // SMTLIBv2 definition
+                // 2's complement signed remainder (sign follows divisor)
+                //
+                //    (bvsmod s t) abbreviates
+                // (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+                //       (?msb_t ((_ extract |m-1| |m-1|) t)))
+                //       (let ((abs_s (ite (= ?msb_s #b0) s (bvneg s)))
+                //             (abs_t (ite (= ?msb_t #b0) t (bvneg t))))
+                //             (let ((u (bvurem abs_s abs_t)))
+                //                  (ite (= u (_ bv0 m))
+                //                       u
+                //                       (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+                //                             u
+                //                             (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+                //                                  (bvadd (bvneg u) t)
+                //                                  (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+                //                                  (bvadd u t)
+                //                                  (bvneg u))))))))
+
+                var numerator = ( e.Args[0] as LiteralExpr ).asBvConst;
+                var denominator = ( e.Args[1] as LiteralExpr ).asBvConst;
+                int bitWidth = numerator.Bits;
+                Debug.Assert(numerator.Bits == denominator.Bits);
+                Debug.Assert(!numerator.Value.IsNegative);
+                Debug.Assert(!denominator.Value.IsNegative);
+
+                if (denominator.Value.IsZero)
+                {
+                    // Can't do bvsmod by zero so don't fold
+                    return e;
+                }
+
+                var threshold = BigInteger.Pow(2, bitWidth - 1);
+                var numeratorIsPositiveOrZero = numerator.Value.ToBigInteger < threshold;
+                var denominatorIsPositiveOrZero = denominator.Value.ToBigInteger < threshold;
+
+                BigInteger absNumerator = 0;
+
+                // Compute the absolute value represented by the bitvector
+                if (numeratorIsPositiveOrZero)
+                    absNumerator = numerator.Value.ToBigInteger;
+                else
+                    absNumerator = BvNegOnNaturalNumber(numerator.Value.ToBigInteger, bitWidth);
+
+                BigInteger absDenominator = 0;
+
+                if (denominatorIsPositiveOrZero)
+                    absDenominator = denominator.Value.ToBigInteger;
+                else
+                    absDenominator = BvNegOnNaturalNumber(denominator.Value.ToBigInteger, bitWidth);
+
+                // Compute (bvurem absNumerator absDenominator). This corresponds to "u" in the SMTLIBv2 definition
+                Debug.Assert(absNumerator >= 0);
+                Debug.Assert(absDenominator >= 0);
+
+                var bvuremAbsArgs = absNumerator % absDenominator;
+                var maxValuePlusOne = BigInteger.Pow(2, bitWidth);
+
+                BigInteger result = 0;
+                if (bvuremAbsArgs.IsZero)
+                {
+                    result = 0;
+                }
+                else if (numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    result = bvuremAbsArgs;
+                }
+                else if (!numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    // (bvadd (bvneg u) t)
+                    var bvNegU = BvNegOnNaturalNumber(bvuremAbsArgs, bitWidth);
+                    result = ( bvNegU + denominator.Value.ToBigInteger ) % maxValuePlusOne;
+                }
+                else if (numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero)
+                {
+                    //  (bvadd u t)
+                    result = (bvuremAbsArgs + denominator.Value.ToBigInteger) % maxValuePlusOne;
+                }
+                else
+                {
+                    Debug.Assert(!numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero);
+                    result = BvNegOnNaturalNumber(bvuremAbsArgs, bitWidth);
+                }
+
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
             }
             else
                 return e;

@@ -35,6 +35,7 @@ namespace Symbooglix
         Expr BVUREM(Expr lhs, Expr rhs);
         Expr BVSDIV(Expr lhs, Expr rhs);
         Expr BVSREM(Expr lhs, Expr rhs);
+        Expr BVSMOD(Expr lhs, Expr rhs);
 
         Expr BVNEG(Expr operand);
         Expr BVNOT(Expr operand);
@@ -209,14 +210,19 @@ namespace Symbooglix
             return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSDIV", "bvsdiv", lhs, rhs);
         }
 
-        public Expr BVUREM (Expr lhs, Expr rhs)
+        public Expr BVUREM(Expr lhs, Expr rhs)
         {
             return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUREM", "bvurem", lhs, rhs);
         }
 
-        public Expr BVSREM (Expr lhs, Expr rhs)
+        public Expr BVSREM(Expr lhs, Expr rhs)
         {
             return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
+        }
+
+        public Expr BVSMOD(Expr lhs, Expr rhs)
+        {
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSMOD", "bvsmod", lhs, rhs);
         }
 
         public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand)
