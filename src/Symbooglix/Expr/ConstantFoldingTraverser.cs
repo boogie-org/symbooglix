@@ -1144,7 +1144,11 @@ namespace Symbooglix
                 //   (bvurem s (bvneg t)))
                 // (bvneg (bvurem (bvneg s) (bvneg t))))))
 
-
+                if (denominator.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return e;
+                }
 
                 // Check the sign of the bitvector in a two's complement representation
                 int bitwidth = numerator.asBvConst.Bits;

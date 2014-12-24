@@ -56,12 +56,16 @@ namespace ConstantFoldingTests
             helper(arg0, arg1, 1);
         }
 
-        [Test(),ExpectedException(typeof(DivideByZeroException))]
+        [Test()]
         public void DivisionByZero()
         {
             var arg0 = builder.ConstantBV(-7, 4);
             var arg1 = builder.ConstantBV(0, 4);
-            helper(arg0, arg1, 0);
+            var srem = builder.BVSREM(arg0, arg1);
+            var CFT = new ConstantFoldingTraverser();
+            var result = CFT.Traverse(srem);
+            Assert.IsNotInstanceOf<LiteralExpr>(result);
+            Assert.AreSame(srem, result);
         }
 
         private Expr helper(Expr arg0, Expr arg1, int expected)
