@@ -28,6 +28,7 @@ namespace Symbooglix
         Expr BVXOR(Expr lhs, Expr rhs);
         Expr BVSHL(Expr lhs, Expr rhs);
         Expr BVLSHR(Expr lhs, Expr rhs);
+        Expr BVASHR(Expr lhs, Expr rhs);
 
         Expr BVMUL(Expr lhs, Expr rhs);
         Expr BVUDIV(Expr lhs, Expr rhs);
@@ -186,6 +187,11 @@ namespace Symbooglix
         public Expr BVLSHR(Expr lhs, Expr rhs)
         {
             return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVLSHR", "bvlshr", lhs, rhs);
+        }
+
+        public Expr BVASHR(Expr lhs, Expr rhs)
+        {
+            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVASHR", "bvashr", lhs, rhs);
         }
 
         public Expr BVMUL(Expr lhs, Expr rhs)

@@ -1327,13 +1327,21 @@ namespace Symbooglix
             {
                 var arg0 = e.Args[0] as LiteralExpr;
                 Debug.Assert(arg0.isBvConst);
-                var bitWidth = ( arg0.asBvConst.Bits );
-                var bitMask = BigInteger.Pow(2, bitWidth) -1; // Decimal representation of all ones
-                var result = arg0.asBvConst.Value.ToBigInteger ^ bitMask; // Using Xor with all ones will invert all the bits
+                var bitWidth = arg0.asBvConst.Bits;
+                var result = InvertDecimalReprBVBits(arg0.asBvConst.Value.ToBigInteger, bitWidth);
                 return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
             }
             else
                 return e;
+        }
+
+        private BigInteger InvertDecimalReprBVBits(BigInteger decimalRepr, int bitWidth)
+        {
+            Debug.Assert(decimalRepr != null);
+            Debug.Assert(bitWidth > 0);
+            var bitMask = BigInteger.Pow(2, bitWidth) -1; // Decimal representation of all ones
+            var result = decimalRepr ^ bitMask; // Using Xor with all ones will invert all the bits
+            return result;
         }
 
         public Expr Visit_bvxor(NAryExpr e)
@@ -1430,7 +1438,51 @@ namespace Symbooglix
             Debug.Assert(e.Args.Count == 2);
             if (e.Args[0] is LiteralExpr && e.Args[1] is LiteralExpr)
             {
-                throw new NotImplementedException();
+                var valueToShift = e.Args[0] as LiteralExpr;
+                var shiftWidth = e.Args[1] as LiteralExpr;
+                Debug.Assert(valueToShift.isBvConst);
+                Debug.Assert(shiftWidth.isBvConst);
+                Debug.Assert(valueToShift.asBvConst.Bits == shiftWidth.asBvConst.Bits);
+                var bitWidth = ( valueToShift.asBvConst.Bits );
+
+                // SMTLIBv2 definition is
+                //     (bvashr s t) abbreviates
+                //     (ite (= ((_ extract |m-1| |m-1|) s) #b0)
+                //     (bvlshr s t)
+                //     (bvnot (bvlshr (bvnot s) t)))
+
+
+                var valueToShiftBI = valueToShift.asBvConst.Value.ToBigInteger;
+                var shiftWidthBI = shiftWidth.asBvConst.Value.ToBigInteger;
+                var threshold = BigInteger.Pow(2, bitWidth - 1);
+                bool MSBIsZero = valueToShiftBI < threshold;
+
+                if (shiftWidthBI >= bitWidth)
+                {
+                    return new LiteralExpr(Token.NoToken, BigNum.FromInt(0), bitWidth);
+                }
+
+                BigInteger result = 0;
+                if (MSBIsZero)
+                {
+                    // Fold just like bvlshr
+                    result = valueToShiftBI >> shiftWidth.asBvConst.Value.ToIntSafe;
+                    result = BigInteger.Remainder(result, BigInteger.Pow(2, bitWidth));
+
+                }
+                else
+                {
+                    // Shift the inverted bit pattern
+                    var invertedValueToShift = InvertDecimalReprBVBits(valueToShiftBI, bitWidth);
+                    result = invertedValueToShift >> shiftWidth.asBvConst.Value.ToIntSafe;
+
+                    // now invert back
+                    result = InvertDecimalReprBVBits(result, bitWidth);
+                    result = BigInteger.Remainder(result, BigInteger.Pow(2, bitWidth));
+                }
+                Debug.Assert(result <= ( BigInteger.Pow(2, bitWidth) - 1 ));
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
+
             }
             else
                 return e;
