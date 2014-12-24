@@ -989,6 +989,12 @@ namespace Symbooglix
                 Debug.Assert(arg1.isBvConst);
                 Debug.Assert(arg0.asBvConst.Bits == arg1.asBvConst.Bits);
 
+                if (arg1.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return e;
+                }
+
                 //    [[(bvudiv s t)]] := if bv2nat([[t]]) != 0 then
                 //                           nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
                 //
