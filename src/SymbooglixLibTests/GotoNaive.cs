@@ -20,7 +20,9 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(3, counter.UnsatisfiableAssumes);
             Assert.AreEqual(0, counter.Sucesses);
-            Assert.AreEqual(3, counter.NumberOfFailures);
+
+            // Not considered a "failure"
+            Assert.AreEqual(0, counter.NumberOfFailures);
         }
 
         [Test()]
@@ -73,7 +75,9 @@ namespace SymbooglixLibTests
 
             Assert.AreEqual(3, counter.Sucesses);
             Assert.AreEqual(1, counter.UnsatisfiableAssumes);
-            Assert.AreEqual(1, counter.NumberOfFailures);
+
+            // unsat assume not considered a failure.
+            Assert.AreEqual(0, counter.NumberOfFailures);
 
             Assert.AreEqual(3, breakpointCounter);
         }

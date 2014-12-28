@@ -37,16 +37,15 @@ namespace Symbooglix
                 UnsatisfiableRequiresOnEntry +
                 FailingRequires +
                 FailingEnsures +
-                UnsatisfiableAssumes +
                 UnsatisfiableEnsures +
                 UnsatisfiableAxioms;
-                // Note we don't consider a DisallowedSpeculativePath or UnExplorableGotos or DisallowedPathDepths to be failures
+                // Note we don't consider a UnsatisfiableAssumes, DisallowedSpeculativePath or UnExplorableGotos or DisallowedPathDepths to be failures
             }
         }
 
         public int NumberOfTerminatedStates
         {
-            get { return NumberOfFailures + Sucesses + DisallowedSpeculativePaths + UnexplorableGotos + DisallowedPathDepths; }
+            get { return NumberOfFailures + Sucesses + UnsatisfiableAssumes + DisallowedSpeculativePaths + UnexplorableGotos + DisallowedPathDepths; }
         }
 
         public TerminationCounter()

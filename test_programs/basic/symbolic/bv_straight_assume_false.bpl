@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
+// RUN: %eec 0 %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
 procedure main(p1:int, p2:bv8) returns (r:bv8);
 
 // Bitvector functions

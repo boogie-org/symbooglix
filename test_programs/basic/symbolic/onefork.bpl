@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s 2>&1 | %OutputCheck %s
+// RUN: %eec 0 %symbooglix --output-dir %t.symbooglix-out --goto-assume-look-ahead=0 %s 2>&1 | %OutputCheck %s
 function {:bvbuiltin "bvugt"} bv8ugt(bv8,bv8) returns(bool);
 procedure main(arg:bv8) returns (result:bv8)
 {
