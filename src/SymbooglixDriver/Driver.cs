@@ -215,6 +215,57 @@ namespace SymbooglixDriver
             }
         }
 
+        private static void SetupTerminationCatchers(Executor executor)
+        {
+            // Catch CTRL+C
+            bool hitCancelOnce = false;
+            Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs eventArgs)
+            {
+                if (hitCancelOnce)
+                {
+                    Console.WriteLine("CTRL+C pressed again. Giving up and just exiting");
+                    eventArgs.Cancel = false; // Force exit
+                    ExitWith(ExitCode.CTRL_C_FORCED_EXIT);
+                }
+                else
+                {
+                    hitCancelOnce = true;
+                    Console.WriteLine("Received CTRL+C. Attempting to terminated Executor");
+                    executor.Terminate(/*block=*/ false);
+                    eventArgs.Cancel = true; // Don't exit yet
+                }
+            };
+
+            #if __MonoCS__
+            // Sending SIGINT to the driver when stdout/stderr is not attached to a TTY does not seem to
+            // trigger the Coinsole.CancelKeyPress event. So here we use a HACK to catch the signals we
+            // care about and ask the Executor to terminate
+            var signals = new Mono.Unix.UnixSignal[] {
+                new Mono.Unix.UnixSignal(Mono.Unix.Native.Signum.SIGTERM), // boogie-runner sends this
+            };
+            bool signalCaught = false;
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    Console.WriteLine("Waiting for UNIX signals");
+                    Mono.Unix.UnixSignal.WaitAny(signals);
+                    Console.WriteLine("Caught UNIX signal");
+                    if (signalCaught)
+                    {
+                        Console.WriteLine("Signal received again. Just exiting");
+                        ExitWith(ExitCode.CTRL_C_FORCED_EXIT);
+                    }
+                    else
+                    {
+                        executor.Terminate(false);
+                        signalCaught = true;
+                    }
+                }
+            });
+            #endif
+        }
+
         public static int RealMain(String[] args)
         {
             // Debug log output goes to standard error.
@@ -405,24 +456,7 @@ namespace SymbooglixDriver
                 if (options.FileLogging > 0)
                     SetupFileLoggers(options, executor, solver);
 
-                bool hitCancelOnce = false;
-                Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs eventArgs)
-                {
-                    if (hitCancelOnce)
-                    {
-                        Console.WriteLine("CTRL+C pressed again. Giving up and just exiting");
-                        eventArgs.Cancel = false; // Force exit
-                        ExitWith(ExitCode.CTRL_C_FORCED_EXIT);
-                    }
-                    else
-                    {
-                        hitCancelOnce = true;
-                        Console.WriteLine("Received CTRL+C. Attempting to terminated Executor");
-                        executor.Terminate(/*block=*/ false);
-                        eventArgs.Cancel = true; // Don't exit yet
-                    }
-                };
-
+                SetupTerminationCatchers(executor);
                 ApplyFilters(executor, options);
 
                 try
