@@ -4,9 +4,9 @@ using System.CodeDom.Compiler;
 
 namespace Symbooglix
 {
-    public class ExecutorStatisticsLogger : AbstractExecutorFileLogger
+    public class ExecutorInfoLogger : AbstractExecutorFileLogger
     {
-        public ExecutorStatisticsLogger()
+        public ExecutorInfoLogger()
         {
         }
 
@@ -19,13 +19,15 @@ namespace Symbooglix
         {
             var executor = sender as Executor;
 
-            // It is necessary to use to "using" blocks because IndentedTextWriter.Dispose()
+            // It is necessary to use two "using" blocks because IndentedTextWriter.Dispose()
             // does not seem to call Dispose() on the underlying stream
-            using (var SW = new StreamWriter(Path.Combine(Directory, "executor_statistics.yml")))
+            using (var SW = new StreamWriter(Path.Combine(Directory, "executor_info.yml")))
             {
-                using (var ITT = new IndentedTextWriter(SW, " "))
+                using (var ITT = new IndentedTextWriter(SW, "  "))
                 {
-                    executor.Statistics.WriteAsYAML(ITT);
+                    ITT.WriteLine("# vim: set sw=2 ts=2 softtabstop=2:");
+                    ITT.WriteLine("# Times are in seconds");
+                    executor.WriteAsYAML(ITT);
                 }
             }
         }

@@ -106,16 +106,15 @@
     <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateUnSatCoreLogger.cs" />
     <Compile Include="Executor\ExecutorStatistics.cs" />
-    <Compile Include="Executor\ExecutorHandlers\SolverStatisticsLogger.cs" />
     <Compile Include="Executor\StateSchedulers\IStateScheduler.cs" />
     <Compile Include="Executor\StateSchedulers\LoopEscapingScheduler.cs" />
     <Compile Include="Solver\ConstraintIndependenceSolver.cs" />
     <Compile Include="Analysis\FindRecursiveFunctionsPass.cs" />
     <Compile Include="Transform\UniqueVariableEnforcingPass.cs" />
     <Compile Include="Transform\GlobalDeadDeclEliminationPass.cs" />
-    <Compile Include="Executor\ExecutorHandlers\ExecutorStatisticsLogger.cs" />
     <Compile Include="Util\IYAMLWriter.cs" />
     <Compile Include="Expr\FindUinterpretedFunctionsVisitor.cs" />
+    <Compile Include="Executor\ExecutorHandlers\ExecutorInfoLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

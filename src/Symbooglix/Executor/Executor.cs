@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Symbooglix
 {
 
-    public class Executor
+    public class Executor : Util.IYAMLWriter
     {
         public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver)
         { 
@@ -242,6 +242,28 @@ namespace Symbooglix
                 else
                     return InitialState.TreeNode;
             }
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            // General Executor stats
+            Statistics.WriteAsYAML(TW);
+            TW.WriteLine("prepared: {0}", HasBeenPrepared.ToString().ToLower());
+            TW.WriteLine("use_global_dde: {0}", UseGlobalDDE.ToString().ToLower());
+            TW.WriteLine("use_constant_folding: {0}", UseConstantFolding.ToString().ToLower());
+            TW.WriteLine("use_goto_look_ahead: {0}", UseGotoLookAhead.ToString().ToLower());
+
+            // TODO StateScheduler
+
+            TW.WriteLine("solver:");
+            TW.Indent += 1;
+            TheSolver.Statistics.WriteAsYAML(TW);
+            TW.Indent -= 1;
+
+            TW.WriteLine("solver_impl:");
+            TW.Indent += 1;
+            TheSolver.SolverImpl.Statistics.WriteAsYAML(TW);
+            TW.Indent -= 1;
         }
 
         private bool PrepareProgram()
