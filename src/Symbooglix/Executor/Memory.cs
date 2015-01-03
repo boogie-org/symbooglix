@@ -37,32 +37,7 @@ namespace Symbooglix
 
         public void Dump(TextWriter TW)
         {
-            Dump(TW, 4);
-        }
-
-        public void Dump(TextWriter TW, int indent)
-        {
-            TW.WriteLine("[Memory]");
-            string indentStr = new string(' ',indent);
-
-            TW.WriteLine("Globals (" + Globals.Count + "):");
-
-            foreach (var tuple in Globals.Keys.Zip(Globals.Values))
-            {
-                TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type  + " := " + tuple.Item2);
-            }
-
-            TW.WriteLine("");
-
-            TW.WriteLine("Stack (" + Stack.Count + "):");
-
-            int depth = Stack.Count;
-            for (int index = depth -1; index >= 0; --index)
-            {
-                TW.WriteLine(indentStr + index + ":");
-                Stack[index].Dump(TW, indent);
-                TW.WriteLine("");
-            }
+            Util.IndentedTextWriterAdapter.Write(TW, this);
         }
 
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
@@ -117,7 +92,7 @@ namespace Symbooglix
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW, 4);
+                Dump(SW);
                 result = SW.ToString();
             }
             return result;
@@ -221,42 +196,7 @@ namespace Symbooglix
 
         public void Dump(TextWriter TW)
         {
-            Dump(TW, 4);
-        }
-
-        public void Dump(TextWriter TW, int indent)
-        {
-            string indentStr = new string(' ', indent);
-            if (IsDummy)
-            {
-                TW.WriteLine("[Dummy Stack frame for " + Proc.Name + "]");
-                foreach (var tuple in Locals.Keys.Zip(Locals.Values))
-                {
-                    TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
-                }
-                return;
-            }
-
-            TW.WriteLine("[Stack frame for " + Impl.Name + "]");
-            TW.WriteLine(indentStr + "Current block :" + CurrentBlock);
-            TW.Write(indentStr + "Current instruction : ");
-            if (CurrentInstruction.Current != null)
-            {
-                TW.WriteLine("(" + CurrentInstruction.Current.tok.filename + ":" +
-                CurrentInstruction.Current.tok.line + ") " +
-                CurrentInstruction.Current.ToString().TrimEnd('\n')
-                );
-                TW.WriteLine("");
-            }
-            else
-            {
-                TW.WriteLine("No instructions executed yet");
-            }
-
-            foreach (var tuple in Locals.Keys.Zip(Locals.Values))
-            {
-                TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
-            }
+            Util.IndentedTextWriterAdapter.Write(TW, this);
         }
 
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
@@ -318,7 +258,7 @@ namespace Symbooglix
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW, 4);
+                Dump(SW);
                 result = SW.ToString();
             }
 

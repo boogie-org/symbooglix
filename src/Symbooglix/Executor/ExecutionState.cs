@@ -103,31 +103,12 @@ namespace Symbooglix
 
         public void Dump(TextWriter TW)
         {
-            DumpState(TW, /*showConstraints=*/true);
+            Util.IndentedTextWriterAdapter.Write(TW, this);
         }
 
         public void Dump()
         {
             Dump(Console.Error);
-        }
-
-        public void DumpState(TextWriter TW, bool showConstraints, int indent=4)
-        {
-            TW.Write("State " + this.Id + ": ");
-            if (Finished())
-                TW.WriteLine(this.TerminationType.GetMessage());
-            else
-                TW.WriteLine("Running");
-
-            TW.WriteLine("Explicit branch depth: {0}", this.ExplicitBranchDepth);
-            TW.WriteLine("Speculative: {0}", this.Speculative);
-
-            // FIXME: These don't get indented properly
-            Mem.Dump(TW, indent);
-
-            // FIXME: Do indentation in a cleaner way to manage indentation
-            if (showConstraints)
-                Constraints.Dump(TW);
         }
 
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)

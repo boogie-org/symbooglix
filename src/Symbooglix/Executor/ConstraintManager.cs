@@ -110,26 +110,9 @@ namespace Symbooglix
             return other;
         }
 
-        public void Dump(TextWriter TW, bool showConstraints)
-        {
-            TW.WriteLine("[Constraints]");
-            TW.WriteLine(InternalConstraints.Count + " constraint(s)");
-
-            if (showConstraints)
-            {
-                foreach (var e in InternalConstraints)
-                {
-                    TW.WriteLine("Origin:" + e.Origin);
-                    TW.WriteLine("Expr:" + e.Condition);
-                    TW.WriteLine("# of used variables:" + e.UsedVariables.Count);
-                    TW.WriteLine("");
-                }
-            }
-        }
-
         public void Dump(TextWriter TW)
         {
-            Dump(TW, true);
+            Util.IndentedTextWriterAdapter.Write(TW, this);
         }
 
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
@@ -154,15 +137,10 @@ namespace Symbooglix
 
         public override string ToString()
         {
-            return ToString(false);
-        }
-
-        public string ToString(bool showConstraints)
-        {
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW, showConstraints);
+                Dump(SW);
                 result = SW.ToString();
             }
             return result;

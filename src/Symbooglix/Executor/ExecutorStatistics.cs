@@ -21,10 +21,7 @@ namespace Symbooglix
 
         public void Dump(TextWriter TW)
         {
-            TW.WriteLine("Prepare time: {0} seconds", PrepareTime.TotalSeconds);
-            TW.WriteLine("Run Time: {0} seconds", RunTime.TotalSeconds);
-            TW.WriteLine("# Instructions executed: {0}", InstructionsExecuted);
-            TW.WriteLine("Executor termination type: {0}", TerminationType.ToString());
+            Util.IndentedTextWriterAdapter.Write(TW, this);
         }
 
         public override string ToString()
