@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class ExecutionState : Util.IDeepClone<ExecutionState>, Util.IDumpable
+    public class ExecutionState : Util.IDeepClone<ExecutionState>, Util.IDumpable, Util.IYAMLWriter
     {
         public Memory Mem;
         public List<SymbolicVariable> Symbolics;
@@ -129,6 +129,53 @@ namespace Symbooglix
             if (showConstraints)
                 Constraints.Dump(TW);
         }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            WriteAsYAML(TW, false, false);
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW, bool showConstraints, bool showVariables)
+        {
+            TW.WriteLine("state_id: {0}", this.Id);
+            TW.Write("status:");
+
+            if (Finished())
+            {
+                // Nested dictionary
+                TW.Indent += 1;
+                TW.WriteLine("");
+                TW.WriteLine("message: \"{0}\"", this.TerminationType.GetMessage());
+
+                var exitLoc = this.TerminationType.ExitLocation;
+                TW.WriteLine("line_num: {0}", exitLoc.LineNumber);
+                TW.WriteLine("termination_type: \"{0}\"", this.TerminationType.GetType().ToString());
+                TW.Indent -= 1;
+            }
+            else
+            {
+                TW.WriteLine(" \"running\"");
+            }
+
+            TW.WriteLine("explicit_branch_depth: {0}", this.ExplicitBranchDepth.ToString().ToLower());
+            TW.WriteLine("speculative: {0}", this.Speculative.ToString().ToLower());
+
+            // write memory
+            TW.WriteLine("memory:");
+            TW.Indent += 1;
+            Mem.WriteAsYAML(TW, showVariables);
+            TW.Indent -= 1;
+
+            TW.WriteLine("num_constraints: {0}", Constraints.Count);
+            if (showConstraints)
+            {
+                TW.WriteLine("constraints:");
+                TW.Indent += 1;
+                Constraints.WriteAsYAML(TW);
+                TW.Indent -= 1;
+            }
+        }
+
 
        
         public StackFrame GetCurrentStackFrame()

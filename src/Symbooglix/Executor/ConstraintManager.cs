@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public interface IConstraintManager : Util.IDeepClone<IConstraintManager>, Util.IDumpable
+    public interface IConstraintManager : Util.IDeepClone<IConstraintManager>, Util.IDumpable, Util.IYAMLWriter
     {
         int Count { get; }
         IEnumerable<Expr> ConstraintExprs{ get; }
@@ -130,6 +130,26 @@ namespace Symbooglix
         public void Dump(TextWriter TW)
         {
             Dump(TW, true);
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            if (InternalConstraints.Count == 0)
+            {
+                TW.WriteLine("[ ]");
+                return;
+            }
+
+            foreach (var e in InternalConstraints)
+            {
+                TW.WriteLine("-");
+                TW.Indent += 1;
+                TW.WriteLine("origin: \"{0}\"", e.Origin);
+                TW.WriteLine("expr: \"{0}\"", e.Condition);
+                TW.WriteLine("num_used_variables: {0}", e.UsedVariables.Count);
+                TW.WriteLine("num_used_uf: {0}", e.UsedUninterpretedFunctions.Count);
+                TW.Indent -= 1;
+            }
         }
 
         public override string ToString()

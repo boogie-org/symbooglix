@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class Memory : Util.IDeepClone<Memory>, Util.IDumpable
+    public class Memory : Util.IDeepClone<Memory>, Util.IDumpable, Util.IYAMLWriter
     {
         public Memory()
         {
@@ -65,6 +65,53 @@ namespace Symbooglix
             }
         }
 
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            WriteAsYAML(TW, false);
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW, bool showVariables)
+        {
+            // Globals
+            TW.WriteLine("num_globals: {0}", Globals.Count);
+            if (showVariables)
+            {
+                TW.WriteLine("globals:");
+                TW.Indent += 1;
+                if (Globals.Count == 0)
+                {
+                    TW.WriteLine("{}"); // Emtpy dictionary
+                }
+                else
+                {
+                    foreach (var pair in Globals)
+                    {
+                        TW.WriteLine("\"{0}\":", pair.Key.ToString());
+                        TW.Indent += 1;
+                        TW.WriteLine("type: \"{0}\"", pair.Key.TypedIdent.Type);
+                        TW.WriteLine("expr: \"{0}\"", pair.Value);
+                        TW.Indent -= 1;
+                    }
+                }
+                TW.Indent -= 1;
+            }
+
+            // Stackframe
+            int depth = Stack.Count;
+            TW.WriteLine("stack_depth: {0}", depth);
+            TW.WriteLine("stack:");
+            TW.Indent += 1;
+
+            for (int index = depth -1; index >= 0; --index)
+            {
+                TW.WriteLine("-");
+                TW.Indent += 1;
+                Stack[index].WriteAsYAML(TW, showVariables);
+                TW.Indent -= 1;
+            }
+            TW.Indent -= 1;
+        }
+
         public override string ToString()
         {
             string result = null;
@@ -85,7 +132,7 @@ namespace Symbooglix
         public Dictionary<Variable,Expr> Globals;
     }
 
-    public class StackFrame : Util.IDeepClone<StackFrame>, Util.IDumpable
+    public class StackFrame : Util.IDeepClone<StackFrame>, Util.IDumpable, Util.IYAMLWriter
     {
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
@@ -209,6 +256,60 @@ namespace Symbooglix
             foreach (var tuple in Locals.Keys.Zip(Locals.Values))
             {
                 TW.WriteLine(indentStr + tuple.Item1 + ":" + tuple.Item1.TypedIdent.Type + " := " + tuple.Item2);
+            }
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            WriteAsYAML(TW, /*showVariables=*/false);
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW, bool showVariables)
+        {
+            TW.WriteLine("procedure: \"{0}\"", IsDummy? Proc.Name : Impl.Name);
+
+            if (!IsDummy)
+            {
+                TW.WriteLine("current_block: \"{0}\"", CurrentBlock);
+                TW.Write("current_instruction:");
+
+                if (CurrentInstruction.Current != null)
+                {
+                    TW.WriteLine("");
+                    TW.Indent += 1;
+                    // Should we mention the filename too?
+                    TW.WriteLine("line: {0}", CurrentInstruction.Current.tok.line);
+                    TW.WriteLine("instruction: \"{0}\"", CurrentInstruction.Current.ToString().TrimEnd('\n'));
+                    TW.Indent -= 1;
+                }
+                else
+                {
+                    TW.WriteLine(" null");
+                }
+            }
+
+            TW.WriteLine("num_locals: {0}", Locals.Count);
+            if (showVariables)
+            {
+                TW.WriteLine("locals:");
+
+                TW.Indent += 1;
+                if (Locals.Count == 0)
+                {
+                    TW.WriteLine("{}");
+                }
+                else
+                {
+                    foreach (var pair in Locals)
+                    {
+                        TW.WriteLine("\"{0}\":", pair.Key.ToString());
+                        TW.Indent += 1;
+                        TW.WriteLine("type: \"{0}\"", pair.Key.TypedIdent.Type);
+                        TW.WriteLine("expr: \"{0}\"", pair.Value);
+                        TW.Indent -= 1;
+                    }
+                }
+                TW.Indent -= 1;
             }
         }
 

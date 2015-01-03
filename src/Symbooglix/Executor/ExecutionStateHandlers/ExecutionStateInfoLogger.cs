@@ -5,7 +5,13 @@ namespace Symbooglix
 {
     public class ExecutionStateInfoLogger : ExecutionStateLogger
     {
-        public ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType eventToLog) : base(eventToLog) { }
+        bool ShowVariables;
+        bool ShowConstraints;
+        public ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType eventToLog, bool showConstraints, bool showVariables) : base(eventToLog)
+        {
+            this.ShowVariables = showVariables;
+            this.ShowConstraints = showConstraints;
+        }
 
         protected override void DoTask(Executor e, ExecutionState State)
         {
@@ -16,11 +22,15 @@ namespace Symbooglix
             else
                 terminatationTypeName = State.TerminationType.GetType().ToString();
 
-            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".txt");
+            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".yml");
             using (var SW = new StreamWriter(path))
             {
-                Console.WriteLine("Logging State {0} info to {1}", State.Id, path);
-                State.DumpState(SW,/*showConstraints=*/true, 4);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW, " "))
+                {
+                    Console.WriteLine("Logging State {0} info to {1}", State.Id, path);
+                    ITW.WriteLine("# vim: set sw=1 ts=1 softtabstop=1:"); // Tell vim how to indent the YAML file.
+                    State.WriteAsYAML(ITW, ShowConstraints, ShowVariables);
+                }
             }
         }
     }

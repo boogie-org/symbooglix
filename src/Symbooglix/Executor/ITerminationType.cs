@@ -109,7 +109,7 @@ namespace Symbooglix
             return "Terminated with assertion failure " +
                 assertCmd.tok.filename + ":" +
                 assertCmd.tok.line + ": " +
-                assertCmd.ToString();
+                assertCmd.ToString().TrimEnd('\n');
         }
     }
 
@@ -127,7 +127,7 @@ namespace Symbooglix
             return "Terminated with unsatisiable assumption " +
                 assumeCmd.tok.filename + ":" +
                 assumeCmd.tok.line + ": " +
-                assumeCmd.ToString();
+                assumeCmd.ToString().TrimEnd('\n');
         }
     }
 
@@ -146,7 +146,7 @@ namespace Symbooglix
             return "Terminated at program entry point at an unsatisfiable requires " +
                 requires.tok.filename + ":" +
                 requires.tok.line + ": " +
-                requires.Condition.ToString();
+                requires.Condition.ToString().TrimEnd('\n');
         }
     }
 
@@ -164,7 +164,7 @@ namespace Symbooglix
             return "Terminated with failing requires " +
                 requires.tok.filename + ":" +
                 requires.tok.line + ": " +
-                requires.Condition.ToString();
+                requires.Condition.ToString().TrimEnd('\n');
         }
     }
 
@@ -182,7 +182,7 @@ namespace Symbooglix
             return "Terminated with failing ensures " +
                 ensures.tok.filename + ":" +
                 ensures.tok.line + ": " +
-                ensures.Condition.ToString();
+                ensures.Condition.ToString().TrimEnd('\n');
         }
     }
 
@@ -202,7 +202,7 @@ namespace Symbooglix
             return "Terminated with unsatisfiable ensures " +
                 ensures.tok.filename + ":" +
                 ensures.tok.line + ": " +
-                ensures.Condition.ToString();
+                ensures.Condition.ToString().TrimEnd('\n');
         }
     }
 
@@ -279,7 +279,7 @@ namespace Symbooglix
             using (var SW = new StringWriter())
             {
                 gotoCmd.Emit(new TokenTextWriter("", SW, /*setTokens=*/false, /*pretty=*/false), 0);
-                line = SW.ToString();
+                line = SW.ToString().TrimEnd('\n');
             }
 
             return "Terminated with no satisfiable path available from goto " +

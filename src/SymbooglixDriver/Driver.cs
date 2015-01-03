@@ -31,6 +31,12 @@ namespace SymbooglixDriver
             [Option("emit-after", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool emitProgramAfter { get; set; }
 
+            [Option("esi-show-constraints", DefaultValue = 0, HelpText = "If logging ExecutionState info as YAML then show constraints (Default: 0)")]
+            public int ExecutionStateInfoShowConstraints { get; set; }
+
+            [Option("esi-show-vars", DefaultValue = 0, HelpText = "If logging ExecutionState info as YAML then show variables (Default: 0)")]
+            public int ExecutionStateInfoShowVariables { get; set; }
+
             [OptionList('D', "defines",Separator = ',', HelpText="Add defines to the Boogie parser. Each define should be seperated by a comma.")]
             public List<string> Defines { get; set; }
 
@@ -567,8 +573,14 @@ namespace SymbooglixDriver
                 executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED));
             }
 
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
-            executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED));
+            bool showConstraints = options.ExecutionStateInfoShowConstraints > 0;
+            bool showVariables = options.ExecutionStateInfoShowVariables > 0;
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
+                showVariables,
+                showConstraints));
+            executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
+                showVariables,
+                showConstraints));
 
             executorLogger.Connect();
 
