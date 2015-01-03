@@ -16,7 +16,7 @@ namespace Symbooglix
             ISolverImplStatistics Statistics { get;}
         }
 
-        public interface ISolverImplStatistics : Util.IDumpable
+        public interface ISolverImplStatistics : Util.IYAMLWriter
         {
             void Reset();
         }

@@ -541,15 +541,13 @@ namespace SymbooglixDriver
 
         public static void DumpStats(Executor executor, Solver.ISolver solver, TerminationCounter terminationCounter)
         {
-            // FIXME: Make the interfaces uniform
-            Console.WriteLine(solver.Statistics.ToString());
-            var stats = solver.SolverImpl.Statistics;
-            stats.Dump(Console.Out);
             using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(Console.Out))
             {
                 executor.Statistics.WriteAsYAML(ITW);
+                solver.Statistics.WriteAsYAML(ITW);
+                solver.SolverImpl.Statistics.WriteAsYAML(ITW);
+                terminationCounter.WriteAsYAML(ITW);
             }
-            Console.WriteLine(terminationCounter.ToString());
         }
 
         public static void SetupFileLoggers(CmdLineOpts options, Executor executor, Solver.ISolver solver)

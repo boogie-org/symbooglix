@@ -18,18 +18,23 @@ namespace Symbooglix
 
         void HandleExecutorTerminated(object sender, Executor.ExecutorTerminatedArgs e)
         {
-            var path = Path.Combine(this.Directory, "solver_statistics.txt");
+            var path = Path.Combine(this.Directory, "solver_statistics.yml");
             Console.WriteLine("Logging solver statistics to {0}", path);
             using (var SW = new StreamWriter(path))
             {
-                SW.WriteLine("[Solver statistics]");
-                Solver.Statistics.Dump(SW);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW, "  "))
+                {
+                    ITW.WriteLine("solver_stats:");
+                    ITW.Indent += 1;
+                    Solver.Statistics.WriteAsYAML(ITW);
+                    ITW.Indent -= 1;
 
-                SW.WriteLine("");
-                SW.WriteLine("");
 
-                SW.WriteLine("[SolverImpl statistics]");
-                Solver.SolverImpl.Statistics.Dump(SW);
+                    SW.WriteLine("solver_impl_stats:");
+                    ITW.Indent += 1;
+                    Solver.SolverImpl.Statistics.WriteAsYAML(ITW);
+                    ITW.Indent -= 1;
+                }
             }
         }
 

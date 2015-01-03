@@ -54,7 +54,7 @@ namespace Symbooglix
         }
 
         // This is a struct so clients always get a copy when they try to access this.
-        public struct SolverStats : Util.IDumpable
+        public struct SolverStats : Util.IYAMLWriter
         {
             // Stats on number of queries
             public int SatQueries { get; internal set; }
@@ -95,13 +95,13 @@ namespace Symbooglix
                 }
             }
 
-            public void Dump(System.IO.TextWriter TW)
+            public void WriteAsYAML (System.CodeDom.Compiler.IndentedTextWriter TW)
             {
-                TW.WriteLine("Sat queries:{0}", SatQueries);
-                TW.WriteLine("Unsat queries:{0}", UnsatQueries);
-                TW.WriteLine("Unknown queries:{0}", UnknownQueries);
-                TW.WriteLine("Total queries:{0}", TotalQueries);
-                TW.WriteLine("Total run time:{0} seconds", TotalRunTime.TotalSeconds);
+                TW.WriteLine("sat_queries: {0}", SatQueries);
+                TW.WriteLine("unsat_queries: {0}", UnsatQueries);
+                TW.WriteLine("unknown_queries: {0}", UnknownQueries);
+                TW.WriteLine("total_queries: {0}", TotalQueries);
+                TW.WriteLine("total_run_time: {0}", TotalRunTime.TotalSeconds);
             }
 
             public override string ToString()
@@ -109,7 +109,10 @@ namespace Symbooglix
                 string result;
                 using (var SW = new System.IO.StringWriter())
                 {
-                    Dump(SW);
+                    using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW))
+                    {
+                        WriteAsYAML(ITW);
+                    }
                     result = SW.ToString();
                 }
                 return result;

@@ -131,17 +131,21 @@ namespace Symbooglix
                 UnderlyingSolverStats = null;
             }
 
-            public void Dump(System.IO.TextWriter TW)
+            public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
             {
                 double total = ( ConstraintSetsReduced + ConstraintSetsLeftUnchanged );
                 double reduceP = 100 * ( (float) ConstraintSetsReduced ) /total;
                 double sameP = 100 * ( (float) ConstraintSetsLeftUnchanged) /total;
-                TW.WriteLine("[ConstraintIndependenceSolver]");
-                TW.WriteLine("ConstraintSetsReduced: {0} ({1}%)", ConstraintSetsReduced, reduceP);
-                TW.WriteLine("ConstraintSetsLeftUnchanged: {0} ({1}%)", ConstraintSetsLeftUnchanged, sameP);
-                TW.WriteLine("");
-                TW.WriteLine("Underlying solver stats:");
-                UnderlyingSolverStats.Dump(TW);
+
+
+                TW.WriteLine("{0}:", this.GetType().ToString());
+                TW.Indent += 1;
+                TW.WriteLine("constraint_sets_reduced: {0} #({1}%)", ConstraintSetsReduced, reduceP);
+                TW.WriteLine("constraint_sets_left_unchanged: {0} #({1}%)", ConstraintSetsLeftUnchanged, sameP);
+                TW.WriteLine("underlying_solver:");
+                TW.Indent += 1;
+                UnderlyingSolverStats.WriteAsYAML(TW);
+                TW.Indent -= 2;
             }
         }
     }

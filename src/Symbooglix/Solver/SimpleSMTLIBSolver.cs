@@ -313,11 +313,14 @@ namespace Symbooglix
                 PrintExprTime = TimeSpan.Zero;
             }
 
-            public void Dump(TextWriter TW)
+            public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
             {
-                TW.WriteLine("SolverProcessTime:{0} seconds", SolverProcessTime.TotalSeconds);
-                TW.WriteLine("ReadExprTime:{0} seconds", ReadExprTime.TotalSeconds);
-                TW.WriteLine("PrintExprTime:{0} seconds", PrintExprTime.TotalSeconds);
+                TW.WriteLine("{0}:", this.GetType().ToString());
+                TW.Indent += 1;
+                TW.WriteLine("solver_process_time: {0}", SolverProcessTime.TotalSeconds);
+                TW.WriteLine("read_expr_time: {0}", ReadExprTime.TotalSeconds);
+                TW.WriteLine("print_expr_time: {0}", PrintExprTime.TotalSeconds);
+                TW.Indent -= 1;
             }
 
             public override string ToString()
@@ -325,7 +328,10 @@ namespace Symbooglix
                 string result;
                 using (var SW = new StringWriter())
                 {
-                    Dump(SW);
+                    using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW))
+                    {
+                        WriteAsYAML(ITW);
+                    }
                     result = SW.ToString();
                 }
 

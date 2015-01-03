@@ -1,13 +1,13 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points %s | %OutputCheck %s
-// CHECK-L: TerminatedWithoutError=1
-// CHECK-L: TerminatedAtFailingAssert=0
-// CHECK-L: TerminatedAtUnsatisfiableEntryRequires=0
-// CHECK-L: TerminatedAtFailingRequires=0
-// CHECK-L: TerminatedAtFailingEnsures=0
-// CHECK-L: TerminatedAtUnsatisfiableAssume=0
-// CHECK-L: TerminatedAtUnsatisfiableEnsures=0
-// CHECK-L: TerminatedAtUnsatisfiableAxiom=0
+// RUN: %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points %s
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingAssert 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtUnsatisfiableEntryRequires 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingRequires 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingEnsures 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtUnsatisfiableAssume 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtUnsatisfiableEnsures 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtUnsatisfiableAxiom 0
 
 type _SIZE_T_TYPE = bv32;
 
