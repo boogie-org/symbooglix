@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class ExecutionState : Util.IDeepClone<ExecutionState>, Util.IDumpable, Util.IYAMLWriter
+    public class ExecutionState : Util.IDeepClone<ExecutionState>, Util.IYAMLWriter
     {
         public Memory Mem;
         public List<SymbolicVariable> Symbolics;
@@ -101,16 +101,6 @@ namespace Symbooglix
             return true;
         }
 
-        public void Dump(TextWriter TW)
-        {
-            Util.IndentedTextWriterAdapter.Write(TW, this);
-        }
-
-        public void Dump()
-        {
-            Dump(Console.Error);
-        }
-
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
             WriteAsYAML(TW, false, false);
@@ -147,14 +137,12 @@ namespace Symbooglix
             Mem.WriteAsYAML(TW, showVariables);
             TW.Indent -= 1;
 
-            TW.WriteLine("num_constraints: {0}", Constraints.Count);
-            if (showConstraints)
-            {
-                TW.WriteLine("constraints:");
-                TW.Indent += 1;
-                Constraints.WriteAsYAML(TW);
-                TW.Indent -= 1;
-            }
+            // Write constraints
+            TW.WriteLine("constraints:");
+            TW.Indent += 1;
+            Constraints.WriteAsYAML(TW, showConstraints);
+            TW.Indent -= 1;
+
         }
 
 

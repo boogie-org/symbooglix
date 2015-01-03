@@ -525,10 +525,7 @@ namespace SymbooglixDriver
 
 
                 Console.WriteLine("Finished executing");
-                Console.WriteLine(solver.Statistics.ToString());
-                Console.WriteLine(terminationCounter.ToString());
-
-                DumpOtherStats(executor, solver);
+                DumpStats(executor, solver, terminationCounter);
             }
 
             if (TimeoutHit)
@@ -542,11 +539,17 @@ namespace SymbooglixDriver
             return (int) exitCode; // This is required to keep the compiler happy.
         }
 
-        public static void DumpOtherStats(Executor executor, Solver.ISolver solver)
+        public static void DumpStats(Executor executor, Solver.ISolver solver, TerminationCounter terminationCounter)
         {
+            // FIXME: Make the interfaces uniform
+            Console.WriteLine(solver.Statistics.ToString());
             var stats = solver.SolverImpl.Statistics;
             stats.Dump(Console.Out);
-            executor.Statistics.Dump(Console.Out);
+            using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(Console.Out))
+            {
+                executor.Statistics.WriteAsYAML(ITW);
+            }
+            Console.WriteLine(terminationCounter.ToString());
         }
 
         public static void SetupFileLoggers(CmdLineOpts options, Executor executor, Solver.ISolver solver)

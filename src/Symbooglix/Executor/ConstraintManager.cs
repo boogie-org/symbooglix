@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public interface IConstraintManager : Util.IDeepClone<IConstraintManager>, Util.IDumpable, Util.IYAMLWriter
+    public interface IConstraintManager : Util.IDeepClone<IConstraintManager>, Util.IYAMLWriter
     {
         int Count { get; }
         IEnumerable<Expr> ConstraintExprs{ get; }
@@ -23,6 +23,8 @@ namespace Symbooglix
         /// <param name="subset">This should be a subset of the constraints in the IConstraintManager
         /// </param>
         IConstraintManager GetSubSet(ISet<Constraint> subset);
+
+        void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW, bool showConstraints);
     }
 
     public class ConstraintManager : IConstraintManager
@@ -110,29 +112,37 @@ namespace Symbooglix
             return other;
         }
 
-        public void Dump(TextWriter TW)
-        {
-            Util.IndentedTextWriterAdapter.Write(TW, this);
-        }
-
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
+            WriteAsYAML(TW, /*showConstaints=*/ false);
+        }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW, bool showConstraints)
+        {
+            TW.WriteLine("num_constraints: {0}", Count);
+            if (!showConstraints)
+                return;
+
+            TW.WriteLine("constraints:");
+            TW.Indent += 1;
             if (InternalConstraints.Count == 0)
             {
                 TW.WriteLine("[ ]");
-                return;
             }
-
-            foreach (var e in InternalConstraints)
+            else
             {
-                TW.WriteLine("-");
-                TW.Indent += 1;
-                TW.WriteLine("origin: \"{0}\"", e.Origin);
-                TW.WriteLine("expr: \"{0}\"", e.Condition);
-                TW.WriteLine("num_used_variables: {0}", e.UsedVariables.Count);
-                TW.WriteLine("num_used_uf: {0}", e.UsedUninterpretedFunctions.Count);
-                TW.Indent -= 1;
+                foreach (var e in InternalConstraints)
+                {
+                    TW.WriteLine("-");
+                    TW.Indent += 1;
+                    TW.WriteLine("origin: \"{0}\"", e.Origin);
+                    TW.WriteLine("expr: \"{0}\"", e.Condition);
+                    TW.WriteLine("num_used_variables: {0}", e.UsedVariables.Count);
+                    TW.WriteLine("num_used_uf: {0}", e.UsedUninterpretedFunctions.Count);
+                    TW.Indent -= 1;
+                }
             }
+            TW.Indent -= 1;
         }
 
         public override string ToString()
@@ -140,7 +150,10 @@ namespace Symbooglix
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW))
+                {
+                    WriteAsYAML(ITW);
+                }
                 result = SW.ToString();
             }
             return result;

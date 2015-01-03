@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public struct ExecutorStatistics : Util.IDumpable, Util.IYAMLWriter
+    public struct ExecutorStatistics : Util.IYAMLWriter
     {
         public TimeSpan RunTime;
         public TimeSpan PrepareTime;
@@ -19,17 +19,15 @@ namespace Symbooglix
             TerminationType = Executor.ExecutorTerminationType.UNKNOWN;
         }
 
-        public void Dump(TextWriter TW)
-        {
-            Util.IndentedTextWriterAdapter.Write(TW, this);
-        }
-
         public override string ToString()
         {
             string result;
             using (var SW = new StringWriter())
             {
-                Dump(SW);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW))
+                {
+                    WriteAsYAML(ITW);
+                }
                 result = SW.ToString();
             }
             return result;

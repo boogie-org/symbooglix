@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class Memory : Util.IDeepClone<Memory>, Util.IDumpable, Util.IYAMLWriter
+    public class Memory : Util.IDeepClone<Memory>, Util.IYAMLWriter
     {
         public Memory()
         {
@@ -33,11 +33,6 @@ namespace Symbooglix
             }
 
             return other;
-        }
-
-        public void Dump(TextWriter TW)
-        {
-            Util.IndentedTextWriterAdapter.Write(TW, this);
         }
 
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
@@ -92,7 +87,10 @@ namespace Symbooglix
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW))
+                {
+                    WriteAsYAML(ITW);
+                }
                 result = SW.ToString();
             }
             return result;
@@ -107,7 +105,7 @@ namespace Symbooglix
         public Dictionary<Variable,Expr> Globals;
     }
 
-    public class StackFrame : Util.IDeepClone<StackFrame>, Util.IDumpable, Util.IYAMLWriter
+    public class StackFrame : Util.IDeepClone<StackFrame>, Util.IYAMLWriter
     {
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
@@ -194,11 +192,6 @@ namespace Symbooglix
             return other;
         }
 
-        public void Dump(TextWriter TW)
-        {
-            Util.IndentedTextWriterAdapter.Write(TW, this);
-        }
-
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
             WriteAsYAML(TW, /*showVariables=*/false);
@@ -258,7 +251,10 @@ namespace Symbooglix
             string result = null;
             using (var SW = new StringWriter())
             {
-                Dump(SW);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW))
+                {
+                    WriteAsYAML(ITW);
+                }
                 result = SW.ToString();
             }
 
