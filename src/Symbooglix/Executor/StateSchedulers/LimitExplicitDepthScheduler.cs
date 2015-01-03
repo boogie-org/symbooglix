@@ -78,11 +78,12 @@ namespace Symbooglix
             UnderlyingStateScheduler.ReceiveExecutor(executor);
         }
 
+        /*
         public void Dump(System.IO.TextWriter TW)
         {
             TW.WriteLine(this.GetType().ToString());
             TW.WriteLine("Max depth:{0}", MaxDepth);
-        }
+        }*/
     }
 }
 

@@ -105,7 +105,6 @@
     <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateConstraintLogger.cs" />
     <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateInfoLogger.cs" />
     <Compile Include="Executor\ExecutionStateHandlers\ExecutionStateUnSatCoreLogger.cs" />
-    <Compile Include="Util\IDumpable.cs" />
     <Compile Include="Executor\ExecutorStatistics.cs" />
     <Compile Include="Executor\ExecutorHandlers\SolverStatisticsLogger.cs" />
     <Compile Include="Executor\StateSchedulers\IStateScheduler.cs" />

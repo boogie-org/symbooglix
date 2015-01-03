@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
-    public interface IStateScheduler : Util.IDumpable
+    public interface IStateScheduler
     {
         ExecutionState GetNextState();
         void AddState(ExecutionState toAdd);
