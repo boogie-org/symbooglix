@@ -253,7 +253,10 @@ namespace Symbooglix
             TW.WriteLine("use_constant_folding: {0}", UseConstantFolding.ToString().ToLower());
             TW.WriteLine("use_goto_look_ahead: {0}", UseGotoLookAhead.ToString().ToLower());
 
-            // TODO StateScheduler
+            TW.WriteLine("state_scheduler:");
+            TW.Indent += 1;
+            StateScheduler.WriteAsYAML(TW);
+            TW.Indent -= 1;
 
             TW.WriteLine("solver:");
             TW.Indent += 1;

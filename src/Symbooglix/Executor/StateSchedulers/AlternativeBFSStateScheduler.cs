@@ -113,6 +113,11 @@ namespace Symbooglix
         {
             // Not needed
         }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            TW.WriteLine("name : \"{0}\"", this.GetType().ToString());
+        }
     }
 }
 

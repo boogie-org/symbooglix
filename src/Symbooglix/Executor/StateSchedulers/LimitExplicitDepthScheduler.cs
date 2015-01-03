@@ -78,12 +78,15 @@ namespace Symbooglix
             UnderlyingStateScheduler.ReceiveExecutor(executor);
         }
 
-        /*
-        public void Dump(System.IO.TextWriter TW)
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
-            TW.WriteLine(this.GetType().ToString());
-            TW.WriteLine("Max depth:{0}", MaxDepth);
-        }*/
+            TW.WriteLine("name : \"{0}\"", this.GetType().ToString());
+            TW.WriteLine("max_depth: {0}", this.MaxDepth);
+            TW.WriteLine("underlying_scheduler:");
+            TW.Indent += 1;
+            UnderlyingStateScheduler.WriteAsYAML(TW);
+            TW.Indent -= 1;
+        }
     }
 }
 

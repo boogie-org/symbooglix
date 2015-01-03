@@ -134,6 +134,15 @@ namespace Symbooglix
             }
 
         }
+
+        public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+        {
+            TW.WriteLine("name : \"{0}\"", this.GetType().ToString());
+            TW.WriteLine("underlying_scheduler:");
+            TW.Indent += 1;
+            UnderlyingScheduler.WriteAsYAML(TW);
+            TW.Indent -= 1;
+        }
     }
 }
 
