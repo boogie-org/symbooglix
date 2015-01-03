@@ -125,6 +125,9 @@ namespace SymbooglixDriver
             [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
             public int useModSetTransform { get; set; }
 
+            [Option("write-smt2", DefaultValue = 1, HelpText="Write constraints for each ExecutionState as SMTLIBv2 (Default 1)")]
+            public int WriteConstraints { get ; set; }
+
             // Positional args
             [ValueOption(0)]
             public string boogieProgramPath { get; set; }
@@ -556,11 +559,15 @@ namespace SymbooglixDriver
             executorLogger.AddRootDirLogger(new SolverStatisticsLogger(solver));
             executorLogger.AddRootDirLogger(new ExecutorStatisticsLogger());
 
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
+            if (options.WriteConstraints > 0)
+            {
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
 
-            executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED));
+                executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED));
+            }
+
+            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
             executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED));
 
             executorLogger.Connect();
