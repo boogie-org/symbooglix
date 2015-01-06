@@ -115,6 +115,7 @@
     <Compile Include="Util\IYAMLWriter.cs" />
     <Compile Include="Expr\FindUinterpretedFunctionsVisitor.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorInfoLogger.cs" />
+    <Compile Include="Executor\ExecutorHandlers\FailureLimiter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

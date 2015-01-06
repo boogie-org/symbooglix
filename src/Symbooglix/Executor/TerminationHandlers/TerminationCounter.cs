@@ -54,17 +54,17 @@ namespace Symbooglix
             reset();
         }
 
-        public void Connect(Executor e)
+        public virtual void Connect(Executor e)
         {
             e.StateTerminated += this.handle;
         }
 
-        public void Disconnect(Executor e)
+        public virtual void Disconnect(Executor e)
         {
             e.StateTerminated -= this.handle;
         }
 
-        private void handle(Object executor, Executor.ExecutionStateEventArgs arg)
+        protected void handle(Object executor, Executor.ExecutionStateEventArgs arg)
         {
             var terminationType = arg.State.TerminationType.GetType();
             Debug.Assert(Counters.ContainsKey(terminationType), "Termination type not handled!");
