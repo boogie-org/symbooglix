@@ -47,6 +47,9 @@ namespace SymbooglixDriver
                         HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
             public List<string> entryPoints { get; set; }
 
+            [Option("failure-limit", DefaultValue=0, HelpText="Limit the number of errors that the Executor will look for. 0 means unlimited (Default 0")]
+            public int FailureLimit { get; set; }
+
             [Option("file-logging", DefaultValue=1, HelpText="Log information about execution to files (default=1)")]
             public int FileLogging { get; set ; }
 
@@ -359,6 +362,12 @@ namespace SymbooglixDriver
                 Console.WriteLine("Using Depth limit:{0}", options.MaxDepth);
             }
 
+            if (options.FailureLimit < 0)
+            {
+                Console.Error.WriteLine("FailureLimit must be >= 0");
+                ExitWith(ExitCode.COMMAND_LINE_ERROR);
+            }
+
 
             Console.WriteLine("Using Scheduler: {0}", scheduler.ToString());
 
@@ -467,6 +476,13 @@ namespace SymbooglixDriver
 
                 SetupTerminationCatchers(executor);
                 ApplyFilters(executor, options);
+
+                if (options.FailureLimit > 0)
+                {
+                    var failureLimiter = new FailureLimiter(options.FailureLimit);
+                    failureLimiter.Connect(executor);
+                    Console.WriteLine("Using failure limit of {0}", options.FailureLimit);
+                }
 
                 try
                 {
