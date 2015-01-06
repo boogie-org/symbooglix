@@ -15,6 +15,8 @@ namespace Symbooglix
         LiteralExpr ConstantBool(bool value);
         LiteralExpr ConstantBV(int decimalValue, int bitWidth);
         LiteralExpr ConstantBV(BigNum decimalValue, int bitWidth);
+        LiteralExpr True { get;}
+        LiteralExpr False { get; }
 
         // TODO
         // BitVector operators
@@ -95,6 +97,22 @@ namespace Symbooglix
         public LiteralExpr ConstantBV(int decimalValue, int bitWidth)
         {
             return ConstantBV(BigNum.FromInt(decimalValue), bitWidth);
+        }
+
+        public LiteralExpr True
+        {
+            get 
+            {
+                return ConstantBool(true);
+            }
+        }
+
+        public LiteralExpr False 
+        {
+            get
+            {
+                return ConstantBool(false);
+            }
         }
 
         public LiteralExpr ConstantBV(BigNum decimalValue, int bitWidth)
