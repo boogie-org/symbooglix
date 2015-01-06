@@ -30,9 +30,9 @@ namespace SymbooglixLibTests
 
             e.Run(GetMain(p));
 
-            // FIXME: Need executor to give a statistic for number of states (this will include non-terminated states)
             Assert.AreEqual(1, tc.NumberOfTerminatedStates);
             Assert.AreEqual(1, tc.NumberOfFailures);
+            Assert.AreEqual(1, e.Statistics.ForkCount);
         }
 
         [Test()]
@@ -58,9 +58,9 @@ namespace SymbooglixLibTests
 
             e.Run(GetMain(p));
 
-            // FIXME: Need executor to give a statistic for number of states (this will include non-terminated states)
             Assert.AreEqual(2, tc.NumberOfTerminatedStates);
             Assert.AreEqual(2, tc.NumberOfFailures);
+            Assert.AreEqual(2, e.Statistics.ForkCount);
         }
 
         [Test(),ExpectedException(typeof(ArgumentException))]

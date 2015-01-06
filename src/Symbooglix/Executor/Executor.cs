@@ -511,6 +511,7 @@ namespace Symbooglix
             // Clone the state so we can keep the special initial state around
             // if we want run() to be called again with a different entry point.
             CurrentState = Fork(InitialState, null);
+            --InternalStatistics.ForkCount; // We don't want the forking of the initial state to be counted as a fork
 
             StateScheduler.ReceiveExecutor(this);
             StateScheduler.AddState(CurrentState);
@@ -1622,6 +1623,7 @@ namespace Symbooglix
 
             // Should DeepClone() handle this instead?
             newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);
+            ++InternalStatistics.ForkCount;
             return newState;
         }
 
