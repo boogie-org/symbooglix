@@ -13,7 +13,7 @@ namespace ConstantFoldingTests
         {
             SymbooglixLibTests.SymbooglixTest.SetupDebug();
             SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser(); // HACK
-            builder = new Symbooglix.ExprBuilder();
+            builder = new Symbooglix.SimpleExprBuilder();
         }
 
         public void Error (IToken tok, string msg)

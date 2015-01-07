@@ -13,14 +13,14 @@ namespace ExprSMTLIBTest
         public UninterpretedFunction()
         {
             SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            Builder = new ExprBuilder();
+            Builder = new SimpleExprBuilder();
         }
 
-        private ExprBuilder Builder;
+        private SimpleExprBuilder Builder;
         [Test()]
         public void TestCase()
         {
-            Builder = new ExprBuilder();
+            Builder = new SimpleExprBuilder();
 
             var functionCall = Builder.CreateFunctionCall("uf", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() {
                 Microsoft.Boogie.Type.Int,

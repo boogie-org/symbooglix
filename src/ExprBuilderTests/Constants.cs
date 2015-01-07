@@ -10,7 +10,7 @@ namespace ExprBuilderTests
         [Test()]
         public void True()
         {
-            var builder = new ExprBuilder();
+            var builder = new SimpleExprBuilder();
             var constant = builder.True;
             Assert.AreEqual("true", constant.ToString());
 
@@ -21,7 +21,7 @@ namespace ExprBuilderTests
         [Test()]
         public void False()
         {
-            var builder = new ExprBuilder();
+            var builder = new SimpleExprBuilder();
             var constant = builder.False;
             Assert.AreEqual("false", constant.ToString());
 

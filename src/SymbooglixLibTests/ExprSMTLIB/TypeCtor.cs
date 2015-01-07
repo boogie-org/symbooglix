@@ -24,7 +24,7 @@ namespace SymbooglixLibTests
             gv.SetMetadata<ProgramLocation>((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(gv));
             var sym = new SymbolicVariable("y", gv);
 
-            var builder = new ExprBuilder();
+            var builder = new SimpleExprBuilder();
             var eq = builder.Eq(sym.Expr, sym.Expr);
             Assert.IsNotInstanceOf<LiteralExpr>(eq); // Check that it wasn't constant folded
 
@@ -49,7 +49,7 @@ namespace SymbooglixLibTests
             gv.SetMetadata<ProgramLocation>((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(gv));
             var sym = new SymbolicVariable("y", gv);
 
-            var builder = new ExprBuilder();
+            var builder = new SimpleExprBuilder();
             var eq = builder.Eq(sym.Expr, sym.Expr);
             Assert.IsNotInstanceOf<LiteralExpr>(eq); // Check that it wasn't constant folded
 

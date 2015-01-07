@@ -12,7 +12,7 @@ namespace ExprSMTLIBTest
         [Test()]
         public void Test()
         {
-            var builder = new ExprBuilder();
+            var builder = new SimpleExprBuilder();
             var boolTrue = builder.ConstantBool(true);
             var boolFalse = builder.ConstantBool(false);
             var iffExpr = builder.Iff(boolTrue, boolFalse);

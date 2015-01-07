@@ -74,7 +74,6 @@
     <Compile Include="Executor\ProgramLocation.cs" />
     <Compile Include="Executor\ExecutorHandlers\IExecutorEventHandler.cs" />
     <Compile Include="Util\ModifiesSet.cs" />
-    <Compile Include="Expr\IExprBuilder.cs" />
     <Compile Include="Executor\ExecutorExceptions.cs" />
     <Compile Include="Annotation\AnnotationIndicies.cs" />
     <Compile Include="Annotation\ProgramLocationAnnotater.cs" />
@@ -116,6 +115,8 @@
     <Compile Include="Expr\FindUinterpretedFunctionsVisitor.cs" />
     <Compile Include="Executor\ExecutorHandlers\ExecutorInfoLogger.cs" />
     <Compile Include="Executor\ExecutorHandlers\FailureLimiter.cs" />
+    <Compile Include="Expr\IExprBuilder.cs" />
+    <Compile Include="Expr\SimpleExprBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

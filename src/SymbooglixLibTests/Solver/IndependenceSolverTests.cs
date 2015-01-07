@@ -51,7 +51,7 @@ namespace SolverTests
         public void RemoveNoConstraintsBasedOnVars()
         {
             IConstraintManager CM = new ConstraintManager();
-            IExprBuilder builder = new ExprBuilder();
+            IExprBuilder builder = new SimpleExprBuilder();
 
             // Dummy Boogie variable
             var bv8TypeIdent = new TypedIdent(Token.NoToken, "bv8", Microsoft.Boogie.Type.GetBvType(8));
@@ -103,7 +103,7 @@ namespace SolverTests
         public void RemoveOneConstraintBasedOnVars()
         {
             IConstraintManager CM = new ConstraintManager();
-            IExprBuilder builder = new ExprBuilder();
+            IExprBuilder builder = new SimpleExprBuilder();
 
             // Dummy Boogie variable
             var bv8TypeIdent = new TypedIdent(Token.NoToken, "bv8", Microsoft.Boogie.Type.GetBvType(8));
@@ -144,7 +144,7 @@ namespace SolverTests
         public void RemoveNoConstraintsBasedOnVarsAndFunctions()
         {
             IConstraintManager CM = new ConstraintManager();
-            ExprBuilder builder = new ExprBuilder(); // FIXME: We depend on CreateFunctionCall()
+            SimpleExprBuilder builder = new SimpleExprBuilder(); // FIXME: We depend on CreateFunctionCall()
 
             // Dummy Boogie variable
             var bv8Type = Microsoft.Boogie.Type.GetBvType(8);
@@ -210,7 +210,7 @@ namespace SolverTests
         public void RemoveOneConstraintBasedOnVarsAndFunctions()
         {
             IConstraintManager CM = new ConstraintManager();
-            ExprBuilder builder = new ExprBuilder(); // FIXME: We depend on CreateFunctionCall()
+            SimpleExprBuilder builder = new SimpleExprBuilder(); // FIXME: We depend on CreateFunctionCall()
 
             // Dummy Boogie variable
             var bv8Type = Microsoft.Boogie.Type.GetBvType(8);

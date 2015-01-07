@@ -14,7 +14,7 @@ namespace ExprSMTLIBTest
         public Literal()
         {
             SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            Builder = new ExprBuilder();
+            Builder = new SimpleExprBuilder();
         }
 
         [Test()]

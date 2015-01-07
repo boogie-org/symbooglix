@@ -17,7 +17,7 @@ namespace SymbooglixLibTests
         {
             p = LoadProgramFrom("programs/SimpleCallSummary.bpl");
             e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
-            Builder = new ExprBuilder();
+            Builder = new SimpleExprBuilder();
         }
 
         [Test()]

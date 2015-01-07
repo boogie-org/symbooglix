@@ -15,7 +15,7 @@ namespace ExprSMTLIBTest
 
         public TypeSynonym()
         {
-            builder = new ExprBuilder();
+            builder = new SimpleExprBuilder();
         }
 
         [Test()]

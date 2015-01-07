@@ -13,7 +13,7 @@ namespace SymbooglixLibTests
         IExprBuilder Builder;
         public CallAssignsTo()
         {
-            Builder = new ExprBuilder();
+            Builder = new SimpleExprBuilder();
         }
 
         [Test()]
