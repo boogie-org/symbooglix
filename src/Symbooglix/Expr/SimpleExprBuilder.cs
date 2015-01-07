@@ -76,15 +76,29 @@ namespace Symbooglix
                 // The rule is basically this:
                 //
                 // decimal_rep_for_bits = (2^m - x) mod (2^m)
+
+                if (bitWidth <=1)
+                    throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
+
                 var abs = decimalValue.Abs.ToBigInteger;
+
+                if (abs >= BigInteger.Pow(2, bitWidth -1))
+                    throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
+
                 var result = ( twoToPowerOfBits - abs );
-                Debug.Assert(result >= 0, "Decimal value cannot be represented in the requested number of bits");
+                Debug.Assert(result > 0);
+
                 return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
             }
             else
             {
+                if (bitWidth < 1)
+                    throw new ArgumentException("Bitwidth must be >= 1");
+
                 // Positive or zero
-                Debug.Assert( decimalValue.ToBigInteger < twoToPowerOfBits, "Decimal Value cannot be represented in the requested number of bits");
+                if (decimalValue.ToBigInteger >= twoToPowerOfBits)
+                    throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
+
                 return new LiteralExpr(Token.NoToken, decimalValue, bitWidth);
             }
         }

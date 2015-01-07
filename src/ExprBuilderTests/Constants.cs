@@ -86,10 +86,25 @@ namespace ExprBuilderTests
         [TestCase(0, 4, "0bv4")]
         public void PositiveBV(int decimalValue, int width, string expectedString)
         {
+            _PositiveBV(decimalValue, width, expectedString);
+        }
+
+        [TestCase(16, 4)]
+        [TestCase(20, 2)]
+        [TestCase(256, 8)]
+        [TestCase(311, 8)]
+        [ExpectedException(typeof(ArgumentException))]
+        public void PositiveBVOutOfRange(int decimalValue, int width)
+        {
+            _PositiveBV(decimalValue, width, "dummy");
+        }
+
+        private void _PositiveBV(int decimalValue, int width, string expectedString)
+        {
             Assert.IsTrue(decimalValue >= 0);
             var builder = new SimpleExprBuilder();
             // Test both versions of the API
-            var constants = new Microsoft.Boogie.LiteralExpr[] { 
+            var constants = new Microsoft.Boogie.LiteralExpr[] {
                 builder.ConstantBV(decimalValue, width),
                 builder.ConstantBV(BigNum.FromInt(decimalValue), width)};
 
@@ -108,10 +123,25 @@ namespace ExprBuilderTests
         [TestCase(0, 4, "0bv4")]
         public void NegativeBV(int decimalValue, int width, string expectedString)
         {
+            _NegativeBV(decimalValue, width, expectedString);
+        }
+
+        [TestCase(-9, 4)]
+        [TestCase(-3, 2)]
+        [TestCase(-129, 8)]
+        [TestCase(-200, 8)]
+        [ExpectedException(typeof(ArgumentException))]
+        public void NegativeBVOutOfRange(int decimalValue, int width)
+        {
+            _NegativeBV(decimalValue, width, "dummy");
+        }
+
+        public void _NegativeBV(int decimalValue, int width, string expectedString)
+        {
             Assert.IsTrue(decimalValue <= 0);
             var builder = new SimpleExprBuilder();
             // Test both versions of the API
-            var constants = new Microsoft.Boogie.LiteralExpr[] { 
+            var constants = new Microsoft.Boogie.LiteralExpr[] {
                 builder.ConstantBV(decimalValue, width),
                 builder.ConstantBV(BigNum.FromInt(decimalValue), width)};
 
