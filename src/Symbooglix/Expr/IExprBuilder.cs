@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Boogie;
-using Microsoft.Basetypes;
 using System.Numerics;
 
 namespace Symbooglix
@@ -12,7 +11,7 @@ namespace Symbooglix
         LiteralExpr ConstantReal(string value);
         LiteralExpr ConstantBool(bool value);
         LiteralExpr ConstantBV(int decimalValue, int bitWidth);
-        LiteralExpr ConstantBV(BigNum decimalValue, int bitWidth);
+        LiteralExpr ConstantBV(BigInteger decimalValue, int bitWidth);
         LiteralExpr True { get;}
         LiteralExpr False { get; }
 

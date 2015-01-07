@@ -47,7 +47,7 @@ namespace Symbooglix
 
         public LiteralExpr ConstantBV(int decimalValue, int bitWidth)
         {
-            return ConstantBV(BigNum.FromInt(decimalValue), bitWidth);
+            return ConstantBV(new BigInteger(decimalValue), bitWidth);
         }
 
         public LiteralExpr True
@@ -66,10 +66,10 @@ namespace Symbooglix
             }
         }
 
-        public LiteralExpr ConstantBV(BigNum decimalValue, int bitWidth)
+        public LiteralExpr ConstantBV(BigInteger decimalValue, int bitWidth)
         {
             var twoToPowerOfBits = BigInteger.Pow(2, bitWidth);
-            if (decimalValue.Signum < 0)
+            if (decimalValue.Sign < 0)
             {
                 // Convert the decimal value into two's complement representation
                 //
@@ -80,7 +80,7 @@ namespace Symbooglix
                 if (bitWidth <=1)
                     throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
 
-                var abs = decimalValue.Abs.ToBigInteger;
+                var abs = BigInteger.Abs(decimalValue);
 
                 if (abs >= BigInteger.Pow(2, bitWidth -1))
                     throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
@@ -96,10 +96,10 @@ namespace Symbooglix
                     throw new ArgumentException("Bitwidth must be >= 1");
 
                 // Positive or zero
-                if (decimalValue.ToBigInteger >= twoToPowerOfBits)
+                if (decimalValue >= twoToPowerOfBits)
                     throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
 
-                return new LiteralExpr(Token.NoToken, decimalValue, bitWidth);
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(decimalValue), bitWidth);
             }
         }
 

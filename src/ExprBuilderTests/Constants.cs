@@ -106,7 +106,7 @@ namespace ExprBuilderTests
             // Test both versions of the API
             var constants = new Microsoft.Boogie.LiteralExpr[] {
                 builder.ConstantBV(decimalValue, width),
-                builder.ConstantBV(BigNum.FromInt(decimalValue), width)};
+                builder.ConstantBV(new BigInteger(decimalValue), width)};
 
             foreach (var constant in constants)
             {
@@ -143,7 +143,7 @@ namespace ExprBuilderTests
             // Test both versions of the API
             var constants = new Microsoft.Boogie.LiteralExpr[] {
                 builder.ConstantBV(decimalValue, width),
-                builder.ConstantBV(BigNum.FromInt(decimalValue), width)};
+                builder.ConstantBV(new BigInteger(decimalValue), width)};
 
             foreach (var constant in constants)
             {
