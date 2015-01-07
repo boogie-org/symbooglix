@@ -2,6 +2,7 @@
 using System;
 using Symbooglix;
 using Microsoft.Basetypes;
+using System.Numerics;
 
 namespace ExprBuilderTests
 {
@@ -78,6 +79,55 @@ namespace ExprBuilderTests
             var constant = builder.ConstantReal("-5.0");
             Assert.AreEqual("-5e0", constant.ToString());
             CheckType(constant, t => t.IsReal);
+        }
+
+        [TestCase(5, 4, "5bv4")]
+        [TestCase(11, 32, "11bv32")]
+        [TestCase(0, 4, "0bv4")]
+        public void PositiveBV(int decimalValue, int width, string expectedString)
+        {
+            Assert.IsTrue(decimalValue >= 0);
+            var builder = new SimpleExprBuilder();
+            // Test both versions of the API
+            var constants = new Microsoft.Boogie.LiteralExpr[] { 
+                builder.ConstantBV(decimalValue, width),
+                builder.ConstantBV(BigNum.FromInt(decimalValue), width)};
+
+            foreach (var constant in constants)
+            {
+                Assert.AreEqual(expectedString, constant.ToString());
+                CheckType(constant, t => t.IsBv);
+                Assert.AreEqual(width, constant.asBvConst.Bits);
+                Assert.AreEqual(width, constant.Type.BvBits);
+                Assert.AreEqual(decimalValue, constant.asBvConst.Value.ToInt);
+            }
+        }
+
+        [TestCase(-5, 4, "11bv4")]
+        [TestCase(-11, 32, "4294967285bv32")]
+        [TestCase(0, 4, "0bv4")]
+        public void NegativeBV(int decimalValue, int width, string expectedString)
+        {
+            Assert.IsTrue(decimalValue <= 0);
+            var builder = new SimpleExprBuilder();
+            // Test both versions of the API
+            var constants = new Microsoft.Boogie.LiteralExpr[] { 
+                builder.ConstantBV(decimalValue, width),
+                builder.ConstantBV(BigNum.FromInt(decimalValue), width)};
+
+            foreach (var constant in constants)
+            {
+                Assert.AreEqual(expectedString, constant.ToString());
+                CheckType(constant, t => t.IsBv);
+                Assert.AreEqual(width, constant.asBvConst.Bits);
+                Assert.AreEqual(width, constant.Type.BvBits);
+
+                // Compute decimal representation of two's complement bv
+                var MaxValuePlusOne = BigInteger.Pow(2, width);
+                var expectedValue = (MaxValuePlusOne + decimalValue) % MaxValuePlusOne;
+
+                Assert.AreEqual(expectedValue, constant.asBvConst.Value.ToBigInteger);
+            }
         }
     }
 }
