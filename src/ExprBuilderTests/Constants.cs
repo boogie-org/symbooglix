@@ -61,6 +61,24 @@ namespace ExprBuilderTests
             Assert.AreEqual(-5, constant.asBigNum.ToInt);
             CheckType(constant, t => t.IsInt);
         }
+
+        [Test()]
+        public void PositiveReal()
+        {
+            var builder = new SimpleExprBuilder();
+            var constant = builder.ConstantReal("5.0");
+            Assert.AreEqual("5e0", constant.ToString());
+            CheckType(constant, t => t.IsReal);
+        }
+
+        [Test()]
+        public void NegativeReal()
+        {
+            var builder = new SimpleExprBuilder();
+            var constant = builder.ConstantReal("-5.0");
+            Assert.AreEqual("-5e0", constant.ToString());
+            CheckType(constant, t => t.IsReal);
+        }
     }
 }
 
