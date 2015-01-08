@@ -169,7 +169,7 @@ namespace ConstantFoldingTests
             var result = CFT.Traverse(equals);
             result.Typecheck(TC);
 
-            Assert.IsNotInstanceOfType(typeof(LiteralExpr), result);
+            Assert.IsNotInstanceOf<LiteralExpr>(result);
             Assert.AreSame(equals, result); // i.e. we didn't do any folding
         }
             
