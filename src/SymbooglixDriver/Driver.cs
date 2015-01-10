@@ -47,7 +47,7 @@ namespace SymbooglixDriver
                         HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
             public List<string> entryPoints { get; set; }
 
-            [Option("failure-limit", DefaultValue=0, HelpText="Limit the number of errors that the Executor will look for. 0 means unlimited (Default 0")]
+            [Option("stop-at-failure", DefaultValue=0, HelpText="Stop executor once N failures have been found. 0 means unlimited (Default 0)")]
             public int FailureLimit { get; set; }
 
             [Option("file-logging", DefaultValue=1, HelpText="Log information about execution to files (default=1)")]
