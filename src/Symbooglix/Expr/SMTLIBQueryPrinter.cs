@@ -178,6 +178,7 @@ namespace Symbooglix
             DO_NOT_SET, /* Special Value that won't be printed */
             QF_BV,
             QF_ABV,
+            QF_AUFBV, // Quantifier free, arrays, uninterpreted functions and bitvectors
             ALL_SUPPORTED // CVC4 specific
         }
 

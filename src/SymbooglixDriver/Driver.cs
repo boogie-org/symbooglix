@@ -53,8 +53,8 @@ namespace SymbooglixDriver
             [Option("file-logging", DefaultValue=1, HelpText="Log information about execution to files (default=1)")]
             public int FileLogging { get; set ; }
 
-            [Option("force-qfabv", DefaultValue= false, HelpText="HACK: Force solver to use qf_abv logic")]
-            public bool ForceQFABV { get; set; }
+            [Option("force-qfaufbv", DefaultValue= false, HelpText="HACK: Force solver to use qf_aufbv logic")]
+            public bool ForceQFAUFBV { get; set; }
 
             [Option("goto-assume-look-ahead", DefaultValue= 1, HelpText="Prevent needless state creation and destruction by looking ahead at gotos")]
             public int gotoAssumeLookAhead { get; set; }
@@ -704,7 +704,7 @@ namespace SymbooglixDriver
             }
 
             // HACK: THIS IS GROSS! REMOVE THIS ASAP AND FIND A CLEAN WAY OF DOING THIS!!!!!!!!!!!!
-            var logicToUse = options.ForceQFABV ? SMTLIBQueryPrinter.Logic.QF_ABV : SMTLIBQueryPrinter.Logic.DO_NOT_SET;
+            var logicToUse = options.ForceQFAUFBV ? SMTLIBQueryPrinter.Logic.QF_AUFBV : SMTLIBQueryPrinter.Logic.DO_NOT_SET;
 
             switch (options.solver)
             {
