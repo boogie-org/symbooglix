@@ -1445,7 +1445,6 @@ namespace Symbooglix
 
         private BigInteger InvertDecimalReprBVBits(BigInteger decimalRepr, int bitWidth)
         {
-            Debug.Assert(decimalRepr != null);
             Debug.Assert(bitWidth > 0);
             var bitMask = BigInteger.Pow(2, bitWidth) -1; // Decimal representation of all ones
             var result = decimalRepr ^ bitMask; // Using Xor with all ones will invert all the bits
