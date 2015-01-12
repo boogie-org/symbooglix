@@ -11,7 +11,6 @@ namespace Symbooglix
         {
             protected Stopwatch Timer;
             private SolverStats InternalStatistics;
-            private int Timeout = -1; // No timeout by default
             public ISolverImpl SolverImpl
             {
                 get;
@@ -33,7 +32,6 @@ namespace Symbooglix
             public void SetTimeout(int seconds)
             {
                 SolverImpl.SetTimeout(seconds);
-                this.Timeout = seconds * 1000;
             }
 
             private Tuple<Result, IAssignment> CallImplementation(Microsoft.Boogie.Expr queryExpr, bool getAssignment)
