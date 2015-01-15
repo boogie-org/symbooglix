@@ -4,6 +4,9 @@ Symbooglix
 
 The Symbolic execution engine for [Boogie](http://research.microsoft.com/en-us/projects/boogie/)
 
+[![Build
+Status](https://magnum.travis-ci.com/delcypher/symbooglix.svg?token=QQ3F3xFawVVs4ymGi3xa)](https://magnum.travis-ci.com/delcypher/symbooglix)
+
 Dependencies
 ============
 
