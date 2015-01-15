@@ -1,33 +1,20 @@
 # vim: set sw=2 ts=2 softtabstop=2 expandtab:
-#  This is a lie, but we can't use "csharp" because we need root privileges
-language: python
-  - "3.4"
+language: csharp
 solution: "src/Symbooglix.sln"
 install:
-  # Install Z3
   - apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
   # FIXME: We should not be using Boogaloo's repo for Z3
   - echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list
   - apt-get update
+  - nuget restore src/Symbooglix.sln
+  # Install Z3
   - apt-get -y install z3=4.3.1-0~trusty1
-  # Install mono
-  - wget -O - http://download.mono-project.com/repo/xamarin.gpg |apt-key add -
-  - echo "deb http://download.mono-project.com/repo/debian wheezy main" > /etc/apt/sources.list.d/mono-xamarin.list
-  - apt-get update
-  - apt-get -y install mono-xbuild libmono-microsoft-build-tasks-v4.0-4.0-cil \
-                       mono-dmcs libmono-system-numerics4.0-cil \
-                       libmono-system-windows4.0-cil \
-                       libmono-corlib4.0-cil
   # Install needed python tools
-  - pip install lit OutputCheck pyyaml
+  - pip install lit OutputCheck
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - git submodule init
   - git submodule update
-  # Get NuGet
-  - wget https://nuget.org/nuget.exe -O nuget
-  - chmod a+x ./nuget
-  - ./nuget restore src/Symbooglix.sln
-  - ./nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
   - xbuild /p:Configuration=Debug src/Symbooglix.sln
   # Setup symlinks so Symbooglix can find the solver
   - ln -s /usr/bin/z3 src/SymbooglixDriver/bin/Debug/z3.exe
