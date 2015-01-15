@@ -7,7 +7,7 @@ install:
   # FIXME: We should not be using Boogaloo's repo for Z3
   - echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list
   - apt-get update
-  - nuget restore src/Symbooglix.sln
+  - nuget restore ${TRAVIS_SOLUTION}
   # Install Z3
   - apt-get -y install z3=4.3.1-0~trusty1
   # Install needed python tools
@@ -16,7 +16,7 @@ install:
 script:
   - git submodule init
   - git submodule update
-  - xbuild /p:Configuration=Debug src/Symbooglix.sln
+  - xbuild /p:Configuration=Debug ${TRAVIS_SOLUTION}
   # Setup symlinks so Symbooglix can find the solver
   - ln -s /usr/bin/z3 src/SymbooglixDriver/bin/Debug/z3.exe
   - ln -s /usr/bin/z3 src/Symbooglix/bin/Debug/z3.exe
