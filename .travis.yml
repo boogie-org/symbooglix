@@ -1,5 +1,6 @@
 # vim: set sw=2 ts=2 softtabstop=2 expandtab:
 language: csharp
+sudo: true
 solution: "src/Symbooglix.sln"
 install:
   - apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
