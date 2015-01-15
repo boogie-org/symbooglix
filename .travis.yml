@@ -1,0 +1,25 @@
+# vim: set sw=2 ts=2 softtabstop=2 expandtab:
+language: csharp
+solution: "src/Symbooglix.sln"
+install:
+  - apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
+  # FIXME: We should not be using Boogaloo's repo for Z3
+  - echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list
+  - apt-get update
+  - nuget restore src/Symbooglix.sln
+  # Install Z3
+  - apt-get -y install z3=4.3.1-0~trusty1
+  # Install needed python tools
+  - pip install lit OutputCheck
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - git submodule init
+  - git submodule update
+  - xbuild /p:Configuration=Debug src/Symbooglix.sln
+  # Setup symlinks so Symbooglix can find the solver
+  - ln -s /usr/bin/z3 src/SymbooglixDriver/bin/Debug/z3.exe
+  - ln -s /usr/bin/z3 src/Symbooglix/bin/Debug/z3.exe
+  # Run unit tests
+  - utils/run-unit-tests.sh ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe Debug
+  # Run driver tests
+  - lit -v test_programs/
