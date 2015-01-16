@@ -111,6 +111,21 @@ namespace Symbooglix
             Debug.Assert(lhs.Type is BvType);
             Debug.Assert(rhs.Type is BvType);
 
+            if (!lhs.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("lhs must be bitvector");
+            }
+
+            if (!rhs.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("lhs must be bitvector");
+            }
+
+            if (lhs.Type != rhs.Type)
+            {
+                throw new ExprTypeCheckException("bitwidth mistmatch");
+            }
+
             int bits = lhs.Type.BvBits;
             Debug.Assert(bits == rhs.Type.BvBits);
 
@@ -130,7 +145,9 @@ namespace Symbooglix
 
         public Expr BVSLT(Expr lhs, Expr rhs)
         {
-            return GetBinaryBVFunction(BasicType.Bool, "BVSLT", "bvslt", lhs, rhs);
+            var result = GetBinaryBVFunction(BasicType.Bool, "BVSLT", "bvslt", lhs, rhs);
+            result.Type = Microsoft.Boogie.Type.Bool;
+            return result;
         }
 
         public Expr BVSLE (Expr lhs, Expr rhs)

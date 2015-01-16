@@ -53,6 +53,12 @@ namespace Symbooglix
         Expr Not(Expr e);
     }
 
+    // FIXME: This class should probably contain references to the relevant Exprs
+    public class ExprTypeCheckException : Exception
+    {
+        public ExprTypeCheckException(string msg) : base(msg) { }
+    }
+
 
 }
 
