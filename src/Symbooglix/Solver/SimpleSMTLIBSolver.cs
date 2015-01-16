@@ -204,61 +204,64 @@ namespace Symbooglix
                     if (computeAssignment)
                         throw new NotSupportedException("Can't handle assignments yet");
 
-                    ReadExprTimer.Start();
-                    Printer.AddDeclarations(queryExpr);
-                    ReadExprTimer.Stop();
-
-                    // Assume the process has already been setup
-                    try
+                    // FIXME: This is only needed for PersistentProcess mode but we need
+                    // to initialise it before we could get a response from the solver other we might race.
+                    // In fact there still might be a race here...
+                    using (ReceivedResultEvent = new CountdownEvent(1))
                     {
-                        PrintExprTimer.Start();
+                        ReadExprTimer.Start();
+                        Printer.AddDeclarations(queryExpr);
+                        ReadExprTimer.Stop();
 
-                        // Set options if the current process hasn't been given them before
-                        if (!SolverOptionsSet)
+                        // Assume the process has already been setup
+                        try
                         {
-                            SetSolverOptions();
-                            SolverOptionsSet = true;
+                            PrintExprTimer.Start();
+
+                            // Set options if the current process hasn't been given them before
+                            if (!SolverOptionsSet)
+                            {
+                                SetSolverOptions();
+                                SolverOptionsSet = true;
+                            }
+
+                            if (PersistentProcess)
+                                Printer.PrintPushDeclStack(1);
+
+                            PrintDeclarationsAndConstraints();
+                            Printer.PrintAssert(queryExpr);
+
+                            // Start the timer for the process now. The solver should start processing as soon as we write (check-sat)
+                            SolverProcessTimer.Start();
+
+                            Printer.PrintCheckSat();
+                            PrintExprTimer.Stop();
                         }
-
-                        if (PersistentProcess)
-                            Printer.PrintPushDeclStack(1);
-
-                        PrintDeclarationsAndConstraints();
-                        Printer.PrintAssert(queryExpr);
-
-                        // Start the timer for the process now. The solver should start processing as soon as we write (check-sat)
-                        SolverProcessTimer.Start(); 
-
-                        Printer.PrintCheckSat();
-                        PrintExprTimer.Stop();
-                    }
-                    catch(System.IO.IOException)
-                    {
-                        // This might happen if the process gets killed whilst we are trying to write
-                        if (!ReceivedResult)
+                        catch (System.IO.IOException)
                         {
-                            Console.Error.WriteLine("Failed to get solver result!");
+                            // This might happen if the process gets killed whilst we are trying to write
+                            if (!ReceivedResult)
+                            {
+                                Console.Error.WriteLine("Failed to get solver result!");
+                                SolverResult = Result.UNKNOWN;
+                                return Tuple.Create(SolverResult, null as IAssignment);
+                            }
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            Console.Error.WriteLine("Warning hit ObjectDisposedException. Assuming we are being disposed of!");
+                            // Race condition, We got killed while trying to print. Just give up!
                             SolverResult = Result.UNKNOWN;
                             return Tuple.Create(SolverResult, null as IAssignment);
                         }
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        Console.Error.WriteLine("Warning hit ObjectDisposedException. Assuming we are being disposed of!");
-                        // Race condition, We got killed while trying to print. Just give up!
-                        SolverResult = Result.UNKNOWN;
-                        return Tuple.Create(SolverResult, null as IAssignment);
-                    }
 
-                    // Handle result
-                    if (PersistentProcess)
-                    {
-                        // In persistent mode try to avoid killing the solver process so have to use
-                        // a different synchronisation method to check if we've received a result
-
-                        // Wait for result
-                        using (ReceivedResultEvent = new CountdownEvent(1))
+                        // Handle result
+                        if (PersistentProcess)
                         {
+                            // In persistent mode try to avoid killing the solver process so have to use
+                            // a different synchronisation method to check if we've received a result
+
+                            // Wait for result
                             if (Timeout > 0)
                                 ReceivedResultEvent.Wait(Timeout * 1000);
                             else
@@ -275,32 +278,31 @@ namespace Symbooglix
                                 // Clear all the declarations and assertions, ready for the next query
                                 Printer.PrintPopDeclStack(1);
                             }
-                        }
-                        ReceivedResultEvent = null;
 
-                        if (SolverProcessTimer.IsRunning)
-                            SolverProcessTimer.Stop();
-                    }
-                    else
-                    {
-                        // Non-persistent process mode. We create and destroy a process for every query
-                        if (Timeout > 0)
-                            TheProcess.WaitForExit(Timeout * 1000);
+                            if (SolverProcessTimer.IsRunning)
+                                SolverProcessTimer.Stop();
+                        }
                         else
-                            TheProcess.WaitForExit();
-
-                        if (!ReceivedResult)
                         {
-                            Console.Error.WriteLine("Failed to get solver result!");
-                            SolverResult = Result.UNKNOWN;
+                            // Non-persistent process mode. We create and destroy a process for every query
+                            if (Timeout > 0)
+                                TheProcess.WaitForExit(Timeout * 1000);
+                            else
+                                TheProcess.WaitForExit();
+
+                            if (!ReceivedResult)
+                            {
+                                Console.Error.WriteLine("Failed to get solver result!");
+                                SolverResult = Result.UNKNOWN;
+                            }
+
+                            if (SolverProcessTimer.IsRunning)
+                                SolverProcessTimer.Stop();
+
+                            CreateNewProcess(); // For next invocation
                         }
-
-                        if (SolverProcessTimer.IsRunning)
-                            SolverProcessTimer.Stop();
-
-                        CreateNewProcess(); // For next invocation
                     }
-
+                    ReceivedResultEvent = null;
 
                     return Tuple.Create(SolverResult, null as IAssignment);
                 }
