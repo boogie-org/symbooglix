@@ -19,6 +19,7 @@ namespace SymbooglixLibTests
             {
                 Assert.IsFalse(eventArgs.State.Finished());
                 Assert.IsNull(eventArgs.State.TerminationType);
+                Console.WriteLine("state {0}", eventArgs.State.Id);
 
                 // FIXME: Id should **NOT* be a static counter because it is shared across all Executors which is bad
                 //Assert.AreEqual(0, eventArgs.State.Id);

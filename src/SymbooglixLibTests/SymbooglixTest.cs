@@ -103,8 +103,8 @@ namespace SymbooglixLibTests
             if (!File.Exists(pathToSolver))
                 Assert.Fail("Could not find solver at \"{0}\"", pathToSolver);
 
-            var solver = new SimpleSolver(new Z3SMTLIBSolver(true, pathToSolver));
-            //solver.SetTimeout(10);
+            var solver = new SimpleSolver(new Z3SMTLIBSolver(/*useNamedAttributes=*/ true, pathToSolver, /*persistentProcess=*/ true));
+            solver.SetTimeout(10);
             return solver;
 
         }

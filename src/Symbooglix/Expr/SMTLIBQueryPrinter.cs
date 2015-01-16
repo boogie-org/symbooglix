@@ -370,6 +370,22 @@ namespace Symbooglix
                 TW.WriteLine("(set-logic " + L.ToString() + " )");
         }
 
+        public void PrintPushDeclStack(int count)
+        {
+            if (count < 1)
+                throw new ArgumentException("count must be > 0");
+
+            TW.WriteLine("(push {0})", count);
+        }
+
+        public void PrintPopDeclStack(int count)
+        {
+            if (count < 1)
+                throw new ArgumentException("count must be > 0");
+
+            TW.WriteLine("(pop {0})", count);
+        }
+
         public void PrintAssert(Expr e)
         {
             TW.Write("(assert");

@@ -115,6 +115,9 @@ namespace SymbooglixDriver
                 AltBFS
             }
 
+            [Option("persistent-solver", DefaultValue=1, HelpText="Try to make solver process persistent")]
+            public int PersistentSolver { get; set; }
+
             [Option("scheduler", DefaultValue = Scheduler.DFS, HelpText="State scheduler to use")]
             public Scheduler scheduler { get; set; }
 
@@ -709,10 +712,10 @@ namespace SymbooglixDriver
             switch (options.solver)
             {
                 case CmdLineOpts.Solver.CVC4:
-                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, logicToUse);
+                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, options.PersistentSolver > 0,logicToUse);
                     break;
                 case CmdLineOpts.Solver.Z3:
-                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, logicToUse);
+                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, options.PersistentSolver > 0,logicToUse);
                     break;
                 case CmdLineOpts.Solver.DUMMY:
                     solverImpl = new Solver.DummySolver(Symbooglix.Solver.Result.UNKNOWN);

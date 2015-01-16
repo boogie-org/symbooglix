@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Boogie;
+using System.Threading;
 
 namespace Symbooglix
 {
@@ -23,11 +24,20 @@ namespace Symbooglix
             private Stopwatch SolverProcessTimer;
             private Stopwatch PrintExprTimer;
             private bool UseNamedAttributes;
+            private bool SolverOptionsSet;
+            private bool ReceivedError;
+            public readonly bool PersistentProcess;
+            private CountdownEvent ReceivedResultEvent;
 
-            protected SimpleSMTLIBSolver(bool useNamedAttributes, string PathToSolverExecutable, string solverArguments)
+            protected SimpleSMTLIBSolver(bool useNamedAttributes, string PathToSolverExecutable, string solverArguments, bool persistentProcess)
             {
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
+
+                SolverOptionsSet = false;
+                ReceivedError = false;
+                ReceivedResultEvent = null;
+                this.PersistentProcess = persistentProcess;
 
                 ReadExprTimer = new Stopwatch();
                 SolverProcessTimer = new Stopwatch();
@@ -68,6 +78,7 @@ namespace Symbooglix
                 InternalStatistics.SolverProcessTime = SolverProcessTimer.Elapsed;
             }
 
+            // FIXME: There's a race here when calling Dispose()
             private void CreateNewProcess()
             {
                 SolverProcessTimer.Start(); // Include the process setup time in solver execution time
@@ -80,6 +91,8 @@ namespace Symbooglix
 
                     TheProcess.Close();
                 }
+
+                ++InternalStatistics.ProcessCreationCount;
 
                 this.TheProcess = Process.Start(StartInfo);
 
@@ -94,6 +107,7 @@ namespace Symbooglix
                 TheProcess.ErrorDataReceived += ErrorHandler;
                 TheProcess.BeginOutputReadLine();
                 TheProcess.BeginErrorReadLine();
+                SolverOptionsSet = false;
                 SolverProcessTimer.Stop();
             }
 
@@ -178,6 +192,11 @@ namespace Symbooglix
                 lock (ComputeSatisfiabilityLock)
                 {
                     ReceivedResult = false;
+                    ReceivedError = false;
+                    SolverResult = Result.UNKNOWN;
+
+                    if (computeAssignment)
+                        throw new NotSupportedException("Can't handle assignments yet");
 
                     ReadExprTimer.Start();
                     Printer.AddDeclarations(queryExpr);
@@ -187,7 +206,17 @@ namespace Symbooglix
                     try
                     {
                         PrintExprTimer.Start();
-                        SetSolverOptions();
+
+                        // Set options if the current process hasn't been given them before
+                        if (!SolverOptionsSet)
+                        {
+                            SetSolverOptions();
+                            SolverOptionsSet = true;
+                        }
+
+                        if (PersistentProcess)
+                            Printer.PrintPushDeclStack(1);
+
                         PrintDeclarationsAndConstraints();
                         Printer.PrintAssert(queryExpr);
 
@@ -215,25 +244,56 @@ namespace Symbooglix
                         return Tuple.Create(SolverResult, null as IAssignment);
                     }
 
-
-                    if (computeAssignment)
-                        throw new NotSupportedException("Can't handle assignments yet");
-
-                    if (Timeout > 0)
-                        TheProcess.WaitForExit(Timeout * 1000);
-                    else
-                        TheProcess.WaitForExit();
-
-                    if (!ReceivedResult)
+                    // Handle result
+                    if (PersistentProcess)
                     {
-                        Console.Error.WriteLine("Failed to get solver result!");
-                        SolverResult = Result.UNKNOWN;
+                        // In persistent mode try to avoid killing the solver process so have to use
+                        // a different synchronisation method to check if we've received a result
+
+                        // Wait for result
+                        using (ReceivedResultEvent = new CountdownEvent(1))
+                        {
+                            if (Timeout > 0)
+                                ReceivedResultEvent.Wait(Timeout * 1000);
+                            else
+                                ReceivedResultEvent.Wait();
+
+                            if (!ReceivedResult || ReceivedError || TheProcess.HasExited || ReceivedResultEvent.CurrentCount > 0)
+                            {
+                                // We don't know what state the process is in so we should kill it and make a fresh process
+                                SolverResult = Result.UNKNOWN;
+                                CreateNewProcess();
+                            }
+                            else
+                            {
+                                // Clear all the declarations and assertions, ready for the next query
+                                Printer.PrintPopDeclStack(1);
+                            }
+                        }
+                        ReceivedResultEvent = null;
+
+                        if (SolverProcessTimer.IsRunning)
+                            SolverProcessTimer.Stop();
                     }
+                    else
+                    {
+                        // Non-persistent process mode. We create and destroy a process for every query
+                        if (Timeout > 0)
+                            TheProcess.WaitForExit(Timeout * 1000);
+                        else
+                            TheProcess.WaitForExit();
 
-                    if (SolverProcessTimer.IsRunning)
-                        SolverProcessTimer.Stop();
+                        if (!ReceivedResult)
+                        {
+                            Console.Error.WriteLine("Failed to get solver result!");
+                            SolverResult = Result.UNKNOWN;
+                        }
 
-                    CreateNewProcess(); // For next invocation
+                        if (SolverProcessTimer.IsRunning)
+                            SolverProcessTimer.Stop();
+
+                        CreateNewProcess(); // For next invocation
+                    }
 
 
                     return Tuple.Create(SolverResult, null as IAssignment);
@@ -266,7 +326,15 @@ namespace Symbooglix
                         break;
                 }
 
-                Printer.PrintExit();
+                if (PersistentProcess)
+                {
+                    ReceivedResultEvent.Signal();
+                }
+                else
+                {
+                    Printer.PrintExit();
+                }
+
             }
 
             protected virtual void ErrorHandler(object sendingProcess, DataReceivedEventArgs  stderrLine)
@@ -275,6 +343,10 @@ namespace Symbooglix
                 {
                     Console.Error.WriteLine("Solver error received:");
                     Console.Error.WriteLine(stderrLine.Data);
+                    ReceivedError = true;
+
+                    if (PersistentProcess)
+                        ReceivedResultEvent.Signal();
                 }
             }
 
@@ -305,6 +377,7 @@ namespace Symbooglix
             public TimeSpan SolverProcessTime;
             public TimeSpan ReadExprTime;
             public TimeSpan PrintExprTime;
+            public int ProcessCreationCount;
 
             public void Reset()
             {
@@ -320,6 +393,7 @@ namespace Symbooglix
                 TW.WriteLine("solver_process_time: {0}", SolverProcessTime.TotalSeconds);
                 TW.WriteLine("read_expr_time: {0}", ReadExprTime.TotalSeconds);
                 TW.WriteLine("print_expr_time: {0}", PrintExprTime.TotalSeconds);
+                TW.WriteLine("process_create_count: {0}", ProcessCreationCount);
                 TW.Indent -= 1;
             }
 
