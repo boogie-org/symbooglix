@@ -29,6 +29,10 @@ namespace Symbooglix
             public readonly bool PersistentProcess;
             private CountdownEvent ReceivedResultEvent;
 
+            // FIXME: This API sucks sooo much
+            // Only has meaning if PersistentProcess is True
+            protected bool UseReset;
+
             protected SimpleSMTLIBSolver(bool useNamedAttributes, string PathToSolverExecutable, string solverArguments, bool persistentProcess)
             {
                 if (! File.Exists(PathToSolverExecutable))
@@ -38,6 +42,7 @@ namespace Symbooglix
                 ReceivedError = false;
                 ReceivedResultEvent = null;
                 this.PersistentProcess = persistentProcess;
+                UseReset = false;
 
                 ReadExprTimer = new Stopwatch();
                 SolverProcessTimer = new Stopwatch();
@@ -218,14 +223,14 @@ namespace Symbooglix
                         {
                             PrintExprTimer.Start();
 
-                            // Set options if the current process hasn't been given them before
-                            if (!SolverOptionsSet)
+                            // Set options if the current process hasn't been given them before or if we're using (reset)
+                            if (!SolverOptionsSet || UseReset)
                             {
                                 SetSolverOptions();
                                 SolverOptionsSet = true;
                             }
 
-                            if (PersistentProcess)
+                            if (PersistentProcess && !UseReset)
                                 Printer.PrintPushDeclStack(1);
 
                             PrintDeclarationsAndConstraints();
@@ -276,7 +281,15 @@ namespace Symbooglix
                             else
                             {
                                 // Clear all the declarations and assertions, ready for the next query
-                                Printer.PrintPopDeclStack(1);
+                                if (UseReset)
+                                {
+                                    Printer.PrintReset();
+                                }
+                                else
+                                {
+                                    Printer.PrintPopDeclStack(1);
+                                    Printer.Reset();
+                                }
                             }
 
                             if (SolverProcessTimer.IsRunning)

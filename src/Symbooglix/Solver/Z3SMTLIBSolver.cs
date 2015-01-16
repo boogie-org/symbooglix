@@ -11,6 +11,10 @@ namespace Symbooglix
             public Z3SMTLIBSolver(bool useNamedAttributes, string pathToSolver, bool persistentProcess) :
                 base(useNamedAttributes, pathToSolver, "-in -smt2", persistentProcess) // Z3 specific command line args
             {
+                // HACK:
+                // Z3 supports SMTLIB-v2.5 command (reset)
+                if (persistentProcess)
+                    this.UseReset = true;
             }
 
             // HACK:

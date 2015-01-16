@@ -441,6 +441,13 @@ namespace Symbooglix
         public void PrintExit()
         {
             TW.WriteLine("(exit)");
+            Reset();
+        }
+
+        // Not the same as ClearDeclarations() as we keep hold of the known sorts, functions etc...
+        // FIXME: I don't think we should have this. It will probably lead to mistakes
+        public void Reset()
+        {
             TW.Flush();
             AssertCounter = 0;
 
@@ -450,6 +457,12 @@ namespace Symbooglix
                 // they'll be used for subsequent printing without actually declaring them
                 Bindings.Clear();
             }
+        }
+
+        public void PrintReset()
+        {
+            TW.WriteLine("(reset)");
+            Reset();
         }
 
         // FIXME: This API is gross. Use enums instead

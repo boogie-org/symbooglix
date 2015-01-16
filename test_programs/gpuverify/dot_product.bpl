@@ -1,7 +1,6 @@
 // FIXME: We have to use the gross --force-qfaufbv otherwise the solver gets stuck! We need to do this in a cleaner way.
-// FIXME: There is a bug Z3 which means the persistent solver gets stuck
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points --force-qfaufbv --persistent-solver=0 %s
+// RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out --gpuverify-entry-points --force-qfaufbv %s
 type _SIZE_T_TYPE = bv32;
 
 procedure _ATOMIC_OP32(x: [bv32]bv32, y: bv32) returns (z$1: bv32, A$1: [bv32]bv32, z$2: bv32, A$2: [bv32]bv32);
