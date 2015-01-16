@@ -159,7 +159,9 @@ namespace Symbooglix
 
         public Expr BVSGT(Expr lhs, Expr rhs)
         {
-            return GetBinaryBVFunction(BasicType.Bool, "BVSGT", "bvsgt", lhs, rhs);
+            var result = GetBinaryBVFunction(BasicType.Bool, "BVSGT", "bvsgt", lhs, rhs);
+            result.Type = Microsoft.Boogie.Type.Bool;
+            return result;
         }
 
         public Expr BVSGE(Expr lhs, Expr rhs)
