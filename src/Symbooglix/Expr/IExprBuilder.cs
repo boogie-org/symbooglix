@@ -23,6 +23,7 @@ namespace Symbooglix
         Expr BVSGE(Expr lhls, Expr rhs);
 
         Expr BVULT(Expr lhs, Expr rhs);
+        Expr BVULE(Expr lhs, Expr rhs);
 
         Expr BVAND(Expr lhs, Expr rhs);
         Expr BVOR(Expr lhs, Expr rhs);

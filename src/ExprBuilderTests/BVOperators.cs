@@ -147,6 +147,27 @@ namespace ExprBuilderTests
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVULT(constant0, constant1);
         }
+
+        [Test()]
+        public void Bvule()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 4);
+            var result = builder.BVULE(constant0, constant1);
+            Assert.AreEqual("BVULE4(5bv4, 11bv4)", result.ToString());
+            CheckIsBoolType(result);
+            CheckBvBuiltIn(result, "bvule");
+        }
+
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvuleTypeMismatch()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 5);
+            builder.BVULE(constant0, constant1);
+        }
     }
 }
 
