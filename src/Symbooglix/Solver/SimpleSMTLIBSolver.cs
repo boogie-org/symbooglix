@@ -78,37 +78,43 @@ namespace Symbooglix
                 InternalStatistics.SolverProcessTime = SolverProcessTimer.Elapsed;
             }
 
-            // FIXME: There's a race here when calling Dispose()
+
             private void CreateNewProcess()
             {
-                SolverProcessTimer.Start(); // Include the process setup time in solver execution time
-                if (TheProcess != null)
+                lock (DisposeLock)
                 {
-                    // Process.Close() does not kill the process
-                    // so we need to kill it first if necessary
-                    if (!TheProcess.HasExited)
-                        TheProcess.Kill();
+                    if (HasBeenDisposed)
+                        return;
 
-                    TheProcess.Close();
+                    SolverProcessTimer.Start(); // Include the process setup time in solver execution time
+                    if (TheProcess != null)
+                    {
+                        // Process.Close() does not kill the process
+                        // so we need to kill it first if necessary
+                        if (!TheProcess.HasExited)
+                            TheProcess.Kill();
+
+                        TheProcess.Close();
+                    }
+
+                    ++InternalStatistics.ProcessCreationCount;
+
+                    this.TheProcess = Process.Start(StartInfo);
+
+                    if (Printer == null)
+                        Printer = new SMTLIBQueryPrinter(GetStdInput(), /*useNamedAttributeBindings*/UseNamedAttributes, /*humanReadable=*/false);
+                    else
+                        Printer.ChangeOutput(GetStdInput());
+
+
+                    // Register for asynchronous callbacks
+                    TheProcess.OutputDataReceived += OutputHandler;
+                    TheProcess.ErrorDataReceived += ErrorHandler;
+                    TheProcess.BeginOutputReadLine();
+                    TheProcess.BeginErrorReadLine();
+                    SolverOptionsSet = false;
+                    SolverProcessTimer.Stop();
                 }
-
-                ++InternalStatistics.ProcessCreationCount;
-
-                this.TheProcess = Process.Start(StartInfo);
-
-                if (Printer == null)
-                    Printer = new SMTLIBQueryPrinter(GetStdInput(), /*useNamedAttributeBindings*/ UseNamedAttributes, /*humanReadable=*/ false);
-                else
-                    Printer.ChangeOutput(GetStdInput());
-
-
-                // Register for asynchronous callbacks
-                TheProcess.OutputDataReceived += OutputHandler;
-                TheProcess.ErrorDataReceived += ErrorHandler;
-                TheProcess.BeginOutputReadLine();
-                TheProcess.BeginErrorReadLine();
-                SolverOptionsSet = false;
-                SolverProcessTimer.Stop();
             }
 
             private StreamWriter GetStdInput()
