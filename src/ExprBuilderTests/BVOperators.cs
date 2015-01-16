@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Boogie;
+using System;
 using Symbooglix;
 using SymbooglixLibTests;
 using NUnit.Framework;
@@ -21,6 +22,16 @@ namespace ExprBuilderTests
             return new SimpleExprBuilder();
         }
 
+        private void CheckIsBoolType(Expr result)
+        {
+            var shallowType = result.ShallowType;
+            Assert.IsNotNull(shallowType);
+            Assert.IsTrue(shallowType.IsBool);
+            var t = result.Type;
+            Assert.IsNotNull(t);
+            Assert.IsTrue(t.IsBool);
+        }
+
         [Test()]
         public void Bvslt()
         {
@@ -29,12 +40,7 @@ namespace ExprBuilderTests
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSLT(constant0, constant1);
             Assert.AreEqual("BVSLT4(5bv4, 11bv4)", result.ToString());
-            var shallowType = result.ShallowType;
-            Assert.IsNotNull(shallowType);
-            Assert.IsTrue(shallowType.IsBool);
-            var t = result.Type;
-            Assert.IsNotNull(t);
-            Assert.IsTrue(t.IsBool);
+            CheckIsBoolType(result);
         }
 
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
@@ -54,12 +60,7 @@ namespace ExprBuilderTests
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSLE(constant0, constant1);
             Assert.AreEqual("BVSLE4(5bv4, 11bv4)", result.ToString());
-            var shallowType = result.ShallowType;
-            Assert.IsNotNull(shallowType);
-            Assert.IsTrue(shallowType.IsBool);
-            var t = result.Type;
-            Assert.IsNotNull(t);
-            Assert.IsTrue(t.IsBool);
+            CheckIsBoolType(result);
         }
 
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
