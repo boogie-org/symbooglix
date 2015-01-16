@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
+    // FIXME: This design needs rethinking, we currently create a node at every branch, even if its then same state!
     public class ExecutionTreeNode
     {
         public readonly ExecutionTreeNode Parent;

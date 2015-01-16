@@ -74,7 +74,7 @@ namespace Symbooglix
             TerminationType = null;
             Speculative = false;
             ExplicitBranchDepth = 0;
-            TreeNode = new ExecutionTreeNode(this, null, null);
+            TreeNode = null; //new ExecutionTreeNode(this, null, null); // FIXME: Disabled due to design issues.
 
         }
 

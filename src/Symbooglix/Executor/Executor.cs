@@ -1386,7 +1386,7 @@ namespace Symbooglix
                     StateScheduler.AddState(newState);
 
                     // The Current state also needs a new node
-                    CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, CurrentState.TreeNode, c.GetProgramLocation());
+                    //CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, CurrentState.TreeNode, c.GetProgramLocation());
                 }
             }
 
@@ -1555,7 +1555,7 @@ namespace Symbooglix
             if (c.labelTargets.Count > 1)
             {
                 // We need to make a new ExecutionTree node for the CurrentState because it has gone deeper
-                CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, CurrentState.TreeNode, c.GetProgramLocation());
+                //CurrentState.TreeNode = new ExecutionTreeNode(CurrentState, CurrentState.TreeNode, c.GetProgramLocation());
             }
         }
 
@@ -1622,7 +1622,7 @@ namespace Symbooglix
             var newState = stateToFork.DeepClone();
 
             // Should DeepClone() handle this instead?
-            newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);
+            //newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);
             ++InternalStatistics.ForkCount;
             return newState;
         }
