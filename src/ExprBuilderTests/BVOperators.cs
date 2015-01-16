@@ -22,6 +22,17 @@ namespace ExprBuilderTests
             return new SimpleExprBuilder();
         }
 
+        private void CheckBvBuiltIn(Expr e, string expected)
+        {
+            Assert.IsInstanceOf<NAryExpr>(e);
+            var asNary = e as NAryExpr;
+            Assert.IsInstanceOf<FunctionCall>(asNary.Fun);
+            var fc = asNary.Fun as FunctionCall;
+            var actual = QKeyValue.FindStringAttribute(fc.Func.Attributes, "bvbuiltin");
+            Assert.IsNotNullOrEmpty(actual);
+            Assert.AreEqual(expected, actual);
+        }
+
         private void CheckIsBoolType(Expr result)
         {
             var shallowType = result.ShallowType;
@@ -41,6 +52,7 @@ namespace ExprBuilderTests
             var result = builder.BVSLT(constant0, constant1);
             Assert.AreEqual("BVSLT4(5bv4, 11bv4)", result.ToString());
             CheckIsBoolType(result);
+            CheckBvBuiltIn(result, "bvslt");
         }
 
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
@@ -61,6 +73,7 @@ namespace ExprBuilderTests
             var result = builder.BVSLE(constant0, constant1);
             Assert.AreEqual("BVSLE4(5bv4, 11bv4)", result.ToString());
             CheckIsBoolType(result);
+            CheckBvBuiltIn(result, "bvsle");
         }
 
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
@@ -81,6 +94,7 @@ namespace ExprBuilderTests
             var result = builder.BVSGT(constant0, constant1);
             Assert.AreEqual("BVSGT4(5bv4, 11bv4)", result.ToString());
             CheckIsBoolType(result);
+            CheckBvBuiltIn(result, "bvsgt");
         }
 
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
