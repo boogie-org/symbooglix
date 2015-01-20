@@ -315,7 +315,9 @@ namespace Symbooglix
 
         public Expr BVNOT(Expr operand)
         {
-            return GetUnaryBVFunction(operand.Type, "BVNOT", "bvnot", operand);
+            var result = GetUnaryBVFunction(operand.Type, "BVNOT", "bvnot", operand);
+            result.Type = operand.Type;
+            return result;
 
         }
 

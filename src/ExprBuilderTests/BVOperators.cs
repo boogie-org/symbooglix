@@ -534,6 +534,26 @@ namespace ExprBuilderTests
             var constant0 = builder.False;
             builder.BVNEG(constant0);
         }
+
+        [Test()]
+        public void Bvnot()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var result = builder.BVNOT(constant0);
+            Assert.AreEqual("BVNOT4(5bv4)", result.ToString());
+            CheckIsBvType(result, 4);
+            CheckBvBuiltIn(result, "bvnot");
+        }
+
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvnotTypeError()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.False;
+            builder.BVNOT(constant0);
+        }
+
     }
 }
 
