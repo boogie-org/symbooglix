@@ -34,6 +34,7 @@ namespace Symbooglix
         Expr BVLSHR(Expr lhs, Expr rhs);
         Expr BVASHR(Expr lhs, Expr rhs);
 
+        Expr BVADD(Expr lhs, Expr rhs);
         Expr BVMUL(Expr lhs, Expr rhs);
         Expr BVUDIV(Expr lhs, Expr rhs);
         Expr BVUREM(Expr lhs, Expr rhs);
