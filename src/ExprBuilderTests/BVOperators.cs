@@ -554,6 +554,33 @@ namespace ExprBuilderTests
             builder.BVNOT(constant0);
         }
 
+        [Test()]
+        public void Bvsext()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var result = builder.BVSEXT(constant0, 5);
+            Assert.AreEqual("BV4_SEXT5(5bv4)", result.ToString());
+            CheckIsBvType(result, 5);
+            CheckBvBuiltIn(result, "sign_extend 1");
+        }
+
+        [Test(),ExpectedException(typeof(ArgumentException))]
+        public void BvsextWrongWidth()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            builder.BVSEXT(constant0, 3);
+        }
+
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvsextWrongType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.False;
+            builder.BVSEXT(constant0, 3);
+        }
+
     }
 }
 

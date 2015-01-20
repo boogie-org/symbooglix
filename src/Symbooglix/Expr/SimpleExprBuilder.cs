@@ -284,14 +284,25 @@ namespace Symbooglix
             return result;
         }
 
-        public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand)
+        public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand, bool getSuffixFromReturnType = false)
         {
             if (!operand.Type.IsBv)
             {
                 throw new ExprTypeCheckException("operand must be BvType");
             }
 
-            int bits = operand.Type.BvBits;
+            int bits = 0;
+
+            if (getSuffixFromReturnType)
+            {
+                if (!returnType.IsBv)
+                    throw new ArgumentException("expected return type to be BvType");
+                bits = returnType.BvBits;
+            }
+            else
+            {
+                bits = operand.Type.BvBits;
+            }
 
             // FIXME: Cache this for each bitwidth
             var builtinFunctionCall = CreateBVBuiltIn(NameWithoutSizeSuffx + bits.ToString(),
@@ -319,6 +330,28 @@ namespace Symbooglix
             result.Type = operand.Type;
             return result;
 
+        }
+
+        public Expr BVSEXT(Expr operand, int newWidth)
+        {
+            if (!operand.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("operand must be BvType");
+            }
+
+            int originalWidth = operand.Type.BvBits;
+
+            if (newWidth < originalWidth)
+            {
+                throw new ArgumentException("newWidth must be greater than the operand's bit width");
+            }
+
+            var functionNameWithoutSuffix = string.Format("BV{0}_SEXT", originalWidth);
+            var builtinName = string.Format("sign_extend {0}", ( newWidth - originalWidth ));
+            var newType = BasicType.GetBvType(newWidth);
+            var result = GetUnaryBVFunction(newType, functionNameWithoutSuffix, builtinName, operand, /*getSuffixFromReturnType=*/ true);
+            result.Type = newType;
+            return result;
         }
 
         public Expr NotEq(Expr lhs, Expr rhs)
