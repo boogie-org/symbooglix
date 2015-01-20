@@ -43,6 +43,18 @@ namespace ExprBuilderTests
             Assert.IsTrue(t.IsBool);
         }
 
+        private void CheckIsBvType(Expr result, int width)
+        {
+            var shallowType = result.ShallowType;
+            Assert.IsNotNull(shallowType);
+            Assert.IsTrue(shallowType.IsBv);
+            Assert.AreEqual(width, shallowType.BvBits);
+            var t = result.Type;
+            Assert.IsNotNull(t);
+            Assert.IsTrue(t.IsBv);
+            Assert.AreEqual(width, t.BvBits);
+        }
+
         [Test()]
         public void Bvslt()
         {
@@ -209,6 +221,27 @@ namespace ExprBuilderTests
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVUGE(constant0, constant1);
+        }
+
+        [Test()]
+        public void Bvand()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 4);
+            var result = builder.BVAND(constant0, constant1);
+            Assert.AreEqual("BVAND4(5bv4, 11bv4)", result.ToString());
+            CheckIsBvType(result, 4);
+            CheckBvBuiltIn(result, "bvand");
+        }
+
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvandTypeMismatch()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 5);
+            builder.BVAND(constant0, constant1);
         }
     }
 }
