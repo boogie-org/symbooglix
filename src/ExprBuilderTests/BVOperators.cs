@@ -350,7 +350,7 @@ namespace ExprBuilderTests
         }
 
         [Test()]
-        public void Bvaddr()
+        public void Bvadd()
         {
             var builder = GetBuilder();
             var constant0 = builder.ConstantBV(5, 4);
