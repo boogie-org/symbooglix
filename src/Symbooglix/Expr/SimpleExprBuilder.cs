@@ -244,7 +244,9 @@ namespace Symbooglix
 
         public Expr BVMUL(Expr lhs, Expr rhs)
         {
-            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVMUL", "bvmul", lhs, rhs);
+            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVMUL", "bvmul", lhs, rhs);
+            result.Type = lhs.Type;
+            return result;
         }
 
         public Expr BVUDIV(Expr lhs, Expr rhs)
