@@ -285,6 +285,27 @@ namespace ExprBuilderTests
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVXOR(constant0, constant1);
         }
+
+        [Test()]
+        public void Bvshl()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 4);
+            var result = builder.BVSHL(constant0, constant1);
+            Assert.AreEqual("BVSHL4(5bv4, 11bv4)", result.ToString());
+            CheckIsBvType(result, 4);
+            CheckBvBuiltIn(result, "bvshl");
+        }
+
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvshlTypeMismatch()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 5);
+            builder.BVSHL(constant0, constant1);
+        }
     }
 }
 
