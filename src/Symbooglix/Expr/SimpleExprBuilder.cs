@@ -112,7 +112,7 @@ namespace Symbooglix
 
             if (!rhs.Type.IsBv)
             {
-                throw new ExprTypeCheckException("lhs must be bitvector");
+                throw new ExprTypeCheckException("rhs must be bitvector");
             }
 
             if (lhs.Type != rhs.Type)
@@ -195,91 +195,91 @@ namespace Symbooglix
 
         public Expr BVOR(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVOR", "bvor", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVOR", "bvor", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVAND(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVAND", "bvand", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVAND", "bvand", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVXOR(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVXOR", "bvxor", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVXOR", "bvxor", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVSHL(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSHL", "bvshl", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVSHL", "bvshl", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVLSHR(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVLSHR", "bvlshr", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVLSHR", "bvlshr", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVASHR(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVASHR", "bvashr", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVASHR", "bvashr", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVADD(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVADD", "bvadd", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVADD", "bvadd", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVMUL(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVMUL", "bvmul", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVMUL", "bvmul", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVUDIV(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUDIV", "bvudiv", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVUDIV", "bvudiv", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVSDIV(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSDIV", "bvsdiv", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVSDIV", "bvsdiv", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVUREM(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVUREM", "bvurem", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVUREM", "bvurem", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVSREM(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVSREM", "bvsrem", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
 
         public Expr BVSMOD(Expr lhs, Expr rhs)
         {
-            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSMOD", "bvsmod", lhs, rhs);
+            var result = GetBinaryBVFunction(lhs.Type, "BVSMOD", "bvsmod", lhs, rhs);
             result.Type = lhs.Type;
             return result;
         }
@@ -308,15 +308,14 @@ namespace Symbooglix
 
         public Expr BVNEG(Expr operand)
         {
-            var result = GetUnaryBVFunction(operand.ShallowType, "BVNEG", "bvneg", operand);
+            var result = GetUnaryBVFunction(operand.Type, "BVNEG", "bvneg", operand);
             result.Type = operand.Type;
             return result;
-
         }
 
         public Expr BVNOT(Expr operand)
         {
-            return GetUnaryBVFunction(BasicType.GetBvType(operand.Type.BvBits), "BVNOT", "bvnot", operand);
+            return GetUnaryBVFunction(operand.Type, "BVNOT", "bvnot", operand);
 
         }
 

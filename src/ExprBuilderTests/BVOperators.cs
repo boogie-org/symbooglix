@@ -76,6 +76,26 @@ namespace ExprBuilderTests
             builder.BVSLT(constant0, constant1);
         }
 
+        // FIXME: We should test this for all bitvector operators. I'm being lazy here
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvsltWrongLhsType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.True;
+            var constant1 = builder.ConstantBV(11, 5);
+            builder.BVSLT(constant0, constant1);
+        }
+
+        // FIXME: We should test this for all bitvector operators. I'm being lazy here
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvsltWrongRhsType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 5);
+            var constant1 = builder.True;
+            builder.BVSLT(constant0, constant1);
+        }
+
         [Test()]
         public void Bvsle()
         {
