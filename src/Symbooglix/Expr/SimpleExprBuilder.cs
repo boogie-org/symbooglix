@@ -354,6 +354,28 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr BVZEXT(Expr operand, int newWidth)
+        {
+            if (!operand.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("operand must be BvType");
+            }
+
+            int originalWidth = operand.Type.BvBits;
+
+            if (newWidth < originalWidth)
+            {
+                throw new ArgumentException("newWidth must be greater than the operand's bit width");
+            }
+
+            var functionNameWithoutSuffix = string.Format("BV{0}_ZEXT", originalWidth);
+            var builtinName = string.Format("zero_extend {0}", ( newWidth - originalWidth ));
+            var newType = BasicType.GetBvType(newWidth);
+            var result = GetUnaryBVFunction(newType, functionNameWithoutSuffix, builtinName, operand, /*getSuffixFromReturnType=*/ true);
+            result.Type = newType;
+            return result;
+        }
+
         public Expr NotEq(Expr lhs, Expr rhs)
         {
             // FIXME: Factor some of this out.
