@@ -286,8 +286,10 @@ namespace Symbooglix
 
         public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand)
         {
-            Debug.Assert(operand.Type != null);
-            Debug.Assert(operand.Type is BvType);
+            if (!operand.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("operand must be BvType");
+            }
 
             int bits = operand.Type.BvBits;
 
@@ -306,7 +308,9 @@ namespace Symbooglix
 
         public Expr BVNEG(Expr operand)
         {
-            return GetUnaryBVFunction(BasicType.GetBvType(operand.Type.BvBits), "BVNEG", "bvneg", operand);
+            var result = GetUnaryBVFunction(operand.ShallowType, "BVNEG", "bvneg", operand);
+            result.Type = operand.Type;
+            return result;
 
         }
 

@@ -495,6 +495,25 @@ namespace ExprBuilderTests
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSMOD(constant0, constant1);
         }
+
+        [Test()]
+        public void Bvneg()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var result = builder.BVNEG(constant0);
+            Assert.AreEqual("BVNEG4(5bv4)", result.ToString());
+            CheckIsBvType(result, 4);
+            CheckBvBuiltIn(result, "bvneg");
+        }
+
+        [Test(),ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvnegTypeError()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.False;
+            builder.BVNEG(constant0);
+        }
     }
 }
 
