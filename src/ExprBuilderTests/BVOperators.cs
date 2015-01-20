@@ -607,6 +607,35 @@ namespace ExprBuilderTests
             var constant0 = builder.False;
             builder.BVZEXT(constant0, 3);
         }
+
+        [Test()]
+        public void Bvconcat()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.ConstantBV(11, 5);
+            var result = builder.BVCONCAT(constant1, constant0);
+            Assert.AreEqual("11bv5 ++ 5bv4", result.ToString());
+            CheckIsBvType(result, 9);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvconcatWrongMSBType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var constant1 = builder.True;
+            builder.BVCONCAT(constant1, constant0);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvconcatWrongLSBType()
+        {
+            var builder = GetBuilder();
+            var constant1 = builder.ConstantBV(5, 4);
+            var constant0 = builder.True;
+            builder.BVCONCAT(constant1, constant0);
+        }
     }
 }
 

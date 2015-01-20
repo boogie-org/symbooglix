@@ -47,6 +47,7 @@ namespace Symbooglix
 
         Expr BVSEXT(Expr operand, int newWidth);
         Expr BVZEXT(Expr operand, int newWidth);
+        Expr BVCONCAT(Expr MSB, Expr LSB);
 
 
         // Real/Int operators

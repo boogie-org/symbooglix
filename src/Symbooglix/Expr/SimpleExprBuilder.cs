@@ -376,6 +376,23 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr BVCONCAT(Expr MSB, Expr LSB)
+        {
+            if (!MSB.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("MSB must be BvType");
+            }
+
+            if (!LSB.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("MSB must be BvType");
+            }
+
+            var result = new BvConcatExpr(Token.NoToken, MSB, LSB);
+            result.Type = result.ShallowType;
+            return result;
+        }
+
         public Expr NotEq(Expr lhs, Expr rhs)
         {
             // FIXME: Factor some of this out.
