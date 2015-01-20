@@ -105,12 +105,6 @@ namespace Symbooglix
 
         private Expr GetBinaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr lhs, Expr rhs)
         {
-            Debug.Assert(lhs.Type != null);
-            Debug.Assert(rhs.Type != null);
-            Debug.Assert(lhs.Type == rhs.Type);
-            Debug.Assert(lhs.Type is BvType);
-            Debug.Assert(rhs.Type is BvType);
-
             if (!lhs.Type.IsBv)
             {
                 throw new ExprTypeCheckException("lhs must be bitvector");
