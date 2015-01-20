@@ -192,6 +192,13 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr BVUGE(Expr lhs, Expr rhs)
+        {
+            var result = GetBinaryBVFunction(BasicType.Bool, "BVUGE", "bvuge", lhs, rhs);
+            result.Type = Microsoft.Boogie.Type.Bool;
+            return result;
+        }
+
         public Expr BVOR(Expr lhs, Expr rhs)
         {
             return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVOR", "bvor", lhs, rhs);
