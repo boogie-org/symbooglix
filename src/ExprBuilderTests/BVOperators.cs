@@ -636,6 +636,48 @@ namespace ExprBuilderTests
             var constant0 = builder.True;
             builder.BVCONCAT(constant1, constant0);
         }
+
+        [Test()]
+        public void Bvextract()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            var result = builder.BVEXTRACT(constant0, 2, 0);
+            Assert.AreEqual("5bv4[2:0]", result.ToString());
+            CheckIsBvType(result, 2);
+        }
+
+        [Test(), ExpectedException(typeof(ArgumentException))]
+        public void BvextractInvalidRange()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            builder.BVEXTRACT(constant0, 0, 0);
+        }
+
+        [Test(), ExpectedException(typeof(ArgumentException))]
+        public void BvextractInvalidRange2()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            builder.BVEXTRACT(constant0, 3, -2);
+        }
+
+        [Test(), ExpectedException(typeof(ArgumentException))]
+        public void BvextractInvalidRange3()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            builder.BVEXTRACT(constant0, 4, 2);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void BvextractInvalidType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.True;
+            builder.BVEXTRACT(constant0, 3, 0);
+        }
     }
 }
 

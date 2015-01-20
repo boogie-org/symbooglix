@@ -15,7 +15,6 @@ namespace Symbooglix
         LiteralExpr True { get;}
         LiteralExpr False { get; }
 
-        // TODO
         // BitVector operators
         Expr BVSLT(Expr lhs, Expr rhs);
         Expr BVSLE(Expr lhs, Expr rhs);
@@ -48,6 +47,7 @@ namespace Symbooglix
         Expr BVSEXT(Expr operand, int newWidth);
         Expr BVZEXT(Expr operand, int newWidth);
         Expr BVCONCAT(Expr MSB, Expr LSB);
+        Expr BVEXTRACT(Expr operand, int end, int start);
 
 
         // Real/Int operators

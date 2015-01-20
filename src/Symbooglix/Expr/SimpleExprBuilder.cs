@@ -393,6 +393,33 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr BVEXTRACT(Expr operand, int end, int start)
+        {
+            if (!operand.Type.IsBv)
+            {
+                throw new ExprTypeCheckException("operand must be BvType");
+            }
+
+            if (end <= start)
+            {
+                throw new ArgumentException("end must be > start");
+            }
+
+            if (start < 0)
+            {
+                throw new ArgumentException("start must be >= 0");
+            }
+
+            if (end >= operand.Type.BvBits)
+            {
+                throw new ArgumentException("end must be < the bit width of the operand");
+            }
+
+            var result = new BvExtractExpr(Token.NoToken, operand, end, start);
+            result.Type = result.ShallowType;
+            return result;
+        }
+
         public Expr NotEq(Expr lhs, Expr rhs)
         {
             // FIXME: Factor some of this out.
