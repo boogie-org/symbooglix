@@ -2,6 +2,7 @@
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -103,6 +104,7 @@ namespace Symbooglix
             }
         }
 
+        private ConcurrentDictionary<string, FunctionCall> CachedFunctions = new ConcurrentDictionary<string, FunctionCall>();
         private Expr GetBinaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr lhs, Expr rhs)
         {
             if (!lhs.Type.IsBv)
@@ -123,15 +125,23 @@ namespace Symbooglix
             int bits = lhs.Type.BvBits;
             Debug.Assert(bits == rhs.Type.BvBits);
 
-            // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn(NameWithoutSizeSuffx + bits.ToString(),
-                                                          builtin, returnType,
-                                                          new List<Microsoft.Boogie.Type>()
+            var functionName = NameWithoutSizeSuffx + bits.ToString();
+            FunctionCall builtinFunctionCall = null;
+            try
             {
-                BasicType.GetBvType(bits),
-                BasicType.GetBvType(bits)
+                builtinFunctionCall = CachedFunctions[functionName];
             }
-                                                         );
+            catch(KeyNotFoundException)
+            {
+                // Cache miss, build the FunctionCall
+                builtinFunctionCall = CreateBVBuiltIn(functionName,
+                    builtin, returnType, new List<Microsoft.Boogie.Type>()
+                    {
+                        BasicType.GetBvType(bits),
+                        BasicType.GetBvType(bits)
+                    });
+                CachedFunctions[functionName] = builtinFunctionCall;
+            }
 
             var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
             return result;
@@ -304,14 +314,22 @@ namespace Symbooglix
                 bits = operand.Type.BvBits;
             }
 
-            // FIXME: Cache this for each bitwidth
-            var builtinFunctionCall = CreateBVBuiltIn(NameWithoutSizeSuffx + bits.ToString(),
-                                                          builtin, returnType,
-                                                          new List<Microsoft.Boogie.Type>()
+            var functionName = NameWithoutSizeSuffx + bits.ToString();
+            FunctionCall builtinFunctionCall = null;
+            try
             {
-                BasicType.GetBvType(bits)
+                builtinFunctionCall = CachedFunctions[functionName];
             }
-                                                         );
+            catch (KeyNotFoundException)
+            {
+                // Cache miss, build the FunctionCall
+                builtinFunctionCall = CreateBVBuiltIn(functionName,
+                    builtin, returnType, new List<Microsoft.Boogie.Type>()
+                    {
+                        BasicType.GetBvType(bits)
+                    });
+                CachedFunctions[functionName] = builtinFunctionCall;
+            }
 
             var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { operand});
             return result;
