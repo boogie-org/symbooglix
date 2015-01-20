@@ -279,7 +279,9 @@ namespace Symbooglix
 
         public Expr BVSMOD(Expr lhs, Expr rhs)
         {
-            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSMOD", "bvsmod", lhs, rhs);
+            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSMOD", "bvsmod", lhs, rhs);
+            result.Type = lhs.Type;
+            return result;
         }
 
         public Expr GetUnaryBVFunction(Microsoft.Boogie.Type returnType, string NameWithoutSizeSuffx, string builtin, Expr operand)
