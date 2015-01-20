@@ -209,7 +209,9 @@ namespace Symbooglix
 
         public Expr BVXOR(Expr lhs, Expr rhs)
         {
-            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVXOR", "bvxor", lhs, rhs);
+            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVXOR", "bvxor", lhs, rhs);
+            result.Type = lhs.Type;
+            return result;
         }
 
         public Expr BVSHL(Expr lhs, Expr rhs)
