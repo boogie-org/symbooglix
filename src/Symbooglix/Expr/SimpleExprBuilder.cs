@@ -272,7 +272,9 @@ namespace Symbooglix
 
         public Expr BVSREM(Expr lhs, Expr rhs)
         {
-            return GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
+            var result = GetBinaryBVFunction(BasicType.GetBvType(lhs.Type.BvBits), "BVSREM", "bvsrem", lhs, rhs);
+            result.Type = lhs.Type;
+            return result;
         }
 
         public Expr BVSMOD(Expr lhs, Expr rhs)
