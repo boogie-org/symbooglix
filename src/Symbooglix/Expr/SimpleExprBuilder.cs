@@ -497,18 +497,48 @@ namespace Symbooglix
             return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Or), new List<Expr> { lhs, rhs });
         }
 
-        public Expr IfThenElse (Expr condition, Expr thenExpr, Expr elseExpr)
+        private Microsoft.Boogie.IfThenElse IfThenElseCached = new Microsoft.Boogie.IfThenElse(Token.NoToken);
+        public Expr IfThenElse(Expr condition, Expr thenExpr, Expr elseExpr)
         {
-            // FIXME: Factor some of this out.
-            // FIXME: Cache operators
-            return new NAryExpr(Token.NoToken, new Microsoft.Boogie.IfThenElse(Token.NoToken), new List<Expr> { condition, thenExpr, elseExpr });
+            if (!condition.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("Condition must be bool");
+            }
+
+            if (!thenExpr.Type.Equals(elseExpr.Type))
+            {
+                throw new ExprTypeCheckException("thenExpr and elseExpr types must match");
+            }
+            var result = new NAryExpr(Token.NoToken, IfThenElseCached, new List<Expr> { condition, thenExpr, elseExpr });
+            result.Type = thenExpr.Type;
+            return result;
+        }
+
+        private ConcurrentDictionary<UnaryOperator.Opcode, UnaryOperator> UnaryOperatorCache = new ConcurrentDictionary<UnaryOperator.Opcode, UnaryOperator>();
+        private IAppliable GetUnaryFunction(UnaryOperator.Opcode op)
+        {
+            UnaryOperator function = null;
+            try
+            {
+                function = UnaryOperatorCache[op];
+            }
+            catch (KeyNotFoundException)
+            {
+                function = new UnaryOperator(Token.NoToken, op);
+                UnaryOperatorCache[op] = function;
+            }
+            return function;
         }
 
         public Expr Not(Expr e)
         {
-            // FIXME: Factor some of this out.
-            // FIXME: Cache operators
-            return new NAryExpr(Token.NoToken, new UnaryOperator(Token.NoToken, UnaryOperator.Opcode.Not), new List<Expr> { e });
+            if (!e.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("expr must be bool");
+            }
+            var result = new NAryExpr(Token.NoToken, GetUnaryFunction(UnaryOperator.Opcode.Not), new List<Expr> { e });
+            result.Type = BasicType.Bool;
+            return result;
         }
     }
 }
