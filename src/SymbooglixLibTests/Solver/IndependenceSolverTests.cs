@@ -163,9 +163,9 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            var UFC = builder.CreateUninterpretedFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
+            var foobarFunc = builder.CreateUninterpretedFunctionCall("foobar", bv8Type, new List<Microsoft.Boogie.Type>() { bv8Type });
             // foobar(0bv8) == 0bv8
-            Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
+            Expr c2 = builder.Eq( builder.UFC(foobarFunc, builder.ConstantBV(0,8)), builder.ConstantBV(0, 8));
 
             CM.AddConstraint(c0, progLoc);
             CM.AddConstraint(c1, progLoc);
@@ -177,8 +177,8 @@ namespace SolverTests
 
             // The query expression uses the "foobar" function so we need to keep constraints on that function
             Expr queryExpr = builder.And( builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8)), 
-                                          new NAryExpr(Token.NoToken, UFC, new List<Expr>() { s1})
-                              );
+                                          builder.UFC(foobarFunc, s1)
+            );
 
             indepenceSolver.ComputeSatisfiability(queryExpr, false);
 
@@ -229,9 +229,9 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            var UFC = builder.CreateUninterpretedFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
+            var foobarFunc = builder.CreateUninterpretedFunctionCall("foobar", bv8Type, new List<Microsoft.Boogie.Type>() { bv8Type });
             // foobar(0bv8) == 0bv8
-            Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
+            Expr c2 = builder.Eq( builder.UFC(foobarFunc, builder.ConstantBV(0,8)), builder.ConstantBV(0, 8));
 
             CM.AddConstraint(c0, progLoc);
             CM.AddConstraint(c1, progLoc);

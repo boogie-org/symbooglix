@@ -582,5 +582,26 @@ namespace Symbooglix
             result.Type = BasicType.Bool;
             return result;
         }
+
+        public Expr UFC(FunctionCall func, params Expr[] args)
+        {
+            if (args.Length != func.Func.InParams.Count)
+            {
+                throw new ExprTypeCheckException("Wrong number of arguments for supplied FunctionCall");
+            }
+
+            // Check type matches
+            for (int index=0; index < args.Length; ++index)
+            {
+                if (!( args[index].Type.Equals(func.Func.InParams[index].TypedIdent.Type) ))
+                {
+                    throw new ExprTypeCheckException("Type mismatch between supplied FunctionCall and argument at index " + index.ToString());
+                }
+            }
+
+            var result = new NAryExpr(Token.NoToken, func, new List<Expr>(args));
+            result.Type = func.Func.OutParams[0].TypedIdent.Type;
+            return result;
+        }
     }
 }
