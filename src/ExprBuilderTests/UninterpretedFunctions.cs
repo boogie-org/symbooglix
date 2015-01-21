@@ -127,6 +127,49 @@ namespace ExprBuilderTests
                 BasicType.Bool
             });
         }
+
+        [Test()]
+        public void CreateFunctionCallExpr()
+        {
+            var builder = GetBuilder();
+            var fc = builder.CreateUninterpretedFunctionCall("foo",
+                          BasicType.Bool,
+                          new List<Microsoft.Boogie.Type>() {
+                    BasicType.GetBvType(2),
+                    BasicType.GetBvType(2)
+                });
+            var call = builder.UFC(fc, builder.ConstantBV(0, 2), builder.ConstantBV(1, 2));
+            Assert.AreEqual("foo(0bv2, 1bv2)", call.ToString());
+            Assert.AreEqual(BasicType.Bool, call.ShallowType);
+            Assert.IsNotNull(call.Type);
+            Assert.AreEqual(BasicType.Bool, call.Type);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void CreateFunctionCallExprWrongArgTypes()
+        {
+            var builder = GetBuilder();
+            var fc = builder.CreateUninterpretedFunctionCall("foo",
+                BasicType.Bool,
+                new List<Microsoft.Boogie.Type>() {
+                BasicType.GetBvType(2),
+                BasicType.GetBvType(2)
+            });
+            builder.UFC(fc, builder.ConstantBV(0, 3), builder.ConstantBV(1, 3));
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void CreateFunctionCallExprWrongArgCount()
+        {
+            var builder = GetBuilder();
+            var fc = builder.CreateUninterpretedFunctionCall("foo",
+                BasicType.Bool,
+                new List<Microsoft.Boogie.Type>() {
+                BasicType.GetBvType(2),
+                BasicType.GetBvType(2)
+            });
+            builder.UFC(fc, builder.ConstantBV(0, 3));
+        }
     }
 }
 
