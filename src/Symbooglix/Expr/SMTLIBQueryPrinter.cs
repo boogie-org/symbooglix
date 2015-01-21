@@ -816,6 +816,14 @@ namespace Symbooglix
         public Expr VisitFunctionCall(NAryExpr e)
         {
             var FC = e.Fun as FunctionCall;
+
+            if (e.Args.Count == 0)
+            {
+                // A function with argments does not need parentheses
+                TW.WriteLine(FC.Func.Name);
+                return e;
+            }
+
             TW.Write("(" + FC.Func.Name);
             PushIndent();
             PrintSeperator();
