@@ -438,18 +438,42 @@ namespace Symbooglix
             return result;
         }
 
+        private ConcurrentDictionary<BinaryOperator.Opcode, BinaryOperator> BinaryOperatorCache = new ConcurrentDictionary<BinaryOperator.Opcode, BinaryOperator>();
+        private IAppliable GetBinaryFunction(BinaryOperator.Opcode oc)
+        {
+            BinaryOperator function = null;
+            try
+            {
+                function = BinaryOperatorCache[oc];
+            }
+            catch (KeyNotFoundException)
+            {
+                function = new BinaryOperator(Token.NoToken, oc);
+                BinaryOperatorCache[oc] = function;
+            }
+            return function;
+        }
+
         public Expr NotEq(Expr lhs, Expr rhs)
         {
-            // FIXME: Factor some of this out.
-            // FIXME: Cache operators
-            return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Neq), new List<Expr> { lhs, rhs });
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs type must be the same");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Neq) , new List<Expr> { lhs, rhs });
+            result.Type = BasicType.Bool;
+            return result;
         }
 
         public Expr Eq(Expr lhs, Expr rhs)
         {
-            // FIXME: Factor some of this out.
-            // FIXME: Cache operators
-            return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Eq), new List<Expr> { lhs, rhs });
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs type must be the same");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Eq), new List<Expr> { lhs, rhs });
+            result.Type = BasicType.Bool;
+            return result;
         }
 
         public Expr Iff(Expr lhs, Expr rhs)
