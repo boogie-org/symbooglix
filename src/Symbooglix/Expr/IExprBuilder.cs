@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Boogie;
 using System.Numerics;
+using System.Collections.Generic;
 
 namespace Symbooglix
 {
@@ -61,6 +62,9 @@ namespace Symbooglix
         Expr Iff(Expr lhs, Expr rhs);
         Expr IfThenElse(Expr condition, Expr thenExpr, Expr elseExpr);
         Expr Not(Expr e);
+
+        // Uninterpreted functions
+        FunctionCall CreateUninterpretedFunctionCall(string Name, Microsoft.Boogie.Type returnType, IList<Microsoft.Boogie.Type> argTypes);
     }
 
     // FIXME: This class should probably contain references to the relevant Exprs

@@ -144,7 +144,7 @@ namespace SolverTests
         public void RemoveNoConstraintsBasedOnVarsAndFunctions()
         {
             IConstraintManager CM = new ConstraintManager();
-            SimpleExprBuilder builder = new SimpleExprBuilder(); // FIXME: We depend on CreateFunctionCall()
+            IExprBuilder builder = new SimpleExprBuilder(); // FIXME: We depend on CreateFunctionCall()
 
             // Dummy Boogie variable
             var bv8Type = Microsoft.Boogie.Type.GetBvType(8);
@@ -163,7 +163,7 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            var UFC = builder.CreateFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
+            var UFC = builder.CreateUninterpretedFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
             // foobar(0bv8) == 0bv8
             Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
 
@@ -229,7 +229,7 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            var UFC = builder.CreateFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
+            var UFC = builder.CreateUninterpretedFunctionCall("foobar", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() { bv8Type });
             // foobar(0bv8) == 0bv8
             Expr c2 = builder.Eq(new NAryExpr(Token.NoToken, UFC, new List<Expr>() { builder.ConstantBV(0,8) }), builder.ConstantBV(0, 8));
 

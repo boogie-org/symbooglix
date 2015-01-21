@@ -22,7 +22,7 @@ namespace ExprSMTLIBTest
         {
             Builder = new SimpleExprBuilder();
 
-            var functionCall = Builder.CreateFunctionCall("uf", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() {
+            var functionCall = Builder.CreateUninterpretedFunctionCall("uf", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() {
                 Microsoft.Boogie.Type.Int,
                 Microsoft.Boogie.Type.Real
             });
