@@ -694,5 +694,39 @@ namespace Symbooglix
             result.Type = lhs.Type;
             return result;
         }
+
+        public Expr Div(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs must be the same type");
+            }
+
+            if (!lhs.Type.IsInt)
+            {
+                throw new ExprTypeCheckException("lhs and rhs must both be of int type");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Div), new List<Expr>() { lhs, rhs });
+            result.Type = BasicType.Int;
+            return result;
+        }
+
+        public Expr RealDiv(Expr lhs, Expr rhs)
+        {
+            // Boogie's Type checker seems to allow operands of mixed types. I really don't like this.
+            // I'd much rather enforce that args being of type (int, int) or (real, real).
+            if (!lhs.Type.IsInt && !lhs.Type.IsReal)
+            {
+                throw new ExprTypeCheckException("lhs and rhs must be of real or int type");
+            }
+            if (!rhs.Type.IsInt && !rhs.Type.IsReal)
+            {
+                throw new ExprTypeCheckException("rhs and rhs must be of real or int type");
+            }
+
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.RealDiv), new List<Expr>() { lhs, rhs });
+            result.Type = BasicType.Real;
+            return result;
+        }
     }
 }

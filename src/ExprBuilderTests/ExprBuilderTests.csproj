@@ -58,6 +58,10 @@
       <Project>{F2D05CFA-9CF9-4853-8230-2C9566216DC0}</Project>
       <Name>SymbooglixLibTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\ParserHelper\ParserHelper.csproj">
+      <Project>{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}</Project>
+      <Name>ParserHelper</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
