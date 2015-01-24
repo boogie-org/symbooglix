@@ -61,6 +61,8 @@ namespace Symbooglix
         Expr Div(Expr lhs, Expr rhs);
         // Real Division (operands can be either int or real. The types can be mixed)
         Expr RealDiv(Expr lhs, Expr rhs);
+        // Exponentiation (operands must be of type real). Returns a real
+        Expr Pow(Expr lhs, Expr rhs);
 
 
         // Logical operators

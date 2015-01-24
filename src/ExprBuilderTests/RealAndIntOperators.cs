@@ -292,7 +292,7 @@ namespace ExprBuilderTests
             CheckIsInt(result);
         }
 
-        // Note Div can't take real operands
+        // Note mod can't take real operands
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void ModReal()
         {
@@ -310,6 +310,38 @@ namespace ExprBuilderTests
             var constant1 = builder.False;
             builder.Mod(constant0, constant1);
         }
+
+        // Pow tests
+        [Test()]
+        public void PowReal()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.ConstantReal("2.0");
+            var result = builder.Pow(constant0, constant1);
+            Assert.AreEqual("1e0 ** 2e0", result.ToString());
+            CheckIsReal(result);
+        }
+
+        // Note Pow can't take int operands
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void PowInt()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var constant1 = builder.ConstantInt(2);
+            builder.Pow(constant0, constant1);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void PowMismatchArgTypes()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.False;
+            builder.Pow(constant0, constant1);
+        }
+
     }
 }
 

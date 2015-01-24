@@ -744,5 +744,21 @@ namespace Symbooglix
             result.Type = BasicType.Int;
             return result;
         }
+
+        public Expr Pow(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs must be the same type");
+            }
+
+            if (!lhs.Type.IsReal)
+            {
+                throw new ExprTypeCheckException("lhs and rhs must both be of real type");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Pow), new List<Expr>() { lhs, rhs });
+            result.Type = BasicType.Real;
+            return result;
+        }
     }
 }
