@@ -534,6 +534,22 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr Imp(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("lhs must be bool");
+            }
+
+            if (!rhs.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("rhs must be bool");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Imp), new List<Expr> { lhs, rhs });
+            result.Type = BasicType.Bool;
+            return result;
+        }
+
         public Expr And(Expr lhs, Expr rhs)
         {
             if (!lhs.Type.IsBool)

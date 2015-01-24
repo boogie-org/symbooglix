@@ -60,6 +60,7 @@ namespace Symbooglix
         Expr Eq(Expr lhs, Expr rhs);
         Expr NotEq(Expr lhs, Expr rhs);
         Expr Iff(Expr lhs, Expr rhs);
+        Expr Imp(Expr lhs, Expr rhs);
         Expr IfThenElse(Expr condition, Expr thenExpr, Expr elseExpr);
         Expr Not(Expr e);
 
