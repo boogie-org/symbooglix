@@ -38,6 +38,7 @@
     <Compile Include="BVOperators.cs" />
     <Compile Include="EqualityAndLogicalOperators.cs" />
     <Compile Include="UninterpretedFunctions.cs" />
+    <Compile Include="RealAndIntOperators.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

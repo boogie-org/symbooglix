@@ -646,5 +646,21 @@ namespace Symbooglix
             result.Type = func.Func.OutParams[0].TypedIdent.Type;
             return result;
         }
+
+        public Expr Add(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs must be the same type");
+            }
+
+            if (!lhs.Type.IsInt && !lhs.Type.IsReal)
+            {
+                throw new ExprTypeCheckException("lhs and rhs must both be of real or int type");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Add), new List<Expr>() { lhs, rhs });
+            result.Type = lhs.Type;
+            return result;
+        }
     }
 }

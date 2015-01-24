@@ -52,6 +52,7 @@ namespace Symbooglix
 
 
         // Real/Int operators
+        Expr Add(Expr lhs, Expr rhs);
 
 
         // Logical operators
