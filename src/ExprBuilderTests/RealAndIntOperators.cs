@@ -34,6 +34,7 @@ namespace ExprBuilderTests
             Assert.IsTrue(result.Type.IsInt);
         }
 
+        // Add tests
         [Test()]
         public void AddReal()
         {
@@ -72,6 +73,47 @@ namespace ExprBuilderTests
             var constant1 = builder.ConstantInt(1);
             var constant0 = builder.ConstantReal("2.0");
             builder.Add(constant0, constant1);
+        }
+
+        // Sub tests
+        [Test()]
+        public void SubReal()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.ConstantReal("2.0");
+            var result = builder.Sub(constant0, constant1);
+            Assert.AreEqual("1e0 - 2e0", result.ToString());
+            CheckIsReal(result);
+        }
+
+        [Test()]
+        public void SubInt()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var constant1 = builder.ConstantInt(2);
+            var result = builder.Sub(constant0, constant1);
+            Assert.AreEqual("1 - 2", result.ToString());
+            CheckIsInt(result);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void SubLhsWrongType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var constant1 = builder.ConstantReal("2.0");
+            builder.Sub(constant0, constant1);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void SubRhsWrongType()
+        {
+            var builder = GetBuilder();
+            var constant1 = builder.ConstantInt(1);
+            var constant0 = builder.ConstantReal("2.0");
+            builder.Sub(constant0, constant1);
         }
     }
 }
