@@ -75,6 +75,15 @@ namespace ExprBuilderTests
             builder.Add(constant0, constant1);
         }
 
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void AddLhsRhsWrongType()
+        {
+            var builder = GetBuilder();
+            var constant1 = builder.True;
+            var constant0 = builder.False;
+            builder.Add(constant0, constant1);
+        }
+
         // Sub tests
         [Test()]
         public void SubReal()
@@ -116,6 +125,15 @@ namespace ExprBuilderTests
             builder.Sub(constant0, constant1);
         }
 
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void SubLhsRhsWrongType()
+        {
+            var builder = GetBuilder();
+            var constant1 = builder.True;
+            var constant0 = builder.False;
+            builder.Sub(constant0, constant1);
+        }
+
         // Mul tests
         [Test()]
         public void MulReal()
@@ -154,6 +172,15 @@ namespace ExprBuilderTests
             var builder = GetBuilder();
             var constant1 = builder.ConstantInt(1);
             var constant0 = builder.ConstantReal("2.0");
+            builder.Mul(constant0, constant1);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void MulLhsRhsWrongType()
+        {
+            var builder = GetBuilder();
+            var constant1 = builder.True;
+            var constant0 = builder.False;
             builder.Mul(constant0, constant1);
         }
     }
