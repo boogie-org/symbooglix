@@ -767,6 +767,7 @@ namespace Symbooglix
             return MapSelect(map, indices.ToList());
         }
 
+        private ConcurrentDictionary<int, MapSelect> MapSelectCache = new ConcurrentDictionary<int, Microsoft.Boogie.MapSelect>();
         public Expr MapSelect(Expr map, IList<Expr> indices)
         {
             if (!map.Type.IsMap)
@@ -785,8 +786,17 @@ namespace Symbooglix
                 throw new ArgumentException("the number of arguments does not match the map arity");
             }
 
-            // FIXME: Cache this for each indice size
-            var ms = new MapSelect(Token.NoToken, indices.Count);
+            // Use Cache
+            MapSelect ms = null;
+            try
+            {
+                ms = MapSelectCache[indices.Count];
+            }
+            catch (KeyNotFoundException)
+            {
+                ms = new MapSelect(Token.NoToken, indices.Count);
+                MapSelectCache[indices.Count] = ms;
+            }
 
             var argList = new List<Expr>() { map };
             for (int index = 0; index < indices.Count; ++index)
