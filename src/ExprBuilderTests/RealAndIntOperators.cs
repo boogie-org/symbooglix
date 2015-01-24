@@ -279,6 +279,37 @@ namespace ExprBuilderTests
             Assert.AreEqual("1e0 / 2e0", result.ToString());
             CheckIsReal(result);
         }
+
+        // Mod tests
+        [Test()]
+        public void ModInt()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var constant1 = builder.ConstantInt(2);
+            var result = builder.Mod(constant0, constant1);
+            Assert.AreEqual("1 mod 2", result.ToString());
+            CheckIsInt(result);
+        }
+
+        // Note Div can't take real operands
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void ModReal()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.ConstantReal("2.0");
+            builder.Mod(constant0, constant1);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void ModMismatchArgTypes()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.False;
+            builder.Mod(constant0, constant1);
+        }
     }
 }
 
