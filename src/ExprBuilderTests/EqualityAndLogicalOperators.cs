@@ -187,6 +187,35 @@ namespace ExprBuilderTests
             var condition = builder.ConstantBV(2, 5);
             builder.Not(condition);
         }
+
+        [Test()]
+        public void And()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.True;
+            var constant1 = builder.False;
+            var result = builder.And(constant0, constant1);
+            Assert.AreEqual("true && false", result.ToString());
+            CheckIsBoolType(result);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void AndWrongLhsType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.True;
+            var constant1 = builder.ConstantInt(8);
+            builder.And(constant0, constant1);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void AndWrongRhsType()
+        {
+            var builder = GetBuilder();
+            var constant1 = builder.True;
+            var constant0 = builder.ConstantInt(8);
+            builder.And(constant0, constant1);
+        }
     }
 }
 
