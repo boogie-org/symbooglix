@@ -6,7 +6,7 @@ using Microsoft.Boogie;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class EqualityAndLogicalOperators
+    public class EqualityAndLogicalOperators : IErrorSink
     {
         public EqualityAndLogicalOperators ()
         {
@@ -20,6 +20,11 @@ namespace ExprBuilderTests
             return new SimpleExprBuilder();
         }
 
+        public void Error(IToken tok, string msg)
+        {
+            Assert.Fail(msg);
+        }
+
         private void CheckIsBoolType(Expr result)
         {
             var shallowType = result.ShallowType;
@@ -28,6 +33,8 @@ namespace ExprBuilderTests
             var t = result.Type;
             Assert.IsNotNull(t);
             Assert.IsTrue(t.IsBool);
+            var TC = new TypecheckingContext(this);
+            result.Typecheck(TC);
         }
 
         [Test()]
@@ -148,6 +155,8 @@ namespace ExprBuilderTests
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.IsInt);
             Assert.IsTrue(result.ShallowType.IsInt);
+            var TC = new TypecheckingContext(this);
+            result.Typecheck(TC);
         }
 
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]

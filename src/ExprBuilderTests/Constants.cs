@@ -2,12 +2,13 @@
 using System;
 using Symbooglix;
 using Microsoft.Basetypes;
+using Microsoft.Boogie;
 using System.Numerics;
 
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Constants
+    public class Constants : IErrorSink
     {
         private void CheckType(Microsoft.Boogie.LiteralExpr e, Predicate<Microsoft.Boogie.Type> p)
         {
@@ -15,6 +16,13 @@ namespace ExprBuilderTests
             Assert.IsTrue(p(e.ShallowType));
             Assert.IsNotNull(e.Type);
             Assert.AreEqual(e.ShallowType, e.Type);
+            var TC = new TypecheckingContext(this);
+            e.Typecheck(TC);
+        }
+
+        public void Error(IToken tok, string msg)
+        {
+            Assert.Fail(msg);
         }
 
         [Test()]
