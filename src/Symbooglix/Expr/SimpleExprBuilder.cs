@@ -541,11 +541,20 @@ namespace Symbooglix
             return result;
         }
 
-        public Expr Or (Expr lhs, Expr rhs)
+        public Expr Or(Expr lhs, Expr rhs)
         {
-            // FIXME: Factor some of this out.
-            // FIXME: Cache operators
-            return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Or), new List<Expr> { lhs, rhs });
+            if (!lhs.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("lhs must be bool");
+            }
+
+            if (!rhs.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("rhs must be bool");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Or), new List<Expr> { lhs, rhs });
+            result.Type = BasicType.Bool;
+            return result;
         }
 
         private Microsoft.Boogie.IfThenElse IfThenElseCached = new Microsoft.Boogie.IfThenElse(Token.NoToken);
