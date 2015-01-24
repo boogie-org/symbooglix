@@ -80,6 +80,10 @@ namespace Symbooglix
         FunctionCall CreateUninterpretedFunctionCall(string Name, Microsoft.Boogie.Type returnType, IList<Microsoft.Boogie.Type> argTypes);
 
         Expr UFC(FunctionCall func, params Expr[] args);
+
+        // Maps
+        Expr MapSelect(Expr map, params Expr[] indices);
+        Expr MapSelect(Expr map, IList<Expr> indices);
     }
 
     // FIXME: This class should probably contain references to the relevant Exprs

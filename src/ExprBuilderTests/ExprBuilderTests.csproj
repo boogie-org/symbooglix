@@ -39,6 +39,7 @@
     <Compile Include="EqualityAndLogicalOperators.cs" />
     <Compile Include="UninterpretedFunctions.cs" />
     <Compile Include="RealAndIntOperators.cs" />
+    <Compile Include="MapStoreSelect.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

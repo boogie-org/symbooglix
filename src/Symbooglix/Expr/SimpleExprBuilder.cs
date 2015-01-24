@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Numerics;
+using System.Linq;
 
 namespace Symbooglix
 {
@@ -758,6 +759,52 @@ namespace Symbooglix
             }
             var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Pow), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Real;
+            return result;
+        }
+
+        public Expr MapSelect(Expr map, params Expr[] indices)
+        {
+            return MapSelect(map, indices.ToList());
+        }
+
+        public Expr MapSelect(Expr map, IList<Expr> indices)
+        {
+            if (!map.Type.IsMap)
+            {
+                throw new ExprTypeCheckException("map must be of map type");
+            }
+
+
+            if (indices.Count < 1)
+            {
+                throw new ArgumentException("Must pass at least one index");
+            }
+
+            if (map.Type.AsMap.MapArity != indices.Count)
+            {
+                throw new ArgumentException("the number of arguments does not match the map arity");
+            }
+
+            // FIXME: Cache this for each indice size
+            var ms = new MapSelect(Token.NoToken, indices.Count);
+
+            var argList = new List<Expr>() { map };
+            for (int index = 0; index < indices.Count; ++index)
+            {
+                argList.Add(indices[index]);
+            }
+
+            // Type check each argument
+            foreach (var typePair in map.Type.AsMap.Arguments.Zip(indices.Select( i => i.ShallowType)))
+            {
+                if (!typePair.Item1.Equals(typePair.Item2))
+                {
+                    throw new ExprTypeCheckException("Map argument type mismatch. " + typePair.Item1.ToString() + " != " + typePair.Item2.ToString());
+                }
+            }
+
+            var result = new NAryExpr(Token.NoToken, ms, argList);
+            result.Type = map.Type.AsMap.Result;
             return result;
         }
     }
