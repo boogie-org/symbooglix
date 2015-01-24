@@ -177,7 +177,7 @@ namespace SolverTests
 
             // The query expression uses the "foobar" function so we need to keep constraints on that function
             Expr queryExpr = builder.And( builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8)), 
-                                          builder.UFC(foobarFunc, s1)
+                                          builder.NotEq(builder.UFC(foobarFunc, s1), s1)
             );
 
             indepenceSolver.ComputeSatisfiability(queryExpr, false);
