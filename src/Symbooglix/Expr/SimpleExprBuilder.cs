@@ -520,9 +520,18 @@ namespace Symbooglix
 
         public Expr Iff(Expr lhs, Expr rhs)
         {
-            // FIXME: Factor some of this out.
-            // FIXME: Cache operators
-            return new NAryExpr(Token.NoToken, new BinaryOperator(Token.NoToken,BinaryOperator.Opcode.Iff), new List<Expr> { lhs, rhs });
+            if (!lhs.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("lhs must be bool");
+            }
+
+            if (!rhs.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("rhs must be bool");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Iff), new List<Expr> { lhs, rhs });
+            result.Type = BasicType.Bool;
+            return result;
         }
 
         public Expr And(Expr lhs, Expr rhs)
