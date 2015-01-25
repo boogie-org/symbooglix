@@ -6,37 +6,8 @@ using Microsoft.Boogie;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class EqualityAndLogicalOperators : IErrorSink
+    public class EqualityAndLogicalOperators : SimpleExprBuilderTestBase
     {
-        public EqualityAndLogicalOperators ()
-        {
-            // This is a hack
-            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
-            SymbooglixLibTests.SymbooglixTest.SetupDebug();
-        }
-
-        private IExprBuilder GetBuilder()
-        {
-            return new SimpleExprBuilder();
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
-        }
-
-        private void CheckIsBoolType(Expr result)
-        {
-            var shallowType = result.ShallowType;
-            Assert.IsNotNull(shallowType);
-            Assert.IsTrue(shallowType.IsBool);
-            var t = result.Type;
-            Assert.IsNotNull(t);
-            Assert.IsTrue(t.IsBool);
-            var TC = new TypecheckingContext(this);
-            result.Typecheck(TC);
-        }
-
         [Test()]
         public void EqBool()
         {

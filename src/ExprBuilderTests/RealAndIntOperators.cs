@@ -6,43 +6,8 @@ using Symbooglix;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class RealAndIntOperators : IErrorSink
+    public class RealAndIntOperators : SimpleExprBuilderTestBase
     {
-        public RealAndIntOperators()
-        {
-            // This is a hack
-            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
-            SymbooglixLibTests.SymbooglixTest.SetupDebug();
-        }
-
-        private IExprBuilder GetBuilder()
-        {
-            return new SimpleExprBuilder();
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
-        }
-
-        private void CheckIsReal(Expr result)
-        {
-            Assert.IsTrue(result.ShallowType.IsReal);
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.IsReal);
-            var TC = new TypecheckingContext(this);
-            result.Typecheck(TC);
-        }
-
-        private void CheckIsInt(Expr result)
-        {
-            Assert.IsTrue(result.ShallowType.IsInt);
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.IsInt);
-            var TC = new TypecheckingContext(this);
-            result.Typecheck(TC);
-        }
-
         // Add tests
         [Test()]
         public void AddReal()

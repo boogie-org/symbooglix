@@ -8,23 +8,8 @@ using System.Numerics;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Constants : IErrorSink
+    public class Constants : SimpleExprBuilderTestBase
     {
-        private void CheckType(Microsoft.Boogie.LiteralExpr e, Predicate<Microsoft.Boogie.Type> p)
-        {
-            Assert.IsNotNull(e.ShallowType);
-            Assert.IsTrue(p(e.ShallowType));
-            Assert.IsNotNull(e.Type);
-            Assert.AreEqual(e.ShallowType, e.Type);
-            var TC = new TypecheckingContext(this);
-            e.Typecheck(TC);
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
-        }
-
         [Test()]
         public void True()
         {

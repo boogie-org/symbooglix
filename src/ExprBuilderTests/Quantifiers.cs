@@ -7,20 +7,8 @@ using System.Collections.Generic;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Quantifiers
+    public class Quantifiers : SimpleExprBuilderTestBase
     {
-        public Quantifiers ()
-        {
-            // This is a hack
-            SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
-        }
-
-        private IExprBuilder GetBuilder()
-        {
-            return new SimpleExprBuilder();
-        }
-
         private Variable GetVariable(string name, Microsoft.Boogie.Type type)
         {
             var typedIdent = new TypedIdent(Token.NoToken, name, type);
@@ -39,9 +27,7 @@ namespace ExprBuilderTests
             var body = builder.Eq(xid, yid);
             var result = builder.ForAll(new List<Variable>() { freeVarX, freeVarY }, body);
             Assert.AreEqual("(forall x: int, y: int :: x == y)", result.ToString());
-            Assert.AreEqual(BasicType.Bool, result.ShallowType);
-            Assert.IsNotNull(result.Type);
-            Assert.AreEqual(BasicType.Bool, result.Type);
+            CheckIsBoolType(result);
         }
 
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
@@ -67,9 +53,7 @@ namespace ExprBuilderTests
             var body = builder.Eq(xid, yid);
             var result = builder.Exists(new List<Variable>() { freeVarX, freeVarY }, body);
             Assert.AreEqual("(exists x: int, y: int :: x == y)", result.ToString());
-            Assert.AreEqual(BasicType.Bool, result.ShallowType);
-            Assert.IsNotNull(result.Type);
-            Assert.AreEqual(BasicType.Bool, result.Type);
+            CheckIsBoolType(result);
         }
 
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]

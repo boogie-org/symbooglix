@@ -6,27 +6,8 @@ using Symbooglix;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Coercion
+    public class Coercion : SimpleExprBuilderTestBase
     {
-        public Coercion()
-        {
-            // This is a hack
-            SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
-        }
-
-        private IExprBuilder GetBuilder()
-        {
-            return new SimpleExprBuilder();
-        }
-
-        private void CheckType(Expr result, Predicate<Microsoft.Boogie.Type> p)
-        {
-            Assert.IsTrue(p(result.ShallowType));
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(p(result.Type));
-        }
-
         // Arithmetic Coercion
 
         [Test()]

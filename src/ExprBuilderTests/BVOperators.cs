@@ -7,54 +7,8 @@ using NUnit.Framework;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class BVOperators
+    public class BVOperators : SimpleExprBuilderTestBase
     {
-        public BVOperators()
-        {
-            // This is a hack
-            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
-
-            SymbooglixLibTests.SymbooglixTest.SetupDebug();
-        }
-
-        public IExprBuilder GetBuilder()
-        {
-            return new SimpleExprBuilder();
-        }
-
-        private void CheckBvBuiltIn(Expr e, string expected)
-        {
-            Assert.IsInstanceOf<NAryExpr>(e);
-            var asNary = e as NAryExpr;
-            Assert.IsInstanceOf<FunctionCall>(asNary.Fun);
-            var fc = asNary.Fun as FunctionCall;
-            var actual = QKeyValue.FindStringAttribute(fc.Func.Attributes, "bvbuiltin");
-            Assert.IsNotNullOrEmpty(actual);
-            Assert.AreEqual(expected, actual);
-        }
-
-        private void CheckIsBoolType(Expr result)
-        {
-            var shallowType = result.ShallowType;
-            Assert.IsNotNull(shallowType);
-            Assert.IsTrue(shallowType.IsBool);
-            var t = result.Type;
-            Assert.IsNotNull(t);
-            Assert.IsTrue(t.IsBool);
-        }
-
-        private void CheckIsBvType(Expr result, int width)
-        {
-            var shallowType = result.ShallowType;
-            Assert.IsNotNull(shallowType);
-            Assert.IsTrue(shallowType.IsBv);
-            Assert.AreEqual(width, shallowType.BvBits);
-            var t = result.Type;
-            Assert.IsNotNull(t);
-            Assert.IsTrue(t.IsBv);
-            Assert.AreEqual(width, t.BvBits);
-        }
-
         [Test()]
         public void Bvslt()
         {

@@ -43,6 +43,7 @@
     <Compile Include="Coercion.cs" />
     <Compile Include="Old.cs" />
     <Compile Include="Quantifiers.cs" />
+    <Compile Include="SimpleExprBuilderTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
