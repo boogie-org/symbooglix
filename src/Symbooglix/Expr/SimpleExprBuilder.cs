@@ -256,6 +256,13 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr BVSUB(Expr lhs, Expr rhs)
+        {
+            var result = GetBinaryBVFunction(lhs.Type, "BVSUB", "bvsub", lhs, rhs);
+            result.Type = lhs.Type;
+            return result;
+        }
+
         public Expr BVMUL(Expr lhs, Expr rhs)
         {
             var result = GetBinaryBVFunction(lhs.Type, "BVMUL", "bvmul", lhs, rhs);
