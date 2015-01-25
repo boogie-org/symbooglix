@@ -69,12 +69,15 @@ namespace Symbooglix
         // Logical operators
         Expr And(Expr lhs, Expr rhs);
         Expr Or(Expr lhs, Expr rhs);
-        Expr Eq(Expr lhs, Expr rhs);
-        Expr NotEq(Expr lhs, Expr rhs);
         Expr Iff(Expr lhs, Expr rhs);
         Expr Imp(Expr lhs, Expr rhs);
         Expr IfThenElse(Expr condition, Expr thenExpr, Expr elseExpr);
         Expr Not(Expr e);
+
+        // Comparison Operators (real and int) only
+        Expr Eq(Expr lhs, Expr rhs);
+        Expr NotEq(Expr lhs, Expr rhs);
+        Expr Lt(Expr lhs, Expr rhs);
 
         // Uninterpreted functions
         Expr UFC(FunctionCall func, params Expr[] args);
