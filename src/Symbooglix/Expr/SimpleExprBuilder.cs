@@ -762,5 +762,66 @@ namespace Symbooglix
             result.Type = map.Type.AsMap.Result;
             return result;
         }
+
+        private ConcurrentDictionary<int, MapStore> MapStoreCache = new ConcurrentDictionary<int, MapStore>();
+        public Expr MapStore(Expr map, Expr value, params Expr[] indices)
+        {
+            if (!map.Type.IsMap)
+            {
+                throw new ExprTypeCheckException("map must be of map type");
+            }
+
+            if (indices.Length < 1)
+            {
+                throw new ArgumentException("Must pass at least one index");
+            }
+
+            if (map.Type.AsMap.MapArity != indices.Length)
+            {
+                throw new ArgumentException("the number of arguments does not match the map arity");
+            }
+
+            if (!map.Type.AsMap.Result.Equals(value.Type))
+            {
+                throw new ExprTypeCheckException("value must match map's result type");
+            }
+
+            // Use Cache
+            MapStore ms = null;
+            try
+            {
+                ms = MapStoreCache[indices.Length];
+            }
+            catch (KeyNotFoundException)
+            {
+                ms = new MapStore(Token.NoToken, indices.Length);
+                MapStoreCache[indices.Length] = ms;
+            }
+
+
+            // Type check each argument
+            foreach (var typePair in map.Type.AsMap.Arguments.Zip(indices.Select( i => i.ShallowType)))
+            {
+                if (!typePair.Item1.Equals(typePair.Item2))
+                {
+                    throw new ExprTypeCheckException("Map argument type mismatch. " + typePair.Item1.ToString() + " != " + typePair.Item2.ToString());
+                }
+            }
+
+            // Build the argument list
+            var argList = new List<Expr>() { map }; // First argument is map to add store to
+            for (int index = 0; index < indices.Length; ++index)
+            {
+                argList.Add(indices[index]);
+            }
+
+            // Now add the last argument which is the value to store
+            argList.Add(value);
+
+
+            var result = new NAryExpr(Token.NoToken, ms, argList);
+            result.Type = map.Type;
+            return result;
+        }
     }
 }
