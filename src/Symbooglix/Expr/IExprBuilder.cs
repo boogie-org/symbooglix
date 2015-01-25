@@ -9,7 +9,9 @@ namespace Symbooglix
     {
         // Constants
         LiteralExpr ConstantInt(int value);
+        LiteralExpr ConstantInt(BigInteger decimalValue);
         LiteralExpr ConstantReal(string value);
+        LiteralExpr ConstantReal(Microsoft.Basetypes.BigDec value);
         LiteralExpr ConstantBool(bool value);
         LiteralExpr ConstantBV(int decimalValue, int bitWidth);
         LiteralExpr ConstantBV(BigInteger decimalValue, int bitWidth);

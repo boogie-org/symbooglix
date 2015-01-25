@@ -30,9 +30,19 @@ namespace Symbooglix
             return new LiteralExpr(Token.NoToken, BigNum.FromInt(value));
         }
 
+        public LiteralExpr ConstantInt(BigInteger decimalValue)
+        {
+            return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(decimalValue));
+        }
+
         public LiteralExpr ConstantReal(string value)
         {
             return new LiteralExpr(Token.NoToken, BigDec.FromString(value));
+        }
+
+        public LiteralExpr ConstantReal(Microsoft.Basetypes.BigDec value)
+        {
+            return new LiteralExpr(Token.NoToken, value);
         }
 
         public LiteralExpr ConstantBool(bool value)

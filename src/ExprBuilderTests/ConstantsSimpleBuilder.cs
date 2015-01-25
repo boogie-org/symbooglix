@@ -47,10 +47,30 @@ namespace ExprBuilderTests
         }
 
         [Test()]
+        public void PositiveIntegerFromBigInt()
+        {
+            var builder = new SimpleExprBuilder();
+            var constant = builder.ConstantInt(new BigInteger(5));
+            Assert.AreEqual("5", constant.ToString());
+            Assert.AreEqual(5, constant.asBigNum.ToInt);
+            CheckType(constant, t => t.IsInt);
+        }
+
+        [Test()]
         public void NegativeInteger()
         {
             var builder = new SimpleExprBuilder();
             var constant = builder.ConstantInt(-5);
+            Assert.AreEqual("-5", constant.ToString());
+            Assert.AreEqual(-5, constant.asBigNum.ToInt);
+            CheckType(constant, t => t.IsInt);
+        }
+
+        [Test()]
+        public void NegativeIntegerFromBigInt()
+        {
+            var builder = new SimpleExprBuilder();
+            var constant = builder.ConstantInt( new BigInteger(-5));
             Assert.AreEqual("-5", constant.ToString());
             Assert.AreEqual(-5, constant.asBigNum.ToInt);
             CheckType(constant, t => t.IsInt);
@@ -66,10 +86,28 @@ namespace ExprBuilderTests
         }
 
         [Test()]
+        public void PositiveRealFromBigDec()
+        {
+            var builder = new SimpleExprBuilder();
+            var constant = builder.ConstantReal(BigDec.FromInt(5));
+            Assert.AreEqual("5e0", constant.ToString());
+            CheckType(constant, t => t.IsReal);
+        }
+
+        [Test()]
         public void NegativeReal()
         {
             var builder = new SimpleExprBuilder();
             var constant = builder.ConstantReal("-5.0");
+            Assert.AreEqual("-5e0", constant.ToString());
+            CheckType(constant, t => t.IsReal);
+        }
+
+        [Test()]
+        public void NegativeRealFromBigDec()
+        {
+            var builder = new SimpleExprBuilder();
+            var constant = builder.ConstantReal(BigDec.FromInt(-5));
             Assert.AreEqual("-5e0", constant.ToString());
             CheckType(constant, t => t.IsReal);
         }
