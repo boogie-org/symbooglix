@@ -87,6 +87,7 @@ namespace Symbooglix
 
         // Quantifiers
         Expr ForAllExpr(IList<Variable> freeVars, Expr body);
+        Expr Exists(IList<Variable> freeVargs, Expr body);
     }
 
     // FIXME: This class should probably contain references to the relevant Exprs

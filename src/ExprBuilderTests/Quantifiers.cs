@@ -55,6 +55,34 @@ namespace ExprBuilderTests
             var body = builder.Add(xid, yid); // Wrong body type, should be bool
             builder.ForAllExpr(new List<Variable>() { freeVarX, freeVarY }, body);
         }
+
+        [Test()]
+        public void SimpleExists()
+        {
+            var builder = GetBuilder();
+            var freeVarX = GetVariable("x", BasicType.Int);
+            var xid = new IdentifierExpr(Token.NoToken, freeVarX);
+            var freeVarY = GetVariable("y", BasicType.Int);
+            var yid = new IdentifierExpr(Token.NoToken, freeVarY);
+            var body = builder.Eq(xid, yid);
+            var result = builder.Exists(new List<Variable>() { freeVarX, freeVarY }, body);
+            Assert.AreEqual("(exists x: int, y: int :: x == y)", result.ToString());
+            Assert.AreEqual(BasicType.Bool, result.ShallowType);
+            Assert.IsNotNull(result.Type);
+            Assert.AreEqual(BasicType.Bool, result.Type);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void SimpleExistsAllWrongBodyType()
+        {
+            var builder = GetBuilder();
+            var freeVarX = GetVariable("x", BasicType.Int);
+            var xid = new IdentifierExpr(Token.NoToken, freeVarX);
+            var freeVarY = GetVariable("y", BasicType.Int);
+            var yid = new IdentifierExpr(Token.NoToken, freeVarY);
+            var body = builder.Add(xid, yid); // Wrong body type, should be bool
+            builder.Exists(new List<Variable>() { freeVarX, freeVarY }, body);
+        }
     }
 }
 

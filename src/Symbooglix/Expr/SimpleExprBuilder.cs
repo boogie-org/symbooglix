@@ -887,5 +887,23 @@ namespace Symbooglix
             result.Type = BasicType.Bool;
             return result;
         }
+
+        public Expr Exists(IList<Variable> freeVars, Expr body)
+        {
+            if (!body.Type.IsBool)
+            {
+                throw new ExprTypeCheckException("body must be of type bool");
+            }
+
+            if (freeVars.Count < 1)
+            {
+                throw new ArgumentException("ExistsExpr must have at least one free variable");
+            }
+
+            // Should we check the free variables are actually used? This could be quite expensive to do!
+            var result = new ExistsExpr(Token.NoToken, new List<Variable>(freeVars), body);
+            result.Type = BasicType.Bool;
+            return result;
+        }
     }
 }
