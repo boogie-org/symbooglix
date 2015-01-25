@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class BVOperators : SimpleExprBuilderTestBase
+    public class BVOperatorsSimplerBuilder : SimpleExprBuilderTestBase
     {
         [Test()]
         public void Bvslt()

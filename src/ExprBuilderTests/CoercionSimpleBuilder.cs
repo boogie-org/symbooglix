@@ -6,7 +6,7 @@ using Symbooglix;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Coercion : SimpleExprBuilderTestBase
+    public class CoercionSimpleBuilder : SimpleExprBuilderTestBase
     {
         // Arithmetic Coercion
 

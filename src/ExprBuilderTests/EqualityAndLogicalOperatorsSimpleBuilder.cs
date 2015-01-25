@@ -6,7 +6,7 @@ using Microsoft.Boogie;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class EqualityAndLogicalOperators : SimpleExprBuilderTestBase
+    public class EqualityAndLogicalOperatorsSimpleBuilder : SimpleExprBuilderTestBase
     {
         [Test()]
         public void EqBool()

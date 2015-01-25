@@ -34,16 +34,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants.cs" />
-    <Compile Include="BVOperators.cs" />
-    <Compile Include="EqualityAndLogicalOperators.cs" />
     <Compile Include="UninterpretedFunctions.cs" />
-    <Compile Include="RealAndIntOperators.cs" />
-    <Compile Include="MapStoreSelect.cs" />
-    <Compile Include="Coercion.cs" />
-    <Compile Include="Old.cs" />
-    <Compile Include="Quantifiers.cs" />
     <Compile Include="SimpleExprBuilderTestBase.cs" />
+    <Compile Include="BVOperatorsSimplerBuilder.cs" />
+    <Compile Include="CoercionSimpleBuilder.cs" />
+    <Compile Include="ConstantsSimpleBuilder.cs" />
+    <Compile Include="MapStoreSelectSimpleBuilder.cs" />
+    <Compile Include="OldSimpleBuilder.cs" />
+    <Compile Include="QuantifiersSimpleBuilder.cs" />
+    <Compile Include="RealAndIntOperatorsSimplerBuilder.cs" />
+    <Compile Include="EqualityAndLogicalOperatorsSimpleBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

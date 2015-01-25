@@ -6,7 +6,7 @@ using Symbooglix;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class RealAndIntOperators : SimpleExprBuilderTestBase
+    public class RealAndIntOperatorsSimplerBuilder : SimpleExprBuilderTestBase
     {
         // Add tests
         [Test()]

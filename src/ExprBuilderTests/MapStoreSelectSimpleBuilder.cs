@@ -10,9 +10,9 @@ using BPLType = Microsoft.Boogie.Type;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class MapStoreSelect : IErrorSink
+    public class MapStoreSelectSimpleBuilder : IErrorSink
     {
-        public MapStoreSelect()
+        public MapStoreSelectSimpleBuilder()
         {
             // This is a hack
             SymbooglixLibTests.SymbooglixTest.SetupDebug();

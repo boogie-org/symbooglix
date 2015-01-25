@@ -5,7 +5,7 @@ using Symbooglix;
 
 namespace ExprBuilderTests
 {
-    public class Old : SimpleExprBuilderTestBase
+    public class OldSimpleBuilder : SimpleExprBuilderTestBase
     {
         [Test()]
         public void SimpleOld()

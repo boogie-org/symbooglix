@@ -8,7 +8,7 @@ using System.Numerics;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Constants : SimpleExprBuilderTestBase
+    public class ConstantsSimpleBuilder : SimpleExprBuilderTestBase
     {
         [Test()]
         public void True()

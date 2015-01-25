@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class Quantifiers : SimpleExprBuilderTestBase
+    public class QuantifiersSimpleBuilder : SimpleExprBuilderTestBase
     {
         private Variable GetVariable(string name, Microsoft.Boogie.Type type)
         {
