@@ -78,6 +78,7 @@ namespace Symbooglix
         Expr Eq(Expr lhs, Expr rhs);
         Expr NotEq(Expr lhs, Expr rhs);
         Expr Lt(Expr lhs, Expr rhs);
+        Expr Le(Expr lhs, Expr rhs);
 
         // Uninterpreted functions
         Expr UFC(FunctionCall func, params Expr[] args);

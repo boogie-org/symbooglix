@@ -336,9 +336,39 @@ namespace ExprBuilderTests
             var builder = GetBuilder();
             var constant0 = builder.False;
             var constant1 = builder.True;
-            var result = builder.Lt(constant0, constant1);
-            Assert.AreEqual("1 < 2", result.ToString());
+            builder.Lt(constant0, constant1);
+        }
+
+        // Le tests
+        [Test()]
+        public void LeReal()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.ConstantReal("2.0");
+            var result = builder.Le(constant0, constant1);
+            Assert.AreEqual("1e0 <= 2e0", result.ToString());
             CheckIsBoolType(result);
+        }
+
+        [Test()]
+        public void LeInt()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var constant1 = builder.ConstantInt(2);
+            var result = builder.Le(constant0, constant1);
+            Assert.AreEqual("1 <= 2", result.ToString());
+            CheckIsBoolType(result);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void LeIntWrongArgType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.False;
+            var constant1 = builder.True;
+            builder.Le(constant0, constant1);
         }
 
     }

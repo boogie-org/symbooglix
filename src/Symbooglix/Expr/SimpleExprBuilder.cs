@@ -729,6 +729,22 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr Le(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs must be the same type");
+            }
+
+            if (!lhs.Type.IsInt && !lhs.Type.IsReal)
+            {
+                throw new ExprTypeCheckException("lhs and rhs must both be of int type or real type");
+            }
+            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Le), new List<Expr>() { lhs, rhs });
+            result.Type = BasicType.Bool;
+            return result;
+        }
+
         private ConcurrentDictionary<ArithmeticCoercion.CoercionType, ArithmeticCoercion> ArithmeticCoercionCache = new ConcurrentDictionary<ArithmeticCoercion.CoercionType, ArithmeticCoercion>();
         public Expr ArithmeticCoercion(ArithmeticCoercion.CoercionType coercionType, Expr operand)
         {
