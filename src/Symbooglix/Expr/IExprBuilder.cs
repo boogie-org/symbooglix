@@ -82,6 +82,8 @@ namespace Symbooglix
         // Maps
         Expr MapSelect(Expr map, params Expr[] indices);
         Expr MapStore(Expr map, Expr value, params Expr[] indices);
+
+        Expr Old(Expr operand);
     }
 
     // FIXME: This class should probably contain references to the relevant Exprs

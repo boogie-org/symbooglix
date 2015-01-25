@@ -27,6 +27,8 @@ namespace ExprBuilderTests
             Assert.IsTrue(p(result.Type));
         }
 
+        // Arithmetic Coercion
+
         [Test()]
         public void IntToRealCoercion()
         {

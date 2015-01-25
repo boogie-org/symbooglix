@@ -41,6 +41,7 @@
     <Compile Include="RealAndIntOperators.cs" />
     <Compile Include="MapStoreSelect.cs" />
     <Compile Include="Coercion.cs" />
+    <Compile Include="Old.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

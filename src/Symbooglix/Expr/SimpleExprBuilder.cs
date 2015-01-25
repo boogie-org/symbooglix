@@ -862,5 +862,12 @@ namespace Symbooglix
             result.Type = map.Type;
             return result;
         }
+
+        public Expr Old(Expr operand)
+        {
+            var result = new OldExpr(Token.NoToken, operand);
+            result.Type = operand.Type;
+            return result;
+        }
     }
 }
