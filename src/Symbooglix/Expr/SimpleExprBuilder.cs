@@ -295,20 +295,20 @@ namespace Symbooglix
                 throw new ExprTypeCheckException("operand must be BvType");
             }
 
-            int bits = 0;
-
+            int bits = operand.Type.BvBits;
+            string suffixString = null;
             if (getSuffixFromReturnType)
             {
                 if (!returnType.IsBv)
                     throw new ArgumentException("expected return type to be BvType");
-                bits = returnType.BvBits;
+                suffixString = returnType.BvBits.ToString();
             }
             else
             {
-                bits = operand.Type.BvBits;
+                suffixString = bits.ToString();
             }
 
-            var functionName = NameWithoutSizeSuffx + bits.ToString();
+            var functionName = NameWithoutSizeSuffx + suffixString;
             FunctionCall builtinFunctionCall = null;
             try
             {
