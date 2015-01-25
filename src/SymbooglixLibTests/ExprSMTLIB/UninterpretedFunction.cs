@@ -13,25 +13,23 @@ namespace ExprSMTLIBTest
         public UninterpretedFunction()
         {
             SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            Builder = new SimpleExprBuilder();
+            SEB = new SimpleExprBuilder();
         }
 
-        private SimpleExprBuilder Builder;
+        private SimpleExprBuilder SEB;
         [Test()]
         public void TestCase()
         {
-            Builder = new SimpleExprBuilder();
+            SEB = new SimpleExprBuilder();
+            var FCB = new FunctionCallBuilder();
 
-            var functionCall = Builder.CreateUninterpretedFunctionCall("uf", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() {
+            var functionCall = FCB.CreateUninterpretedFunctionCall("uf", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() {
                 Microsoft.Boogie.Type.Int,
                 Microsoft.Boogie.Type.Real
             });
 
-            // FIXME: Perhaps this should be moved into the ExprBuilder
-            var e = new NAryExpr(Token.NoToken, functionCall, new List<Expr>() {
-                Builder.ConstantInt(5),
-                Builder.ConstantReal("5.5")
-            });
+
+            var e = SEB.UFC(functionCall, SEB.ConstantInt(5), SEB.ConstantReal("5.5"));
 
             // FIXME: This needs to be factored out
             using (var writer = new StringWriter())

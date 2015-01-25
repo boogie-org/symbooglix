@@ -163,7 +163,8 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            var foobarFunc = builder.CreateUninterpretedFunctionCall("foobar", bv8Type, new List<Microsoft.Boogie.Type>() { bv8Type });
+            var FCB = new FunctionCallBuilder();
+            var foobarFunc = FCB.CreateUninterpretedFunctionCall("foobar", bv8Type, new List<Microsoft.Boogie.Type>() { bv8Type });
             // foobar(0bv8) == 0bv8
             Expr c2 = builder.Eq( builder.UFC(foobarFunc, builder.ConstantBV(0,8)), builder.ConstantBV(0, 8));
 
@@ -229,7 +230,8 @@ namespace SolverTests
             Expr c0 = builder.Eq(builder.BVAND(s0, s1), builder.ConstantBV(0, 8));
             Expr c1 = builder.Eq(s2, builder.ConstantBV(1, 8));
 
-            var foobarFunc = builder.CreateUninterpretedFunctionCall("foobar", bv8Type, new List<Microsoft.Boogie.Type>() { bv8Type });
+            var FCB = new FunctionCallBuilder();
+            var foobarFunc = FCB.CreateUninterpretedFunctionCall("foobar", bv8Type, new List<Microsoft.Boogie.Type>() { bv8Type });
             // foobar(0bv8) == 0bv8
             Expr c2 = builder.Eq( builder.UFC(foobarFunc, builder.ConstantBV(0,8)), builder.ConstantBV(0, 8));
 

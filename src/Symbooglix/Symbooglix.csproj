@@ -117,6 +117,7 @@
     <Compile Include="Executor\ExecutorHandlers\FailureLimiter.cs" />
     <Compile Include="Expr\IExprBuilder.cs" />
     <Compile Include="Expr\SimpleExprBuilder.cs" />
+    <Compile Include="Expr\FunctionCallBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

@@ -76,9 +76,6 @@ namespace Symbooglix
         Expr Not(Expr e);
 
         // Uninterpreted functions
-        // FIXME: I don't think this belongs here as it doesn't return an Expr
-        FunctionCall CreateUninterpretedFunctionCall(string Name, Microsoft.Boogie.Type returnType, IList<Microsoft.Boogie.Type> argTypes);
-
         Expr UFC(FunctionCall func, params Expr[] args);
 
         // Maps

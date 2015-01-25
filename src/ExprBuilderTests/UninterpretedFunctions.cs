@@ -15,7 +15,12 @@ namespace ExprBuilderTests
             SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
         }
 
-        private IExprBuilder GetBuilder()
+        private FunctionCallBuilder GetFCBuilder()
+        {
+            return new FunctionCallBuilder();
+        }
+
+        private IExprBuilder GetSEBuilder()
         {
             return new SimpleExprBuilder();
         }
@@ -23,8 +28,8 @@ namespace ExprBuilderTests
         [Test()]
         public void CreateFunctionCall()
         {
-            var builder = GetBuilder();
-            var fc0 = builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            var fc0 = FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
                 {
@@ -32,7 +37,7 @@ namespace ExprBuilderTests
                     BasicType.GetBvType(2)
                  });
             // SimpleExpr builder should hit its cache if we ask for foo again
-            var fc1 = builder.CreateUninterpretedFunctionCall("foo",
+            var fc1 = FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -46,8 +51,8 @@ namespace ExprBuilderTests
         [Test()]
         public void CreateFunctionCallDistinct()
         {
-            var builder = GetBuilder();
-            var fc0 = builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            var fc0 = FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -55,7 +60,7 @@ namespace ExprBuilderTests
                 BasicType.GetBvType(2)
             });
             // SimpleExpr builder should not hit the cache here as we ask for different function name
-            var fc1 = builder.CreateUninterpretedFunctionCall("foo2",
+            var fc1 = FCB.CreateCachedUninterpretedFunctionCall("foo2",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -69,8 +74,8 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void CreateFunctionCallMistmatchReturnType()
         {
-            var builder = GetBuilder();
-            builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -78,7 +83,7 @@ namespace ExprBuilderTests
                 BasicType.GetBvType(2)
             });
             // SimpleExpr builder should hit its cache if we ask for foo again. We ask for the wrong type here
-            builder.CreateUninterpretedFunctionCall("foo",
+            FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Int,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -90,8 +95,8 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void CreateFunctionCallMistmatchWrongNumberOfArgs()
         {
-            var builder = GetBuilder();
-            builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -99,7 +104,7 @@ namespace ExprBuilderTests
                 BasicType.GetBvType(2)
             });
             // SimpleExpr builder should hit its cache if we ask for foo again. We ask for the wrong number of args here
-            builder.CreateUninterpretedFunctionCall("foo",
+            FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -110,8 +115,8 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void CreateFunctionCallMistmatchArgType()
         {
-            var builder = GetBuilder();
-            builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -119,7 +124,7 @@ namespace ExprBuilderTests
                 BasicType.GetBvType(2)
             });
             // SimpleExpr builder should hit its cache if we ask for foo again. We ask for the wrong type here
-            builder.CreateUninterpretedFunctionCall("foo",
+            FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>()
             {
@@ -131,14 +136,15 @@ namespace ExprBuilderTests
         [Test()]
         public void CreateFunctionCallExpr()
         {
-            var builder = GetBuilder();
-            var fc = builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            var SEB = GetSEBuilder();
+            var fc = FCB.CreateCachedUninterpretedFunctionCall("foo",
                           BasicType.Bool,
                           new List<Microsoft.Boogie.Type>() {
                     BasicType.GetBvType(2),
                     BasicType.GetBvType(2)
                 });
-            var call = builder.UFC(fc, builder.ConstantBV(0, 2), builder.ConstantBV(1, 2));
+            var call = SEB.UFC(fc, SEB.ConstantBV(0, 2), SEB.ConstantBV(1, 2));
             Assert.AreEqual("foo(0bv2, 1bv2)", call.ToString());
             Assert.AreEqual(BasicType.Bool, call.ShallowType);
             Assert.IsNotNull(call.Type);
@@ -148,27 +154,29 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void CreateFunctionCallExprWrongArgTypes()
         {
-            var builder = GetBuilder();
-            var fc = builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            var SEB = GetSEBuilder();
+            var fc = FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>() {
                 BasicType.GetBvType(2),
                 BasicType.GetBvType(2)
             });
-            builder.UFC(fc, builder.ConstantBV(0, 3), builder.ConstantBV(1, 3));
+            SEB.UFC(fc, SEB.ConstantBV(0, 3), SEB.ConstantBV(1, 3));
         }
 
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void CreateFunctionCallExprWrongArgCount()
         {
-            var builder = GetBuilder();
-            var fc = builder.CreateUninterpretedFunctionCall("foo",
+            var FCB = GetFCBuilder();
+            var SEB = GetSEBuilder();
+            var fc = FCB.CreateCachedUninterpretedFunctionCall("foo",
                 BasicType.Bool,
                 new List<Microsoft.Boogie.Type>() {
                 BasicType.GetBvType(2),
                 BasicType.GetBvType(2)
             });
-            builder.UFC(fc, builder.ConstantBV(0, 3));
+            SEB.UFC(fc, SEB.ConstantBV(0, 3));
         }
     }
 }
