@@ -84,6 +84,9 @@ namespace Symbooglix
         Expr MapStore(Expr map, Expr value, params Expr[] indices);
 
         Expr Old(Expr operand);
+
+        // Quantifiers
+        Expr ForAllExpr(IList<Variable> freeVars, Expr body);
     }
 
     // FIXME: This class should probably contain references to the relevant Exprs

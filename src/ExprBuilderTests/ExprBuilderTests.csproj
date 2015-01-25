@@ -42,6 +42,7 @@
     <Compile Include="MapStoreSelect.cs" />
     <Compile Include="Coercion.cs" />
     <Compile Include="Old.cs" />
+    <Compile Include="Quantifiers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
