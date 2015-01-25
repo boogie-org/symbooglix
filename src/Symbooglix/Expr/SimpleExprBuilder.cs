@@ -713,6 +713,45 @@ namespace Symbooglix
             return result;
         }
 
+        private ConcurrentDictionary<ArithmeticCoercion.CoercionType, ArithmeticCoercion> ArithmeticCoercionCache = new ConcurrentDictionary<ArithmeticCoercion.CoercionType, ArithmeticCoercion>();
+        public Expr ArithmeticCoercion(ArithmeticCoercion.CoercionType coercionType, Expr operand)
+        {
+            Microsoft.Boogie.Type resultType = null;
+            switch (coercionType)
+            {
+                case Microsoft.Boogie.ArithmeticCoercion.CoercionType.ToInt:
+                    if (!operand.Type.IsReal)
+                        throw new ExprTypeCheckException("When coercising to int operand must be a real");
+
+                    resultType = BasicType.Int;
+                    break;
+                case Microsoft.Boogie.ArithmeticCoercion.CoercionType.ToReal:
+                    if (!operand.Type.IsInt)
+                        throw new ExprTypeCheckException("When coercising to real operand must be an int");
+
+                    resultType = BasicType.Real;
+                    break;
+                default:
+                    throw new ArgumentException("coercionType not supported");
+            }
+
+            // Use Cache
+            ArithmeticCoercion coercionFun = null;
+            try
+            {
+                coercionFun = ArithmeticCoercionCache[coercionType];
+            }
+            catch (KeyNotFoundException)
+            {
+                coercionFun = new ArithmeticCoercion(Token.NoToken, coercionType);
+                ArithmeticCoercionCache[coercionType] = coercionFun;
+            }
+
+            var result = new NAryExpr(Token.NoToken, coercionFun, new List<Expr>() { operand });
+            result.Type = resultType;
+            return result;
+        }
+
         private ConcurrentDictionary<int, MapSelect> MapSelectCache = new ConcurrentDictionary<int, Microsoft.Boogie.MapSelect>();
         public Expr MapSelect(Expr map, params Expr[] indices)
         {
