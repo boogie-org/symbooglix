@@ -37,7 +37,7 @@ namespace ExprBuilderTests
             var freeVarY = GetVariable("y", BasicType.Int);
             var yid = new IdentifierExpr(Token.NoToken, freeVarY);
             var body = builder.Eq(xid, yid);
-            var result = builder.ForAllExpr(new List<Variable>() { freeVarX, freeVarY }, body);
+            var result = builder.ForAll(new List<Variable>() { freeVarX, freeVarY }, body);
             Assert.AreEqual("(forall x: int, y: int :: x == y)", result.ToString());
             Assert.AreEqual(BasicType.Bool, result.ShallowType);
             Assert.IsNotNull(result.Type);
@@ -53,7 +53,7 @@ namespace ExprBuilderTests
             var freeVarY = GetVariable("y", BasicType.Int);
             var yid = new IdentifierExpr(Token.NoToken, freeVarY);
             var body = builder.Add(xid, yid); // Wrong body type, should be bool
-            builder.ForAllExpr(new List<Variable>() { freeVarX, freeVarY }, body);
+            builder.ForAll(new List<Variable>() { freeVarX, freeVarY }, body);
         }
 
         [Test()]

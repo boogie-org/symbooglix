@@ -870,7 +870,7 @@ namespace Symbooglix
             return result;
         }
 
-        public Expr ForAllExpr(IList<Variable> freeVars, Expr body)
+        public Expr ForAll(IList<Variable> freeVars, Expr body)
         {
             if (!body.Type.IsBool)
             {

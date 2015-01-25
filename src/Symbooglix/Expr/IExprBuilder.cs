@@ -86,7 +86,7 @@ namespace Symbooglix
         Expr Old(Expr operand);
 
         // Quantifiers
-        Expr ForAllExpr(IList<Variable> freeVars, Expr body);
+        Expr ForAll(IList<Variable> freeVars, Expr body);
         Expr Exists(IList<Variable> freeVargs, Expr body);
     }
 
