@@ -65,6 +65,7 @@ namespace Symbooglix
         Expr RealDiv(Expr lhs, Expr rhs);
         // Exponentiation (operands must be of type real). Returns a real
         Expr Pow(Expr lhs, Expr rhs);
+        Expr Neg(Expr operand);
         Expr ArithmeticCoercion(ArithmeticCoercion.CoercionType coercionType, Expr operand);
 
 

@@ -307,6 +307,35 @@ namespace ExprBuilderTests
             builder.Pow(constant0, constant1);
         }
 
+        // Neg tests
+        [Test()]
+        public void NegInt()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var result = builder.Neg(constant0);
+            Assert.AreEqual("-1", result.ToString());
+            CheckIsInt(result);
+        }
+
+        [Test()]
+        public void NegReal()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var result = builder.Neg(constant0);
+            Assert.AreEqual("-1e0", result.ToString());
+            CheckIsReal(result);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void NegWrongType()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.False;
+            builder.Neg(constant0);
+        }
+
         // Lt tests
         [Test()]
         public void LtReal()

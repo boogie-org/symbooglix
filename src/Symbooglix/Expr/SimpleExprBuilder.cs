@@ -723,6 +723,18 @@ namespace Symbooglix
             return result;
         }
 
+        public Expr Neg(Expr operand)
+        {
+            if (!operand.Type.IsInt && !operand.Type.IsReal)
+            {
+                throw new ExprTypeCheckException("operand must be real or int");
+            }
+
+            var result = new NAryExpr(Token.NoToken, GetUnaryFunction(UnaryOperator.Opcode.Neg), new List<Expr>() { operand });
+            result.Type = operand.Type;
+            return result;
+        }
+
         public Expr Lt(Expr lhs, Expr rhs)
         {
             if (!lhs.Type.Equals(rhs.Type))
