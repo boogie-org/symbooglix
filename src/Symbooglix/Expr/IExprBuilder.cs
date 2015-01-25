@@ -80,7 +80,6 @@ namespace Symbooglix
 
         // Maps
         Expr MapSelect(Expr map, params Expr[] indices);
-        Expr MapSelect(Expr map, IList<Expr> indices);
     }
 
     // FIXME: This class should probably contain references to the relevant Exprs

@@ -713,26 +713,20 @@ namespace Symbooglix
             return result;
         }
 
-        public Expr MapSelect(Expr map, params Expr[] indices)
-        {
-            return MapSelect(map, indices.ToList());
-        }
-
         private ConcurrentDictionary<int, MapSelect> MapSelectCache = new ConcurrentDictionary<int, Microsoft.Boogie.MapSelect>();
-        public Expr MapSelect(Expr map, IList<Expr> indices)
+        public Expr MapSelect(Expr map, params Expr[] indices)
         {
             if (!map.Type.IsMap)
             {
                 throw new ExprTypeCheckException("map must be of map type");
             }
 
-
-            if (indices.Count < 1)
+            if (indices.Length < 1)
             {
                 throw new ArgumentException("Must pass at least one index");
             }
 
-            if (map.Type.AsMap.MapArity != indices.Count)
+            if (map.Type.AsMap.MapArity != indices.Length)
             {
                 throw new ArgumentException("the number of arguments does not match the map arity");
             }
@@ -741,16 +735,16 @@ namespace Symbooglix
             MapSelect ms = null;
             try
             {
-                ms = MapSelectCache[indices.Count];
+                ms = MapSelectCache[indices.Length];
             }
             catch (KeyNotFoundException)
             {
-                ms = new MapSelect(Token.NoToken, indices.Count);
-                MapSelectCache[indices.Count] = ms;
+                ms = new MapSelect(Token.NoToken, indices.Length);
+                MapSelectCache[indices.Length] = ms;
             }
 
             var argList = new List<Expr>() { map };
-            for (int index = 0; index < indices.Count; ++index)
+            for (int index = 0; index < indices.Length; ++index)
             {
                 argList.Add(indices[index]);
             }
