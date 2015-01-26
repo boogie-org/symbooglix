@@ -118,6 +118,7 @@
     <Compile Include="Expr\IExprBuilder.cs" />
     <Compile Include="Expr\SimpleExprBuilder.cs" />
     <Compile Include="Expr\FunctionCallBuilder.cs" />
+    <Compile Include="Expr\BuilderDuplicator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
