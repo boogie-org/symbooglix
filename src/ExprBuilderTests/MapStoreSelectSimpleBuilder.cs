@@ -48,21 +48,6 @@ namespace ExprBuilderTests
             builder.MapSelect(id, builder.ConstantInt(0));
         }
 
-
-        private Tuple<IdentifierExpr, BPLType> GetMapVariable(string name, BPLType resultTyp, params BPLType[] indices)
-        {
-            var mapType = new MapType(Token.NoToken,
-                new List<Microsoft.Boogie.TypeVariable>(),
-                indices.ToList(),
-                resultTyp);
-            var typeIdent = new TypedIdent(Token.NoToken, name, mapType);
-            var gv = new GlobalVariable(Token.NoToken, typeIdent);
-            var id = new IdentifierExpr(Token.NoToken, gv);
-
-            var result = new Tuple<IdentifierExpr, BPLType>(id, mapType);
-            return result;
-        }
-
         [TestCase()]
         public void TwoIndicesMapSelect()
         {

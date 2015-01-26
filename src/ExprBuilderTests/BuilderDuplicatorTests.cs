@@ -1061,6 +1061,31 @@ namespace ExprBuilderTests
             Assert.AreEqual("foo(0e0, 5, 5bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
+
+        [Test()]
+        public void simpleMapSelect()
+        {
+            var builder = GetBuilder();
+            var map = GetMapVariable("m", BasicType.Bool, BasicType.Int, BasicType.Int).Item1;
+            var root = builder.MapSelect(map, builder.ConstantInt(0), builder.ConstantInt(1));
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(10)]
+        public void simpleMapStore(int depth)
+        {
+            var builder = GetBuilder();
+            var map = GetMapVariable("m", BasicType.Bool, BasicType.Int).Item1;
+            Expr root = map;
+
+            for (int count = 0; count < depth; ++count)
+            {
+                root =  builder.MapStore(root, builder.True, builder.ConstantInt(count));
+            }
+            DuplicateAndCheck(root, builder);
+        }
     }
 }
 

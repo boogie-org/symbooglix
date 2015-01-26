@@ -2,6 +2,10 @@
 using NUnit.Framework;
 using Symbooglix;
 using Microsoft.Boogie;
+using System.Collections.Generic;
+using System.Linq;
+
+using BPLType = Microsoft.Boogie.Type;
 
 namespace ExprBuilderTests
 {
@@ -87,6 +91,20 @@ namespace ExprBuilderTests
             Assert.AreEqual(e.ShallowType, e.Type);
             var TC = new TypecheckingContext(this);
             e.Typecheck(TC);
+        }
+
+        protected Tuple<IdentifierExpr, BPLType> GetMapVariable(string name, BPLType resultTyp, params BPLType[] indices)
+        {
+            var mapType = new MapType(Token.NoToken,
+                new List<Microsoft.Boogie.TypeVariable>(),
+                indices.ToList(),
+                resultTyp);
+            var typeIdent = new TypedIdent(Token.NoToken, name, mapType);
+            var gv = new GlobalVariable(Token.NoToken, typeIdent);
+            var id = new IdentifierExpr(Token.NoToken, gv);
+
+            var result = new Tuple<IdentifierExpr, BPLType>(id, mapType);
+            return result;
         }
     }
 }
