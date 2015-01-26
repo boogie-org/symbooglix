@@ -71,7 +71,7 @@ namespace Symbooglix
 
         private Absy GetNextCmd(ExecutionState state)
         {
-            var nextCmd = state.GetCurrentStackFrame().CurrentInstruction.DeepClone();
+            var nextCmd = state.GetCurrentStackFrame().CurrentInstruction.Clone();
             nextCmd.MoveNext();
             return nextCmd.Current;
         }

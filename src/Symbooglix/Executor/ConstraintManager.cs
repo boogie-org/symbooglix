@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public interface IConstraintManager : Util.IDeepClone<IConstraintManager>, Util.IYAMLWriter
+    public interface IConstraintManager : Util.IYAMLWriter
     {
         int Count { get; }
         IEnumerable<Expr> ConstraintExprs{ get; }
@@ -25,6 +25,7 @@ namespace Symbooglix
         IConstraintManager GetSubSet(ISet<Constraint> subset);
 
         void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW, bool showConstraints);
+        IConstraintManager Clone();
     }
 
     public class ConstraintManager : IConstraintManager
@@ -56,7 +57,7 @@ namespace Symbooglix
             InternalConstraints = new HashSet<Constraint>();
         }
 
-        public IConstraintManager DeepClone()
+        public IConstraintManager Clone()
         {
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
             other.InternalConstraints = new HashSet<Constraint>();

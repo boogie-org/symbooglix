@@ -39,7 +39,6 @@
   <ItemGroup>
     <Compile Include="Expr\FindSymbolicsVisitor.cs" />
     <Compile Include="Expr\FindLiteralAssignment.cs" />
-    <Compile Include="Util\IDeepClone.cs" />
     <Compile Include="Expr\IExprVisitor.cs" />
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\ConstantFoldingTraverser.cs" />

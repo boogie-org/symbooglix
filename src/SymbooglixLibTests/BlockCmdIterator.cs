@@ -130,7 +130,7 @@ namespace SymbooglixLibTests
             blockEnumerator.MoveNext();
             blockEnumerator.MoveNext();
 
-            var copiedblockEnumerator = blockEnumerator.DeepClone();
+            var copiedblockEnumerator = blockEnumerator.Clone();
 
             var oldPosition = blockEnumerator.Current;
 

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class Memory : Util.IDeepClone<Memory>, Util.IYAMLWriter
+    public class Memory : Util.IYAMLWriter
     {
         public Memory()
         {
@@ -14,22 +14,21 @@ namespace Symbooglix
             Globals = new Dictionary<Variable,Expr>();
         }
 
-        public Memory DeepClone()
+        public Memory Clone()
         {
             Memory other = (Memory) this.MemberwiseClone();
 
             other.Stack = new List<StackFrame>();
             foreach (var sf in this.Stack)
             {
-                other.Stack.Add(sf.DeepClone());
+                other.Stack.Add(sf.Clone());
             }
 
-            var duplicator = new NonSymbolicDuplicator();
             other.Globals = new Dictionary<Variable,Expr>();
             foreach (var pair in this.Globals)
             {
-                Expr copy = (Expr) duplicator.Visit(pair.Value);
-                other.Globals.Add(pair.Key, copy);
+                // Note we don't duplicate pair.Value here because we treat Expr immutably
+                other.Globals.Add(pair.Key, pair.Value);
             }
 
             return other;
@@ -105,7 +104,7 @@ namespace Symbooglix
         public Dictionary<Variable,Expr> Globals;
     }
 
-    public class StackFrame : Util.IDeepClone<StackFrame>, Util.IYAMLWriter
+    public class StackFrame : Util.IYAMLWriter
     {
         public Dictionary<Variable,Expr> Locals;
         public Implementation Impl;
@@ -159,17 +158,16 @@ namespace Symbooglix
             private set;
         }
 
-        public StackFrame DeepClone()
+        public StackFrame Clone()
         {
             StackFrame other = (StackFrame) this.MemberwiseClone();
 
             // procedure does not need to cloned
             other.Locals = new Dictionary<Variable, Expr>();
-            var duplicator = new NonSymbolicDuplicator();
             foreach (var pair in Locals)
             {
-                Expr copy = (Expr) duplicator.Visit(pair.Value);
-                other.Locals.Add(pair.Key, copy);
+                // Note we don't duplicate pair.Value here because we treat Expr immutably
+                other.Locals.Add(pair.Key, pair.Value);
             }
 
             if (this.OldGlobals != null)
@@ -177,8 +175,8 @@ namespace Symbooglix
                 other.InternalOldGlobals = new Dictionary<GlobalVariable, Expr>();
                 foreach (var pair in this.OldGlobals)
                 {
-                    Expr copy = (Expr) duplicator.Visit(pair.Value);
-                    other.InternalOldGlobals.Add(pair.Key, copy);
+                    // Note we don't duplicate pair.Value here because we treat Expr immutably
+                    other.InternalOldGlobals.Add(pair.Key, pair.Value);
                 }
             }
 
@@ -187,7 +185,7 @@ namespace Symbooglix
                 return other;
 
             // Clone instruction iterator
-            other.CurrentInstruction = CurrentInstruction.DeepClone();
+            other.CurrentInstruction = CurrentInstruction.Clone();
 
             return other;
         }

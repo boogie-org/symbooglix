@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Symbooglix
 {
-    public class ExecutionState : Util.IDeepClone<ExecutionState>, Util.IYAMLWriter
+    public class ExecutionState : Util.IYAMLWriter
     {
         public Memory Mem;
         public List<SymbolicVariable> Symbolics;
@@ -78,10 +78,10 @@ namespace Symbooglix
 
         }
 
-        public ExecutionState DeepClone()
+        public ExecutionState Clone()
         {
             ExecutionState other = (ExecutionState) this.MemberwiseClone();
-            other.Mem = this.Mem.DeepClone();
+            other.Mem = this.Mem.Clone();
 
             other.Symbolics = new List<SymbolicVariable>();
             foreach (SymbolicVariable s in this.Symbolics)
@@ -91,7 +91,7 @@ namespace Symbooglix
 
             other.Id = NewId++;
 
-            other.Constraints = this.Constraints.DeepClone();
+            other.Constraints = this.Constraints.Clone();
             return other;
         }
 

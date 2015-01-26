@@ -29,7 +29,7 @@ namespace Symbooglix
 
     // We use a manual implementation (rather than using a method that uses yield) so we
     // can do simple cloning. In the future it may be useful to support reverse iteration too.
-    public class BlockCmdEnumerator : IEnumerator<Absy>, Util.IDeepClone<BlockCmdEnumerator>
+    public class BlockCmdEnumerator : IEnumerator<Absy>
     {
         private Block BB;
         private int index;
@@ -99,7 +99,7 @@ namespace Symbooglix
             }
         }
 
-        public BlockCmdEnumerator DeepClone()
+        public BlockCmdEnumerator Clone()
         {
             // The index is a value type so that will be a copy
             return (BlockCmdEnumerator) this.MemberwiseClone();

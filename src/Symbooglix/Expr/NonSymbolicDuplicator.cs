@@ -7,6 +7,7 @@ namespace Symbooglix
     /// <summary>
     /// This duplicates Expr accept the identifier expr attached to symbolics
     /// </summary>
+    // TODO: Should we remove this, it's dead code now!? If were to use it should use BuilderDuplicator instead
     public class NonSymbolicDuplicator : Duplicator
     {
         public NonSymbolicDuplicator()
@@ -28,7 +29,7 @@ namespace Symbooglix
             return result;
         }
 
-        public override Expr VisitIdentifierExpr (IdentifierExpr node)
+        public override Expr VisitIdentifierExpr(IdentifierExpr node)
         {
             if (node.Decl is SymbolicVariable)
             {
