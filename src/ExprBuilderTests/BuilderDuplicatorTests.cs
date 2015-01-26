@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Symbooglix;
 using Microsoft.Boogie;
@@ -385,7 +385,8 @@ namespace ExprBuilderTests
 
             DuplicateAndCheck(root, builder);
         }
-            
+
+        [Test()]
         public void simpleBVSLT()
         {
             var builder = GetBuilder();
@@ -394,10 +395,11 @@ namespace ExprBuilderTests
 
             var root = builder.BVSLT(lhs, rhs);
 
-            Assert.AreEqual("BVSLT(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVSLT8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleBVSLE()
         {
             var builder = GetBuilder();
@@ -406,10 +408,11 @@ namespace ExprBuilderTests
 
             var root = builder.BVSLE(lhs, rhs);
 
-            Assert.AreEqual("BVSLE(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVSLE8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleBVSGT()
         {
             var builder = GetBuilder();
@@ -418,10 +421,11 @@ namespace ExprBuilderTests
 
             var root = builder.BVSGT(lhs, rhs);
 
-            Assert.AreEqual("BVSGT(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVSGT8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleBVSGE()
         {
             var builder = GetBuilder();
@@ -430,11 +434,11 @@ namespace ExprBuilderTests
 
             var root = builder.BVSGE(lhs, rhs);
 
-            Assert.AreEqual("BVSGE(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVSGE8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
-
+        [Test()]
         public void simpleBVULT()
         {
             var builder = GetBuilder();
@@ -443,10 +447,11 @@ namespace ExprBuilderTests
 
             var root = builder.BVULT(lhs, rhs);
 
-            Assert.AreEqual("BVULT(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVULT8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleBVULE()
         {
             var builder = GetBuilder();
@@ -455,10 +460,11 @@ namespace ExprBuilderTests
 
             var root = builder.BVULE(lhs, rhs);
 
-            Assert.AreEqual("BVULE(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVULE8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleBVUGT()
         {
             var builder = GetBuilder();
@@ -467,7 +473,7 @@ namespace ExprBuilderTests
 
             var root = builder.BVUGT(lhs, rhs);
 
-            Assert.AreEqual("BVUGT(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVUGT8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
@@ -479,7 +485,7 @@ namespace ExprBuilderTests
 
             var root = builder.BVSGE(lhs, rhs);
 
-            Assert.AreEqual("BVUGE(1bv8, 2bv8)", root.ToString());
+            Assert.AreEqual("BVUGE8(1bv8, 2bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
 
@@ -993,7 +999,7 @@ namespace ExprBuilderTests
             DuplicateAndCheck(root, builder);
         }
 
-
+        [Test()]
         public void simpleLt()
         {
             var builder = GetBuilder();
@@ -1005,6 +1011,7 @@ namespace ExprBuilderTests
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleLe()
         {
             var builder = GetBuilder();
@@ -1016,6 +1023,7 @@ namespace ExprBuilderTests
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleGt()
         {
             var builder = GetBuilder();
@@ -1027,6 +1035,7 @@ namespace ExprBuilderTests
             DuplicateAndCheck(root, builder);
         }
 
+        [Test()]
         public void simpleGe()
         {
             var builder = GetBuilder();
@@ -1035,6 +1044,21 @@ namespace ExprBuilderTests
             var root = builder.Ge(builder.ConstantInt(0), builder.ConstantInt(1));
             Assert.AreEqual("0 >= 1", root.ToString());
 
+            DuplicateAndCheck(root, builder);
+        }
+
+        [Test()]
+        public void simpleUF()
+        {
+            var builder = GetBuilder();
+            var FCB = new FunctionCallBuilder();
+            var func = FCB.CreateUninterpretedFunctionCall("foo", BasicType.Bool, new List<Microsoft.Boogie.Type>() {
+                BasicType.Real,
+                BasicType.Int,
+                BasicType.GetBvType(8)
+            });
+            var root = builder.UFC(func, builder.ConstantReal("0.0"), builder.ConstantInt(5), builder.ConstantBV(5,8));
+            Assert.AreEqual("foo(0e0, 5, 5bv8)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
     }
