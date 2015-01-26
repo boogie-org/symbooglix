@@ -32,7 +32,7 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(id.Decl is SymbolicVariable);
 
                 // Check we have the expected constraint
-                string expected = "bv8ugt(" + id.Name + ", 2bv8)";
+                string expected = "BVUGT8(" + id.Name + ", 2bv8)";
                 Assert.AreEqual(e.CurrentState.Constraints.Count, 1);
                 Assert.IsTrue(e.CurrentState.Constraints.Constraints.Where( c => c.Condition.ToString() == expected).Count() == 1);
             };

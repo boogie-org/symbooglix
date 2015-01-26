@@ -11,7 +11,7 @@ namespace Symbooglix
 
     public class Executor : Util.IYAMLWriter
     {
-        public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver)
+        public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver, IExprBuilder builder)
         { 
             this.TheProgram = program;
             StateScheduler = scheduler;
@@ -30,10 +30,12 @@ namespace Symbooglix
             AssertFilter = null;
             this.TerminationType = ExecutorTerminationType.UNKNOWN;
             HasBeenPrepared = false;
+            this.Builder = builder;
         }
 
         private IStateScheduler StateScheduler;
         private NonSymbolicDuplicator Duplicator;
+        private IExprBuilder Builder;
         public  ExecutionState CurrentState
         {
             get;
@@ -332,7 +334,7 @@ namespace Symbooglix
                 // Check The axiom can be satisfied
                 TheSolver.SetConstraints(InitialState.Constraints);
 
-                var VMR = new VariableMapRewriter(InitialState);
+                var VMR = new MapExecutionStateVariablesDuplicator(InitialState, this.Builder);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
 
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
@@ -777,7 +779,7 @@ namespace Symbooglix
             // We also need to rewrite so that we remove any IdentifierExpr that refer to in program
             // variables and instead replace with expressions containing symbolic variables.
             bool stillInState = true;
-            var VR = new VariableMapRewriter(CurrentState);
+            var VR = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             foreach (var VariablePair in Impl.InParams.Zip(Impl.Proc.InParams))
             {
                 // Map Procedure InParams to Implementation InParams
@@ -879,7 +881,7 @@ namespace Symbooglix
 
             // Assert each requires (this might produce failing states)
             bool stillInState = true;
-            var VR = new VariableMapRewriter(CurrentState);
+            var VR = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
 
             // We don't need to do any of that nasty preReplacementReMap
             // stuff here because there is no implementation
@@ -970,7 +972,7 @@ namespace Symbooglix
         {
             c.GetInstructionStatistics().IncrementCovered();
 
-            var VMR = new VariableMapRewriter(CurrentState);
+            var VMR = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
 
             // FIXME: The variables attached to the procedure are not the same object instances
             // used for the procedure. Setup the mapping. Eurgh.. Boogie you suck!
@@ -1058,7 +1060,7 @@ namespace Symbooglix
             c.GetInstructionStatistics().IncrementCovered();
 
             int index=0;
-            VariableMapRewriter r = new VariableMapRewriter(CurrentState);
+            var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             Dictionary<Variable, Expr> storedAssignments = new Dictionary<Variable, Expr>();
 
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
@@ -1126,7 +1128,7 @@ namespace Symbooglix
             }
 
             HandleBreakPoints(c);
-            VariableMapRewriter r = new VariableMapRewriter(CurrentState);
+            var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             var dupAndrw = (Expr) r.Visit(c.Expr);
 
             if (UseConstantFolding)
@@ -1347,7 +1349,7 @@ namespace Symbooglix
             c.GetInstructionStatistics().IncrementCovered();
 
             HandleBreakPoints(c);
-            VariableMapRewriter r = new VariableMapRewriter(CurrentState);
+            var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             var dupAndrw = (Expr) r.Visit(c.Expr);
 
             if (UseConstantFolding)
@@ -1413,7 +1415,7 @@ namespace Symbooglix
             // so it should be executed normally.
             // If the Expr is not null then it is the rewritten expression
             // from an assume instruction that should be added to the constraints
-            var remapper = new VariableMapRewriter(CurrentState);
+            var remapper = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             foreach (var block in c.labelTargets)
             {
                 LookAheadInfo info;
@@ -1564,7 +1566,7 @@ namespace Symbooglix
             c.GetInstructionStatistics().IncrementCovered();
 
             var args = new List<Expr>();
-            var reWritter = new VariableMapRewriter(CurrentState);
+            var reWritter = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
 
             // Find corresponding implementation
             Implementation impl = null;

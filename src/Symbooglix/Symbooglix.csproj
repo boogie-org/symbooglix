@@ -55,7 +55,6 @@
     <Compile Include="Executor\Memory.cs" />
     <Compile Include="Executor\ExecutionState.cs" />
     <Compile Include="Executor\SymbolicPool.cs" />
-    <Compile Include="Executor\VariableMapRewriter.cs" />
     <Compile Include="Executor\ConstraintManager.cs" />
     <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
@@ -119,6 +118,7 @@
     <Compile Include="Expr\SimpleExprBuilder.cs" />
     <Compile Include="Expr\FunctionCallBuilder.cs" />
     <Compile Include="Expr\BuilderDuplicator.cs" />
+    <Compile Include="Executor\MapExecutionStateVariablesDuplicator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

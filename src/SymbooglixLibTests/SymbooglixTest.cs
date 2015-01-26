@@ -117,7 +117,7 @@ namespace SymbooglixLibTests
             if (solver == null)
                 solver = new SimpleSolver(new DummySolver());
 
-            Executor e = new Executor(p, scheduler, solver);
+            Executor e = new Executor(p, scheduler, solver, new SimpleExprBuilder());
 
             return e;
         }

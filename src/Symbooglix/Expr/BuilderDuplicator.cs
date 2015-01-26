@@ -276,7 +276,7 @@ namespace Symbooglix
                 Debug.Assert(newArgs.Count == 2);
                 switch (B.Op)
                 {
-                    // Integer or Real number operators
+                // Integer or Real number operators
                     case BinaryOperator.Opcode.Add:
                         return Builder.Add(newArgs[0], newArgs[1]);
                     case BinaryOperator.Opcode.Sub:
@@ -292,7 +292,7 @@ namespace Symbooglix
                     case BinaryOperator.Opcode.Pow:
                         return Builder.Pow(newArgs[0], newArgs[1]);
 
-                    // Comparision operators
+                // Comparision operators
                     case BinaryOperator.Opcode.Eq:
                         return Builder.Eq(newArgs[0], newArgs[1]);
                     case BinaryOperator.Opcode.Neq:
@@ -306,7 +306,7 @@ namespace Symbooglix
                     case BinaryOperator.Opcode.Le:
                         return Builder.Le(newArgs[0], newArgs[1]);
 
-                    // Bool operators
+                // Bool operators
                     case BinaryOperator.Opcode.And:
                         return Builder.And(newArgs[0], newArgs[1]);
                     case BinaryOperator.Opcode.Or:
@@ -327,9 +327,9 @@ namespace Symbooglix
                 Debug.Assert(newArgs.Count >= 3);
                 // FIXME: We're probably making too many lists/arrays here
                 var map = newArgs[0];
-                var value = newArgs[ newArgs.Count-1]; // Last argument is value to store
+                var value = newArgs[newArgs.Count - 1]; // Last argument is value to store
                 var indices = new List<Expr>();
-                for (int index=1; index < newArgs.Count -1; ++index)
+                for (int index = 1; index < newArgs.Count - 1; ++index)
                 {
                     indices.Add(newArgs[index]);
                 }
@@ -356,7 +356,9 @@ namespace Symbooglix
             }
             else if (node.Fun is TypeCoercion)
             {
-                throw new NotImplementedException("TypeCoercion support not implemented");
+                // FIXME: Add support for this in the builder
+                Console.WriteLine("FIXME: typecoercion support in builder");
+                return base.VisitNAryExpr(node); // HACK just duplicate as normal
             }
             else if (node.Fun is ArithmeticCoercion)
             {

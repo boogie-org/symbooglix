@@ -121,7 +121,7 @@ namespace Symbooglix
                 throw new ExprTypeCheckException("rhs must be bitvector");
             }
 
-            if (lhs.Type != rhs.Type)
+            if (!lhs.Type.Equals(rhs.Type))
             {
                 throw new ExprTypeCheckException("bitwidth mistmatch");
             }

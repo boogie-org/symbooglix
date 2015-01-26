@@ -21,14 +21,14 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
 
     BB1:
     // CHECK: ${CHECKFILE_ABS_PATH}:${LINE:+2}.*r := bv8add\(a, b\);
-    // CHECK-L: Assignment : r := bv8add(1bv8, 2bv8)
+    // CHECK-L: Assignment : r := BVADD8(1bv8, 2bv8)
     r := bv8add(a,b);
     assert bv8ugt(r, 0bv8);
     return;
 
     BB2:
     // CHECK: ${CHECKFILE_ABS_PATH}:${LINE:+2}.*r := bv8sub\(b, a\);
-    // CHECK-L: Assignment : r := bv8sub(2bv8, 1bv8)
+    // CHECK-L: Assignment : r := BVSUB8(2bv8, 1bv8)
     r := bv8sub(b,a);
     assert r == 1bv8;
     return;

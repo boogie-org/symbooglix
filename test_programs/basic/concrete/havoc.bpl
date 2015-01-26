@@ -21,7 +21,7 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
     // CHECK-NEXT: ~sb_a_1:bv8
     // CHECK-NEXT: ~sb_b_1:bv8
     havoc a,b;
-    // CHECK: Assignment : r := bv8add\(~sb_a_1, ~sb_b_1\)
+    // CHECK: Assignment : r := BVADD8\(~sb_a_1, ~sb_b_1\)
     r := bv8add(a,b);
     assert bv8ugt(r, 0bv8);
 }

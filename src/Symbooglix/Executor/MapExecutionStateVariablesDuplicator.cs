@@ -5,7 +5,7 @@ using Microsoft.Boogie;
 
 namespace Symbooglix
 {
-    public class VariableMapRewriter : Duplicator
+    public class MapExecutionStateVariablesDuplicator : BuilderDuplicator
     {
         private ExecutionState State;
         private HashSet<Variable> BoundVariables;
@@ -25,7 +25,7 @@ namespace Symbooglix
         // FIXME: Fix boogie to remove this stupid requirement!
         public Dictionary<Variable,Variable> preReplacementReMap;
 
-        public VariableMapRewriter(ExecutionState e)
+        public MapExecutionStateVariablesDuplicator(ExecutionState e, IExprBuilder builder) : base(builder)
         {
             this.State = e;
             BoundVariables = new HashSet<Variable>();
@@ -34,11 +34,19 @@ namespace Symbooglix
         }
 
         // To support forall and exists we need to keep to track of their quantified
-        // variables so we don't try to substitute them
-        public override BinderExpr VisitBinderExpr(BinderExpr node)
+        // variables so we don't try to substitute them in VisitIdentifierExpr()
+        public override Expr VisitForallExpr(ForallExpr node)
         {
             BoundVariables.UnionWith(node.Dummies);
-            BinderExpr toReturn = base.VisitBinderExpr(node);
+            var toReturn = base.VisitForallExpr(node);
+            BoundVariables.RemoveWhere(e => node.Dummies.Contains(e));
+            return toReturn;
+        }
+
+        public override Expr VisitExistsExpr(ExistsExpr node)
+        {
+            BoundVariables.UnionWith(node.Dummies);
+            var toReturn = base.VisitExistsExpr(node);
             BoundVariables.RemoveWhere(e => node.Dummies.Contains(e));
             return toReturn;
         }
@@ -57,7 +65,6 @@ namespace Symbooglix
                 return base.VisitIdentifierExpr(node);
             }
 
-
             if (node.Decl is SymbolicVariable)
             {
                 // In the Expr given to us by the executor we shouldn't ever has
@@ -66,7 +73,7 @@ namespace Symbooglix
                 throw new InvalidOperationException();
             }
 
-            // Do a remappingif necessary
+            // Do a remapping if necessary
             // FIXME: This sucks. Fix boogie instead!
             Variable V = null;
             if (preReplacementReMap.ContainsKey(node.Decl))
@@ -105,6 +112,10 @@ namespace Symbooglix
             Debug.Assert(oldGlobals != null, "Old Globals should not be null!");
             Debug.Assert(node.Expr is IdentifierExpr && ( node.Expr as IdentifierExpr ).Decl is GlobalVariable, "Unexpected expression in OldExpr");
             var GV = ( node.Expr as IdentifierExpr ).Decl as GlobalVariable;
+
+            if (GV == null)
+                throw new InvalidOperationException("Visited OldExpr but child node was not the expected type");
+
             Debug.Assert(oldGlobals.ContainsKey(GV), "A global variable is missing from the Current stackframe's list of OldGlobals");
             return oldGlobals[GV];
         }

@@ -378,7 +378,7 @@ namespace SymbooglixDriver
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
             {
-                Executor executor = new Executor(program, scheduler, solver);
+                Executor executor = new Executor(program, scheduler, solver, new SimpleExprBuilder());
 
                 executor.ExecutorTimeoutReached += delegate(object sender, Executor.ExecutorTimeoutReachedArgs eventArgs)
                 {

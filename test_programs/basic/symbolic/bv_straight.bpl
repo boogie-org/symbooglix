@@ -15,8 +15,8 @@ implementation main(p1:int, p2:bv8) returns (r:bv8)
     var a:bv8;
     var b:bv8;
     // CHECK-L: Creating Symbolic ~sb_b_0:bv8
-    // CHECK-L: Assignment : r := bv8add(~sb_a_0, ~sb_b_0)
+    // CHECK-L: Assignment : r := BVADD8(~sb_a_0, ~sb_b_0)
     r := bv8add(a,b);
-    // CHECK-L: Assert : bv8ugt(bv8add(~sb_a_0, ~sb_b_0), 0bv8)
+    // CHECK-L: Assert : BVUGT8(BVADD8(~sb_a_0, ~sb_b_0), 0bv8)
     assert bv8ugt(r, 0bv8);
 }
