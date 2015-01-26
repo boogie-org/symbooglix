@@ -35,6 +35,8 @@ namespace ExprBuilderTests
             copy.Typecheck(TC);
         }
 
+        // Constants
+
         [TestCase(1, 8)]
         [TestCase(5, 16)]
         [TestCase(10, 64)]
@@ -73,6 +75,8 @@ namespace ExprBuilderTests
             Expr root = builder.ConstantBool(value);
             DuplicateAndCheck(root, builder);
         }
+
+        // Bitvector operators
 
         [TestCase(1)]
         [TestCase(5)]
@@ -607,6 +611,429 @@ namespace ExprBuilderTests
             {
                 Assert.AreEqual("1bv128[128:0]", root.ToString());
             }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        // Int/Real operators
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleAdd(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Add(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1 + 1", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleSub(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Sub(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1 - 1", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleMul(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Mul(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1 * 1", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleMod(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Mod(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1 mod 1", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleDiv(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Div(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1 div 1", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleRealDiv(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantReal("1.0");
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.RealDiv(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1e0 / 1e0", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simplePow(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantReal("1.0");
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Pow(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("1e0 ** 1e0", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleNeg(int depth)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < depth; ++count)
+            {
+                root = builder.Neg(root);
+            }
+
+            if (depth == 1)
+            {
+                Assert.AreEqual("-1", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleArithmeticCoercion(int depth)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(1);
+
+            // Build Expr Tree
+            for (int count = 0; count < depth; ++count)
+            {
+                if (count % 2 == 0)
+                    root = builder.ArithmeticCoercion(ArithmeticCoercion.CoercionType.ToReal, root);
+                else
+                    root = builder.ArithmeticCoercion(ArithmeticCoercion.CoercionType.ToInt, root);
+            }
+
+            if (depth == 1)
+            {
+                Assert.AreEqual("real(1)", root.ToString());
+            }
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleAnd(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.And(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("true && true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleOr(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Or(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("true || true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleIff(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Iff(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("true <==> true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleImp(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.Imp(root, root);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("true ==> true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleIfThenElse(int repeat)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < repeat; ++count)
+            {
+                root = builder.IfThenElse(root, root, builder.False);
+            }
+
+            if (repeat == 1)
+            {
+                Assert.AreEqual("(if true then true else false)", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleNot(int depth)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < depth; ++count)
+            {
+                root = builder.Not(root);
+            }
+
+            if (depth == 1)
+            {
+                Assert.AreEqual("!true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleEq(int depth)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < depth; ++count)
+            {
+                root = builder.Eq(root, root);
+            }
+
+            if (depth == 1)
+            {
+                Assert.AreEqual("true == true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void simpleNotEq(int depth)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.True;
+
+            // Build Expr Tree
+            for (int count = 0; count < depth; ++count)
+            {
+                root = builder.NotEq(root, root);
+            }
+
+            if (depth == 1)
+            {
+                Assert.AreEqual("true != true", root.ToString());
+            }
+
+            DuplicateAndCheck(root, builder);
+        }
+
+
+        public void simpleLt()
+        {
+            var builder = GetBuilder();
+
+            // Build Expr Tree
+            var root = builder.Lt(builder.ConstantInt(0), builder.ConstantInt(1));
+            Assert.AreEqual("0 < 1", root.ToString());
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        public void simpleLe()
+        {
+            var builder = GetBuilder();
+
+            // Build Expr Tree
+            var root = builder.Le(builder.ConstantInt(0), builder.ConstantInt(1));
+            Assert.AreEqual("0 <= 1", root.ToString());
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        public void simpleGt()
+        {
+            var builder = GetBuilder();
+
+            // Build Expr Tree
+            var root = builder.Gt(builder.ConstantInt(0), builder.ConstantInt(1));
+            Assert.AreEqual("0 > 1", root.ToString());
+
+            DuplicateAndCheck(root, builder);
+        }
+
+        public void simpleGe()
+        {
+            var builder = GetBuilder();
+
+            // Build Expr Tree
+            var root = builder.Ge(builder.ConstantInt(0), builder.ConstantInt(1));
+            Assert.AreEqual("0 >= 1", root.ToString());
 
             DuplicateAndCheck(root, builder);
         }
