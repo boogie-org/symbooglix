@@ -13,10 +13,8 @@ namespace SymbooglixLibTests
             this.p = LoadProgramFrom(program);
 
             var solver = GetSolver();
-            this.e = GetExecutor(this.p, new DFSStateScheduler(), solver);
-
-            // Needed so that the ArithmeticCoercion reaches the solver
-            this.e.UseConstantFolding = false;
+            // No constant folding needed so that the ArithmeticCoercion reaches the solver
+            this.e = GetExecutor(this.p, new DFSStateScheduler(), solver, /*useConstantFolding=*/ false);
         }
 
         [Test()]

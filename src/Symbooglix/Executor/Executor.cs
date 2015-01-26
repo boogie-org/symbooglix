@@ -16,8 +16,6 @@ namespace Symbooglix
             this.TheProgram = program;
             StateScheduler = scheduler;
             SymbolicPool = new SymbolicPool();
-            CFT = new ConstantFoldingTraverser();
-            UseConstantFolding = false;
             UseGotoLookAhead = true;
             UseGlobalDDE = true;
             this.TheSolver = solver;
@@ -55,12 +53,6 @@ namespace Symbooglix
         public Solver.ISolver TheSolver;
         private bool AllowExecutorToRun= false;
         public Predicate<AssertCmd> AssertFilter
-        {
-            get;
-            set;
-        }
-
-        public bool UseConstantFolding
         {
             get;
             set;
@@ -252,7 +244,6 @@ namespace Symbooglix
             Statistics.WriteAsYAML(TW);
             TW.WriteLine("prepared: {0}", HasBeenPrepared.ToString().ToLower());
             TW.WriteLine("use_global_dde: {0}", UseGlobalDDE.ToString().ToLower());
-            TW.WriteLine("use_constant_folding: {0}", UseConstantFolding.ToString().ToLower());
             TW.WriteLine("use_goto_look_ahead: {0}", UseGotoLookAhead.ToString().ToLower());
 
             TW.WriteLine("state_scheduler:");
@@ -339,10 +330,6 @@ namespace Symbooglix
 
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
 
-                // Constant fold
-                if (UseConstantFolding)
-                    constraint = CFT.Traverse(constraint);
-
                 Solver.Result result = TheSolver.IsQuerySat(constraint);
                 switch (result)
                 {
@@ -378,12 +365,10 @@ namespace Symbooglix
                 LiteralExpr literal = null;
                 Variable assignedTo = null;
                 var axiomExprToCheckForLiteralAssignment = axiom.Expr;
-                if (UseConstantFolding)
-                {
-                    // Make copy so we don't change the Program
-                    axiomExprToCheckForLiteralAssignment =  (Expr) Duplicator.Visit(axiom.Expr);
-                    axiomExprToCheckForLiteralAssignment = CFT.Traverse(axiomExprToCheckForLiteralAssignment);
-                }
+
+                // FIXME: Use BuilderDuplicator
+                axiomExprToCheckForLiteralAssignment =  (Expr) Duplicator.Visit(axiom.Expr);
+
                 if (FindLiteralAssignment.findAnyVariable(axiomExprToCheckForLiteralAssignment, out assignedTo, out literal))
                 {
                     // Axioms should only be able to refer to globals
@@ -790,9 +775,6 @@ namespace Symbooglix
                 r.GetInstructionStatistics().IncrementCovered();
                 Expr constraint = (Expr) VR.Visit(r.Condition);
 
-                if (UseConstantFolding)
-                    constraint = CFT.Traverse(constraint);
-
                 // We need to treat the semantics of requires differently depening on where
                 // we are
                 if (isProgramEntryPoint)
@@ -891,9 +873,6 @@ namespace Symbooglix
                 ++InternalStatistics.InstructionsExecuted;
                 Expr condition = (Expr) VR.Visit(requires.Condition);
 
-                if (UseConstantFolding)
-                    condition = CFT.Traverse(condition);
-
                 stillInState = HandleAssertLikeCommand(condition, new TerminatedAtFailingRequires(requires), requires.GetProgramLocation());
 
                 // Check we're still in state
@@ -919,8 +898,6 @@ namespace Symbooglix
                 ++InternalStatistics.InstructionsExecuted;
                 Expr condition = (Expr) VR.Visit(ensures.Condition);
 
-                if (UseConstantFolding)
-                    condition = CFT.Traverse(condition);
 
                 // FIXME: We should add an option to disable this because we might want to blindly
                 // assume without checking if its feasible.
@@ -992,9 +969,6 @@ namespace Symbooglix
                 ensures.GetInstructionStatistics().IncrementCovered();
                 ++InternalStatistics.InstructionsExecuted;
                 Expr remapped = VMR.Visit(ensures.Condition) as Expr;
-
-                if (UseConstantFolding)
-                    remapped = CFT.Traverse(remapped);
 
                 // Treat an requires similarly to an assert
                 stillInCurrentState = HandleAssertLikeCommand(remapped, new TerminatedAtFailingEnsures(ensures), ensures.GetProgramLocation());
@@ -1081,8 +1055,6 @@ namespace Symbooglix
                 {
                     // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
                     rvalue = (Expr) r.Visit(lhsrhs.Item2);
-                    if (UseConstantFolding)
-                        rvalue = CFT.Traverse(rvalue);
                 }
                 else if (lhsrhs.Item1 is MapAssignLhs)
                 {
@@ -1094,8 +1066,6 @@ namespace Symbooglix
                     // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
                     rvalue = (Expr) r.Visit(rvalue);
 
-                    if (UseConstantFolding)
-                        rvalue = CFT.Traverse(rvalue);
                 }
                 else
                 {
@@ -1131,8 +1101,6 @@ namespace Symbooglix
             var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             var dupAndrw = (Expr) r.Visit(c.Expr);
 
-            if (UseConstantFolding)
-                dupAndrw = CFT.Traverse(dupAndrw);
 
             Debug.WriteLine("Assert : " + dupAndrw);
 
@@ -1352,9 +1320,6 @@ namespace Symbooglix
             var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             var dupAndrw = (Expr) r.Visit(c.Expr);
 
-            if (UseConstantFolding)
-                dupAndrw = CFT.Traverse(dupAndrw);
-
             Debug.WriteLine("Assume : " + dupAndrw);
 
             // Use helper. We don't care if it terminates a state because we immediatly return afterwards
@@ -1438,8 +1403,6 @@ namespace Symbooglix
 
                 Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
 
-                if (UseConstantFolding)
-                    dupAndRw = CFT.Traverse(dupAndRw);
 
                 info.ReWrittenAssumeExpr = dupAndRw;
 
@@ -1581,10 +1544,6 @@ namespace Symbooglix
             foreach (Expr e in c.Ins)
             {
                 var arg = (Expr) reWritter.Visit(e);
-
-                if (UseConstantFolding)
-                    arg = CFT.Traverse(arg);
-
                 args.Add( arg );
             }
 

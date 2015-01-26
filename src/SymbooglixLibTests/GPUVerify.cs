@@ -13,8 +13,7 @@ namespace SymbooglixLibTests
         public void AssignmentOfConcreteValuesFromAxioms()
         {
             p = LoadProgramFrom("programs/GPUVerifyAxiomAssignmentTest.bpl");
-            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
-            e.UseConstantFolding = true;
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver(), /*useConstantFolding=*/ true);
 
             int counter = 0;
 

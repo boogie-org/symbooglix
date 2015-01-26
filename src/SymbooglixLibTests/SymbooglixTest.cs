@@ -109,7 +109,7 @@ namespace SymbooglixLibTests
 
         }
 
-        public static Executor GetExecutor(Program p, IStateScheduler scheduler = null, ISolver solver = null)
+        public static Executor GetExecutor(Program p, IStateScheduler scheduler = null, ISolver solver = null, bool useConstantFolding=false)
         {
             if (scheduler == null )
                 scheduler = new DFSStateScheduler();
@@ -117,7 +117,14 @@ namespace SymbooglixLibTests
             if (solver == null)
                 solver = new SimpleSolver(new DummySolver());
 
-            Executor e = new Executor(p, scheduler, solver, new SimpleExprBuilder());
+            IExprBuilder builder = new SimpleExprBuilder();
+
+            if (useConstantFolding)
+            {
+                // TODO
+            }
+
+            Executor e = new Executor(p, scheduler, solver, builder);
 
             return e;
         }

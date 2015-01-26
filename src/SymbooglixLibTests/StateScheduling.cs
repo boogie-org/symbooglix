@@ -13,8 +13,7 @@ namespace SymbooglixLibTests
         private void SimpleLoop(IStateScheduler scheduler)
         {
             p = LoadProgramFrom("programs/SimpleLoop.bpl");
-            e = GetExecutor(p, scheduler, GetSolver());
-            e.UseConstantFolding = true;
+            e = GetExecutor(p, scheduler, GetSolver(), /*useConstantFolding=*/ true);
 
             var main = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First();
 
@@ -404,8 +403,7 @@ namespace SymbooglixLibTests
             var loopBodyBlock = main.Blocks.Where(b => b.Label == "anon2_LoopBody").First();
             var loopDoneBlock = main.Blocks.Where(b => b.Label == "anon2_LoopDone").First();
 
-            e = GetExecutor(p, scheduler, GetSolver());
-            e.UseConstantFolding = true;
+            e = GetExecutor(p, scheduler, GetSolver(), /*useConstantFolding=*/ true);
 
             var tc = new TerminationCounter();
             tc.Connect(e);

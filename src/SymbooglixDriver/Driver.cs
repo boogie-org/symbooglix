@@ -438,12 +438,10 @@ namespace SymbooglixDriver
 
                 if (options.useConstantFolding > 0)
                 {
-                    executor.UseConstantFolding = true;
+                    // TODO
+                    Console.Error.WriteLine("Constant folding is broken!");
                 }
-                else
-                {
-                    executor.UseConstantFolding = false;
-                }
+
 
                 if (options.gotoAssumeLookAhead > 0)
                 {
