@@ -10,34 +10,8 @@ using BPLType = Microsoft.Boogie.Type;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class MapStoreSelectSimpleBuilder : IErrorSink
+    public class MapStoreSelectSimpleBuilder : SimpleExprBuilderTestBase
     {
-        public MapStoreSelectSimpleBuilder()
-        {
-            // This is a hack
-            SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
-        }
-
-        private IExprBuilder GetBuilder()
-        {
-            return new SimpleExprBuilder();
-        }
-
-        public void Error(IToken tok, string msg)
-        {
-            Assert.Fail(msg);
-        }
-
-        public void CheckType(Expr result, Predicate<BPLType> p)
-        {
-            Assert.IsTrue(p(result.ShallowType));
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(p(result.Type));
-            var TC = new TypecheckingContext(this);
-            result.Typecheck(TC);
-        }
-
         // Map select
         [TestCase()]
         public void SimpleMapSelect()
