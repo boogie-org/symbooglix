@@ -19,7 +19,7 @@ namespace Symbooglix
             UseGotoLookAhead = true;
             UseGlobalDDE = true;
             this.TheSolver = solver;
-            this.Duplicator = new NonSymbolicDuplicator();
+            this.Duplicator = new BuilderDuplicator(builder);
             this.InternalRequestedEntryPoints = new List<Implementation>();
             this.InternalStatistics.Reset();
             this.RunTimer = new Stopwatch();
@@ -32,7 +32,7 @@ namespace Symbooglix
         }
 
         private IStateScheduler StateScheduler;
-        private NonSymbolicDuplicator Duplicator;
+        private BuilderDuplicator Duplicator;
         private IExprBuilder Builder;
         public  ExecutionState CurrentState
         {
@@ -366,7 +366,7 @@ namespace Symbooglix
                 Variable assignedTo = null;
                 var axiomExprToCheckForLiteralAssignment = axiom.Expr;
 
-                // FIXME: Use BuilderDuplicator
+                // Note: The duplicator being used here uses a Builder so this gives an opportunity to do constant folding
                 axiomExprToCheckForLiteralAssignment =  (Expr) Duplicator.Visit(axiom.Expr);
 
                 if (FindLiteralAssignment.findAnyVariable(axiomExprToCheckForLiteralAssignment, out assignedTo, out literal))
@@ -745,14 +745,15 @@ namespace Symbooglix
             }
 
             // Record any Globals used in OldExpr for this implementation
-            // Or its procedure. It's important we do this before using the VariableMapRewriter so
-            // it is able to handler any OldExpr
+            // Or its procedure. It's important we do this before using the MapExecutionStateVariablesDuplicator so
+            // it is able to handle any OldExpr
             var oldExprImplGlobals = CurrentState.GetCurrentStackFrame().Impl.GetOldExprVariables();
             if (oldExprImplGlobals.Count > 0)
             {
                 foreach (var GV in oldExprImplGlobals)
                 {
-                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) Duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
+                    // Note: Duplication of Expr isn't necessary here as we treat Expr immutably
+                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = CurrentState.GetInScopeVariableExpr(GV);
                 }
             }
 
@@ -857,7 +858,8 @@ namespace Symbooglix
             {
                 foreach (var GV in proc.GetOldExprVariables())
                 {
-                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = (Expr) Duplicator.Visit(CurrentState.GetInScopeVariableExpr(GV));
+                    // Note: No need to duplicate Expr here as we treat them immutably
+                    CurrentState.GetCurrentStackFrame().OldGlobals[GV] = CurrentState.GetInScopeVariableExpr(GV);
                 }
             }
 
@@ -1230,9 +1232,9 @@ namespace Symbooglix
                 // is satisfiable (i.e. it can be used to generate a model for the failing execution)
                 // terminationType.ConditionForUnsat is not yet because both paths are satisfiable
 
-                // Note: We need to duplicate the condition Expr here to ensure each ExecutionState has its own
-                // copy of the Expr
-                terminatationType.ConditionForSat = Expr.Not( (Expr) Duplicator.Visit(condition));
+                // Note: We don't need to duplicate the condition Expr here because we treat them immutably. Clients
+                // should be careful to not change this Expr
+                terminatationType.ConditionForSat = Builder.Not(condition);
                 // The failingState hasn't been added to scheduler so we shouldn't try to remove it from the scheduler
                 TerminateState(failingState, terminatationType, /*removeFromStateScheduler=*/false);
 

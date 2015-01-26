@@ -38,7 +38,7 @@ namespace Symbooglix
                 return node;
             }
             else
-                return base.VisitIdentifierExpr (node);
+                return base.VisitIdentifierExpr(node);
         }
 
         // FIXME: I think this is a bug in boogie. IdentifierExpr get cloned twice!
