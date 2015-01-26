@@ -1086,6 +1086,21 @@ namespace ExprBuilderTests
             }
             DuplicateAndCheck(root, builder);
         }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(10)]
+        public void simpleOld(int depth)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantBV(0, 8);
+
+            for (int count = 0; count < depth; ++count)
+            {
+                root = builder.Old(root);
+            }
+            DuplicateAndCheck(root, builder);
+        }
     }
 }
 

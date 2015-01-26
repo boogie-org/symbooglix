@@ -370,7 +370,8 @@ namespace Symbooglix
 
         public override Expr VisitOldExpr(OldExpr node)
         {
-            return Builder.Old(node);
+            var newArg = (Expr) this.Visit(node.Expr);
+            return Builder.Old(newArg);
         }
     }
 }
