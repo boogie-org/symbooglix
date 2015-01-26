@@ -35,6 +35,45 @@ namespace ExprBuilderTests
             copy.Typecheck(TC);
         }
 
+        [TestCase(1, 8)]
+        [TestCase(5, 16)]
+        [TestCase(10, 64)]
+        public void BitVectorConstant(int value, int width)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantBV(value, width);
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(10)]
+        public void IntConstant(int value)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantInt(value);
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase("1.0")]
+        [TestCase("5.75")]
+        [TestCase("3.333")]
+        public void RealConstant(string value)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantReal(value);
+            DuplicateAndCheck(root, builder);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void BoolConstant(bool value)
+        {
+            var builder = GetBuilder();
+            Expr root = builder.ConstantBool(value);
+            DuplicateAndCheck(root, builder);
+        }
+
         [TestCase(1)]
         [TestCase(5)]
         [TestCase(10)]
