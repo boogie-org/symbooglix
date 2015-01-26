@@ -439,9 +439,9 @@ namespace Symbooglix
                 throw new ArgumentException("start must be >= 0");
             }
 
-            if (end >= operand.Type.BvBits)
+            if (end > operand.Type.BvBits)
             {
-                throw new ArgumentException("end must be < the bit width of the operand");
+                throw new ArgumentException("end must be <= the bit width of the operand");
             }
 
             var result = new BvExtractExpr(Token.NoToken, operand, end, start);

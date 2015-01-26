@@ -638,12 +638,21 @@ namespace ExprBuilderTests
             builder.BVEXTRACT(constant0, 3, -2);
         }
 
+        [Test()]
+        public void BvextractValidRangeOnEdge()
+        {
+            var builder = GetBuilder();
+            var constant0 = builder.ConstantBV(5, 4);
+            // [4:2] means bits (4,2] i.e. bits 3 and 2
+            builder.BVEXTRACT(constant0, 4, 2);
+        }
+
         [Test(), ExpectedException(typeof(ArgumentException))]
         public void BvextractInvalidRange3()
         {
             var builder = GetBuilder();
             var constant0 = builder.ConstantBV(5, 4);
-            builder.BVEXTRACT(constant0, 4, 2);
+            builder.BVEXTRACT(constant0, 5, 2);
         }
 
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
