@@ -1080,7 +1080,6 @@ namespace Symbooglix
             foreach (var assignment in storedAssignments)
             {
                 CurrentState.AssignToVariableInScope(assignment.Key, assignment.Value);
-                Debug.WriteLine("Assignment : " + assignment.Key + " := " + assignment.Value);
             }
         }
 
@@ -1100,9 +1099,6 @@ namespace Symbooglix
             HandleBreakPoints(c);
             var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             var dupAndrw = (Expr) r.Visit(c.Expr);
-
-
-            Debug.WriteLine("Assert : " + dupAndrw);
 
             // we don't need to care if the current state is destroyed
             HandleAssertLikeCommand(dupAndrw,  new TerminatedAtFailingAssert(c), c.GetProgramLocation());
@@ -1319,8 +1315,6 @@ namespace Symbooglix
             HandleBreakPoints(c);
             var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             var dupAndrw = (Expr) r.Visit(c.Expr);
-
-            Debug.WriteLine("Assume : " + dupAndrw);
 
             // Use helper. We don't care if it terminates a state because we immediatly return afterwards
             HandleAssumeLikeCommand(dupAndrw, new TerminatedAtUnsatisfiableAssume(c), c.GetProgramLocation());

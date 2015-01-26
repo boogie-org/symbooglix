@@ -271,7 +271,6 @@ namespace Symbooglix
                 (gotoCmd.GetInstructionStatistics() as GotoInstructionStatistics).IncrementJumpTo(BB);
             }
 
-            Debug.WriteLine("Entering block " + BB.ToString());
             // Check if BB is in procedure
             Debug.Assert(Impl.Blocks.Contains(BB));
 
