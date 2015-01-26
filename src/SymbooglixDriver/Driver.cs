@@ -375,10 +375,17 @@ namespace SymbooglixDriver
             Console.WriteLine("Using Scheduler: {0}", scheduler.ToString());
 
             var terminationCounter = new TerminationCounter();
+            IExprBuilder builder = new SimpleExprBuilder();
+
+            if (options.useConstantFolding > 0)
+            {
+                builder = new ConstantFoldingExprBuilder(builder);
+            }
+
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
             {
-                Executor executor = new Executor(program, scheduler, solver, new SimpleExprBuilder());
+                Executor executor = new Executor(program, scheduler, solver, builder);
 
                 executor.ExecutorTimeoutReached += delegate(object sender, Executor.ExecutorTimeoutReachedArgs eventArgs)
                 {
@@ -435,13 +442,6 @@ namespace SymbooglixDriver
                     var callPrinter = new CallPrinter(Console.Out);
                     callPrinter.Connect(executor);
                 }
-
-                if (options.useConstantFolding > 0)
-                {
-                    // TODO
-                    Console.Error.WriteLine("Constant folding is broken!");
-                }
-
 
                 if (options.gotoAssumeLookAhead > 0)
                 {

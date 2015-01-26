@@ -119,6 +119,8 @@
     <Compile Include="Expr\FunctionCallBuilder.cs" />
     <Compile Include="Expr\BuilderDuplicator.cs" />
     <Compile Include="Executor\MapExecutionStateVariablesDuplicator.cs" />
+    <Compile Include="Expr\DecoratorExprBuilder.cs" />
+    <Compile Include="Expr\ConstantFoldingExprBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

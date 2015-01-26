@@ -121,7 +121,7 @@ namespace SymbooglixLibTests
 
             if (useConstantFolding)
             {
-                // TODO
+                builder = new ConstantFoldingExprBuilder(builder);
             }
 
             Executor e = new Executor(p, scheduler, solver, builder);
