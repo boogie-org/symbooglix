@@ -9,6 +9,7 @@ namespace ExprBuilderTests
     [TestFixture()]
     public class QuantifiersSimpleBuilder : SimpleExprBuilderTestBase
     {
+        // FIXME: Use GetVarAndIdExpr instead
         private Variable GetVariable(string name, Microsoft.Boogie.Type type)
         {
             var typedIdent = new TypedIdent(Token.NoToken, name, type);

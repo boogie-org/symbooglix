@@ -1101,6 +1101,44 @@ namespace ExprBuilderTests
             }
             DuplicateAndCheck(root, builder);
         }
+
+
+
+        [Test()]
+        public void simpleExists()
+        {
+            var builder = GetBuilder();
+            var free0Pair = GetVarAndIdExpr("x", BasicType.Int);
+            var free1Pair = GetVarAndIdExpr("y", BasicType.Int);
+            Variable free0Var = free0Pair.Item1;
+            Variable free1Var = free1Pair.Item1;
+            IdentifierExpr x = free0Pair.Item2;
+            IdentifierExpr y = free1Pair.Item2;
+
+            var root = builder.Exists(new List<Variable>() { free0Var, free1Var },
+                builder.Gt(builder.Add(x, y),
+                           builder.Sub(x, y)));
+            Assert.AreEqual("(exists x: int, y: int :: x + y > x - y)", root.ToString());
+            DuplicateAndCheck(root, builder);
+        }
+
+        [Test()]
+        public void simpleForall()
+        {
+            var builder = GetBuilder();
+            var free0Pair = GetVarAndIdExpr("x", BasicType.Int);
+            var free1Pair = GetVarAndIdExpr("y", BasicType.Int);
+            Variable free0Var = free0Pair.Item1;
+            Variable free1Var = free1Pair.Item1;
+            IdentifierExpr x = free0Pair.Item2;
+            IdentifierExpr y = free1Pair.Item2;
+
+            var root = builder.ForAll(new List<Variable>() { free0Var, free1Var },
+                builder.Gt(builder.Add(x, y),
+                           builder.Sub(x, y)));
+            Assert.AreEqual("(forall x: int, y: int :: x + y > x - y)", root.ToString());
+            DuplicateAndCheck(root, builder);
+        }
     }
 }
 

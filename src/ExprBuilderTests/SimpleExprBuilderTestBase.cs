@@ -106,6 +106,16 @@ namespace ExprBuilderTests
             var result = new Tuple<IdentifierExpr, BPLType>(id, mapType);
             return result;
         }
+
+        protected Tuple<Variable, IdentifierExpr> GetVarAndIdExpr(string name, Microsoft.Boogie.Type type)
+        {
+            var typeIdent = new TypedIdent(Token.NoToken, name, type);
+            var v = new GlobalVariable(Token.NoToken, typeIdent);
+            var id = new IdentifierExpr(Token.NoToken, v);
+            return new Tuple<Variable, IdentifierExpr>(v, id);
+        }
+
+
     }
 }
 
