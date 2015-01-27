@@ -124,7 +124,7 @@ namespace Symbooglix
         {
             Debug.Assert(ExitLocation.IsCmd && ExitLocation.AsCmd is AssumeCmd);
             var assumeCmd = ExitLocation.AsCmd as AssumeCmd;
-            return "Terminated with unsatisiable assumption " +
+            return "Terminated with unsatisfiable assumption " +
                 assumeCmd.tok.filename + ":" +
                 assumeCmd.tok.line + ": " +
                 assumeCmd.ToString().TrimEnd('\n');
