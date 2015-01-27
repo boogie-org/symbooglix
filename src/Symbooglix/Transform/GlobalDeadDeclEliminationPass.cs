@@ -200,7 +200,7 @@ namespace Symbooglix
                 foreach (var gv in gvsToRemove)
                 {
                     changed = true;
-                    Console.Error.WriteLine("Warning removing dead globally scoped varaible {0}", gv.Name);
+                    Console.Error.WriteLine("Warning removing dead globally scoped variable {0}", gv.Name);
                     prog.RemoveTopLevelDeclaration(gv);
                 }
 
