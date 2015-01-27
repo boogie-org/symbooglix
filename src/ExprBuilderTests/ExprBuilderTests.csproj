@@ -45,6 +45,7 @@
     <Compile Include="RealAndIntOperatorsSimplerBuilder.cs" />
     <Compile Include="EqualityAndLogicalOperatorsSimpleBuilder.cs" />
     <Compile Include="BuilderDuplicatorTests.cs" />
+    <Compile Include="ConstantFoldingExprBuilderTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

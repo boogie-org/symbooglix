@@ -19,14 +19,23 @@ namespace Symbooglix
 
         public override Expr Add(Expr lhs, Expr rhs)
         {
-            // TODO: Implement associativity
-            // TODO: Implement x + 0 => x
-            // TODO: Implement x +x => 2*x
+            // TODO: Implement x +x => 2*x for arbitary x
 
-            if (lhs is LiteralExpr && rhs is LiteralExpr)
+            // Ensure if we have at least one constant its always on the lhs
+            // we can do this because + is commutative
+            if (rhs is LiteralExpr)
             {
-                var literalLhs = lhs as LiteralExpr;
-                var literalRhs = rhs as LiteralExpr;
+                // a + b ==> b + a
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var literalLhs = lhs as LiteralExpr;
+            var literalRhs = rhs as LiteralExpr;
+
+            if (literalLhs != null && literalRhs != null)
+            {
                 if (literalLhs.isBigNum && literalRhs.isBigNum)
                 {
                     // Int
@@ -37,6 +46,91 @@ namespace Symbooglix
                 {
                     // Real
                     return UB.ConstantReal(literalLhs.asBigDec + literalRhs.asBigDec);
+                }
+            }
+
+            // 0 + x => x
+            if (literalLhs != null)
+            {
+                if (literalLhs.isBigDec && literalLhs.asBigDec.IsZero)
+                {
+                    return rhs;
+                }
+                else if (literalLhs.isBigNum && literalLhs.asBigNum.IsZero)
+                {
+                    return rhs;
+                }
+            }
+
+            // x +x => 2*x where x is an identifier
+            // FIXME: We should do this for arbitrary Expr but Equality comparisions aren't cheap right now
+            if (lhs is IdentifierExpr && rhs is IdentifierExpr)
+            {
+                if (lhs.Equals(rhs))
+                {
+                    if (lhs.Type.IsInt)
+                    {
+                        return this.Mul(this.ConstantInt(2), lhs);
+                    }
+                    else if (rhs.Type.IsReal)
+                    {
+                        return this.Mul(this.ConstantReal("2.0"), lhs);
+                    }
+                }
+            }
+
+            // Associativy a + (b + c) ==> (a + b) + c
+            // if a and b are constants (that's why we enforce constants on left)
+            // then we can fold into a single "+" operation
+            // FIXME: Need an easier way of checking operator type
+            if (rhs is NAryExpr)
+            {
+                var rhsNAry = rhs as NAryExpr;
+                if (rhsNAry.Fun is BinaryOperator)
+                {
+                    var fun = rhsNAry.Fun as BinaryOperator;
+                    if (fun.Op == BinaryOperator.Opcode.Add)
+                    {
+                        if (rhsNAry.Args[0] is LiteralExpr)
+                        {
+                            var rhsAddLeft = rhsNAry.Args[0] as LiteralExpr;
+
+                            if (literalLhs != null)
+                            {
+                                //     +
+                                //    / \
+                                //   1   +
+                                //      / \
+                                //      2 x
+                                // fold to
+                                // 3 + x
+                                if (literalLhs.isBigNum && rhsAddLeft.isBigNum)
+                                {
+                                    // Int
+                                    var result = this.ConstantInt(( literalLhs.asBigNum + rhsAddLeft.asBigNum ).ToBigInteger);
+                                    return this.Add(result, rhsNAry.Args[1]);
+                                }
+                                else if (literalLhs.isBigDec && rhsAddLeft.isBigDec)
+                                {
+                                    //real
+                                    var result = this.ConstantReal(literalLhs.asBigDec + rhsAddLeft.asBigDec);
+                                    return this.Add(result, rhsNAry.Args[1]);
+                                }
+                            }
+                            else
+                            {
+                                //     +
+                                //    / \
+                                //   x   +
+                                //      / \
+                                //     1  y
+                                // propagate constant up
+                                //  1 + (x + y)
+                                var newSubExprAdd = this.Add(lhs, rhsNAry.Args[1]);
+                                return this.Add(rhsAddLeft, newSubExprAdd);
+                            }
+                        }
+                    }
                 }
             }
 
