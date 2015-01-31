@@ -101,7 +101,7 @@ namespace ExprBuilderTests
                 resultTyp);
             var typeIdent = new TypedIdent(Token.NoToken, name, mapType);
             var gv = new GlobalVariable(Token.NoToken, typeIdent);
-            var id = new IdentifierExpr(Token.NoToken, gv);
+            var id = new IdentifierExpr(Token.NoToken, gv, /*immutable=*/ true);
 
             var result = new Tuple<IdentifierExpr, BPLType>(id, mapType);
             return result;
