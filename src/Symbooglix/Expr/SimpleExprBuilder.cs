@@ -428,7 +428,7 @@ namespace Symbooglix
                 throw new ExprTypeCheckException("MSB must be BvType");
             }
 
-            var result = new BvConcatExpr(Token.NoToken, MSB, LSB);
+            var result = new BvConcatExpr(Token.NoToken, MSB, LSB, /*immutable=*/ true);
             result.Type = result.ShallowType;
             return result;
         }
@@ -455,7 +455,7 @@ namespace Symbooglix
                 throw new ArgumentException("end must be <= the bit width of the operand");
             }
 
-            var result = new BvExtractExpr(Token.NoToken, operand, end, start);
+            var result = new BvExtractExpr(Token.NoToken, operand, end, start, /*immutable=*/ true);
             result.Type = result.ShallowType;
             return result;
         }
