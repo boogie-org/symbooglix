@@ -969,7 +969,7 @@ namespace Symbooglix
 
         public Expr Old(Expr operand)
         {
-            var result = new OldExpr(Token.NoToken, operand);
+            var result = new OldExpr(Token.NoToken, operand, /*immutable=*/ true);
             result.Type = operand.Type;
             return result;
         }
