@@ -38,6 +38,11 @@ namespace Symbooglix
             }
         }
 
+        public Expr Identifier(Variable v)
+        {
+            return UB.Identifier(v);
+        }
+
         public virtual LiteralExpr ConstantInt(int value)
         {
             return UB.ConstantInt(value);

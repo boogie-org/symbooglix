@@ -22,6 +22,7 @@ namespace Symbooglix
         LiteralExpr ConstantBV(BigInteger decimalValue, int bitWidth);
         LiteralExpr True { get;}
         LiteralExpr False { get; }
+        Expr Identifier(Variable v);
 
         // BitVector operators
         Expr BVSLT(Expr lhs, Expr rhs);

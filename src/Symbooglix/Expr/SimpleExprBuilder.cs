@@ -82,6 +82,11 @@ namespace Symbooglix
             }
         }
 
+        public Expr Identifier(Variable v)
+        {
+            return new IdentifierExpr(Token.NoToken, v, Immutable);
+        }
+
         public LiteralExpr ConstantBV(BigInteger decimalValue, int bitWidth)
         {
             var twoToPowerOfBits = BigInteger.Pow(2, bitWidth);

@@ -375,6 +375,16 @@ namespace Symbooglix
             var newArg = (Expr) this.Visit(node.Expr);
             return Builder.Old(newArg);
         }
+
+        public override Expr VisitIdentifierExpr(IdentifierExpr node)
+        {
+            // FIXME: This needs to moved out if this class is going to be moved to Boogie's codebase.
+            if (node.Decl is SymbolicVariable)
+            {
+                return ( node.Decl as SymbolicVariable ).Expr;
+            }
+            return Builder.Identifier(node.Decl);
+        }
     }
 }
 
