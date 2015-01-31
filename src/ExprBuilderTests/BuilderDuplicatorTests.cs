@@ -29,6 +29,11 @@ namespace ExprBuilderTests
             var sharedNodes = c.CheckDuplication(original, copy);
             Assert.AreEqual(0, sharedNodes.Count);
 
+            // Verify all nodes are immutable
+            var iv = new ImmutableExprVerifier();
+            iv.Visit(copy);
+            Assert.AreEqual(0, iv.NonImmutableNodes.Count);
+
             // Type check both Expr
             var TC = new TypecheckingContext(this);
             original.Typecheck(TC);

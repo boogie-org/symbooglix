@@ -120,6 +120,7 @@
     <Compile Include="Executor\MapExecutionStateVariablesDuplicator.cs" />
     <Compile Include="Expr\DecoratorExprBuilder.cs" />
     <Compile Include="Expr\ConstantFoldingExprBuilder.cs" />
+    <Compile Include="Expr\ImmutableExprVerifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
