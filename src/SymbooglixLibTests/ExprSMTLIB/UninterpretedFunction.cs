@@ -13,14 +13,13 @@ namespace ExprSMTLIBTest
         public UninterpretedFunction()
         {
             SymbooglixLibTests.SymbooglixTest.SetupDebug();
-            SEB = new SimpleExprBuilder();
+            SEB = new SimpleExprBuilder(/*immutable=*/ true);
         }
 
         private SimpleExprBuilder SEB;
         [Test()]
         public void TestCase()
         {
-            SEB = new SimpleExprBuilder();
             var FCB = new FunctionCallBuilder();
 
             var functionCall = FCB.CreateUninterpretedFunctionCall("uf", Microsoft.Boogie.Type.Bool, new List<Microsoft.Boogie.Type>() {

@@ -12,7 +12,7 @@ namespace ExprSMTLIBTest
         [Test()]
         public void Test()
         {
-            var builder = new SimpleExprBuilder();
+            var builder = new SimpleExprBuilder(/*immutable=*/ true);
             var bv0_32 = builder.ConstantBV(0,32);
             var bv1_32 = builder.ConstantBV(1, 32);
             var neq = builder.NotEq(bv0_32, bv1_32);

@@ -15,7 +15,7 @@ namespace ExprSMTLIBTest
 
         public TypeSynonym()
         {
-            builder = new SimpleExprBuilder();
+            builder = new SimpleExprBuilder(/*immutable=*/ true);
         }
 
         [Test()]

@@ -12,6 +12,11 @@ namespace Symbooglix
     public class DecoratorExprBuilder : IExprBuilder
     {
         public IExprBuilder UB;
+        public bool Immutable
+        {
+            get { return UB.Immutable; }
+        }
+
         public DecoratorExprBuilder(IExprBuilder underlyingBuilder)
         {
             UB = underlyingBuilder;

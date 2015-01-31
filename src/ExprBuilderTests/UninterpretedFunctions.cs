@@ -22,7 +22,7 @@ namespace ExprBuilderTests
 
         private IExprBuilder GetSEBuilder()
         {
-            return new SimpleExprBuilder();
+            return new SimpleExprBuilder(/*immutable=*/ true);
         }
 
         [Test()]

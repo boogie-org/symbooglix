@@ -12,9 +12,15 @@ namespace Symbooglix
     public class SimpleExprBuilder : IExprBuilder
     {
         FunctionCallBuilder FCB;
-        public SimpleExprBuilder()
+        private readonly bool _Immutable;
+        public bool Immutable
+        {
+            get { return _Immutable; }
+        }
+        public SimpleExprBuilder(bool immutable)
         {
             FCB = new FunctionCallBuilder();
+            _Immutable = immutable;
         }
 
         private FunctionCall CreateBVBuiltIn(string Name, string Builtin, Microsoft.Boogie.Type returnType, IList<Microsoft.Boogie.Type> argTypes)
@@ -25,29 +31,34 @@ namespace Symbooglix
             return funcCall;
         }
 
+        private NAryExpr GetNAry(IAppliable fun, List<Expr> args)
+        {
+            return new NAryExpr(Token.NoToken, fun, args, Immutable);
+        }
+
         public LiteralExpr ConstantInt(int value)
         {
-            return new LiteralExpr(Token.NoToken, BigNum.FromInt(value));
+            return new LiteralExpr(Token.NoToken, BigNum.FromInt(value), Immutable);
         }
 
         public LiteralExpr ConstantInt(BigInteger decimalValue)
         {
-            return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(decimalValue));
+            return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(decimalValue), Immutable);
         }
 
         public LiteralExpr ConstantReal(string value)
         {
-            return new LiteralExpr(Token.NoToken, BigDec.FromString(value));
+            return new LiteralExpr(Token.NoToken, BigDec.FromString(value), Immutable);
         }
 
         public LiteralExpr ConstantReal(Microsoft.Basetypes.BigDec value)
         {
-            return new LiteralExpr(Token.NoToken, value);
+            return new LiteralExpr(Token.NoToken, value, Immutable);
         }
 
         public LiteralExpr ConstantBool(bool value)
         {
-            return new LiteralExpr(Token.NoToken, value);
+            return new LiteralExpr(Token.NoToken, value, Immutable);
         }
 
         public LiteralExpr ConstantBV(int decimalValue, int bitWidth)
@@ -93,7 +104,7 @@ namespace Symbooglix
                 var result = ( twoToPowerOfBits - abs );
                 Debug.Assert(result > 0);
 
-                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth);
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(result), bitWidth, Immutable);
             }
             else
             {
@@ -104,7 +115,7 @@ namespace Symbooglix
                 if (decimalValue >= twoToPowerOfBits)
                     throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
 
-                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(decimalValue), bitWidth);
+                return new LiteralExpr(Token.NoToken, BigNum.FromBigInt(decimalValue), bitWidth, Immutable);
             }
         }
 
@@ -147,7 +158,7 @@ namespace Symbooglix
                 CachedFunctions[functionName] = builtinFunctionCall;
             }
 
-            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { lhs, rhs });
+            var result = GetNAry(builtinFunctionCall, new List<Expr>() { lhs, rhs });
             return result;
         }
 
@@ -342,7 +353,7 @@ namespace Symbooglix
                 CachedFunctions[functionName] = builtinFunctionCall;
             }
 
-            var result = new NAryExpr(Token.NoToken, builtinFunctionCall, new List<Expr>() { operand});
+            var result = GetNAry(builtinFunctionCall, new List<Expr>() { operand});
             return result;
         }
 
@@ -471,7 +482,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs type must be the same");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Neq) , new List<Expr> { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Neq), new List<Expr> { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -482,7 +493,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs type must be the same");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Eq), new List<Expr> { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Eq), new List<Expr> { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -498,7 +509,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("rhs must be bool");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Iff), new List<Expr> { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Iff), new List<Expr> { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -514,7 +525,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("rhs must be bool");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Imp), new List<Expr> { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Imp), new List<Expr> { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -530,7 +541,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("rhs must be bool");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.And), new List<Expr> { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.And), new List<Expr> { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -546,7 +557,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("rhs must be bool");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Or), new List<Expr> { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Or), new List<Expr> { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -563,7 +574,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("thenExpr and elseExpr types must match");
             }
-            var result = new NAryExpr(Token.NoToken, IfThenElseCached, new List<Expr> { condition, thenExpr, elseExpr });
+            var result = GetNAry(IfThenElseCached, new List<Expr> { condition, thenExpr, elseExpr });
             result.Type = thenExpr.Type;
             return result;
         }
@@ -590,7 +601,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("expr must be bool");
             }
-            var result = new NAryExpr(Token.NoToken, GetUnaryFunction(UnaryOperator.Opcode.Not), new List<Expr> { e });
+            var result = GetNAry(GetUnaryFunction(UnaryOperator.Opcode.Not), new List<Expr> { e });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -611,7 +622,7 @@ namespace Symbooglix
                 }
             }
 
-            var result = new NAryExpr(Token.NoToken, func, new List<Expr>(args));
+            var result = GetNAry(func, new List<Expr>(args));
             result.Type = func.Func.OutParams[0].TypedIdent.Type;
             return result;
         }
@@ -627,7 +638,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of real or int type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Add), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Add), new List<Expr>() { lhs, rhs });
             result.Type = lhs.Type;
             return result;
         }
@@ -643,7 +654,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of real or int type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Sub), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Sub), new List<Expr>() { lhs, rhs });
             result.Type = lhs.Type;
             return result;
         }
@@ -659,7 +670,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of real or int type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Mul), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Mul), new List<Expr>() { lhs, rhs });
             result.Type = lhs.Type;
             return result;
         }
@@ -675,7 +686,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Div), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Div), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Int;
             return result;
         }
@@ -693,7 +704,7 @@ namespace Symbooglix
                 throw new ExprTypeCheckException("rhs and rhs must be of real or int type");
             }
 
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.RealDiv), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.RealDiv), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Real;
             return result;
         }
@@ -709,7 +720,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Mod), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Mod), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Int;
             return result;
         }
@@ -725,7 +736,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of real type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Pow), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Pow), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Real;
             return result;
         }
@@ -737,7 +748,7 @@ namespace Symbooglix
                 throw new ExprTypeCheckException("operand must be real or int");
             }
 
-            var result = new NAryExpr(Token.NoToken, GetUnaryFunction(UnaryOperator.Opcode.Neg), new List<Expr>() { operand });
+            var result = GetNAry(GetUnaryFunction(UnaryOperator.Opcode.Neg), new List<Expr>() { operand });
             result.Type = operand.Type;
             return result;
         }
@@ -753,7 +764,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type or real type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Lt), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Lt), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -769,7 +780,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type or real type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Le), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Le), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -785,7 +796,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type or real type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Gt), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Gt), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -801,7 +812,7 @@ namespace Symbooglix
             {
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type or real type");
             }
-            var result = new NAryExpr(Token.NoToken, GetBinaryFunction(BinaryOperator.Opcode.Ge), new List<Expr>() { lhs, rhs });
+            var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Ge), new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Bool;
             return result;
         }
@@ -840,7 +851,7 @@ namespace Symbooglix
                 ArithmeticCoercionCache[coercionType] = coercionFun;
             }
 
-            var result = new NAryExpr(Token.NoToken, coercionFun, new List<Expr>() { operand });
+            var result = GetNAry(coercionFun, new List<Expr>() { operand });
             result.Type = resultType;
             return result;
         }
@@ -890,7 +901,7 @@ namespace Symbooglix
                 }
             }
 
-            var result = new NAryExpr(Token.NoToken, ms, argList);
+            var result = GetNAry(ms, argList);
             result.Type = map.Type.AsMap.Result;
             return result;
         }
@@ -951,7 +962,7 @@ namespace Symbooglix
             argList.Add(value);
 
 
-            var result = new NAryExpr(Token.NoToken, ms, argList);
+            var result = GetNAry(ms, argList);
             result.Type = map.Type;
             return result;
         }
@@ -976,7 +987,7 @@ namespace Symbooglix
             }
 
             // Should we check the free variables are actually used? This could be quite expensive to do!
-            var result = new ForallExpr(Token.NoToken, new List<Variable>(freeVars), body);
+            var result = new ForallExpr(Token.NoToken, new List<Variable>(freeVars), body, Immutable);
             result.Type = BasicType.Bool;
             return result;
         }
@@ -994,7 +1005,7 @@ namespace Symbooglix
             }
 
             // Should we check the free variables are actually used? This could be quite expensive to do!
-            var result = new ExistsExpr(Token.NoToken, new List<Variable>(freeVars), body);
+            var result = new ExistsExpr(Token.NoToken, new List<Variable>(freeVars), body, Immutable);
             result.Type = BasicType.Bool;
             return result;
         }

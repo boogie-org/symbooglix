@@ -29,6 +29,9 @@ namespace Symbooglix
             this.TerminationType = ExecutorTerminationType.UNKNOWN;
             HasBeenPrepared = false;
             this.Builder = builder;
+
+            if (!builder.Immutable)
+                throw new ArgumentException("builder must build immutable expressions");
         }
 
         private IStateScheduler StateScheduler;

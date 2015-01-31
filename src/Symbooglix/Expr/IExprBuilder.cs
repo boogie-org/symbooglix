@@ -7,6 +7,11 @@ namespace Symbooglix
 {
     public interface IExprBuilder
     {
+        bool Immutable
+        {
+            get;
+        }
+
         // Constants
         LiteralExpr ConstantInt(int value);
         LiteralExpr ConstantInt(BigInteger decimalValue);

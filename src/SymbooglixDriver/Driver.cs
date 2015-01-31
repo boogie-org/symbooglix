@@ -375,7 +375,7 @@ namespace SymbooglixDriver
             Console.WriteLine("Using Scheduler: {0}", scheduler.ToString());
 
             var terminationCounter = new TerminationCounter();
-            IExprBuilder builder = new SimpleExprBuilder();
+            IExprBuilder builder = new SimpleExprBuilder(/*immutable=*/ true);
 
             if (options.useConstantFolding > 0)
             {

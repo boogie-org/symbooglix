@@ -20,7 +20,7 @@ namespace ExprBuilderTests
 
         public IExprBuilder GetBuilder()
         {
-            return new SimpleExprBuilder();
+            return new SimpleExprBuilder(/*immutable=*/ true);
         }
 
         public void Error(IToken tok, string msg)

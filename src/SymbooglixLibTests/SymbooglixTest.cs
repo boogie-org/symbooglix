@@ -117,7 +117,7 @@ namespace SymbooglixLibTests
             if (solver == null)
                 solver = new SimpleSolver(new DummySolver());
 
-            IExprBuilder builder = new SimpleExprBuilder();
+            IExprBuilder builder = new SimpleExprBuilder(/*immutable=*/ true);
 
             if (useConstantFolding)
             {
