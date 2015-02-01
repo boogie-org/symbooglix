@@ -5,7 +5,7 @@ using Symbooglix;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 
-namespace ExprBuilderTests
+namespace ExprBuilderTests.ConstantFoldingTests
 {
     [TestFixture()]
     public class FoldAdd : ConstantFoldingExprBuilderTests

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Symbooglix;
 using Microsoft.Boogie;
 
-namespace ExprBuilderTests
+namespace ExprBuilderTests.ConstantFoldingTests
 {
     public class FoldIfThenElse : ConstantFoldingExprBuilderTests
     {
