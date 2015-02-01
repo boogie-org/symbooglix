@@ -67,6 +67,21 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.AreSame(vNotEqy, result);
             CheckIsBoolType(result);
         }
+
+        // (if group_size_y == 1bv32 then 1bv1 else 0bv1) != 0bv1;
+        //
+        // This is collaboration between NotEq() and IfThenElse()
+        [Test()]
+        public void MergeIntoChoices()
+        {
+            var builder = GetConstantFoldingBuilder();
+            var v = GetVarAndIdExpr("group_size_y", BasicType.GetBvType(32)).Item2;
+            var condition = builder.Eq(v, builder.ConstantBV(1, 32));
+            var ite = builder.IfThenElse(condition, builder.ConstantBV(1, 1), builder.ConstantBV(0, 1));
+            Assert.IsNull(ExprUtil.AsLiteral(ite));
+            var result = builder.NotEq(ite, builder.ConstantBV(0, 1));
+            Assert.AreSame(condition, result);
+        }
     }
 }
 
