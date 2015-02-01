@@ -583,7 +583,7 @@ namespace ExprBuilderTests
             builder.BVZEXT(constant0, 3);
         }
 
-        [Test()]
+        [Test(), Ignore("FIXME: Boogie's type checker tries to change the type of immutable Expr")]
         public void Bvconcat()
         {
             var builder = GetBuilder();
