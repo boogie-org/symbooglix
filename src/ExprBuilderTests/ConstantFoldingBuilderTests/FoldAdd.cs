@@ -8,15 +8,8 @@ using Microsoft.Basetypes;
 namespace ExprBuilderTests
 {
     [TestFixture()]
-    public class ConstantFoldingExprBuilderTests : SimpleExprBuilderTestBase
+    public class FoldAdd : ConstantFoldingExprBuilderTests
     {
-        private Tuple<IExprBuilder, IExprBuilder> GetSimpleAndConstantFoldingBuilder()
-        {
-            var simpleBuilder = GetBuilder();
-            var constantFoldingBuilder = new ConstantFoldingExprBuilder(simpleBuilder);
-            return new Tuple<IExprBuilder, IExprBuilder>(simpleBuilder, constantFoldingBuilder);
-        }
-
         [Test()]
         public void AddSimpleConstantsInt()
         {
@@ -157,7 +150,6 @@ namespace ExprBuilderTests
             // Check the constant is the top left argument
             Assert.IsInstanceOf<LiteralExpr>(foldedTopAsNAry.Args[0]);
         }
-
     }
 }
 

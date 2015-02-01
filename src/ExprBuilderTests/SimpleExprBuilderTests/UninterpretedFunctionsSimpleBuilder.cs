@@ -6,9 +6,9 @@ using Microsoft.Boogie;
 
 namespace ExprBuilderTests
 {
-    public class UninterpretedFunctions
+    public class UninterpretedFunctionsSimpleBuilder
     {
-        public UninterpretedFunctions ()
+        public UninterpretedFunctionsSimpleBuilder()
         {
             // This is a hack
             SymbooglixLibTests.SymbooglixTest.SetupDebug();

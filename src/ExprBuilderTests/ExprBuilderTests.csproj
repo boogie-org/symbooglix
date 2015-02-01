@@ -34,18 +34,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UninterpretedFunctions.cs" />
     <Compile Include="SimpleExprBuilderTestBase.cs" />
-    <Compile Include="BVOperatorsSimplerBuilder.cs" />
-    <Compile Include="CoercionSimpleBuilder.cs" />
-    <Compile Include="ConstantsSimpleBuilder.cs" />
-    <Compile Include="MapStoreSelectSimpleBuilder.cs" />
-    <Compile Include="OldSimpleBuilder.cs" />
-    <Compile Include="QuantifiersSimpleBuilder.cs" />
-    <Compile Include="RealAndIntOperatorsSimplerBuilder.cs" />
-    <Compile Include="EqualityAndLogicalOperatorsSimpleBuilder.cs" />
     <Compile Include="BuilderDuplicatorTests.cs" />
-    <Compile Include="ConstantFoldingExprBuilderTests.cs" />
+    <Compile Include="SimpleExprBuilderTests\BVOperatorsSimplerBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\CoercionSimpleBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\ConstantsSimpleBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\EqualityAndLogicalOperatorsSimpleBuilder.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\ConstantFoldingExprBuilderTests.cs" />
+    <Compile Include="SimpleExprBuilderTests\MapStoreSelectSimpleBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\OldSimpleBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\QuantifiersSimpleBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\RealAndIntOperatorsSimplerBuilder.cs" />
+    <Compile Include="SimpleExprBuilderTests\UninterpretedFunctionsSimpleBuilder.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldAdd.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -72,5 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SimpleExprBuilderTests\" />
+    <Folder Include="ConstantFoldingBuilderTests\" />
   </ItemGroup>
 </Project>
