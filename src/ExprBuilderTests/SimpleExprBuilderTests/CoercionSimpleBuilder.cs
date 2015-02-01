@@ -13,7 +13,7 @@ namespace ExprBuilderTests
         [Test()]
         public void IntToRealCoercion()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantInt(5);
             var result = builder.ArithmeticCoercion(ArithmeticCoercion.CoercionType.ToReal, constant);
             Assert.AreEqual("real(5)", result.ToString());
@@ -23,7 +23,7 @@ namespace ExprBuilderTests
         [Test()]
         public void RealToIntCoercion()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantReal("5.0");
             var result = builder.ArithmeticCoercion(ArithmeticCoercion.CoercionType.ToInt, constant);
             Assert.AreEqual("int(5e0)", result.ToString());
@@ -33,7 +33,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void ToRealWrongOperandType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantReal("5.0");
             builder.ArithmeticCoercion(ArithmeticCoercion.CoercionType.ToReal, constant);
         }
@@ -41,7 +41,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void ToIntWrongOperandType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantInt(5);
             builder.ArithmeticCoercion(ArithmeticCoercion.CoercionType.ToInt, constant);
         }

@@ -10,11 +10,16 @@ namespace ExprBuilderTests
     [TestFixture()]
     public class ConstantFoldingExprBuilderTests : SimpleExprBuilderTestBase
     {
-        protected Tuple<IExprBuilder, IExprBuilder> GetSimpleAndConstantFoldingBuilder()
+        protected Tuple<SimpleExprBuilder, ConstantFoldingExprBuilder> GetSimpleAndConstantFoldingBuilder()
         {
-            var simpleBuilder = GetBuilder();
+            var simpleBuilder = GetSimpleBuilder();
             var constantFoldingBuilder = new ConstantFoldingExprBuilder(simpleBuilder);
-            return new Tuple<IExprBuilder, IExprBuilder>(simpleBuilder, constantFoldingBuilder);
+            return new Tuple<SimpleExprBuilder, ConstantFoldingExprBuilder>(simpleBuilder, constantFoldingBuilder);
+        }
+
+        protected ConstantFoldingExprBuilder GetConstantFoldingBuilder()
+        {
+            return new ConstantFoldingExprBuilder(GetSimpleBuilder());
         }
     }
 }

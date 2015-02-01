@@ -18,7 +18,7 @@ namespace ExprBuilderTests
         {
             // var x:[int]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.Int).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0]
             var result = builder.MapSelect(id, builder.ConstantInt(0));
@@ -31,7 +31,7 @@ namespace ExprBuilderTests
         {
             // var x:[bv8]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.GetBvType(8)).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0]
             builder.MapSelect(id, builder.ConstantInt(0));
@@ -42,7 +42,7 @@ namespace ExprBuilderTests
         {
             // var x:[bv8]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.Int, BasicType.Int).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0]
             builder.MapSelect(id, builder.ConstantInt(0));
@@ -53,7 +53,7 @@ namespace ExprBuilderTests
         {
             // var x:[int, int]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.Int, BasicType.Int).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0, 1]
             var result = builder.MapSelect(id, builder.ConstantInt(0), builder.ConstantInt(1));
@@ -68,7 +68,7 @@ namespace ExprBuilderTests
         {
             // var x:[]bool;
             var id = GetMapVariable("x", BasicType.Bool).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[]
             var result = builder.MapSelect(id);
@@ -86,7 +86,7 @@ namespace ExprBuilderTests
             var vtPair = GetMapVariable("y", mapType, BasicType.Bool);
             var id = vtPair.Item1;
 
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // y[true]
             var firstSelect = builder.MapSelect(id, builder.True);
@@ -108,7 +108,7 @@ namespace ExprBuilderTests
             var vtPair = GetMapVariable("x", BasicType.Bool, BasicType.Int);
             var id = vtPair.Item1;
             var mapType = vtPair.Item2;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0 := true]
             var result = builder.MapStore(id, builder.True, builder.ConstantInt(0));
@@ -127,7 +127,7 @@ namespace ExprBuilderTests
         {
             // var x:[bv8]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.GetBvType(8)).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0 := true] // wrong index type
             builder.MapStore(id, builder.True, builder.ConstantInt(0));
@@ -138,7 +138,7 @@ namespace ExprBuilderTests
         {
             // var x:[bv8]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.GetBvType(8)).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0bv8 := 0] // wrong value type assigned
             builder.MapStore(id, builder.ConstantInt(0), builder.ConstantBV(0,8));
@@ -149,7 +149,7 @@ namespace ExprBuilderTests
         {
             // var x:[bv8]bool;
             var id = GetMapVariable("x", BasicType.Bool, BasicType.GetBvType(8)).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0bv8,1bv8 := 0] // wrong number of indices
             builder.MapStore(id, builder.ConstantInt(0), builder.ConstantBV(0,8), builder.ConstantBV(1,8));
@@ -162,7 +162,7 @@ namespace ExprBuilderTests
             var vtPair = GetMapVariable("x", BasicType.Bool, BasicType.Int, BasicType.Int);
             var id = vtPair.Item1;
             var mapType = vtPair.Item2;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[0, 1]
             var result = builder.MapStore(id, builder.True, builder.ConstantInt(0), builder.ConstantInt(1));
@@ -177,7 +177,7 @@ namespace ExprBuilderTests
         {
             // var x:[]bool;
             var id = GetMapVariable("x", BasicType.Bool).Item1;
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // x[ := true]
             var result = builder.MapStore(id, builder.True);

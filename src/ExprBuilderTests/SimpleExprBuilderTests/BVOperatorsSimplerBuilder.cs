@@ -12,7 +12,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvslt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSLT(constant0, constant1);
@@ -24,7 +24,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsltTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSLT(constant0, constant1);
@@ -34,7 +34,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsltWrongLhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSLT(constant0, constant1);
@@ -44,7 +44,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsltWrongRhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 5);
             var constant1 = builder.True;
             builder.BVSLT(constant0, constant1);
@@ -53,7 +53,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsle()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSLE(constant0, constant1);
@@ -65,7 +65,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsleTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSLE(constant0, constant1);
@@ -74,7 +74,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsgt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSGT(constant0, constant1);
@@ -86,7 +86,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsgtTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSGT(constant0, constant1);
@@ -95,7 +95,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsge()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSGE(constant0, constant1);
@@ -107,7 +107,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsgeTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSGE(constant0, constant1);
@@ -116,7 +116,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvult()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVULT(constant0, constant1);
@@ -128,7 +128,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvultTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVULT(constant0, constant1);
@@ -137,7 +137,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvule()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVULE(constant0, constant1);
@@ -149,7 +149,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvuleTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVULE(constant0, constant1);
@@ -158,7 +158,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvugt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVUGT(constant0, constant1);
@@ -170,7 +170,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvugtTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVUGT(constant0, constant1);
@@ -179,7 +179,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvuge()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVUGE(constant0, constant1);
@@ -191,7 +191,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvugeTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVUGE(constant0, constant1);
@@ -200,7 +200,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvand()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVAND(constant0, constant1);
@@ -212,7 +212,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvandTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVAND(constant0, constant1);
@@ -221,7 +221,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvor()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVOR(constant0, constant1);
@@ -233,7 +233,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvorTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVOR(constant0, constant1);
@@ -242,7 +242,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvxor()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVXOR(constant0, constant1);
@@ -254,7 +254,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvxorTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVXOR(constant0, constant1);
@@ -263,7 +263,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvshl()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSHL(constant0, constant1);
@@ -275,7 +275,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvshlTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSHL(constant0, constant1);
@@ -284,7 +284,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvlshr()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVLSHR(constant0, constant1);
@@ -296,7 +296,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvlshrTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVLSHR(constant0, constant1);
@@ -305,7 +305,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvashr()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVASHR(constant0, constant1);
@@ -317,7 +317,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvashrTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVASHR(constant0, constant1);
@@ -326,7 +326,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvadd()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVADD(constant0, constant1);
@@ -338,7 +338,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvaddTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVADD(constant0, constant1);
@@ -347,7 +347,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsub()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSUB(constant0, constant1);
@@ -359,7 +359,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsubTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSUB(constant0, constant1);
@@ -368,7 +368,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvmul()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVMUL(constant0, constant1);
@@ -380,7 +380,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvmulTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVMUL(constant0, constant1);
@@ -389,7 +389,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvudiv()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVUDIV(constant0, constant1);
@@ -401,7 +401,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvudivTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVUDIV(constant0, constant1);
@@ -410,7 +410,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvurem()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVUREM(constant0, constant1);
@@ -422,7 +422,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvuremTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVUREM(constant0, constant1);
@@ -431,7 +431,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsdiv()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSDIV(constant0, constant1);
@@ -443,7 +443,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsdivTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSDIV(constant0, constant1);
@@ -452,7 +452,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsrem()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSREM(constant0, constant1);
@@ -464,7 +464,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsremTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSREM(constant0, constant1);
@@ -473,7 +473,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsmod()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 4);
             var result = builder.BVSMOD(constant0, constant1);
@@ -485,7 +485,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsmodTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             builder.BVSMOD(constant0, constant1);
@@ -494,7 +494,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvneg()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var result = builder.BVNEG(constant0);
             Assert.AreEqual("BVNEG4(5bv4)", result.ToString());
@@ -505,7 +505,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvnegTypeError()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.False;
             builder.BVNEG(constant0);
         }
@@ -513,7 +513,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvnot()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var result = builder.BVNOT(constant0);
             Assert.AreEqual("BVNOT4(5bv4)", result.ToString());
@@ -524,7 +524,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvnotTypeError()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.False;
             builder.BVNOT(constant0);
         }
@@ -532,7 +532,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvsext()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var result = builder.BVSEXT(constant0, 5);
             Assert.AreEqual("BV4_SEXT5(5bv4)", result.ToString());
@@ -543,7 +543,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ArgumentException))]
         public void BvsextWrongWidth()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             builder.BVSEXT(constant0, 3);
         }
@@ -551,7 +551,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvsextWrongType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.False;
             builder.BVSEXT(constant0, 3);
         }
@@ -559,7 +559,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvzext()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var result = builder.BVZEXT(constant0, 5);
             Assert.AreEqual("BV4_ZEXT5(5bv4)", result.ToString());
@@ -570,7 +570,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ArgumentException))]
         public void BvzextWrongWidth()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             builder.BVZEXT(constant0, 3);
         }
@@ -578,7 +578,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void BvzextWrongType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.False;
             builder.BVZEXT(constant0, 3);
         }
@@ -586,7 +586,7 @@ namespace ExprBuilderTests
         [Test(), Ignore("FIXME: Boogie's type checker tries to change the type of immutable Expr")]
         public void Bvconcat()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(11, 5);
             var result = builder.BVCONCAT(constant1, constant0);
@@ -597,7 +597,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void BvconcatWrongMSBType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.True;
             builder.BVCONCAT(constant1, constant0);
@@ -606,7 +606,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void BvconcatWrongLSBType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant1 = builder.ConstantBV(5, 4);
             var constant0 = builder.True;
             builder.BVCONCAT(constant1, constant0);
@@ -615,7 +615,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Bvextract()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var result = builder.BVEXTRACT(constant0, 2, 0);
             Assert.AreEqual("5bv4[2:0]", result.ToString());
@@ -625,7 +625,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ArgumentException))]
         public void BvextractInvalidRange()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             builder.BVEXTRACT(constant0, 0, 0);
         }
@@ -633,7 +633,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ArgumentException))]
         public void BvextractInvalidRange2()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             builder.BVEXTRACT(constant0, 3, -2);
         }
@@ -641,7 +641,7 @@ namespace ExprBuilderTests
         [Test()]
         public void BvextractValidRangeOnEdge()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             // [4:2] means bits (4,2] i.e. bits 3 and 2
             builder.BVEXTRACT(constant0, 4, 2);
@@ -650,7 +650,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ArgumentException))]
         public void BvextractInvalidRange3()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             builder.BVEXTRACT(constant0, 5, 2);
         }
@@ -658,7 +658,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void BvextractInvalidType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             builder.BVEXTRACT(constant0, 3, 0);
         }

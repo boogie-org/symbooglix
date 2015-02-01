@@ -20,7 +20,7 @@ namespace ExprBuilderTests
         [Test()]
         public void SimpleForAll()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var freeVarX = GetVariable("x", BasicType.Int);
             var xid = new IdentifierExpr(Token.NoToken, freeVarX);
             var freeVarY = GetVariable("y", BasicType.Int);
@@ -34,7 +34,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void SimpleForAllWrongBodyType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var freeVarX = GetVariable("x", BasicType.Int);
             var xid = new IdentifierExpr(Token.NoToken, freeVarX);
             var freeVarY = GetVariable("y", BasicType.Int);
@@ -46,7 +46,7 @@ namespace ExprBuilderTests
         [Test()]
         public void SimpleExists()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var freeVarX = GetVariable("x", BasicType.Int);
             var xid = new IdentifierExpr(Token.NoToken, freeVarX);
             var freeVarY = GetVariable("y", BasicType.Int);
@@ -60,7 +60,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void SimpleExistsAllWrongBodyType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var freeVarX = GetVariable("x", BasicType.Int);
             var xid = new IdentifierExpr(Token.NoToken, freeVarX);
             var freeVarY = GetVariable("y", BasicType.Int);

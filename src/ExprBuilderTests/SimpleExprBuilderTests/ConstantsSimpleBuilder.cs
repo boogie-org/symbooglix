@@ -13,7 +13,7 @@ namespace ExprBuilderTests
         [Test()]
         public void True()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.True;
             Assert.AreEqual("true", constant.ToString());
             CheckType(constant, t => t.IsBool);
@@ -26,7 +26,7 @@ namespace ExprBuilderTests
         [Test()]
         public void False()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.False;
             Assert.AreEqual("false", constant.ToString());
             CheckType(constant, t => t.IsBool);
@@ -39,7 +39,7 @@ namespace ExprBuilderTests
         [Test()]
         public void PositiveInteger()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantInt(5);
             Assert.AreEqual("5", constant.ToString());
             Assert.AreEqual(5, constant.asBigNum.ToInt);
@@ -49,7 +49,7 @@ namespace ExprBuilderTests
         [Test()]
         public void PositiveIntegerFromBigInt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantInt(new BigInteger(5));
             Assert.AreEqual("5", constant.ToString());
             Assert.AreEqual(5, constant.asBigNum.ToInt);
@@ -59,7 +59,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NegativeInteger()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantInt(-5);
             Assert.AreEqual("-5", constant.ToString());
             Assert.AreEqual(-5, constant.asBigNum.ToInt);
@@ -69,7 +69,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NegativeIntegerFromBigInt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantInt( new BigInteger(-5));
             Assert.AreEqual("-5", constant.ToString());
             Assert.AreEqual(-5, constant.asBigNum.ToInt);
@@ -79,7 +79,7 @@ namespace ExprBuilderTests
         [Test()]
         public void PositiveReal()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantReal("5.0");
             Assert.AreEqual("5e0", constant.ToString());
             CheckType(constant, t => t.IsReal);
@@ -88,7 +88,7 @@ namespace ExprBuilderTests
         [Test()]
         public void PositiveRealFromBigDec()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantReal(BigDec.FromInt(5));
             Assert.AreEqual("5e0", constant.ToString());
             CheckType(constant, t => t.IsReal);
@@ -97,7 +97,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NegativeReal()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantReal("-5.0");
             Assert.AreEqual("-5e0", constant.ToString());
             CheckType(constant, t => t.IsReal);
@@ -106,7 +106,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NegativeRealFromBigDec()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant = builder.ConstantReal(BigDec.FromInt(-5));
             Assert.AreEqual("-5e0", constant.ToString());
             CheckType(constant, t => t.IsReal);
@@ -133,7 +133,7 @@ namespace ExprBuilderTests
         private void _PositiveBV(int decimalValue, int width, string expectedString)
         {
             Assert.IsTrue(decimalValue >= 0);
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             // Test both versions of the API
             var constants = new Microsoft.Boogie.LiteralExpr[] {
                 builder.ConstantBV(decimalValue, width),
@@ -170,7 +170,7 @@ namespace ExprBuilderTests
         public void _NegativeBV(int decimalValue, int width, string expectedString)
         {
             Assert.IsTrue(decimalValue <= 0);
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             // Test both versions of the API
             var constants = new Microsoft.Boogie.LiteralExpr[] {
                 builder.ConstantBV(decimalValue, width),

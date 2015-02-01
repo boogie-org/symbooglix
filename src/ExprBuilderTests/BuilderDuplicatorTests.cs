@@ -47,7 +47,7 @@ namespace ExprBuilderTests
         [TestCase(10, 64)]
         public void BitVectorConstant(int value, int width)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(value, width);
             DuplicateAndCheck(root, builder);
         }
@@ -57,7 +57,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void IntConstant(int value)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(value);
             DuplicateAndCheck(root, builder);
         }
@@ -67,7 +67,7 @@ namespace ExprBuilderTests
         [TestCase("3.333")]
         public void RealConstant(string value)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantReal(value);
             DuplicateAndCheck(root, builder);
         }
@@ -76,7 +76,7 @@ namespace ExprBuilderTests
         [TestCase(false)]
         public void BoolConstant(bool value)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBool(value);
             DuplicateAndCheck(root, builder);
         }
@@ -88,7 +88,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVAdd(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -110,7 +110,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVSub(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -132,7 +132,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVMul(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -154,7 +154,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVUdiv(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -176,7 +176,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVSdiv(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -198,7 +198,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVURem(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -220,7 +220,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVSRem(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -242,7 +242,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVSMod(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -264,7 +264,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVSHL(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -286,7 +286,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVLSHR(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -308,7 +308,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVASHR(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -330,7 +330,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVAND(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -352,7 +352,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVOR(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -374,7 +374,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVXOR(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build symmetric Expr Tree
@@ -394,7 +394,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVSLT()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -407,7 +407,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVSLE()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -420,7 +420,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVSGT()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -433,7 +433,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVSGE()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -446,7 +446,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVULT()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -459,7 +459,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVULE()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -472,7 +472,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleBVUGT()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -484,7 +484,7 @@ namespace ExprBuilderTests
 
         public void simpleBVUGE()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr lhs = builder.ConstantBV(1, 8);
             Expr rhs = builder.ConstantBV(2, 8);
 
@@ -499,7 +499,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVNOT(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build Expr Tree
@@ -521,7 +521,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVNEG(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build Expr Tree
@@ -543,7 +543,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVSEXT(int width)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build Expr Tree
@@ -565,7 +565,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVZEXT(int width)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build Expr Tree
@@ -588,7 +588,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVCONCAT(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 8);
 
             // Build Expr Tree
@@ -610,7 +610,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleBVEXTRACT(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(1, 128);
 
             // Build Expr Tree
@@ -634,7 +634,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleAdd(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -656,7 +656,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleSub(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -678,7 +678,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleMul(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -700,7 +700,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleMod(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -722,7 +722,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleDiv(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -744,7 +744,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleRealDiv(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantReal("1.0");
 
             // Build Expr Tree
@@ -766,7 +766,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simplePow(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantReal("1.0");
 
             // Build Expr Tree
@@ -788,7 +788,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleNeg(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -810,7 +810,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleArithmeticCoercion(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantInt(1);
 
             // Build Expr Tree
@@ -834,7 +834,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleAnd(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -856,7 +856,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleOr(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -878,7 +878,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleIff(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -900,7 +900,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleImp(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -922,7 +922,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleIfThenElse(int repeat)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -944,7 +944,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleNot(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -966,7 +966,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleEq(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -988,7 +988,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleNotEq(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.True;
 
             // Build Expr Tree
@@ -1008,7 +1008,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleLt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // Build Expr Tree
             var root = builder.Lt(builder.ConstantInt(0), builder.ConstantInt(1));
@@ -1020,7 +1020,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleLe()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // Build Expr Tree
             var root = builder.Le(builder.ConstantInt(0), builder.ConstantInt(1));
@@ -1032,7 +1032,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleGt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // Build Expr Tree
             var root = builder.Gt(builder.ConstantInt(0), builder.ConstantInt(1));
@@ -1044,7 +1044,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleGe()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
 
             // Build Expr Tree
             var root = builder.Ge(builder.ConstantInt(0), builder.ConstantInt(1));
@@ -1056,7 +1056,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleUF()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var FCB = new FunctionCallBuilder();
             var func = FCB.CreateUninterpretedFunctionCall("foo", BasicType.Bool, new List<Microsoft.Boogie.Type>() {
                 BasicType.Real,
@@ -1071,7 +1071,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleMapSelect()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var map = GetMapVariable("m", BasicType.Bool, BasicType.Int, BasicType.Int).Item1;
             var root = builder.MapSelect(map, builder.ConstantInt(0), builder.ConstantInt(1));
             DuplicateAndCheck(root, builder);
@@ -1082,7 +1082,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleMapStore(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var map = GetMapVariable("m", BasicType.Bool, BasicType.Int).Item1;
             Expr root = map;
 
@@ -1098,7 +1098,7 @@ namespace ExprBuilderTests
         [TestCase(10)]
         public void simpleOld(int depth)
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             Expr root = builder.ConstantBV(0, 8);
 
             for (int count = 0; count < depth; ++count)
@@ -1113,7 +1113,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleExists()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var free0Pair = GetVarAndIdExpr("x", BasicType.Int);
             var free1Pair = GetVarAndIdExpr("y", BasicType.Int);
             Variable free0Var = free0Pair.Item1;
@@ -1131,7 +1131,7 @@ namespace ExprBuilderTests
         [Test()]
         public void simpleForall()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var free0Pair = GetVarAndIdExpr("x", BasicType.Int);
             var free1Pair = GetVarAndIdExpr("y", BasicType.Int);
             Variable free0Var = free0Pair.Item1;

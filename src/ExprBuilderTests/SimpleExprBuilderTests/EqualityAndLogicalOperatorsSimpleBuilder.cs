@@ -11,7 +11,7 @@ namespace ExprBuilderTests
         [Test()]
         public void EqBool()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.False;
             var result = builder.Eq(constant0, constant1);
@@ -22,7 +22,7 @@ namespace ExprBuilderTests
         [Test()]
         public void EqBv()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(2, 4);
             var result = builder.Eq(constant0, constant1);
@@ -33,7 +33,7 @@ namespace ExprBuilderTests
         [Test()]
         public void EqInt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantInt(5);
             var constant1 = builder.ConstantInt(2);
             var result = builder.Eq(constant0, constant1);
@@ -44,7 +44,7 @@ namespace ExprBuilderTests
         [Test()]
         public void EqReal()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantReal("5.0");
             var constant1 = builder.ConstantReal("2.0");
             var result = builder.Eq(constant0, constant1);
@@ -55,7 +55,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void EqTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantReal("5.0");
             var constant1 = builder.True;
             builder.Eq(constant0, constant1);
@@ -64,7 +64,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NotEqBool()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.False;
             var result = builder.NotEq(constant0, constant1);
@@ -75,7 +75,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NotEqBv()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantBV(5, 4);
             var constant1 = builder.ConstantBV(2, 4);
             var result = builder.NotEq(constant0, constant1);
@@ -86,7 +86,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NotEqInt()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantInt(5);
             var constant1 = builder.ConstantInt(2);
             var result = builder.NotEq(constant0, constant1);
@@ -97,7 +97,7 @@ namespace ExprBuilderTests
         [Test()]
         public void NotEqReal()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantReal("5.0");
             var constant1 = builder.ConstantReal("2.0");
             var result = builder.NotEq(constant0, constant1);
@@ -108,7 +108,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void NotEqTypeMismatch()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.ConstantReal("5.0");
             var constant1 = builder.True;
             builder.NotEq(constant0, constant1);
@@ -117,7 +117,7 @@ namespace ExprBuilderTests
         [Test()]
         public void IfThenElseSimple()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var condition = builder.False;
             var constant0 = builder.ConstantInt(5);
             var constant1 = builder.ConstantInt(2);
@@ -133,7 +133,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void IfThenElseTypeMistmatchCondition()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var condition = builder.ConstantInt(0);
             var constant0 = builder.ConstantInt(5);
             var constant1 = builder.ConstantInt(2);
@@ -143,7 +143,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void IfThenElseTypeMistmatchThenElse()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var condition = builder.False;
             var constant0 = builder.ConstantInt(5);
             var constant1 = builder.ConstantBV(5, 4);
@@ -153,7 +153,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Not()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var condition = builder.False;
             var result = builder.Not(condition);
             Assert.AreEqual("!false", result.ToString());
@@ -163,7 +163,7 @@ namespace ExprBuilderTests
         [Test(),ExpectedException(typeof(ExprTypeCheckException))]
         public void NotWrongType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var condition = builder.ConstantBV(2, 5);
             builder.Not(condition);
         }
@@ -171,7 +171,7 @@ namespace ExprBuilderTests
         [Test()]
         public void And()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.False;
             var result = builder.And(constant0, constant1);
@@ -182,7 +182,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void AndWrongLhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.ConstantInt(8);
             builder.And(constant0, constant1);
@@ -191,7 +191,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void AndWrongRhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant1 = builder.True;
             var constant0 = builder.ConstantInt(8);
             builder.And(constant0, constant1);
@@ -200,7 +200,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Or()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.False;
             var result = builder.Or(constant0, constant1);
@@ -211,7 +211,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void OrWrongLhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.ConstantInt(8);
             builder.Or(constant0, constant1);
@@ -220,7 +220,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void OrWrongRhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant1 = builder.True;
             var constant0 = builder.ConstantInt(8);
             builder.Or(constant0, constant1);
@@ -229,7 +229,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Iff()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.False;
             var result = builder.Iff(constant0, constant1);
@@ -240,7 +240,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void IffWrongLhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.ConstantInt(8);
             builder.Iff(constant0, constant1);
@@ -249,7 +249,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void IffWrongRhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant1 = builder.True;
             var constant0 = builder.ConstantInt(8);
             builder.Iff(constant0, constant1);
@@ -258,7 +258,7 @@ namespace ExprBuilderTests
         [Test()]
         public void Imp()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.False;
             var result = builder.Imp(constant0, constant1);
@@ -269,7 +269,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void ImpWrongLhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant0 = builder.True;
             var constant1 = builder.ConstantInt(8);
             builder.Imp(constant0, constant1);
@@ -278,7 +278,7 @@ namespace ExprBuilderTests
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void ImpWrongRhsType()
         {
-            var builder = GetBuilder();
+            var builder = GetSimpleBuilder();
             var constant1 = builder.True;
             var constant0 = builder.ConstantInt(8);
             builder.Imp(constant0, constant1);

@@ -18,7 +18,7 @@ namespace ExprBuilderTests
             SymbooglixLibTests.SymbooglixTest.SetupCmdLineParser();
         }
 
-        public IExprBuilder GetBuilder()
+        public SimpleExprBuilder GetSimpleBuilder()
         {
             return new SimpleExprBuilder(/*immutable=*/ true);
         }
