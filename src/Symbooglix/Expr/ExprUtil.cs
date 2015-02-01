@@ -29,6 +29,19 @@ namespace Symbooglix
             }
             return false;
         }
+
+        public static NAryExpr AsIfThenElse(Expr e)
+        {
+            var narry = e as NAryExpr;
+            if (narry == null)
+                return null;
+
+            var fun = narry.Fun;
+            if (fun is IfThenElse)
+                return narry;
+            else
+                return null;
+        }
     }
 }
 

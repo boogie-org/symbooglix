@@ -147,19 +147,40 @@ namespace Symbooglix
             {
                 if (litCondition.IsTrue)
                 {
-                    // (if true then <exprA> else <exprB> ) == <exprA>
+                    // (if true then <exprA> else <exprB> ) ==> <exprA>
                     return thenExpr;
                 }
                 else if (litCondition.IsFalse)
                 {
-                    // (if false then <exprA> else <exprB> ) == <exprB>
+                    // (if false then <exprA> else <exprB> ) ==> <exprB>
                     return elseExpr;
                 }
 
             }
 
+            if (litThenExpr != null && litElseExpr != null)
+            {
+                // if <expr> then true else false ==> <expr>
+                if (litThenExpr.IsTrue && litElseExpr.IsFalse)
+                {
+                    if (!condition.Type.IsBool)
+                        throw new ExprTypeCheckException("condition to IfThenElse must be boolean");
 
-            // if <expr> then <expr> else false == <expr>
+                    return condition;
+                }
+
+                // if <expr> then false else true ==> !<expr>
+                if (litThenExpr.IsFalse && litElseExpr.IsTrue)
+                {
+                    if (!condition.Type.IsBool)
+                        throw new ExprTypeCheckException("condition to IfThenElse must be boolean");
+
+                    return this.Not(condition);
+                }
+            }
+
+
+            // if <expr> then <expr> else false ==> <expr>
             // e.g.
             // p1$1:bool := (if BV32_SLT(symbolic_5, 100bv32) then BV32_SLT(symbolic_5, 100bv32) else false)
             if (litElseExpr !=null)
@@ -174,7 +195,7 @@ namespace Symbooglix
                 }
             }
 
-            // if !<expr> then <expr> else true == <expr>
+            // if !<expr> then <expr> else true ==> <expr>
             // e.g.
             // p0$1:bool := (if !BV32_SLT(symbolic_5, 100bv32) then BV32_SLT(symbolic_5, 100bv32) else true)
             if (litElseExpr != null)
@@ -203,7 +224,7 @@ namespace Symbooglix
             }
 
 
-            //  if <expr> then true else <expr> == <expr>
+            //  if <expr> then true else <expr> ==> <expr>
             // e.g. (if BV32_SLT(symbolic_4, symbolic_20) then true else BV32_SLT(symbolic_4, symbolic_20))
             if (litThenExpr != null)
             {
@@ -223,9 +244,16 @@ namespace Symbooglix
         public override Expr NotEq(Expr lhs, Expr rhs)
         {
             // TODO: Move constants to left hand side so we expect constants to always be on the left
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                // Swap so we always have a constant on the left if at least one operand is a constant
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
 
-            var litLhs = lhs as LiteralExpr;
-            var litRhs = rhs as LiteralExpr;
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
             if (litLhs != null && litRhs != null)
             {
                 if (litLhs.isBvConst && litRhs.isBvConst)
@@ -262,38 +290,31 @@ namespace Symbooglix
                     throw new NotImplementedException(); // Unreachable?
             }
 
-            // GPUVerify specific
+            // 
+            // Inspired by the following GPUVerify specific example
             // e.g. (in axioms)
             // (if group_size_y == 1bv32 then 1bv1 else 0bv1) != 0bv1;
             // fold to group_size_y == 1bv32
-            if (litRhs != null && lhs is NAryExpr)
+            if (litLhs != null && ExprUtil.AsIfThenElse(rhs) != null)
             {
-                var ift = lhs as NAryExpr;
+                var ift = rhs as NAryExpr;
 
-                if (ift.Fun is IfThenElse)
+                Debug.Assert(ift.Args.Count == 3);
+                var thenExpr = ift.Args[1];
+                var elseExpr = ift.Args[2];
+
+                // Try to partially evaluate
+                var thenExprEval = this.NotEq(litLhs, thenExpr);
+                var elseExprEval = this.NotEq(litLhs, elseExpr);
+
+                if (ExprUtil.AsLiteral(thenExprEval) != null || ExprUtil.AsLiteral(elseExprEval) != null)
                 {
-                    Debug.Assert(ift.Args.Count == 3);
-                    var thenExpr = ift.Args[1];
-                    var elseExpr = ift.Args[2];
-
-                    if (thenExpr is LiteralExpr && elseExpr is LiteralExpr)
-                    {
-                        if (elseExpr.Equals(litRhs) && !( thenExpr.Equals(litRhs) ))
-                        {
-                            return ift.Args[0];
-                        }
-                        else if (!( elseExpr.Equals(litRhs) ) && thenExpr.Equals(litRhs))
-                        {
-                            // axiom (if group_size_y == 1bv32 then 0bv1 else 1bv1) != 0bv1;
-                            // fold to
-                            // ! (group_size_y == 1bv32 )
-                            // Can't use Expr.Not() because it may change
-                            return this.Not(ift.Args[0]);
-                        }
-                    }
+                    // Build a new if-then-else, which is simplified
+                    return this.IfThenElse(ift.Args[0], thenExprEval, elseExprEval);
                 }
             }
 
+            // Can't fold
             return UB.NotEq(lhs, rhs);
         }
     }

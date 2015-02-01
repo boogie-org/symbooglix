@@ -79,6 +79,27 @@ namespace ExprBuilderTests
             var e = sb.Eq(v, sb.False);
             Assert.IsFalse(ExprUtil.IsFalse(e));
         }
+
+        [Test()]
+        public void IsIfThenElseWithIte()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Bool).Item2;
+            var ite = sb.IfThenElse(sb.Eq(v, sb.False), v, sb.False);
+            var asIte = ExprUtil.AsIfThenElse(ite);
+            Assert.IsNotNull(asIte);
+            Assert.AreSame(ite, asIte);
+        }
+
+        [Test()]
+        public void IsIfThenElseWithAnd()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Bool).Item2;
+            var ite = sb.And(sb.Eq(v, sb.False), v);
+            var asIte = ExprUtil.AsIfThenElse(ite);
+            Assert.IsNull(asIte);
+        }
     }
 }
 
