@@ -47,6 +47,7 @@
     <Compile Include="SimpleExprBuilderTests\RealAndIntOperatorsSimplerBuilder.cs" />
     <Compile Include="SimpleExprBuilderTests\UninterpretedFunctionsSimpleBuilder.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldAdd.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldIfThenElse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
