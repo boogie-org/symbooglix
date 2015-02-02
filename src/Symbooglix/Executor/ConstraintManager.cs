@@ -52,15 +52,22 @@ namespace Symbooglix
             get { return InternalConstraints; }
         }
 
+        protected HashSet<Constraint> GetNewHashSet()
+        {
+            // Use a special IEqualityComparer<Constraint> that only looks
+            // at Constraint.Expr because we only care about that
+            return new HashSet<Constraint>(new ConstraintInHashSetCompare());
+        }
+
         public ConstraintManager()
         {
-            InternalConstraints = new HashSet<Constraint>();
+            InternalConstraints = GetNewHashSet();
         }
 
         public IConstraintManager Clone()
         {
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
-            other.InternalConstraints = new HashSet<Constraint>();
+            other.InternalConstraints = GetNewHashSet();
 
             // Constraints should be immutable so we don't need to clone the Expr
             foreach (var c in this.InternalConstraints)
@@ -82,6 +89,10 @@ namespace Symbooglix
                 return;
             }
 
+            var newConstraint = new Constraint(e, location);
+            if (InternalConstraints.Contains(newConstraint))
+                return; // Don't add constraints we already have
+
             InternalConstraints.Add(new Constraint(e, location));
         }
 
@@ -97,13 +108,14 @@ namespace Symbooglix
 
             if (subset is HashSet<Constraint>)
             {
+                // FIXME: Remove this hack and see if it makes much of a performance difference
                 // Reuse the container for efficiency
                 // This doesn't feel very safe...
                 other.InternalConstraints = (HashSet<Constraint>) subset;
             }
             else
             {
-                other.InternalConstraints = new HashSet<Constraint>();
+                other.InternalConstraints = GetNewHashSet();
                 foreach (var constraint in subset)
                 {
                     other.InternalConstraints.Add(constraint);
@@ -197,6 +209,20 @@ namespace Symbooglix
             this.InternalUsedUninterpretedFunctions = new HashSet<Function>();
             var ffv = new FindUinterpretedFunctionsVisitor(this.InternalUsedUninterpretedFunctions);
             ffv.Visit(this.Condition);
+        }
+    }
+
+    class ConstraintInHashSetCompare : IEqualityComparer<Constraint>
+    {
+        public bool Equals(Constraint x, Constraint y)
+        {
+            // Potentially slow comparision
+            return ExprUtil.StructurallyEqual(x.Condition, y.Condition);
+        }
+
+        public int GetHashCode(Constraint obj)
+        {
+            return obj.Condition.GetHashCode();
         }
     }
 }
