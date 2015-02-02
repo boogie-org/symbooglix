@@ -139,7 +139,7 @@ namespace ExprBuilderTests
 
         [TestCase(1)]
         [TestCase(10)]
-        //[TestCase(1000), Ignore("FIXME: hash code computation is slow on construction")]
+        [TestCase(13)] // Using a value much larger than this causes the test to take too long because a full Equals() must be performed.
         public void StructurallyEqualWithDifferentRef(int depth)
         {
             var sb = GetSimpleBuilder();
@@ -154,12 +154,13 @@ namespace ExprBuilderTests
             {
                 e1 = sb.Or(e1, sb.And(e1, e1));
             }
+            Assert.AreEqual(e0.GetHashCode(), e1.GetHashCode());
             Assert.IsTrue(ExprUtil.StructurallyEqual(e0, e1));
         }
 
         [TestCase(1)]
         [TestCase(10)]
-        //[TestCase(1000), Ignore("FIXME: hash code computation is slow on construction")]
+        [TestCase(100)]
         public void StructurallyNotEqualWithDifferentRef(int depth)
         {
             var sb = GetSimpleBuilder();
@@ -174,6 +175,7 @@ namespace ExprBuilderTests
             {
                 e1 = sb.Or(e1, sb.And(e1, e1));
             }
+            Assert.AreNotEqual(e0.GetHashCode(), e1.GetHashCode());
             Assert.IsFalse(ExprUtil.StructurallyEqual(e0, e1));
         }
     }
