@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Boogie;
+using System.Diagnostics;
 
 namespace Symbooglix
 {
@@ -41,6 +42,38 @@ namespace Symbooglix
                 return narry;
             else
                 return null;
+        }
+
+        public static bool StructurallyEqual(Expr a, Expr b)
+        {
+            Debug.Assert(a.Immutable);
+            Debug.Assert(b.Immutable);
+            if (Object.ReferenceEquals(a, b))
+                return true;
+
+            // Do quick check first
+            if (a.GetHashCode() != b.GetHashCode())
+                return false;
+
+            // Same hashcodes but the Expr could still be structurally different
+            // so compute by traversing (much slower)
+            return a.Equals(b);
+        }
+
+        public static NAryExpr AsNot(Expr e)
+        {
+            var nary = e as NAryExpr;
+            if (nary == null)
+                return null;
+
+            var fun = nary.Fun;
+            if (fun is UnaryOperator)
+            {
+                var unary = fun as UnaryOperator;
+                if (unary.Op == UnaryOperator.Opcode.Not)
+                    return nary;
+            }
+            return null;
         }
     }
 }

@@ -94,6 +94,22 @@ namespace ExprBuilderTests.ConstantFoldingTests
             CheckIsBoolType(result);
         }
 
+        [Test()]
+        public void IfConditionThenElseStructuallySame()
+        {
+            var builder = GetConstantFoldingBuilder();
+            var v = GetVarAndIdExpr("v", BasicType.Int).Item2;
+            var y = GetVarAndIdExpr("y", BasicType.Int).Item2;
+            var vNotEqy = builder.NotEq(v, y);
+            var vPlusOne = builder.Add(v, builder.ConstantInt(1));
+
+            var result = builder.IfThenElse(vNotEqy, vPlusOne, vPlusOne);
+            Assert.AreSame(vPlusOne, result);
+            CheckIsInt(result);
+        }
+
+
+
         // (if group_size_y == 1bv32 then 1bv1 else 0bv1) != 0bv1;
         //
         // This is collaboration between NotEq() and IfThenElse()

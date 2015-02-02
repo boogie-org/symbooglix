@@ -183,12 +183,11 @@ namespace Symbooglix
             // if <expr> then <expr> else false ==> <expr>
             // e.g.
             // p1$1:bool := (if BV32_SLT(symbolic_5, 100bv32) then BV32_SLT(symbolic_5, 100bv32) else false)
-            if (litElseExpr !=null)
+            if (litElseExpr != null)
             {
                 if (litElseExpr.IsFalse)
                 {
-                    // More expensive check
-                    if (condition.Equals(thenExpr))
+                    if (ExprUtil.StructurallyEqual(condition, thenExpr))
                     {
                         return thenExpr;
                     }
@@ -202,23 +201,11 @@ namespace Symbooglix
             {
                 if (litElseExpr.IsTrue)
                 {
-                    // FIXME: We need a better of determining the type of an operator
-                    if (condition is NAryExpr)
+                    var notExpr = ExprUtil.AsNot(condition);
+                    if (notExpr != null)
                     {
-                        var conditionNAry = condition as NAryExpr;
-                        if (conditionNAry.Fun is UnaryOperator)
-                        {
-                            var unary = conditionNAry.Fun as UnaryOperator;
-
-                            if (unary.Op == UnaryOperator.Opcode.Not)
-                            {
-                                // More expensive check
-                                if (conditionNAry.Args[0].Equals(thenExpr))
-                                {
-                                    return thenExpr;
-                                }
-                            }
-                        }
+                        if (ExprUtil.StructurallyEqual(notExpr.Args[0], thenExpr))
+                            return thenExpr;
                     }
                 }
             }
@@ -235,6 +222,12 @@ namespace Symbooglix
                         return condition;
                     }
                 }
+            }
+
+            // if <expr> then <expr2> else <expr2> ==> <expr2>
+            if (ExprUtil.StructurallyEqual(thenExpr, elseExpr))
+            {
+                return thenExpr;
             }
 
             // we can't constant fold
@@ -290,11 +283,14 @@ namespace Symbooglix
                     throw new NotImplementedException(); // Unreachable?
             }
 
-            // 
+
             // Inspired by the following GPUVerify specific example
             // e.g. (in axioms)
             // (if group_size_y == 1bv32 then 1bv1 else 0bv1) != 0bv1;
             // fold to group_size_y == 1bv32
+            //
+            // Unlike most of the optimisations this is a top down optimsation
+            // rather than bottom up
             if (litLhs != null && ExprUtil.AsIfThenElse(rhs) != null)
             {
                 var ift = rhs as NAryExpr;
