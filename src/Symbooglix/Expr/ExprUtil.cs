@@ -80,6 +80,32 @@ namespace Symbooglix
             }
             return null;
         }
+
+        private static NAryExpr GetBinaryOperator(Expr e, BinaryOperator.Opcode opcode)
+        {
+            var nary = e as NAryExpr;
+            if (nary == null)
+                return null;
+
+            var fun = nary.Fun;
+            if (fun is BinaryOperator)
+            {
+                var binary = fun as BinaryOperator;
+                if (binary.Op == opcode)
+                    return nary;
+            }
+            return null;
+        }
+
+        public static NAryExpr AsDiv(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Div);
+        }
+
+        public static NAryExpr AsMod(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Mod);
+        }
     }
 }
 

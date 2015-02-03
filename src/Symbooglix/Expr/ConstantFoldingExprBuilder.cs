@@ -374,6 +374,58 @@ namespace Symbooglix
             // Can't constant fold
             return UB.Sub(lhs, rhs);
         }
+
+        public override Expr Mod(Expr lhs, Expr rhs)
+        {
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+            if (litLhs != null && litRhs != null)
+            {
+                if (!litLhs.isBigNum)
+                    throw new ExprTypeCheckException("lhs must be int");
+
+                if (!litRhs.isBigNum)
+                    throw new ExprTypeCheckException("rhs must be int");
+
+                var numerator = litLhs.asBigNum;
+                var denominator = litRhs.asBigNum;
+
+                // Can't do modulo by zero so check it's safe to compute first
+                if (!denominator.IsZero)
+                {
+                    return this.ConstantInt((numerator % denominator).ToBigInteger);
+                }
+            }
+
+            // can't constant fold
+            return UB.Mod(lhs, rhs);
+        }
+
+        public override Expr Div(Expr lhs, Expr rhs)
+        {
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+            if (litLhs != null && litRhs != null)
+            {
+                if (!litLhs.isBigNum)
+                    throw new ExprTypeCheckException("lhs must be int");
+
+                if (!litRhs.isBigNum)
+                    throw new ExprTypeCheckException("rhs must be int");
+
+                var numerator = litLhs.asBigNum;
+                var denominator = litRhs.asBigNum;
+
+                // Can't do modulo by zero so check it's safe to compute first
+                if (!denominator.IsZero)
+                {
+                    return this.ConstantInt((numerator / denominator).ToBigInteger);
+                }
+            }
+
+            // can't constant fold
+            return UB.Div(lhs, rhs);
+        }
     }
 }
 
