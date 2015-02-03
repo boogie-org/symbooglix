@@ -6,7 +6,8 @@ namespace Symbooglix
 {
     public class ExecutionStateConstraintLogger : ExecutionStateLogger
     {
-        public ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType eventToLog) : base(eventToLog) {}
+        public ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType eventToLog,
+                                              Predicate<ExecutionState> toIgnoreFilter=null) : base(eventToLog, toIgnoreFilter) {}
 
         protected override void DoTask(Executor e, ExecutionState State)
         {

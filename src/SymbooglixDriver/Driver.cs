@@ -94,6 +94,12 @@ namespace SymbooglixDriver
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
+            [Option("skip-log-success-states", HelpText="Don't log information about states that terminate with success")]
+            public bool SkipLogTerminatedWithSuccess { get; set; }
+
+            [Option("skip-log-unsat-assume-states", HelpText="Don't log information about states that terminate with unsatisfiable assume")]
+            public bool SkipLogTerminatedWithUnsatAssume { get; set; }
+
             [Option("timeout", DefaultValue=0, HelpText="Number of seconds to wait before killing executor for the current entry point")]
             public int timeout { get; set;}
 
@@ -582,22 +588,41 @@ namespace SymbooglixDriver
             //executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
             executorLogger.AddRootDirLogger(new ExecutorInfoLogger());
 
+            Predicate<ExecutionState> statesToIgnoreFilter = delegate(ExecutionState state)
+            {
+                if (options.SkipLogTerminatedWithSuccess)
+                {
+                    if (state.TerminationType is TerminatedWithoutError)
+                        return true; // Ignore
+                }
+
+                if (options.SkipLogTerminatedWithUnsatAssume)
+                {
+                    if (state.TerminationType is TerminatedAtUnsatisfiableAssume)
+                        return true; // Ignore
+                }
+
+                return false;
+            };
+
             if (options.WriteConstraints > 0)
             {
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE));
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE, statesToIgnoreFilter));
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE, statesToIgnoreFilter));
 
-                executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED));
+                executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED, statesToIgnoreFilter));
             }
 
             bool showConstraints = options.ExecutionStateInfoShowConstraints > 0;
             bool showVariables = options.ExecutionStateInfoShowVariables > 0;
             executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
                 showVariables,
-                showConstraints));
+                showConstraints,
+                statesToIgnoreFilter));
             executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
                 showVariables,
-                showConstraints));
+                showConstraints,
+                statesToIgnoreFilter));
 
             executorLogger.Connect();
 

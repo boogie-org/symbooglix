@@ -5,7 +5,8 @@ namespace Symbooglix
 {
     public class ExecutionStateUnSatCoreLogger : ExecutionStateLogger
     {
-        public ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType eventToLog) : base(eventToLog) { }
+        public ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType eventToLog,
+                                             Predicate<ExecutionState> toIgnoreFilter=null) : base(eventToLog, toIgnoreFilter) { }
 
         protected override void DoTask(Executor e, ExecutionState State)
         {

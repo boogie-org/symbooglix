@@ -7,7 +7,9 @@ namespace Symbooglix
     {
         bool ShowVariables;
         bool ShowConstraints;
-        public ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType eventToLog, bool showConstraints, bool showVariables) : base(eventToLog)
+        public ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType eventToLog,
+                                        bool showConstraints, bool showVariables,
+                                        Predicate<ExecutionState> filterMatching = null) : base(eventToLog, filterMatching)
         {
             this.ShowVariables = showVariables;
             this.ShowConstraints = showConstraints;
@@ -16,6 +18,7 @@ namespace Symbooglix
         protected override void DoTask(Executor e, ExecutionState State)
         {
             string terminatationTypeName = null;
+
 
             if (State.TerminationType == null)
                 terminatationTypeName = "NonTerminated";

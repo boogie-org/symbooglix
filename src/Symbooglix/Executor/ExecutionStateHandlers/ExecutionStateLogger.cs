@@ -14,10 +14,12 @@ namespace Symbooglix
             NON_TERMINATED_STATE_REMOVED,
         }
         ExecutorEventType EventToLog;
+        protected Predicate<ExecutionState> ToIgnoreFilter; // Returns true iff the execution state should be ignored, null if no filter
 
-        public ExecutionStateLogger(ExecutorEventType EventToLog)
+        public ExecutionStateLogger(ExecutorEventType EventToLog, Predicate<ExecutionState> toIgnoreFilter)
         {
             this.EventToLog = EventToLog;
+            this.ToIgnoreFilter = toIgnoreFilter;
         }
 
         private List<Task> ScheduledTasks = new List<Task>();
@@ -28,6 +30,10 @@ namespace Symbooglix
             {
                 var task = Task.Factory.StartNew(() =>
                 {
+                    if (ToIgnoreFilter != null && ToIgnoreFilter(args.State))
+                    {
+                        return; // Don't log
+                    }
                     DoTask(executor as Executor, args.State);
                 });
                 ScheduledTasks.Add(task);
