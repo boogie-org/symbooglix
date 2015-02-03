@@ -139,6 +139,10 @@ namespace Symbooglix
                         {
                             // The process has not been started
                         }
+                        catch (SystemException)
+                        {
+                            // No process to kill
+                        }
 
                         TheProcess.Close();
                     }
