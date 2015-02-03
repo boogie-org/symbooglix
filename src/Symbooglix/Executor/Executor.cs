@@ -422,7 +422,7 @@ namespace Symbooglix
                     ExecutorTimeoutReached(this, eventArg );
                 }
 
-                this.Terminate();
+                this.Terminate(/*block=*/ false, /*interruptSolver=*/ true);
             }, TaskCreationOptions.LongRunning);
         }
 
@@ -563,7 +563,7 @@ namespace Symbooglix
             RunTimer.Stop();
         }
 
-        public void Terminate(bool block=false)
+        public void Terminate(bool block=false, bool interruptSolver=true)
         {
             Console.WriteLine("Terminating early");
 
@@ -572,7 +572,8 @@ namespace Symbooglix
             // it to false here in another thread then execution can continue anyway.
             AllowExecutorToRun = false;
 
-            TheSolver.Interrupt();
+            if (interruptSolver)
+                TheSolver.Interrupt();
 
             if (block)
             {

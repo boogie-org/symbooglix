@@ -31,7 +31,8 @@ namespace Symbooglix
             {
                 var executor = sender as Executor;
                 Console.WriteLine("Failure limit of {0} reached. Terminating Executor", FailureLimit);
-                executor.Terminate();
+                // Don't interrupt the solver, this can lead to non-deterministic behaviour
+                executor.Terminate(/*block=*/ false, /*interruptSolver=*/ false);
             }
         }
 
