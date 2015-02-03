@@ -93,8 +93,9 @@ namespace SymbooglixLibTests
             int statesTerminated = 0;
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
             {
-                Assert.IsInstanceOf<TerminatedAtUnsatisfiableAxiom>(data.State.TerminationType);
+                Assert.IsInstanceOf<TerminatedWithDisallowedSpeculativePath>(data.State.TerminationType);
                 Assert.IsTrue(data.State.Speculative);
+                Assert.IsTrue(data.State.TerminationType.ExitLocation.IsAxiom);
                 ++statesTerminated;
             };
 
@@ -125,8 +126,11 @@ namespace SymbooglixLibTests
             {
                 Assert.IsTrue(data.State.Speculative);
 
-                if (data.State.TerminationType is TerminatedAtFailingAssert)
+                if (data.State.TerminationType is TerminatedWithDisallowedSpeculativePath)
+                {
+                    if (data.State.TerminationType.ExitLocation.IsCmd && data.State.TerminationType.ExitLocation.AsCmd is Microsoft.Boogie.AssertCmd)
                     hitFailingAssert = true;
+                }
 
                 ++statesTerminated;
             };

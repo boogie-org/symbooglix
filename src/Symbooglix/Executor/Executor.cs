@@ -587,6 +587,18 @@ namespace Symbooglix
 
         public void TerminateState(ExecutionState state, ITerminationType type, bool removeFromStateScheduler=true)
         {
+            if (state.Speculative)
+            {
+                // We currently disallow speculative states so change the termination type
+                // FIXME: This implicit setting of the State field of the ITerminationType is gross and is why
+                // this conditional is needed.
+
+                // FIXME: We are throwing away the passed in "type". It may be useful to keep this information
+                if (type is TerminatedWithDisallowedSpeculativePath)
+                    type = new TerminatedWithDisallowedSpeculativePath();
+                else
+                    type = new TerminatedWithDisallowedSpeculativePath(type.ExitLocation);
+            }
             state.Terminate(type);
             type.ExitLocation.InstrStatistics.IncrementTerminations(); // Increment the Termination account at the relevant instruction
 

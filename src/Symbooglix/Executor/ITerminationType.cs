@@ -231,6 +231,13 @@ namespace Symbooglix
             return "Disallowed speculative path. Starting at " + ExitLocation.ToString();
         }
 
+        private ProgramLocation _ExitLocation = null;
+        public TerminatedWithDisallowedSpeculativePath() {}
+        public TerminatedWithDisallowedSpeculativePath(ProgramLocation loc)
+        {
+            this._ExitLocation = loc;
+        }
+
         public ExecutionState State
         {
             get;
@@ -241,6 +248,12 @@ namespace Symbooglix
         {
             get
             {
+                // If we were provided with an ExitLocation use that
+                if (_ExitLocation != null)
+                    return _ExitLocation;
+
+
+                // Try to guess the ExitLocation
                 // FIXME: This might not be reliable. We should perhaps move this into
                 // "Find nearest instruction" helper class.
 
