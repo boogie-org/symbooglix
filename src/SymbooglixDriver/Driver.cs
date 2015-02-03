@@ -25,6 +25,9 @@ namespace SymbooglixDriver
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
+            [Option("concurrent-logging", DefaultValue = 1, HelpText = "Log files concurrently, otherwise do in serial")]
+            public int ConcurrentLogging { get ; set; }
+
             [Option("emit-before", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool emitProgramBefore { get; set; }
 
@@ -614,12 +617,17 @@ namespace SymbooglixDriver
                 return false;
             };
 
+            bool concurrentLogging = options.ConcurrentLogging > 0;
+
             if (options.WriteConstraints > 0)
             {
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE, statesToIgnoreFilter));
-                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE, statesToIgnoreFilter));
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
+                    statesToIgnoreFilter, concurrentLogging));
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateUnSatCoreLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
+                    statesToIgnoreFilter, concurrentLogging));
 
-                executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED, statesToIgnoreFilter));
+                executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateConstraintLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
+                    statesToIgnoreFilter, concurrentLogging));
             }
 
             bool showConstraints = options.ExecutionStateInfoShowConstraints > 0;
@@ -627,11 +635,13 @@ namespace SymbooglixDriver
             executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
                 showVariables,
                 showConstraints,
-                statesToIgnoreFilter));
+                statesToIgnoreFilter,
+                concurrentLogging));
             executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
                 showVariables,
                 showConstraints,
-                statesToIgnoreFilter));
+                statesToIgnoreFilter,
+                concurrentLogging));
 
             executorLogger.Connect();
 

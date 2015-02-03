@@ -14,29 +14,43 @@ namespace Symbooglix
             NON_TERMINATED_STATE_REMOVED,
         }
         ExecutorEventType EventToLog;
+        private readonly bool UseTasks;
         protected Predicate<ExecutionState> ToIgnoreFilter; // Returns true iff the execution state should be ignored, null if no filter
 
-        public ExecutionStateLogger(ExecutorEventType EventToLog, Predicate<ExecutionState> toIgnoreFilter)
+        public ExecutionStateLogger(ExecutorEventType EventToLog, Predicate<ExecutionState> toIgnoreFilter, bool logConcurrently)
         {
             this.EventToLog = EventToLog;
             this.ToIgnoreFilter = toIgnoreFilter;
+            this.UseTasks = logConcurrently;
         }
 
         private List<Task> ScheduledTasks = new List<Task>();
 
+        private void DoLogging(Executor executor, ExecutionState state)
+        {
+            if (ToIgnoreFilter != null && ToIgnoreFilter(state))
+            {
+                return; // Don't log
+            }
+            DoTask(executor, state);
+        }
+
         private void handle(Object executor, Executor.ExecutionStateEventArgs args)
         {
-            lock (ScheduledTasks)
+            if (UseTasks)
             {
-                var task = Task.Factory.StartNew(() =>
+                lock (ScheduledTasks)
                 {
-                    if (ToIgnoreFilter != null && ToIgnoreFilter(args.State))
+                    var task = Task.Factory.StartNew(() =>
                     {
-                        return; // Don't log
-                    }
-                    DoTask(executor as Executor, args.State);
-                });
-                ScheduledTasks.Add(task);
+                        DoLogging(executor as Executor, args.State);
+                    });
+                    ScheduledTasks.Add(task);
+                }
+            }
+            else
+            {
+                DoLogging(executor as Executor, args.State);
             }
         }
 
@@ -54,7 +68,8 @@ namespace Symbooglix
                     throw new ArgumentException("Unsupported CaptureType");
             }
 
-            e.ExecutorTerminated += Wait;
+            if (UseTasks)
+                e.ExecutorTerminated += Wait;
         }
 
         public override void Disconnect(Executor e)
@@ -71,7 +86,8 @@ namespace Symbooglix
                     throw new ArgumentException("Unsupported CaptureType");
             }
 
-            e.ExecutorTerminated -= Wait;
+            if (UseTasks)
+                e.ExecutorTerminated -= Wait;
         }
 
         protected abstract void DoTask(Executor e, ExecutionState State);

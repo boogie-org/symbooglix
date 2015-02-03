@@ -9,7 +9,7 @@ namespace Symbooglix
         bool ShowConstraints;
         public ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType eventToLog,
                                         bool showConstraints, bool showVariables,
-                                        Predicate<ExecutionState> filterMatching = null) : base(eventToLog, filterMatching)
+                                        Predicate<ExecutionState> filterMatching = null, bool logConcurrently=true) : base(eventToLog, filterMatching, logConcurrently)
         {
             this.ShowVariables = showVariables;
             this.ShowConstraints = showConstraints;
