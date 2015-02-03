@@ -67,6 +67,16 @@ namespace Symbooglix
 
         public static NAryExpr AsNot(Expr e)
         {
+            return GetUnaryOperator(e, UnaryOperator.Opcode.Not);
+        }
+
+        public static NAryExpr AsNeg(Expr e)
+        {
+            return GetUnaryOperator(e, UnaryOperator.Opcode.Neg);
+        }
+
+        private static NAryExpr GetUnaryOperator(Expr e, UnaryOperator.Opcode opcode)
+        {
             var nary = e as NAryExpr;
             if (nary == null)
                 return null;
@@ -75,7 +85,7 @@ namespace Symbooglix
             if (fun is UnaryOperator)
             {
                 var unary = fun as UnaryOperator;
-                if (unary.Op == UnaryOperator.Opcode.Not)
+                if (unary.Op == opcode)
                     return nary;
             }
             return null;

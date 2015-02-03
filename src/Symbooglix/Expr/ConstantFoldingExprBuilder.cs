@@ -534,6 +534,39 @@ namespace Symbooglix
             // can't constant fold
             return UB.Imp(lhs, rhs);
         }
+
+        public override Expr Neg(Expr e)
+        {
+            var litArg = ExprUtil.AsLiteral(e);
+            if (litArg != null)
+            {
+                if (litArg.isBigNum)
+                {
+                    // Int
+                    var newValue = BigNum.FromBigInt(litArg.asBigNum.ToBigInteger * -1);
+                    return this.ConstantInt(newValue.ToBigInteger);
+                }
+                else if (litArg.isBigDec)
+                {
+                    // Real
+                    return this.ConstantReal(litArg.asBigDec.Negate);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
+
+            // --<expr> ==> <expr>
+            var negChild = ExprUtil.AsNeg(e);
+            if (negChild != null)
+            {
+                return negChild.Args[0];
+            }
+
+            // Can't constant fold
+            return UB.Neg(e);
+        }
     }
 }
 
