@@ -1444,6 +1444,14 @@ namespace Symbooglix
                 }
                 else
                 {
+                    if (!AllowExecutorToRun)
+                    {
+                        // Prevent anymore calls to the solver if we were asked
+                        // to terminate. This can leave the current ExecutionState
+                        // in an undefined state.
+                        return;
+                    }
+
                     // Ask to solver if the assume is satisfiable
                     TheSolver.SetConstraints(CurrentState.Constraints);
                     Solver.Result result = TheSolver.IsQuerySat(dupAndRw);
