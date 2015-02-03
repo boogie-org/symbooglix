@@ -11,6 +11,11 @@ namespace Symbooglix
             return e as LiteralExpr;
         }
 
+        public static IdentifierExpr AsIdentifer(Expr e)
+        {
+            return e as IdentifierExpr;
+        }
+
         public static bool IsTrue(Expr e)
         {
             var lit = AsLiteral(e);

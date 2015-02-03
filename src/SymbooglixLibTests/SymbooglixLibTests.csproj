@@ -134,6 +134,7 @@
     <Compile Include="ConstantFolding\FoldBvsmod.cs" />
     <Compile Include="FailureLimit.cs" />
     <Compile Include="AddIdenticalConstraint.cs" />
+    <Compile Include="ForkAtPredicatedAssignment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

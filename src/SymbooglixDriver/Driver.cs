@@ -56,6 +56,9 @@ namespace SymbooglixDriver
             [Option("force-qfaufbv", DefaultValue= false, HelpText="HACK: Force solver to use qf_aufbv logic")]
             public bool ForceQFAUFBV { get; set; }
 
+            [Option("fork-at-predicated-assign", DefaultValue = false, HelpText="Fork at predicated assign commands (v := if x then <expr> else v)")]
+            public bool ForkAtPredicatedAssign { get; set; }
+
             [Option("goto-assume-look-ahead", DefaultValue= 1, HelpText="Prevent needless state creation and destruction by looking ahead at gotos")]
             public int gotoAssumeLookAhead { get; set; }
 
@@ -460,6 +463,9 @@ namespace SymbooglixDriver
                 {
                     executor.UseGotoLookAhead = false;
                 }
+
+                if (options.ForkAtPredicatedAssign)
+                    executor.UseForkAtPredicatedAssign = true;
 
                 if (options.GlobalDDE > 0)
                 {

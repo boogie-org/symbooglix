@@ -18,6 +18,7 @@ namespace Symbooglix
             SymbolicPool = new SymbolicPool();
             UseGotoLookAhead = true;
             UseGlobalDDE = true;
+            UseForkAtPredicatedAssign = false;
             this.TheSolver = solver;
             this.Duplicator = new BuilderDuplicator(builder);
             this.InternalRequestedEntryPoints = new List<Implementation>();
@@ -68,6 +69,12 @@ namespace Symbooglix
         }
 
         public bool UseGlobalDDE
+        {
+            get;
+            set;
+        }
+
+        public bool UseForkAtPredicatedAssign
         {
             get;
             set;
@@ -1048,13 +1055,189 @@ namespace Symbooglix
             }
         }
 
+        // FIXME: Add unit tests for this
+        protected void HandlePredicatedAssign(AssignCmd assignCmd, Variable v, NAryExpr ite)
+        {
+            Debug.Assert(ExprUtil.AsIfThenElse(ite) != null);
+            Expr condition = ite.Args[0];
+            Expr thenExpr = ite.Args[1];
+            Expr elseExpr = ite.Args[2];
+            Debug.Assert(condition.Immutable);
+            Debug.Assert(thenExpr.Immutable);
+            Debug.Assert(elseExpr.Immutable);
+
+            TheSolver.SetConstraints(CurrentState.Constraints);
+
+            // FIXME: code is from handleAssertLikeCommand, refactor
+            // First see if it's possible for the assertion/ensures to fail
+            // ∃ X constraints(X) ∧ ¬ condition(X)
+            Solver.Result result = TheSolver.IsNotQuerySat(condition);
+            bool canFollowElse = false;
+            bool canFollowThen = false;
+            bool canNeverFollowElse = false;
+            bool followingElseIsSpeculative = false;
+            bool followThenIsSpeculative = false;
+            switch (result)
+            {
+                case Solver.Result.SAT:
+                    canFollowElse = true;
+                    break;
+                case Solver.Result.UNKNOWN:
+                    Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                    followingElseIsSpeculative = true;
+                    canFollowElse = true;
+                    break;
+                case Symbooglix.Solver.Result.UNSAT:
+                    // This actually implies that
+                    //
+                    // ∀X : C(X) → Q(X)
+                    // That is if the constraints are satisfiable then
+                    // the query expr is always true. Because we've been
+                    // checking constraints as we go we already know C(X) is satisfiable
+                    canFollowElse = false;
+                    canNeverFollowElse = true;
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid solver return code");
+            }
+
+            if (!AllowExecutorToRun)
+            {
+                // HACK: If we are interrupted we shouldn't perform anymore
+                // anymore solver calls. This will leave the ExecutionState in an undefined
+                // state however
+                return;
+            }
+
+            // Only invoke solver again if necessary
+            if (canNeverFollowElse)
+            {
+                // In this case the, thenExpr will always be used
+                // so no need to call solver to ask if this is the case.
+                canFollowThen = true;
+            }
+            else
+            {
+                // Now see if it's possible for execution to continue past the assertion
+                // ∃ X constraints(X) ∧ condition(X)
+                result = TheSolver.IsQuerySat(condition);
+                switch (result)
+                {
+                    case Solver.Result.SAT:
+                        canFollowThen = true;
+                        break;
+                    case Solver.Result.UNKNOWN:
+                        Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
+                        followThenIsSpeculative = true;
+                        canFollowThen = true;
+                        break;
+                    case Symbooglix.Solver.Result.UNSAT:
+                        canFollowThen = false;
+                        break;
+                    default:
+                        throw new InvalidOperationException("Invalid solver return code");
+                }
+            }
+
+            if (canFollowElse && !canFollowThen)
+            {
+                if (followingElseIsSpeculative)
+                    CurrentState.MakeSpeculative();
+
+                // The elseExpr will be used, because this a predicated assignment
+                // and the value is the current state won't be changed
+                Debug.Assert(CurrentState.GetInScopeVariableExpr(v).Equals(elseExpr), "elseExpr should just be the variable being assigned to");
+                CurrentState.Constraints.AddConstraint(Builder.Not(condition), assignCmd.GetProgramLocation());
+
+            }
+            else if (!canFollowElse && canFollowThen)
+            {
+                if (followThenIsSpeculative)
+                    CurrentState.MakeSpeculative();
+
+                // Only the thenExpr will be used so perform assignment
+                CurrentState.AssignToVariableInScope(v, thenExpr);
+                CurrentState.Constraints.AddConstraint(condition, assignCmd.GetProgramLocation());
+            }
+            else if (canFollowElse && canFollowThen)
+            {
+                // This state can follow elseExpr and follow thenExpr at the assign
+                ExecutionState elseState = Fork(CurrentState, assignCmd.GetProgramLocation());
+
+                if (followingElseIsSpeculative)
+                    elseState.MakeSpeculative();
+
+                // The elseExpr will be used, because this a predicated assignment
+                // and the value is the current state won't be changed
+                Debug.Assert(elseState.GetInScopeVariableExpr(v).Equals(elseExpr), "elseExpr should just be the variable being assigned to");
+                elseState.Constraints.AddConstraint(Builder.Not(condition), assignCmd.GetProgramLocation());
+                StateScheduler.AddState(elseState);
+
+
+                if (followThenIsSpeculative)
+                    CurrentState.MakeSpeculative();
+
+                // thenExpr used
+                CurrentState.AssignToVariableInScope(v, thenExpr);
+
+                // successful state can now have assertion expr in constraints
+                CurrentState.Constraints.AddConstraint(condition, assignCmd.GetProgramLocation());
+            }
+        }
+
 
         protected void Handle(AssignCmd c)
         {
             c.GetInstructionStatistics().IncrementCovered();
+            var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
+
+            // Handle predicated assignment to prevent Expr blow-up
+            // in loops
+            if (UseForkAtPredicatedAssign && c.Lhss.Count == 1)
+            {
+                Variable lhs = c.Lhss[0].DeepAssignedVariable;
+                Expr rhs = c.Rhss[0];
+                var ite = ExprUtil.AsIfThenElse(rhs);
+                if (ite != null)
+                {
+                    var elseExpr = ite.Args[2];
+                    var id = ExprUtil.AsIdentifer(elseExpr);
+                    if (id != null)
+                    {
+                        if (id.Decl.Equals(lhs))
+                        {
+                            Expr expandedIte = null;
+                            if (c.Lhss[0] is SimpleAssignLhs)
+                            {
+                                // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                                expandedIte = (Expr) r.Visit(ite);
+                            }
+                            else if (c.Lhss[0] is MapAssignLhs)
+                            {
+                                // We need to use "AsSimleAssignCmd" so that we have a single Variable as lhs and MapStore expressions
+                                // on the right hand side
+                                var ac = c.AsSimpleAssignCmd;
+                                expandedIte = ac.Rhss[0];
+                                // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                                expandedIte = (Expr) r.Visit(expandedIte);
+                            }
+                            else
+                            {
+                                throw new NotSupportedException("AssignLHS not supported");
+                            }
+
+                            // After constant folding, we might not have an ITE anymore
+                            if (ExprUtil.AsIfThenElse(expandedIte) != null)
+                            {
+                                HandlePredicatedAssign(c, lhs, expandedIte as NAryExpr);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
 
             int index=0;
-            var r = new MapExecutionStateVariablesDuplicator(CurrentState, this.Builder);
             Dictionary<Variable, Expr> storedAssignments = new Dictionary<Variable, Expr>();
 
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
