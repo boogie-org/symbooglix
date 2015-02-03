@@ -104,6 +104,16 @@ namespace Symbooglix
                     Console.WriteLine("FIXME: Exception throw whilst trying to interrupt");
                     Console.WriteLine(e.ToString());
                 }
+
+                if (PersistentProcess && ReceivedResultEvent != null)
+                {
+                    // Try to wake up sleeping
+                    try
+                    {
+                        ReceivedResultEvent.Signal();
+                    }
+                    catch (Exception) { }
+                }
             }
 
 
