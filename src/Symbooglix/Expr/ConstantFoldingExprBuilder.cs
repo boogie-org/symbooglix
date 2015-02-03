@@ -426,6 +426,58 @@ namespace Symbooglix
             // can't constant fold
             return UB.Div(lhs, rhs);
         }
+
+        // Don't constant fold RealDiv, this will loose precision
+
+        public override Expr And(Expr lhs, Expr rhs)
+        {
+            // And is commutative so to simplify code if there is a constant ensure
+            // it is always on the left
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+
+            // false AND <expr> ==> false
+            if (litLhs != null && ExprUtil.IsFalse(litLhs))
+            {
+                return this.False;
+            }
+
+            // true and <expr> ==> <expr>
+            if (litLhs != null && ExprUtil.IsTrue(litLhs))
+            {
+                return rhs;
+            }
+                
+            // true and true ==> true
+            // <constant0> and <constant1> == > false (where <constant0> or <constant1> is false)
+            if (litLhs != null && litRhs != null)
+            {
+                if (ExprUtil.IsTrue(litLhs) && ExprUtil.IsTrue(litRhs))
+                {
+                    return this.True;
+                }
+            }
+
+            // <expr> and <expr> ==> <expr>
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                if (!lhs.Type.IsBool)
+                {
+                    throw new ExprTypeCheckException("arguments to And must be of bool type");
+                }
+                return lhs;
+            }
+
+            // Can't constant fold
+            return UB.And(lhs, rhs);
+        }
     }
 }
 
