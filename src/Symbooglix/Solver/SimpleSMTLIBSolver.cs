@@ -88,6 +88,17 @@ namespace Symbooglix
             {
                 // This is Gross
                 Interrupted = true;
+
+                if (PersistentProcess && ReceivedResultEvent != null)
+                {
+                    // Try to wake up sleeping
+                    try
+                    {
+                        ReceivedResultEvent.Signal();
+                    }
+                    catch (Exception) { }
+                }
+
                 if (TheProcess == null || TheProcess.HasExited)
                     return;
 
@@ -103,16 +114,6 @@ namespace Symbooglix
                 {
                     Console.WriteLine("FIXME: Exception throw whilst trying to interrupt");
                     Console.WriteLine(e.ToString());
-                }
-
-                if (PersistentProcess && ReceivedResultEvent != null)
-                {
-                    // Try to wake up sleeping
-                    try
-                    {
-                        ReceivedResultEvent.Signal();
-                    }
-                    catch (Exception) { }
                 }
             }
 
