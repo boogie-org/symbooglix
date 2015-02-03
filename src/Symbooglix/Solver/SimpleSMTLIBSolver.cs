@@ -323,7 +323,7 @@ namespace Symbooglix
                                 processExited = true;
                             }
 
-                            if (!ReceivedResult || ReceivedError || TheProcess.HasExited || ReceivedResultEvent.CurrentCount > 0)
+                            if (!ReceivedResult || ReceivedError || processExited || ReceivedResultEvent.CurrentCount > 0)
                             {
                                 // We don't know what state the process is in so we should kill it and make a fresh process
                                 SolverResult = Result.UNKNOWN;
