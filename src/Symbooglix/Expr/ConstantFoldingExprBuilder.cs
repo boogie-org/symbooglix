@@ -603,6 +603,42 @@ namespace Symbooglix
             // Can't constant fold
             return UB.Lt(lhs, rhs);
         }
+
+        public override Expr Le(Expr lhs, Expr rhs)
+        {
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+            if (litLhs != null && litRhs != null)
+            {
+                if (litLhs.isBigNum && litRhs.isBigNum)
+                {
+                    // Int
+                    if (litLhs.asBigNum <= litRhs.asBigNum)
+                        return this.True;
+                    else
+                        return this.False;
+                }
+                else if (litLhs.isBigDec && litRhs.isBigDec)
+                {
+                    // Real
+                    if (litLhs.asBigDec <= litRhs.asBigDec)
+                        return this.True;
+                    else
+                        return this.False;
+                }
+                else
+                    throw new ExprTypeCheckException("lhs and rhs must both");
+            }
+
+            // <expr> <= <expr> ==> true
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return this.True;
+            }
+
+            // Can't constant fold
+            return UB.Le(lhs, rhs);
+        }
     }
 }
 
