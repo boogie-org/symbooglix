@@ -88,7 +88,7 @@ namespace Symbooglix
 
         public SymbolicVariable(string Name, Variable variable) : base(Token.NoToken, CopyAndRename(variable.TypedIdent, Name))
         {
-            Expr = new IdentifierExpr(Token.NoToken, this);
+            Expr = new IdentifierExpr(Token.NoToken, this, /*immutable=*/ true);
             this.Origin = variable.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
             this.Name = Name;
             Debug.WriteLine("Creating Symbolic " + this);
@@ -96,7 +96,7 @@ namespace Symbooglix
 
         public SymbolicVariable(string Name, HavocCmd cmd, int VarsIndex) : base(Token.NoToken, CopyAndRename(cmd.Vars[VarsIndex].Decl.TypedIdent, Name))
         {
-            Expr = new IdentifierExpr(Token.NoToken, this);
+            Expr = new IdentifierExpr(Token.NoToken, this, /*immutable=*/ true);
             this.Origin = cmd.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
             this.Name = Name;
             Debug.WriteLine("Creating Symbolic " + this);
@@ -106,7 +106,7 @@ namespace Symbooglix
 
         public SymbolicVariable(string Name, Procedure Origin, int modsetIndex) : base(Token.NoToken, CopyAndRename(Origin.Modifies[modsetIndex].Decl.TypedIdent, Name))
         {
-            Expr = new IdentifierExpr(Token.NoToken, this);
+            Expr = new IdentifierExpr(Token.NoToken, this, /*immutable*/ true);
             // FIXME: Don't create a new ProgramLocation, instead have ProgramLocationAnnotation pass add it so we can retrieve it here
             this.Origin = new ProgramLocation(new ModifiesSet(Origin));
             this.Name = Name;
