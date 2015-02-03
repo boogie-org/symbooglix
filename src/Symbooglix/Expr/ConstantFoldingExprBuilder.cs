@@ -313,6 +313,31 @@ namespace Symbooglix
             // Can't fold
             return UB.NotEq(lhs, rhs);
         }
+
+        public override Expr Not(Expr e)
+        {
+            var literal = ExprUtil.AsLiteral(e);
+
+            if (literal != null)
+            {
+                if (literal.IsTrue)
+                    return this.False;
+                else if (literal.IsFalse)
+                    return this.True;
+                else
+                    throw new Exception("Invalid operand to Not");
+            }
+
+            // !!<expr> ==> <expr>
+            var asNot = ExprUtil.AsNot(e);
+            if (asNot != null)
+            {
+                return asNot.Args[0];
+            }
+
+            // Can't constant fold
+            return UB.Not(e);
+        }
     }
 }
 

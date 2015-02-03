@@ -50,6 +50,7 @@
     <Compile Include="ConstantFoldingBuilderTests\FoldIfThenElse.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldNotEq.cs" />
     <Compile Include="ExprUtilTests.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldNot.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

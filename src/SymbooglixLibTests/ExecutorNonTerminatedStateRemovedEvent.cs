@@ -11,7 +11,12 @@ namespace SymbooglixLibTests
         public void TestCase()
         {
             p = LoadProgramFrom("programs/InfiniteLoop.bpl");
-            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+            // We need to use constant folding otherwise this test can non deterministically fail
+            // because without constant folding the solver will be asked to evaluate the exit block
+            // "assume !true" which can non-deterministically return UNKNOWN because of the timeout.
+            // With constant folding the solver is never used and so we can never get a speculative
+            // execution state that leaves the loop
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver(), /*useConstantFolding=*/true);
 
             var tc = new TerminationCounter();
             int counter = 0;
@@ -20,6 +25,10 @@ namespace SymbooglixLibTests
                 Assert.IsFalse(eventArgs.State.Finished());
                 Assert.IsNull(eventArgs.State.TerminationType);
                 Console.WriteLine("state {0}", eventArgs.State.Id);
+                using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(Console.Out))
+                {
+                    eventArgs.State.WriteAsYAML(ITW);
+                }
 
                 // FIXME: Id should **NOT* be a static counter because it is shared across all Executors which is bad
                 //Assert.AreEqual(0, eventArgs.State.Id);
@@ -30,7 +39,7 @@ namespace SymbooglixLibTests
             tc.Connect(e);
 
             // Run with timeout
-            e.Run(GetMain(p),2);
+            e.Run(GetMain(p),1);
             Assert.AreEqual(1, counter);
             Assert.AreEqual(0, tc.NumberOfTerminatedStates);
         }
