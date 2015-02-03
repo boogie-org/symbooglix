@@ -808,9 +808,10 @@ namespace Symbooglix
 
                 ++InternalStatistics.InstructionsExecuted;
 
-                if (!stillInState)
+                if (!stillInState || !AllowExecutorToRun)
                 {
-                    // The current state was destroyed so we can't continue handling this command
+                    // The current state was destroyed or the executor has been asked to terminated
+                    // so we can't continue handling this command
                     return;
                 }
             }
@@ -892,8 +893,8 @@ namespace Symbooglix
 
                 stillInState = HandleAssertLikeCommand(condition, new TerminatedAtFailingRequires(requires), requires.GetProgramLocation());
 
-                // Check we're still in state
-                if (!stillInState)
+                // Check we're still in state and allowed to run
+                if (!stillInState || !AllowExecutorToRun)
                 {
                     // The CurrentState was terminated so we can't continue
                     return;
@@ -921,7 +922,7 @@ namespace Symbooglix
                 stillInState = HandleAssumeLikeCommand(condition, new TerminatedAtUnsatisfiableEnsures(ensures), ensures.GetProgramLocation());
 
                 // Check we're still in state
-                if (!stillInState)
+                if (!stillInState || !AllowExecutorToRun)
                 {
                     // The CurrentState was terminated so we can't continue
                     return;
@@ -990,9 +991,10 @@ namespace Symbooglix
                 // Treat an requires similarly to an assert
                 stillInCurrentState = HandleAssertLikeCommand(remapped, new TerminatedAtFailingEnsures(ensures), ensures.GetProgramLocation());
 
-                if (!stillInCurrentState)
+                if (!stillInCurrentState || !AllowExecutorToRun)
                 {
                     // The current state was destroyed because an ensures always failed
+                    // or the executor was asked to halt
                     // so we shouldn't try to continue execution of it.
                     return;
                 }
@@ -1179,6 +1181,14 @@ namespace Symbooglix
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");
+            }
+
+            if (!AllowExecutorToRun)
+            {
+                // HACK: If we are interrupted we shouldn't perform anymore
+                // anymore solver calls. This will leave the ExecutionState in an undefined
+                // state however
+                return false;
             }
 
             // Only invoke solver again if necessary
