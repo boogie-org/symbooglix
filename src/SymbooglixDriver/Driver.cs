@@ -94,6 +94,9 @@ namespace SymbooglixDriver
             [Option("print-call-seq", DefaultValue = false, HelpText = "Print call sequence during execution")]
             public bool useCallSequencePrinter { get; set; }
 
+            [Option("remove-trivial-assumes", DefaultValue= false, HelpText="Remove trivial assumes")]
+            public bool RemoveTrivialAssumes { get; set; }
+
             [Option("skip-log-success-states", HelpText="Don't log information about states that terminate with success")]
             public bool SkipLogTerminatedWithSuccess { get; set; }
 
@@ -633,6 +636,9 @@ namespace SymbooglixDriver
         {
             // Supply our own PassManager for preparation so we can hook into its events
             var PM = new Transform.PassManager();
+
+            if (options.RemoveTrivialAssumes)
+                PM.Add(new Transform.TrivialAssumeElimination());
 
             // Use anonymous methods so we can use closure to read command line options
             Transform.PassManager.PassRunEvent beforePassHandler = delegate(Object passManager, Transform.PassManager.PassManagerEventArgs eventArgs)
