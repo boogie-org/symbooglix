@@ -58,6 +58,7 @@
     <Compile Include="ConstantFoldingBuilderTests\FoldOr.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldImp.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldNeg.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldLt.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
