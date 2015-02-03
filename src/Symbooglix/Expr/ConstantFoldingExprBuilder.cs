@@ -510,6 +510,30 @@ namespace Symbooglix
             // Can't constant fold
             return UB.Or(lhs, rhs);
         }
+
+        public override Expr Imp(Expr lhs, Expr rhs)
+        {
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            if (litLhs != null)
+            {
+                if (!rhs.Type.IsBool)
+                    throw new ExprTypeCheckException("rhs of implication must of bool type");
+
+                if (litLhs.IsTrue)
+                {
+                    // true => <expr> ==> <expr>
+                    return rhs;
+                }
+                else if (litLhs.IsFalse)
+                {
+                    // false => <expr> ==> true
+                    return this.True;
+                }
+            }
+
+            // can't constant fold
+            return UB.Imp(lhs, rhs);
+        }
     }
 }
 
