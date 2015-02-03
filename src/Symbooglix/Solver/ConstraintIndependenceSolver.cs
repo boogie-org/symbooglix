@@ -30,6 +30,7 @@ namespace Symbooglix
             public void Interrupt()
             {
                 Interrupted = true;
+                UnderlyingSolver.Interrupt();
             }
 
             public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)

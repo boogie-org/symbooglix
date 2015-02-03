@@ -99,9 +99,10 @@ namespace Symbooglix
                     // Incase the solver is asked to continue to function after being interrupted.
                     CreateNewProcess();
                 }
-                catch (Exception)
+                catch(Exception e)
                 {
                     Console.WriteLine("FIXME: Exception throw whilst trying to interrupt");
+                    Console.WriteLine(e.ToString());
                 }
             }
 
