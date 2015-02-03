@@ -305,6 +305,12 @@ namespace Symbooglix
                             SolverResult = Result.UNKNOWN;
                             return Tuple.Create(SolverResult, null as IAssignment);
                         }
+                        catch (UnauthorizedAccessException)
+                        {
+                            Console.Error.WriteLine("Warning hit UnauthorizedAccessException. Just returning unknown");
+                            SolverResult = Result.UNKNOWN;
+                            return Tuple.Create(SolverResult, null as IAssignment);
+                        }
 
                         // Handle result
                         if (PersistentProcess)
