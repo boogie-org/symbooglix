@@ -119,8 +119,15 @@ namespace Symbooglix
                     {
                         // Process.Close() does not kill the process
                         // so we need to kill it first if necessary
-                        if (!TheProcess.HasExited)
-                            TheProcess.Kill();
+                        try
+                        {
+                            if (!TheProcess.HasExited)
+                                TheProcess.Kill();
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // The process has not been started
+                        }
 
                         TheProcess.Close();
                     }
@@ -295,6 +302,16 @@ namespace Symbooglix
                                 ReceivedResultEvent.Wait(Timeout * 1000);
                             else
                                 ReceivedResultEvent.Wait();
+
+                            bool processExited = false;
+                            try
+                            {
+                                processExited = TheProcess.HasExited;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                processExited = true;
+                            }
 
                             if (!ReceivedResult || ReceivedError || TheProcess.HasExited || ReceivedResultEvent.CurrentCount > 0)
                             {
