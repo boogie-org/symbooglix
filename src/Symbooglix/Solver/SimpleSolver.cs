@@ -96,6 +96,11 @@ namespace Symbooglix
                 return result.Item1;
             }
 
+            public void Interrupt()
+            {
+                SolverImpl.Interrupt();
+            }
+
             public void Dispose()
             {
                 SolverImpl.Dispose();

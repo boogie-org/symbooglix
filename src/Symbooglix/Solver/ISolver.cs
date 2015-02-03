@@ -46,6 +46,12 @@ namespace Symbooglix
             // returned is guaranteed not to change
             // when the solver is invoked again.
             SolverStats Statistics { get; }
+
+            // Interrupt the solver if it is running, forcing it to return an UNKNOWN result
+            // FIXME: This is gross and demonstrates that the current Solver design is bad.
+            // We need to rewrite the whole thing using a "Pipe and Filter" design pattern
+            // where we would instead tell the pipeline engine to interrupt whatever it happening
+            void Interrupt();
         }
 
         public interface IAssignment

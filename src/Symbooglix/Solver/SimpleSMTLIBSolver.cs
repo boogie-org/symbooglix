@@ -28,6 +28,7 @@ namespace Symbooglix
             private bool ReceivedError;
             public readonly bool PersistentProcess;
             private CountdownEvent ReceivedResultEvent;
+            private bool Interrupted = false;
 
             // FIXME: This API sucks sooo much
             // Only has meaning if PersistentProcess is True
@@ -81,6 +82,27 @@ namespace Symbooglix
                 InternalStatistics.PrintExprTime = PrintExprTimer.Elapsed;
                 InternalStatistics.ReadExprTime = ReadExprTimer.Elapsed;
                 InternalStatistics.SolverProcessTime = SolverProcessTimer.Elapsed;
+            }
+
+            public void Interrupt()
+            {
+                // This is Gross
+                Interrupted = true;
+                if (TheProcess == null || TheProcess.HasExited)
+                    return;
+
+                // If The process is running try to kill it
+                try
+                {
+                    TheProcess.Kill();
+                    TheProcess.Dispose();
+                    // Incase the solver is asked to continue to function after being interrupted.
+                    CreateNewProcess();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("FIXME: Exception throw whilst trying to interrupt");
+                }
             }
 
 
@@ -202,6 +224,7 @@ namespace Symbooglix
             {
                 lock (ComputeSatisfiabilityLock)
                 {
+                    Interrupted = false;
                     ReceivedResult = false;
                     ReceivedError = false;
                     SolverResult = Result.UNKNOWN;

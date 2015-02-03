@@ -13,6 +13,7 @@ namespace Symbooglix
             IConstraintManager OriginalConstraints;
             IConstraintManager ReducedConstraints;
             ConstraintIndepenceSolverStatistics InternalStatistics;
+            private bool Interrupted = false;
 
             public ConstraintIndependenceSolver(ISolverImpl underlyingSolver)
             {
@@ -26,8 +27,14 @@ namespace Symbooglix
                 OriginalConstraints = constraints;
             }
 
+            public void Interrupt()
+            {
+                Interrupted = true;
+            }
+
             public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
             {
+                Interrupted = false;
                 if (computeAssignment)
                 {
                     // We may prevent the underlying solver from seeing some variables
@@ -57,6 +64,12 @@ namespace Symbooglix
                     changed = false;
                     foreach (var constraint in OriginalConstraints.Constraints)
                     {
+                        if (Interrupted)
+                        {
+                            Console.WriteLine("WARNING: ConstraintIndependenceSolver interrupted!");
+                            return new Tuple<Result, IAssignment>(Result.UNKNOWN, null);
+                        }
+
                         if (relevantConstraints.Contains(constraint))
                         {
                             // We've already added this constraint

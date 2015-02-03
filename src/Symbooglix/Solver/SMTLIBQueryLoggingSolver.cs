@@ -87,6 +87,11 @@ namespace Symbooglix
                 UnderlyingImpl.Dispose();
             }
 
+            public void Interrupt()
+            {
+                UnderlyingImpl.Interrupt();
+            }
+
             public ISolverImplStatistics Statistics
             {
                 get

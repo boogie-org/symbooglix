@@ -14,6 +14,7 @@ namespace Symbooglix
             Tuple<Solver.Result, IAssignment> ComputeSatisfiability(Microsoft.Boogie.Expr queryExpr, bool computeAssignment);
             void SetTimeout(int seconds);
             ISolverImplStatistics Statistics { get;}
+            void Interrupt();
         }
 
         public interface ISolverImplStatistics : Util.IYAMLWriter

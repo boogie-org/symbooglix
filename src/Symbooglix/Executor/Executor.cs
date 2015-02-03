@@ -572,7 +572,7 @@ namespace Symbooglix
             // it to false here in another thread then execution can continue anyway.
             AllowExecutorToRun = false;
 
-            // Don't dispose of the solver here. It can lead to races
+            TheSolver.Interrupt();
 
             if (block)
             {

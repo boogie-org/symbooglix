@@ -33,6 +33,11 @@ namespace SolverTests
                 throw new NotImplementedException();
             }
 
+            public void Interrupt()
+            {
+                throw new NotImplementedException();
+            }
+
             public void Dispose()
             {
 

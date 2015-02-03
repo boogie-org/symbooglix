@@ -30,6 +30,10 @@ namespace Symbooglix
             {
                 // The dummy solver doesn't care about this
             }
+            public void Interrupt()
+            {
+                // Dummy solver doesn't need to do anything
+            }
 
             public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
             {
