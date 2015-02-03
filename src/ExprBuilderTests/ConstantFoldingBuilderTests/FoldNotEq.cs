@@ -97,6 +97,18 @@ namespace ExprBuilderTests.ConstantFoldingTests
         }
 
         [Test()]
+        public void foldSameExpr()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var cfb = builderPair.Item2;
+            var v0 = GetVarAndIdExpr("x", BasicType.Int);
+            var side = cfb.Add(v0.Item2, v0.Item2);
+            var foldedResult = cfb.NotEq(side, side);
+            CheckType(foldedResult, p => p.IsBool);
+            Assert.IsTrue(ExprUtil.IsFalse(foldedResult));
+        }
+
+        [Test()]
         public void NoFold()
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();

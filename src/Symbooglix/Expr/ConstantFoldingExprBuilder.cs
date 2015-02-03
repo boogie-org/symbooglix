@@ -283,7 +283,6 @@ namespace Symbooglix
                     throw new NotImplementedException(); // Unreachable?
             }
 
-
             // Inspired by the following GPUVerify specific example
             // e.g. (in axioms)
             // (if group_size_y == 1bv32 then 1bv1 else 0bv1) != 0bv1;
@@ -308,6 +307,12 @@ namespace Symbooglix
                     // Build a new if-then-else, which is simplified
                     return this.IfThenElse(ift.Args[0], thenExprEval, elseExprEval);
                 }
+            }
+
+            // <expr> != <expr> ==> false
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return this.False;
             }
 
             // Can't fold
