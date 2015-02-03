@@ -18,6 +18,7 @@ namespace SymbooglixLibTests
             Expr simpleMapStoreIntermediate = null;
             p = LoadProgramFrom("programs/SimpleMap.bpl");
             e = GetExecutor(p);
+            var builderDuplicator = new BuilderDuplicator( new SimpleExprBuilder(/*immutable=*/ true));
             e.BreakPointReached += delegate(object executor, Executor.BreakPointEventArgs data)
             {
                 if (data.Name == "check_read_map")
@@ -37,7 +38,7 @@ namespace SymbooglixLibTests
                 else if (data.Name == "check_write_literal")
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m"); // m := symbolic_0[3bv8 := 12bv32]
-                    simpleMapStoreIntermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
+                    simpleMapStoreIntermediate = (Expr) builderDuplicator.Visit(m.Value); // Save a copy of the expression for later.
                     Assert.IsInstanceOf<NAryExpr>(m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
                     Assert.IsInstanceOf<MapStore>(mapStore.Fun);
@@ -56,7 +57,7 @@ namespace SymbooglixLibTests
                 else if (data.Name == "check_write_from_map")
                 {
                     var m = e.CurrentState.GetInScopeVariableAndExprByName("m");
-                    nestedMapStoreintermediate = (Expr) new Duplicator().Visit(m.Value); // Save a copy of the expression for later.
+                    nestedMapStoreintermediate = (Expr) builderDuplicator.Visit(m.Value); // Save a copy of the expression for later.
                     Assert.IsInstanceOf<NAryExpr>(m.Value);
                     NAryExpr mapStore = m.Value as NAryExpr;
                     Assert.IsInstanceOf<MapStore>(mapStore.Fun); // symbolic_0[3bv8:= 12bv32][1bv8 := symbolic_0[0bv8]]
