@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using Symbooglix;
+using Microsoft.Boogie;
 
 namespace ExprBuilderTests.ConstantFoldingTests
 {
@@ -93,6 +94,20 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var result = cfb.NotEq(constant0, constant1);
             CheckIsBoolType(result);
             Assert.IsTrue(ExprUtil.IsTrue(result));
+        }
+
+        [Test()]
+        public void NoFold()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var sfb = builderPair.Item1;
+            var cfb = builderPair.Item2;
+            var v0 = GetVarAndIdExpr("x", BasicType.Int);
+            var v1 = GetVarAndIdExpr("y", BasicType.Int);
+            var foldedResult = cfb.NotEq(v0.Item2, v1.Item2);
+            var simpleResult = sfb.NotEq(v0.Item2, v1.Item2);
+            CheckType(foldedResult, p => p.IsBool);
+            Assert.AreEqual(simpleResult, foldedResult);
         }
     }
 }

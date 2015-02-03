@@ -141,6 +141,21 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.IsNotInstanceOf<LiteralExpr>(expected);
             Assert.IsTrue(expected.Equals(result));
         }
+
+        [Test()]
+        public void NoFold()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var sfb = builderPair.Item1;
+            var cfb = builderPair.Item2;
+            var v0 = GetVarAndIdExpr("x", BasicType.Int);
+            var v1 = GetVarAndIdExpr("y", BasicType.Int);
+            var v2 = GetVarAndIdExpr("cond", BasicType.Bool);
+            var foldedResult = cfb.IfThenElse(v2.Item2, v0.Item2, v1.Item2);
+            var simpleResult = sfb.IfThenElse(v2.Item2, v0.Item2, v1.Item2);
+            CheckType(foldedResult, p => p.IsInt);
+            Assert.AreEqual(simpleResult, foldedResult);
+        }
     }
 }
 

@@ -150,6 +150,20 @@ namespace ExprBuilderTests.ConstantFoldingTests
             // Check the constant is the top left argument
             Assert.IsInstanceOf<LiteralExpr>(foldedTopAsNAry.Args[0]);
         }
+
+        [Test()]
+        public void NoFold()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var sfb = builderPair.Item1;
+            var cfb = builderPair.Item2;
+            var v0 = GetVarAndIdExpr("x", BasicType.Int);
+            var v1 = GetVarAndIdExpr("y", BasicType.Int);
+            var foldedResult = cfb.Add(v0.Item2, v1.Item2);
+            var simpleResult = sfb.Add(v0.Item2, v1.Item2);
+            CheckType(foldedResult, p => p.IsInt);
+            Assert.AreEqual(simpleResult, foldedResult);
+        }
     }
 }
 

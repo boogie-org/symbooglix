@@ -338,6 +338,37 @@ namespace Symbooglix
             // Can't constant fold
             return UB.Not(e);
         }
+
+        public override Expr Sub(Expr lhs, Expr rhs)
+        {
+            var lhsLit = ExprUtil.AsLiteral(lhs);
+            var rhsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsLit != null && rhsLit != null)
+            {
+                Debug.Assert(lhs.Type.Equals(rhs.Type), "Mismatching types");
+                if (lhsLit.isBigNum && rhsLit.isBigNum)
+                {
+                    // Int
+                    return this.ConstantInt(( lhsLit.asBigNum - rhsLit.asBigNum ).ToBigInteger);
+                }
+                else if (lhsLit.isBigDec && rhsLit.isBigDec)
+                {
+                    // Real
+                    return this.ConstantReal(lhsLit.asBigDec - rhsLit.asBigDec);
+                }
+                else
+                    throw new NotSupportedException("Unsupported types in - constant fold");
+            }
+
+            // TODO: There are more cases we can handle here.
+            // TODO: 0 - <expr> ==> -<expr>
+            // TODO: <expr> - 0 ==> <expr>
+            // TODO: <expr> - <constant>  ==> (-<constant>) + <expr>
+            // TODO: <expr> - <expr> ==> 0
+
+            // Can't constant fold
+            return UB.Sub(lhs, rhs);
+        }
     }
 }
 
