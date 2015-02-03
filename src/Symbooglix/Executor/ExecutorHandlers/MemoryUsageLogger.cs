@@ -36,6 +36,7 @@ namespace Symbooglix
 
         protected void handleTerminate(Object executor, Executor.ExecutorTerminatedArgs args)
         {
+            // There is a bug here where the Thread.Sleep() doesn't wake whilst System.Environment.Exit() is being called
             Run = false;
             if (MemoryLoggingTask != null)
                 MemoryLoggingTask.Wait();

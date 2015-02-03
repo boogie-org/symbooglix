@@ -577,7 +577,7 @@ namespace SymbooglixDriver
 
             // Add our loggers
             executorLogger.AddRootDirLogger(new CallGrindFileLogger());
-            executorLogger.AddRootDirLogger(new MemoryUsageLogger());
+            //executorLogger.AddRootDirLogger(new MemoryUsageLogger()); // FIXME: Disable for experiments it is buggy
             executorLogger.AddRootDirLogger(new TerminationCounterLogger());
             //executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
             executorLogger.AddRootDirLogger(new ExecutorInfoLogger());
