@@ -719,6 +719,43 @@ namespace Symbooglix
             return UB.Imp(lhs, rhs);
         }
 
+        public override Expr Iff(Expr lhs, Expr rhs)
+        {
+            // use commutativity to ensure if a constant exists that it's on the left
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var litLhs = ExprUtil.AsLiteral(lhs);
+
+
+            if (litLhs != null)
+            {
+                if (litLhs.asBool)
+                {
+                    // (true <==> <expr>) ==> <expr>
+                    return rhs;
+                }
+                else
+                {
+                    // (false <==> <expr>) ==> !<expr>
+                    return this.Not(rhs);
+                }
+            }
+
+            // (<expr> <==> <expr>) ==> true
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return this.True;
+            }
+
+            // Can't constant fold
+            return UB.Iff(lhs, rhs);
+        }
+
         public override Expr Neg(Expr e)
         {
             var litArg = ExprUtil.AsLiteral(e);
