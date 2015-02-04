@@ -27,6 +27,17 @@ namespace ExprBuilderTests.ConstantFoldingTests
         }
 
         [Test()]
+        public void ExprImpliesExpr()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Bool).Item2;
+            var y = GetVarAndIdExpr("y", BasicType.Bool).Item2;
+            var side = cfb.And(x, y);
+            var result = cfb.Imp(side, side);
+            Assert.IsTrue(ExprUtil.IsTrue(result));
+        }
+
+        [Test()]
         public void NoFold()
         {
             var pair = GetSimpleAndConstantFoldingBuilder();

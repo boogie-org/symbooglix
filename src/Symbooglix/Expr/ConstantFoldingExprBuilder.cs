@@ -706,6 +706,15 @@ namespace Symbooglix
                 }
             }
 
+            // <expr> => <expr> ===> true
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                return this.True;
+            }
+
             // can't constant fold
             return UB.Imp(lhs, rhs);
         }
