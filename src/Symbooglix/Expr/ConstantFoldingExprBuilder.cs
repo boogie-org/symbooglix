@@ -236,7 +236,6 @@ namespace Symbooglix
 
         public override Expr NotEq(Expr lhs, Expr rhs)
         {
-            // TODO: Move constants to left hand side so we expect constants to always be on the left
             if (ExprUtil.AsLiteral(rhs) != null)
             {
                 // Swap so we always have a constant on the left if at least one operand is a constant
@@ -317,6 +316,90 @@ namespace Symbooglix
 
             // Can't fold
             return UB.NotEq(lhs, rhs);
+        }
+
+        public override Expr Eq(Expr lhs, Expr rhs)
+        {
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                // Swap so we always have a constant on the left if at least one operand is a constant
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+            if (litLhs != null && litRhs != null)
+            {
+                if (litLhs.isBvConst && litRhs.isBvConst)
+                {
+                    if (litLhs.asBvConst.Equals(litRhs.asBvConst)) // make sure we use Equals and not ``==`` which does reference equality
+                        return this.True;
+                    else
+                        return this.False;
+                }
+                else if (litLhs.isBool && litRhs.isBool)
+                {
+                    if (litLhs.asBool == litRhs.asBool)
+                        return this.True;
+                    else
+                        return this.False;
+
+                }
+                else if (litLhs.isBigNum && litRhs.isBigNum)
+                {
+                    if (litLhs.asBigNum.Equals(litRhs.asBigNum))
+                        return this.True;
+                    else
+                        return this.False;
+
+                }
+                else if (litLhs.isBigDec && litRhs.isBigDec)
+                {
+                    if (litLhs.asBigDec.Equals(litRhs.asBigDec))
+                        return this.True;
+                    else
+                        return this.False;
+                }
+                else
+                    throw new NotImplementedException(); // Unreachable?
+            }
+
+            // Inspired by the following GPUVerify specific example
+            // e.g. (in axioms)
+            // (if group_size_y == 1bv32 then 0bv1 else 1bv1) == 0bv1;
+            // fold to group_size_y == 1bv32
+            //
+            // Unlike most of the optimisations this is a top down optimsation
+            // rather than bottom up
+            if (litLhs != null && ExprUtil.AsIfThenElse(rhs) != null)
+            {
+                var ift = rhs as NAryExpr;
+
+                Debug.Assert(ift.Args.Count == 3);
+                var thenExpr = ift.Args[1];
+                var elseExpr = ift.Args[2];
+
+                // Try to partially evaluate
+                var thenExprEval = this.Eq(litLhs, thenExpr);
+                var elseExprEval = this.Eq(litLhs, elseExpr);
+
+                if (ExprUtil.AsLiteral(thenExprEval) != null || ExprUtil.AsLiteral(elseExprEval) != null)
+                {
+                    // Build a new if-then-else, which is simplified
+                    return this.IfThenElse(ift.Args[0], thenExprEval, elseExprEval);
+                }
+            }
+
+            // <expr> == <expr> ==> true
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return this.True;
+            }
+
+            // Can't fold
+            return UB.Eq(lhs, rhs);
         }
 
         public override Expr Not(Expr e)
