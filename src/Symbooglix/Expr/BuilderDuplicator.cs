@@ -356,8 +356,11 @@ namespace Symbooglix
             else if (node.Fun is TypeCoercion)
             {
                 // FIXME: Add support for this in the builder
-                Console.WriteLine("FIXME: typecoercion support in builder");
-                return base.VisitNAryExpr(node); // HACK just duplicate as normal
+                // I don't want to put this into the IExprBuilder until I know
+                // exactly how this operator works and how it should be type checked
+                var immutableTC = new NAryExpr(Token.NoToken, node.Fun, newArgs, /*immutable=*/true);
+                immutableTC.Type = node.Type;
+                return immutableTC;
             }
             else if (node.Fun is ArithmeticCoercion)
             {
