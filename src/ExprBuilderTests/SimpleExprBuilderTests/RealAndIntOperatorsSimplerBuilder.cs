@@ -276,6 +276,38 @@ namespace ExprBuilderTests
             builder.Mod(constant0, constant1);
         }
 
+        // Rem tests
+        [Test()]
+        public void RemInt()
+        {
+            var builder = GetSimpleBuilder();
+            var constant0 = builder.ConstantInt(1);
+            var constant1 = builder.ConstantInt(2);
+            var result = builder.Rem(constant0, constant1);
+            Assert.AreEqual("rem(1, 2)", result.ToString());
+            CheckBuiltIn(result, "rem");
+            CheckIsInt(result);
+        }
+
+        // Note mod can't take real operands
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void RemReal()
+        {
+            var builder = GetSimpleBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.ConstantReal("2.0");
+            builder.Rem(constant0, constant1);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void RemMismatchArgTypes()
+        {
+            var builder = GetSimpleBuilder();
+            var constant0 = builder.ConstantReal("1.0");
+            var constant1 = builder.False;
+            builder.Rem(constant0, constant1);
+        }
+
         // Pow tests
         [Test()]
         public void PowReal()

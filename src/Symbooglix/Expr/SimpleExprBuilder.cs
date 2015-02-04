@@ -31,6 +31,14 @@ namespace Symbooglix
             return funcCall;
         }
 
+        private FunctionCall CreateBuiltIn(string name, string builtin, Microsoft.Boogie.Type returnType, IList<Microsoft.Boogie.Type> argTypes)
+        {
+            // Skip the cache as we implement a cache elsewhere for bv operators
+            var funcCall = FCB.CreateUninterpretedFunctionCall(name, returnType, argTypes);
+            funcCall.Func.AddAttribute("builtin", new string[] { builtin });
+            return funcCall;
+        }
+
         private NAryExpr GetNAry(IAppliable fun, List<Expr> args)
         {
             return new NAryExpr(Token.NoToken, fun, args, Immutable);
@@ -726,6 +734,36 @@ namespace Symbooglix
                 throw new ExprTypeCheckException("lhs and rhs must both be of int type");
             }
             var result = GetNAry(GetBinaryFunction(BinaryOperator.Opcode.Mod), new List<Expr>() { lhs, rhs });
+            result.Type = BasicType.Int;
+            return result;
+        }
+
+        // This is a Z3 extension and isn't a core operator in Boogie's Expr language
+        public Expr Rem(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.Equals(rhs.Type))
+            {
+                throw new ExprTypeCheckException("lhs and rhs must be the same type");
+            }
+
+            if (!lhs.Type.IsInt)
+            {
+                throw new ExprTypeCheckException("lhs and rhs must both be of int type");
+            }
+
+            // Try to get from cache
+            FunctionCall function = null;
+            try
+            {
+                function = CachedFunctions["rem"];
+            }
+            catch (KeyNotFoundException)
+            {
+                function = CreateBuiltIn("rem", "rem", BasicType.Int, new List<Microsoft.Boogie.Type>() {BasicType.Int, BasicType.Int});
+                CachedFunctions["rem"] = function;
+            }
+
+            var result = GetNAry(function, new List<Expr>() { lhs, rhs });
             result.Type = BasicType.Int;
             return result;
         }

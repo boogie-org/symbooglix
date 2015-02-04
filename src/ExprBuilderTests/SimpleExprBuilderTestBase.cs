@@ -39,6 +39,17 @@ namespace ExprBuilderTests
             Assert.AreEqual(expected, actual);
         }
 
+        protected void CheckBuiltIn(Expr e, string expected)
+        {
+            Assert.IsInstanceOf<NAryExpr>(e);
+            var asNary = e as NAryExpr;
+            Assert.IsInstanceOf<FunctionCall>(asNary.Fun);
+            var fc = asNary.Fun as FunctionCall;
+            var actual = QKeyValue.FindStringAttribute(fc.Func.Attributes, "builtin");
+            Assert.IsNotNullOrEmpty(actual);
+            Assert.AreEqual(expected, actual);
+        }
+
         protected void CheckIsBoolType(Expr result)
         {
             var shallowType = result.ShallowType;

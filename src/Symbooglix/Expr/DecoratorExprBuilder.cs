@@ -238,6 +238,11 @@ namespace Symbooglix
             return UB.Mod(lhs, rhs);
         }
 
+        public virtual Expr Rem(Expr lhs, Expr rhs)
+        {
+            return UB.Rem(lhs, rhs);
+        }
+
         public virtual Expr Div(Expr lhs, Expr rhs)
         {
             return UB.Div(lhs, rhs);

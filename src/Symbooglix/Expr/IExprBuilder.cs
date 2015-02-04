@@ -66,6 +66,7 @@ namespace Symbooglix
         Expr Sub(Expr lhs, Expr rhs);
         Expr Mul(Expr lhs, Expr rhs);
         Expr Mod(Expr lhs, Expr rhs);
+        Expr Rem(Expr lhs, Expr rhs);
 
         // Flooring division (operands must be of type int). Returns an int
         Expr Div(Expr lhs, Expr rhs);

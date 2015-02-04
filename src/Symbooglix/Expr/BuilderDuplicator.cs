@@ -220,8 +220,7 @@ namespace Symbooglix
                     return Builder.Mod(newArgs[0], newArgs[1]);
                 case "rem":
                     Debug.Assert(newArgs.Count == 2);
-                    // TODO
-                    throw new NotImplementedException();
+                    return Builder.Rem(newArgs[0], newArgs[1]);
                 default:
                     throw new NotImplementedException("Builtin \"" + builtin + "\" not supported");
             }
