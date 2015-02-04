@@ -7,7 +7,6 @@ using Microsoft.Basetypes;
 
 namespace ExprBuilderTests
 {
-    [TestFixture()]
     public class ConstantFoldingExprBuilderTests : SimpleExprBuilderTestBase
     {
         protected Tuple<SimpleExprBuilder, ConstantFoldingExprBuilder> GetSimpleAndConstantFoldingBuilder()
