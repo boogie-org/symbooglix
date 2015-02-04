@@ -126,6 +126,11 @@ namespace Symbooglix
         {
             return GetBinaryOperator(e, BinaryOperator.Opcode.Add);
         }
+
+        public static NAryExpr AsMul(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Mul);
+        }
     }
 }
 

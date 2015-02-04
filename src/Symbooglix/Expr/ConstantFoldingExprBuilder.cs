@@ -128,6 +128,103 @@ namespace Symbooglix
             return UB.Add(lhs, rhs);
         }
 
+        public override Expr Mul(Expr lhs, Expr rhs)
+        {
+
+            // Ensure if we have at least one constant its always on the lhs
+            // we can do this because + is commutative
+            if (rhs is LiteralExpr)
+            {
+                // a + b ==> b + a
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var literalLhs = lhs as LiteralExpr;
+            var literalRhs = rhs as LiteralExpr;
+
+            if (literalLhs != null && literalRhs != null)
+            {
+                if (literalLhs.isBigNum && literalRhs.isBigNum)
+                {
+                    // Int
+                    var result = literalLhs.asBigNum * literalRhs.asBigNum;
+                    return UB.ConstantInt(result.ToBigInteger);
+                }
+                else if (literalLhs.isBigDec && literalRhs.isBigDec)
+                {
+                    // Real
+                    return UB.ConstantReal(literalLhs.asBigDec * literalRhs.asBigDec);
+                }
+            }
+
+            // 0 * x ==> 0
+            if (literalLhs != null)
+            {
+                if (literalLhs.isBigDec && literalLhs.asBigDec.IsZero)
+                {
+                    return this.ConstantReal("0.0");
+                }
+                else if (literalLhs.isBigNum && literalLhs.asBigNum.IsZero)
+                {
+                    return this.ConstantInt(BigNum.ZERO.ToBigInteger);
+                }
+            }
+
+            // 1 * <expr> ==> <expr>
+            if (literalLhs != null)
+            {
+                if (literalLhs.isBigDec && literalLhs.asBigDec.Mantissa.IsOne)
+                {
+                    return rhs;
+                }
+                else if (literalLhs.isBigNum && literalLhs.asBigNum.ToBigInteger.IsOne)
+                {
+                    return rhs;
+                }
+            }
+
+            // Associativy a * (b * c) ==> (a * b) * c
+            // if a and b are constants (that's why we enforce constants on left)
+            // then we can fold into a single "*" operation
+            var rhsAsMul = ExprUtil.AsMul(rhs);
+            if (rhsAsMul != null)
+            {
+                var rhsMulLeftLiteral = ExprUtil.AsLiteral(rhsAsMul.Args[0]);
+                if (rhsMulLeftLiteral != null)
+                {
+                    if (literalLhs != null)
+                    {
+                        //     *
+                        //    / \
+                        //   1   *
+                        //      / \
+                        //     2  x
+                        // fold to
+                        // 2 * x
+                        var result = this.Mul(literalLhs, rhsMulLeftLiteral);
+                        return this.Mul(result, rhsAsMul.Args[1]);
+                    }
+                    else
+                    {
+                        //     *
+                        //    / \
+                        //   x   *
+                        //      / \
+                        //     1  y
+                        // propagate constant up
+                        //  1 * (x * y)
+                        var newSubExprMul = this.Mul(lhs, rhsAsMul.Args[1]);
+                        return this.Mul(rhsMulLeftLiteral, newSubExprMul);
+                    }
+                }
+            }
+
+            // Can't constant fold
+            return UB.Mul(lhs, rhs);
+        }
+
         public override Expr IfThenElse(Expr condition, Expr thenExpr, Expr elseExpr)
         {
             var litCondition = condition as LiteralExpr;
@@ -505,6 +602,8 @@ namespace Symbooglix
 
         public override Expr And(Expr lhs, Expr rhs)
         {
+            // TODO: Implement associativity (like we've done for Add)
+
             // And is commutative so to simplify code if there is a constant ensure
             // it is always on the left
             if (ExprUtil.AsLiteral(rhs) != null)
@@ -546,6 +645,8 @@ namespace Symbooglix
 
         public override Expr Or(Expr lhs, Expr rhs)
         {
+            // TODO: Implement associativity (like we've done for Add)
+
             // Or is commutative so to simplify code if there is a constant ensure
             // it is always on the left
             if (ExprUtil.AsLiteral(rhs) != null)
