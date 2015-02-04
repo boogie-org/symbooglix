@@ -932,6 +932,34 @@ namespace Symbooglix
             // Can't constant fold
             return UB.Ge(lhs, rhs);
         }
+
+        public override Expr ForAll(IList<Variable> freeVars, Expr body)
+        {
+            var litBody = ExprUtil.AsLiteral(body);
+            // (∀ x :: true) ==> true
+            // (∀ x :: false) ==> false
+            if (litBody != null)
+            {
+                return body;
+            }
+
+            // Can't constant fold
+            return UB.ForAll(freeVars, body);
+        }
+
+        public override Expr Exists(IList<Variable> freeVars, Expr body)
+        {
+            var litBody = ExprUtil.AsLiteral(body);
+            // (∃ x :: true) ==> true
+            // (∃ x :: false) ==> false
+            if (litBody != null)
+            {
+                return body;
+            }
+
+            // Can't constant fold
+            return UB.Exists(freeVars, body);
+        }
     }
 }
 

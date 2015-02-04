@@ -115,6 +115,14 @@ namespace ExprBuilderTests
             return new Tuple<Variable, IdentifierExpr>(v, id);
         }
 
+        protected Tuple<Variable, IdentifierExpr> GetBoundVarAndIdExpr(string name, Microsoft.Boogie.Type type)
+        {
+            var typeIdent = new TypedIdent(Token.NoToken, name, type);
+            var v = new BoundVariable(Token.NoToken, typeIdent);
+            var id = new IdentifierExpr(Token.NoToken, v, /*immutable=*/ true);
+            return new Tuple<Variable, IdentifierExpr>(v, id);
+        }
+
 
     }
 }
