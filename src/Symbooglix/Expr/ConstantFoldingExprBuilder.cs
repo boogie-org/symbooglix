@@ -83,53 +83,45 @@ namespace Symbooglix
             // if a and b are constants (that's why we enforce constants on left)
             // then we can fold into a single "+" operation
             // FIXME: Need an easier way of checking operator type
-            if (rhs is NAryExpr)
+            var rhsAsAdd = ExprUtil.AsAdd(rhs);
+            if (rhsAsAdd != null)
             {
-                var rhsNAry = rhs as NAryExpr;
-                if (rhsNAry.Fun is BinaryOperator)
+                var rhsAddLeftLiteral = ExprUtil.AsLiteral(rhsAsAdd.Args[0]);
+                if (rhsAddLeftLiteral != null)
                 {
-                    var fun = rhsNAry.Fun as BinaryOperator;
-                    if (fun.Op == BinaryOperator.Opcode.Add)
+                    if (literalLhs != null)
                     {
-                        if (rhsNAry.Args[0] is LiteralExpr)
+                        //     +
+                        //    / \
+                        //   1   +
+                        //      / \
+                        //      2 x
+                        // fold to
+                        // 3 + x
+                        if (literalLhs.isBigNum && rhsAddLeftLiteral.isBigNum)
                         {
-                            var rhsAddLeft = rhsNAry.Args[0] as LiteralExpr;
-
-                            if (literalLhs != null)
-                            {
-                                //     +
-                                //    / \
-                                //   1   +
-                                //      / \
-                                //      2 x
-                                // fold to
-                                // 3 + x
-                                if (literalLhs.isBigNum && rhsAddLeft.isBigNum)
-                                {
-                                    // Int
-                                    var result = this.ConstantInt(( literalLhs.asBigNum + rhsAddLeft.asBigNum ).ToBigInteger);
-                                    return this.Add(result, rhsNAry.Args[1]);
-                                }
-                                else if (literalLhs.isBigDec && rhsAddLeft.isBigDec)
-                                {
-                                    //real
-                                    var result = this.ConstantReal(literalLhs.asBigDec + rhsAddLeft.asBigDec);
-                                    return this.Add(result, rhsNAry.Args[1]);
-                                }
-                            }
-                            else
-                            {
-                                //     +
-                                //    / \
-                                //   x   +
-                                //      / \
-                                //     1  y
-                                // propagate constant up
-                                //  1 + (x + y)
-                                var newSubExprAdd = this.Add(lhs, rhsNAry.Args[1]);
-                                return this.Add(rhsAddLeft, newSubExprAdd);
-                            }
+                            // Int
+                            var result = this.ConstantInt(( literalLhs.asBigNum + rhsAddLeftLiteral.asBigNum ).ToBigInteger);
+                            return this.Add(result, rhsAsAdd.Args[1]);
                         }
+                        else if (literalLhs.isBigDec && rhsAddLeftLiteral.isBigDec)
+                        {
+                            //real
+                            var result = this.ConstantReal(literalLhs.asBigDec + rhsAddLeftLiteral.asBigDec);
+                            return this.Add(result, rhsAsAdd.Args[1]);
+                        }
+                    }
+                    else
+                    {
+                        //     +
+                        //    / \
+                        //   x   +
+                        //      / \
+                        //     1  y
+                        // propagate constant up
+                        //  1 + (x + y)
+                        var newSubExprAdd = this.Add(lhs, rhsAsAdd.Args[1]);
+                        return this.Add(rhsAddLeftLiteral, newSubExprAdd);
                     }
                 }
             }
