@@ -62,23 +62,6 @@ namespace Symbooglix
                 }
             }
 
-            // x +x => 2*x where x is an identifier
-            // FIXME: We should do this for arbitrary Expr but Equality comparisions aren't cheap right now
-            if (lhs is IdentifierExpr && rhs is IdentifierExpr)
-            {
-                if (lhs.Equals(rhs))
-                {
-                    if (lhs.Type.IsInt)
-                    {
-                        return this.Mul(this.ConstantInt(2), lhs);
-                    }
-                    else if (rhs.Type.IsReal)
-                    {
-                        return this.Mul(this.ConstantReal("2.0"), lhs);
-                    }
-                }
-            }
-
             // Associativy a + (b + c) ==> (a + b) + c
             // if a and b are constants (that's why we enforce constants on left)
             // then we can fold into a single "+" operation
@@ -126,6 +109,22 @@ namespace Symbooglix
                 }
             }
 
+            // <expr> + <expr> => 2*<expr>
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                if (lhs.Type.IsInt)
+                {
+                    return this.Mul(this.ConstantInt(2), lhs);
+                }
+                else if (rhs.Type.IsReal)
+                {
+                    return this.Mul(this.ConstantReal("2.0"), lhs);
+                }
+                else
+                    throw new ExprTypeCheckException("operands to Add must be of int or real type");
+            }
+
+            // Can't constant fold
             return UB.Add(lhs, rhs);
         }
 
