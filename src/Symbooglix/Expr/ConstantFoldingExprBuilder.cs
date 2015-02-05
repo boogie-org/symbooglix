@@ -618,6 +618,47 @@ namespace Symbooglix
                 }
             }
 
+            // <expr> div 1 ==> <expr>
+            if (litRhs != null)
+            {
+                if (litRhs.isBigNum)
+                {
+                    if (litRhs.asBigNum == BigNum.FromInt(1))
+                    {
+                        return lhs;
+                    }
+                }
+            }
+
+            // 0 div <expr> ==> 0
+            if (litLhs != null)
+            {
+                if (litLhs.isBigNum)
+                {
+                    if (litLhs.asBigNum.IsZero)
+                        return lhs;
+                }
+            }
+
+            // ((a div b) div c) ==> (a div (b * c))
+            //
+            // Is this correct? Here's the SMTLIBv2 for it. Z3 doesn't return an answer though
+            // (set-logic QF_NIA)
+            // (declare-fun  a () Int)
+            // (declare-fun  b () Int)
+            // (declare-fun  c () Int)
+            // (assert (not (= (div (div a b) c) (div a (* b c) ) ) ) )
+            // (check-sat)
+            //
+            var lhsAsDiv = ExprUtil.AsDiv(lhs);
+            if (lhsAsDiv != null)
+            {
+                if (!lhs.Type.IsInt || !rhs.Type.IsInt)
+                    throw new ExprTypeCheckException("lhs and rhs must both be of type int");
+
+                return this.Div(lhsAsDiv.Args[0], this.Mul(lhsAsDiv.Args[1], rhs));
+            }
+
             // can't constant fold
             return UB.Div(lhs, rhs);
         }

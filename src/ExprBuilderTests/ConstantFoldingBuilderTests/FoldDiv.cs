@@ -33,6 +33,65 @@ namespace ExprBuilderTests.ConstantFoldingTests
         }
 
         [Test()]
+        public void DivideByOneInt()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var cfb = builderPair.Item2;
+            var result = cfb.Div(x, cfb.ConstantInt(1));
+            Assert.AreSame(x, result);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void DivideByOneReal()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
+            var cfb = builderPair.Item2;
+            cfb.Div(x, cfb.ConstantReal("1.0"));
+        }
+
+        [Test()]
+        public void ZeroDivideByIntExpr()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var cfb = builderPair.Item2;
+            var result = cfb.Div(cfb.ConstantInt(0), x);
+            Assert.IsTrue(ExprUtil.IsZero(result));
+            CheckIsInt(result);
+        }
+
+        [Test(), ExpectedException(typeof(ExprTypeCheckException))]
+        public void ZeroDivideByRealExpr()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
+            var cfb = builderPair.Item2;
+            cfb.Div(cfb.ConstantReal("0.0"), x);
+        }
+
+        [Test()]
+        public void NestedDivInt()
+        {
+            var builderPair = GetSimpleAndConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var y = GetVarAndIdExpr("y", BasicType.Int).Item2;
+            var z = GetVarAndIdExpr("z", BasicType.Int).Item2;
+            var cfb = builderPair.Item2;
+            var result = cfb.Div(cfb.Div(x, y), z);
+            var asDiv = ExprUtil.AsDiv(result);
+            Assert.IsNotNull(asDiv);
+            CheckIsInt(result);
+            Assert.AreSame(x, asDiv.Args[0]);
+            var rhsOfDiv = ExprUtil.AsMul(asDiv.Args[1]);
+            Assert.IsNotNull(rhsOfDiv);
+            Assert.AreSame(y, rhsOfDiv.Args[0]);
+            Assert.AreSame(z, rhsOfDiv.Args[1]);
+
+        }
+
+        [Test()]
         public void NoFold()
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
