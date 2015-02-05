@@ -3,6 +3,7 @@ using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Symbooglix
 {
@@ -959,6 +960,89 @@ namespace Symbooglix
 
             // Can't constant fold
             return UB.Exists(freeVars, body);
+        }
+
+        public override Expr BVADD(Expr lhs, Expr rhs)
+        {
+            // Ensure if there is a constant there will always be one of the left
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                // Swap
+                Expr temp = rhs;
+                rhs = lhs;
+                lhs = temp;
+            }
+
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+
+            if (litLhs != null && litRhs != null)
+            {
+                if (!litLhs.Type.Equals(litRhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
+
+                if (!litLhs.isBvConst)
+                    throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
+
+                // Compute bvand
+                var MaxValuePlusOne = BigInteger.One << litLhs.asBvConst.Bits; // 2^( number of bits)
+                var lhsBI = litLhs.asBvConst.Value.ToBigInteger;
+                var rhsBI = litRhs.asBvConst.Value.ToBigInteger;
+                var result = ( lhsBI + rhsBI ) % MaxValuePlusOne; // Wrapping overflow
+                return this.ConstantBV(result, litLhs.asBvConst.Bits);
+            }
+
+            // 0 + x ==> x
+            if (ExprUtil.IsZero(lhs))
+            {
+                return rhs;
+            }
+
+            var rhsAsBVADD = ExprUtil.AsBVADD(rhs);
+            if (rhsAsBVADD != null)
+            {
+                var rhsBVADDLeftLiteral = ExprUtil.AsLiteral(rhsAsBVADD.Args[0]);
+                if (rhsBVADDLeftLiteral != null)
+                {
+                    if (litLhs != null)
+                    {
+                        //     +
+                        //    / \
+                        //   1   +
+                        //      / \
+                        //     2  x
+                        // fold to
+                        // 2 + x
+                        var result = this.BVADD(litLhs, rhsBVADDLeftLiteral);
+                        return this.BVADD(result, rhsAsBVADD.Args[1]);
+                    }
+                    else
+                    {
+                        //     +
+                        //    / \
+                        //   x   +
+                        //      / \
+                        //     1  y
+                        // propagate constant up
+                        //     +
+                        //    / \
+                        //   1   +
+                        //      / \
+                        //     x  y
+                        var newSubExprBVADD = this.BVADD(lhs, rhsAsBVADD.Args[1]);
+                        return this.BVADD(rhsBVADDLeftLiteral, newSubExprBVADD);
+                    }
+                }
+            }
+
+            // x + x ==> 2* x
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return this.BVMUL(this.ConstantBV(2, lhs.Type.BvBits), lhs);
+            }
+
+            // Can't constant fold
+            return UB.BVADD(lhs, rhs);
         }
     }
 }

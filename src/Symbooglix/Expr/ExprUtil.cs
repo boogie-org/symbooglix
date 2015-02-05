@@ -131,6 +131,57 @@ namespace Symbooglix
         {
             return GetBinaryOperator(e, BinaryOperator.Opcode.Mul);
         }
+
+        private static NAryExpr GetBVOperator(Expr e, string builtin)
+        {
+            var nary = e as NAryExpr;
+            if (nary == null)
+                return null;
+            var fc = nary.Fun as FunctionCall;
+            if (fc == null)
+                return null;
+
+            var usedBuiltin = fc.Func.FindStringAttribute("bvbuiltin");
+            if (usedBuiltin == null)
+                return null;
+
+            if (usedBuiltin == builtin)
+                return nary;
+            else
+                return null;
+        }
+
+        public static NAryExpr AsBVADD(Expr e)
+        {
+            return GetBVOperator(e, "bvadd");
+        }
+
+        public static NAryExpr AsBVMUL(Expr e)
+        {
+            return GetBVOperator(e, "bvmul");
+        }
+
+        public static bool IsZero(Expr e)
+        {
+            var lit = AsLiteral(e);
+            if (lit == null)
+                return false;
+
+            if (lit.isBvConst)
+            {
+                return lit.asBvConst.Value.IsZero;
+            }
+            else if (lit.isBigNum)
+            {
+                return lit.asBigNum.IsZero;
+            }
+            else if (lit.isBigDec)
+            {
+                return lit.asBigDec.IsZero;
+            }
+
+            return false;
+        }
     }
 }
 
