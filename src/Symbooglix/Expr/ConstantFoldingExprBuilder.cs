@@ -537,11 +537,34 @@ namespace Symbooglix
                     throw new NotSupportedException("Unsupported types in - constant fold");
             }
 
-            // TODO: There are more cases we can handle here.
-            // TODO: 0 - <expr> ==> -<expr>
-            // TODO: <expr> - 0 ==> <expr>
-            // TODO: <expr> - <constant>  ==> (-<constant>) + <expr>
-            // TODO: <expr> - <expr> ==> 0
+            // 0 - <expr> ==> -<expr>
+            if (ExprUtil.IsZero(lhs))
+            {
+                return this.Neg(rhs);
+            }
+
+            // <expr> - 0 ==> <expr>
+            if (ExprUtil.IsZero(rhs))
+            {
+                return lhs;
+            }
+
+            // <expr> - <constant>  ==> (-<constant>) + <expr>
+            if (rhsLit != null)
+            {
+                return this.Add(this.Neg(rhsLit), lhs);
+            }
+
+            // <expr> - <expr> ==> 0
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                if (lhs.Type.IsInt)
+                    return this.ConstantInt(0);
+                else if (lhs.Type.IsReal)
+                    return this.ConstantReal("0.0");
+                else
+                    throw new ExprTypeCheckException("lhs and rhs must both be of type real or int");
+            }
 
             // Can't constant fold
             return UB.Sub(lhs, rhs);

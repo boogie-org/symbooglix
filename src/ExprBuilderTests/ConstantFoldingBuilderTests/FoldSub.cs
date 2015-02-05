@@ -45,6 +45,108 @@ namespace ExprBuilderTests.ConstantFoldingTests
             CheckType(foldedResult, p => p.IsInt);
             Assert.AreEqual(simpleResult, foldedResult);
         }
+
+        // TODO: 0 - <expr> ==> -<expr>
+        [Test()]
+        public void LhsIntZero()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var result = cfb.Sub(cfb.ConstantInt(0), x);
+            var asNeg = ExprUtil.AsNeg(result);
+            Assert.IsNotNull(asNeg);
+            Assert.AreSame(x, asNeg.Args[0]);
+        }
+
+        // TODO: 0 - <expr> ==> -<expr>
+        [Test()]
+        public void LhsRealZero()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
+            var result = cfb.Sub(cfb.ConstantReal("0.0"), x);
+            var asNeg = ExprUtil.AsNeg(result);
+            Assert.IsNotNull(asNeg);
+            Assert.AreSame(x, asNeg.Args[0]);
+        }
+
+        // TODO: <expr> - 0 ==> <expr>
+        [Test()]
+        public void RhsIntZero()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var result = cfb.Sub(x, cfb.ConstantInt(0));
+            Assert.AreSame(x, result);
+        }
+
+        [Test()]
+        public void RhsRealZero()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
+            var result = cfb.Sub(x, cfb.ConstantReal("0.0"));
+            Assert.AreSame(x, result);
+        }
+
+        // <expr> - <constant>  ==> (-<constant>) + <expr>
+        [Test()]
+        public void MinusConstantIntToAdd()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var constant = cfb.ConstantInt(2);
+            var result = cfb.Sub(x, constant);
+            var asAdd = ExprUtil.AsAdd(result);
+            Assert.IsNotNull(asAdd);
+            var lhs = ExprUtil.AsLiteral(asAdd.Args[0]);
+            Assert.IsNotNull(lhs);
+            Assert.AreEqual(-2, lhs.asBigNum.ToInt);
+        }
+
+        // <expr> - <constant>  ==> (-<constant>) + <expr>
+        [Test()]
+        public void MinusConstantRealToAdd()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
+            var constant = cfb.ConstantReal("2.0");
+            var result = cfb.Sub(x, constant);
+            var asAdd = ExprUtil.AsAdd(result);
+            Assert.IsNotNull(asAdd);
+            var lhs = ExprUtil.AsLiteral(asAdd.Args[0]);
+            Assert.IsNotNull(lhs);
+            Assert.AreEqual("-2e0", lhs.asBigDec.ToString());
+        }
+ 
+        // <expr> - <expr> ==> 0
+        [Test()]
+        public void SubtractIdenticalIntExpr()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
+            var y = GetVarAndIdExpr("y", BasicType.Int).Item2;
+            var side = cfb.Add(x, y);
+            var result = cfb.Sub(side, side);
+            var asLit = ExprUtil.AsLiteral(result);
+            CheckIsInt(result);
+            Assert.IsNotNull(asLit);
+            Assert.IsTrue(asLit.asBigNum.IsZero);
+        }
+
+        [Test()]
+        public void SubtractIdenticalRealExpr()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
+            var y = GetVarAndIdExpr("y", BasicType.Real).Item2;
+            var side = cfb.Add(x, y);
+            var result = cfb.Sub(side, side);
+            var asLit = ExprUtil.AsLiteral(result);
+            CheckIsReal(result);
+            Assert.IsNotNull(asLit);
+            Assert.IsTrue(asLit.asBigDec.IsZero);
+        }
     }
 }
 
