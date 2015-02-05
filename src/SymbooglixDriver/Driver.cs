@@ -641,16 +641,16 @@ namespace SymbooglixDriver
             if (options.LogTerminatedStateInfo > 0)
             {
                 executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
-                    showVariables,
                     showConstraints,
+                    showVariables,
                     statesToIgnoreFilter,
                     concurrentLogging));
             }
             if (options.LogNonTerminatedStateInfo > 0)
             {
                 executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
-                    showVariables,
                     showConstraints,
+                    showVariables,
                     statesToIgnoreFilter,
                     concurrentLogging));
             }
