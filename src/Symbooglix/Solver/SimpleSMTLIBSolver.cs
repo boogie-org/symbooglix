@@ -29,6 +29,7 @@ namespace Symbooglix
             public readonly bool PersistentProcess;
             private CountdownEvent ReceivedResultEvent;
             private bool Interrupted = false;
+            private string SolverErrorMsg = "";
 
             // FIXME: This API sucks sooo much
             // Only has meaning if PersistentProcess is True
@@ -163,6 +164,7 @@ namespace Symbooglix
                     TheProcess.BeginOutputReadLine();
                     TheProcess.BeginErrorReadLine();
                     SolverOptionsSet = false;
+                    ReceivedResult = false;
                     SolverProcessTimer.Stop();
                 }
             }
@@ -334,7 +336,10 @@ namespace Symbooglix
                                 processExited = true;
                             }
 
-                            if (!ReceivedResult || ReceivedError || processExited || ReceivedResultEvent.CurrentCount > 0)
+                            if (ReceivedError)
+                                throw new SolverErrorException(SolverErrorMsg);
+
+                            if (!ReceivedResult || processExited || ReceivedResultEvent.CurrentCount > 0)
                             {
                                 // We don't know what state the process is in so we should kill it and make a fresh process
                                 SolverResult = Result.UNKNOWN;
@@ -371,6 +376,9 @@ namespace Symbooglix
                                 SolverResult = Result.UNKNOWN;
                             }
 
+                            if (ReceivedError)
+                                throw new SolverErrorException(SolverErrorMsg);
+
                             if (SolverProcessTimer.IsRunning)
                                 SolverProcessTimer.Stop();
 
@@ -378,7 +386,6 @@ namespace Symbooglix
                         }
                     }
                     ReceivedResultEvent = null;
-
                     return Tuple.Create(SolverResult, null as IAssignment);
                 }
             }
@@ -391,21 +398,29 @@ namespace Symbooglix
                 if (String.IsNullOrEmpty(stdoutLine.Data) || ReceivedResult)
                     return;
 
-                ReceivedResult = true;
                 switch (stdoutLine.Data)
                 {
                     case "sat":
                         SolverResult = Result.SAT;
+                        ReceivedResult = true;
                         break;
                     case "unsat":
                         SolverResult = Result.UNSAT;
+                        ReceivedResult = true;
                         break;
                     case "unknown":
                         SolverResult = Result.UNKNOWN;
+                        ReceivedResult = true;
                         break;
                     default:
                         SolverResult = Result.UNKNOWN;
                         Console.Error.WriteLine("ERROR: Solver output \"" + stdoutLine.Data + "\" not parsed correctly");
+                        SolverErrorMsg = SolverErrorMsg + stdoutLine.Data;
+                        ReceivedError = true;
+                        if (!PersistentProcess)
+                            return;
+
+
                         break;
                 }
 
@@ -450,6 +465,14 @@ namespace Symbooglix
         public class NoSolverResultException : Exception
         {
             public NoSolverResultException(string msg) : base(msg)
+            {
+
+            }
+        }
+
+        public class SolverErrorException : Exception
+        {
+            public SolverErrorException(string msg) : base(msg)
             {
 
             }
