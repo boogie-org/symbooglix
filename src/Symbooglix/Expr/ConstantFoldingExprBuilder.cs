@@ -1044,6 +1044,84 @@ namespace Symbooglix
             // Can't constant fold
             return UB.BVADD(lhs, rhs);
         }
+
+        public override Expr BVMUL(Expr lhs, Expr rhs)
+        {
+            // Ensure if there is a constant there will always be one of the left
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                // Swap
+                Expr temp = rhs;
+                rhs = lhs;
+                lhs = temp;
+            }
+
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+
+            if (litLhs != null && litRhs != null)
+            {
+                if (!litLhs.Type.Equals(litRhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
+
+                if (!litLhs.isBvConst)
+                    throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
+
+                // Compute bvand
+                var MaxValuePlusOne = BigInteger.One << litLhs.asBvConst.Bits; // 2^( number of bits)
+                var lhsBI = litLhs.asBvConst.Value.ToBigInteger;
+                var rhsBI = litRhs.asBvConst.Value.ToBigInteger;
+                var result = ( lhsBI * rhsBI ) % MaxValuePlusOne; // Wrapping overflow
+                return this.ConstantBV(result, litLhs.asBvConst.Bits);
+            }
+
+            // 0 * x ==> 0
+            if (ExprUtil.IsZero(lhs))
+            {
+                return this.ConstantBV(0, lhs.Type.BvBits);
+            }
+
+            var rhsAsBVMUL = ExprUtil.AsBVMUL(rhs);
+            if (rhsAsBVMUL != null)
+            {
+                var rhsBVMULLeftLiteral = ExprUtil.AsLiteral(rhsAsBVMUL.Args[0]);
+                if (rhsBVMULLeftLiteral != null)
+                {
+                    if (litLhs != null)
+                    {
+                        //     *
+                        //    / \
+                        //   1   *
+                        //      / \
+                        //     2  x
+                        // fold to
+                        // 2 + x
+                        var result = this.BVMUL(litLhs, rhsBVMULLeftLiteral);
+                        return this.BVMUL(result, rhsAsBVMUL.Args[1]);
+                    }
+                    else
+                    {
+                        //     *
+                        //    / \
+                        //   x   *
+                        //      / \
+                        //     1  y
+                        // propagate constant up
+                        //     *
+                        //    / \
+                        //   1   *
+                        //      / \
+                        //     x  y
+                        var newSubExprBVADD = this.BVMUL(lhs, rhsAsBVMUL.Args[1]);
+                        return this.BVMUL(rhsBVMULLeftLiteral, newSubExprBVADD);
+                    }
+                }
+            }
+                
+
+            // Can't constant fold
+            return UB.BVMUL(lhs, rhs);
+        }
     }
 }
 
