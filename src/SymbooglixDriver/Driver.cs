@@ -85,6 +85,12 @@ namespace SymbooglixDriver
             [Option("log-queries", DefaultValue = "", HelpText= "Path to file to log queries to. Blank means logging is disabled.")]
             public string queryLogPath { get; set; }
 
+            [Option("log-terminated-state-info", DefaultValue=1, HelpText="Log information about a termination state to a YAML file (a value of 0 disables)")]
+            public int LogTerminatedStateInfo { get; set;}
+
+            [Option("log-non-terminated-state-info", DefaultValue=1, HelpText="Log information about a termination state to a YAML file (a value of 0 disables)")]
+            public int LogNonTerminatedStateInfo { get; set;}
+
             [Option("ci-solver", DefaultValue = 1, HelpText = "Use Constraint independence solver")]
             public int ConstraintIndepenceSolver { get; set; }
 
@@ -632,16 +638,22 @@ namespace SymbooglixDriver
 
             bool showConstraints = options.ExecutionStateInfoShowConstraints > 0;
             bool showVariables = options.ExecutionStateInfoShowVariables > 0;
-            executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
-                showVariables,
-                showConstraints,
-                statesToIgnoreFilter,
-                concurrentLogging));
-            executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
-                showVariables,
-                showConstraints,
-                statesToIgnoreFilter,
-                concurrentLogging));
+            if (options.LogTerminatedStateInfo > 0)
+            {
+                executorLogger.AddTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.TERMINATED_STATE,
+                    showVariables,
+                    showConstraints,
+                    statesToIgnoreFilter,
+                    concurrentLogging));
+            }
+            if (options.LogNonTerminatedStateInfo > 0)
+            {
+                executorLogger.AddNonTerminatedStateDirLogger(new ExecutionStateInfoLogger(ExecutionStateLogger.ExecutorEventType.NON_TERMINATED_STATE_REMOVED,
+                    showVariables,
+                    showConstraints,
+                    statesToIgnoreFilter,
+                    concurrentLogging));
+            }
 
             executorLogger.Connect();
 
