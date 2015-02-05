@@ -211,6 +211,7 @@ namespace SymbooglixDriver
             OUT_OF_MEMORY,
             NOT_IMPLEMENTED_EXCEPTION,
             NOT_SUPPORTED_EXCEPTION,
+            DISALLOWED_SPECULATIVE_PATH,
 
 
             // Other stuff
@@ -567,6 +568,12 @@ namespace SymbooglixDriver
 
                 Console.WriteLine("Finished executing");
                 DumpStats(executor, solver, terminationCounter);
+            }
+
+            if (terminationCounter.DisallowedSpeculativePaths > 0)
+            {
+                ExitWith(ExitCode.DISALLOWED_SPECULATIVE_PATH);
+                throw new InvalidOperationException("Unreachable");
             }
 
             if (TimeoutHit)
