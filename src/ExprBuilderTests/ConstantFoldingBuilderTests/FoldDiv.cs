@@ -58,7 +58,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var cfb = builderPair.Item2;
             var result = cfb.Div(cfb.ConstantInt(0), x);
-            Assert.IsTrue(ExprUtil.IsZero(result));
+            Assert.IsFalse(ExprUtil.IsZero(result));
+            Assert.IsNotNull(ExprUtil.AsDiv(result));
             CheckIsInt(result);
         }
 

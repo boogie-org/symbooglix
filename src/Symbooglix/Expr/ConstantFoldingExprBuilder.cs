@@ -630,15 +630,13 @@ namespace Symbooglix
                 }
             }
 
+            // Cannot do
             // 0 div <expr> ==> 0
-            if (litLhs != null)
-            {
-                if (litLhs.isBigNum)
-                {
-                    if (litLhs.asBigNum.IsZero)
-                        return lhs;
-                }
-            }
+            // because we cannot guarantee that <expr> never evaluates
+            // to zero value unless it's a constant (in which case
+            // it's already evaluated by the case that handles when lhs and rhs
+            // are constant
+
 
             // ((a div b) div c) ==> (a div (b * c))
             //
