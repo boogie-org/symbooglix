@@ -10,15 +10,21 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldDiv : ConstantFoldingExprBuilderTests
     {
-        [Test()]
-        public void DivideSimpleConstantsInt()
+        [TestCase(8, 2, 4)]
+        [TestCase(8, 3, 2)]
+        [TestCase(1, -4, 0)] // check round towards zero
+        [TestCase(-6, 2, -3)]
+        [TestCase(6, -2, -3)]
+        [TestCase(-6, -2, 3)]
+        public void DivideSimpleConstantsInt(int numerator, int denomiator, int expectedValue)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
-            var result = cfb.Div(cfb.ConstantInt(8), cfb.ConstantInt(3));
-            Assert.IsInstanceOf<LiteralExpr>(result);
-            CheckType(result, p => p.IsInt);
-            Assert.AreEqual("2", result.ToString());
+            var result = cfb.Div(cfb.ConstantInt(numerator), cfb.ConstantInt(denomiator));
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsNotNull(asLit);
+            CheckIsInt(result);
+            Assert.AreEqual(expectedValue, asLit.asBigNum.ToInt);
         }
 
         [Test()]
