@@ -50,6 +50,58 @@ namespace SymbooglixLibTests
         }
 
         [Test()]
+        public void SimpleConcreteAssignmentAndCheckCondition()
+        {
+            p = LoadProgramFrom(@"
+                // Bitvector functions
+                function {:bvbuiltin ""bvadd""} bv8add(bv8,bv8) returns(bv8);
+                function {:bvbuiltin ""bvugt""} bv8ugt(bv8,bv8) returns(bool);
+
+                procedure main(p1:int, p2:bv8) returns (r:bv8)
+                {
+                    var a:bv8;
+                    var b:bv8;
+                    a := 1bv8;
+                    b := 2bv8;
+                    assert {:symbooglix_bp ""before""} true;
+                    r := bv8add(a,b);
+                    assert {:symbooglix_bp ""after""} true;
+                    assert bv8ugt(r, 0bv8);
+                }
+            ", "file.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver(), /*useConstantFolding*/ false);
+
+            int count = 0;
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                switch (eventArgs.Name)
+                {
+                    case "before":
+                        var vAndExpr = e.CurrentState.GetInScopeVariableAndExprByName("r");
+                        Assert.IsInstanceOf<IdentifierExpr>(vAndExpr.Value);
+                        Assert.IsInstanceOf<SymbolicVariable>((vAndExpr.Value as IdentifierExpr).Decl);
+                        break;
+                    case "after":
+                        vAndExpr = e.CurrentState.GetInScopeVariableAndExprByName("r");
+                        var asBvugt = ExprUtil.AsBVADD(vAndExpr.Value);
+                        Assert.IsNotNull(asBvugt);
+                        Assert.AreEqual("BVADD8(1bv8, 2bv8)", asBvugt.ToString());
+                        break;
+                    default:
+                        Assert.Fail("unrecognised breakpoint");
+                        break;
+                }
+                ++count;
+            };
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+            e.Run(GetMain(p));
+            Assert.AreEqual(2, count);
+            Assert.AreEqual(1, tc.Sucesses);
+            Assert.AreEqual(0, tc.NumberOfFailures);
+        }
+
+        [Test()]
         public void SimpleSymbolicAssigment()
         {
             p = LoadProgramFrom(@"
