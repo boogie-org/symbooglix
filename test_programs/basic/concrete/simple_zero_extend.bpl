@@ -1,13 +1,12 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
+// RUN: %eec 0 %symbooglix --output-dir %t.symbooglix-out %s
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingAssert 0
 function {:bvbuiltin "zero_extend 4"} BV4_ZEXT8(bv4) : bv8;
 function {:bvbuiltin "bvugt"} BVUGT8(bv8, bv8) : bool;
 procedure main(a:bv4) returns (r:bv8)
-// CHECK-L: Concretising  a := 15bv4
 requires a == 15bv4;
 {
-    // CHECK-L: Mutating tree: 'BV4_ZEXT8(15bv4)' => '15bv8'
     r := BV4_ZEXT8(a);
-    // CHECK-L: Mutating tree: 'BVUGT8(15bv8, 14bv8)' => 'true'
-    assert BVUGT8(r, 14bv8);
+    assert r == 15bv8;
 }
