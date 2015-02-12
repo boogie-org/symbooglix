@@ -1,5 +1,7 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --fold-constants=1 %s 2>&1 | %OutputCheck %s
+// RUN: %eec 0 %symbooglix --output-dir %t.symbooglix-out --fold-constants=1 %s
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingAssert 0
 procedure main(x:int, y:int)
 {
     var a:int;
@@ -7,11 +9,6 @@ procedure main(x:int, y:int)
 
     a := x + y;
     b := x + y;
-
-    // CHECK-L: Mutating tree: '~sb_x_0 + ~sb_y_0 == ~sb_x_0 + ~sb_y_0' => 'true'
-    // CHECK-L: Assert : true
-
     assert a == b;
-
 }
 
