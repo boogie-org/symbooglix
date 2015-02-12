@@ -13,7 +13,6 @@ procedure main() returns (r:bv16)
     // CHECK-L: Entering: h(1bv8, 2bv16)
     call result := h(a,b);
     // CHECK-L: Leaving: h(...)
-    // CHECK-NEXT-L: Assert : BVADD16(1bv8 ++ 1bv8, 2bv16) == BVADD16(1bv8 ++ 1bv8, 2bv16)
     assert result == bv16add(a++a, b);
     // CHECK-L: Leaving: main(...)
 }
