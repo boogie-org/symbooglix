@@ -24,4 +24,5 @@ if __name__ == '__main__':
     if result == expectedExitCode:
         sys.exit(0)
     else:
+        print("ERROR: Expected exit code {} but was {}".format(expectedExitCode, result))
         sys.exit(255)

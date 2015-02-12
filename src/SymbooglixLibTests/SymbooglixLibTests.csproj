@@ -137,6 +137,7 @@
     <Compile Include="ForkAtPredicatedAssignment.cs" />
     <Compile Include="Ensures.cs" />
     <Compile Include="EnterAndLeaveProcedureImplementationEvents.cs" />
+    <Compile Include="Havoc.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
