@@ -104,6 +104,50 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, tc.NumberOfFailures);
         }
 
+        [Test()]
+        public void RequiresEqualityConstraintBV()
+        {
+            p = LoadProgramFrom(@"
+                var g:bv32;
+                procedure main()
+                modifies g;
+                requires (g == 0bv32);
+                {
+                    assert {:symbooglix_bp ""entry""} true;
+                    assert g == 0bv32;
+                }
+                ", "test.bpl");
+
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+            int bpCounter = 0;
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                ++bpCounter;
+                switch (eventArgs.Name)
+                {
+                    case "entry":
+                        // Check that the global "g" is concrete
+                        var p1 = e.CurrentState.GetInScopeVariableAndExprByName("g");
+                        var asLit = ExprUtil.AsLiteral(p1.Value);
+                        Assert.IsNotNull(asLit);
+                        Assert.IsTrue(asLit.isBvConst);
+                        Assert.AreEqual(Microsoft.Basetypes.BigNum.FromInt(0), asLit.asBvConst.Value);
+                        Assert.AreEqual(32, asLit.asBvConst.Bits);
+                        break;
+                    default:
+                        Assert.Fail("Unexpected break point");
+                        break;
+                }
+            };
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+            e.Run(GetMain(p));
+            Assert.AreEqual(1, bpCounter);
+            Assert.AreEqual(1, tc.Sucesses);
+            Assert.AreEqual(0, tc.NumberOfFailures);
+        }
+
 
     }
 }

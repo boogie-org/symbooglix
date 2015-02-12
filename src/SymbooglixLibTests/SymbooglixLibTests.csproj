@@ -135,6 +135,7 @@
     <Compile Include="FailureLimit.cs" />
     <Compile Include="AddIdenticalConstraint.cs" />
     <Compile Include="ForkAtPredicatedAssignment.cs" />
+    <Compile Include="Ensures.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

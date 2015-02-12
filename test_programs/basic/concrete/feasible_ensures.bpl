@@ -1,13 +1,10 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck %s
+// RUN: %eec 0 %symbooglix --output-dir %t.symbooglix-out %s
 var g:bv8;
 
 procedure main()
-// CHECK-L: Concretising  g := 0bv8
 requires g == 0bv8;
 modifies g;
-// CHECK-L: Mutating tree: '2bv8 == 2bv8' => 'true'
-// CHECK-L: State 0: Terminated without error
 ensures g == 2bv8;
 {
     g := 2bv8;
