@@ -205,7 +205,13 @@ namespace SymbooglixDriver
         {
             // For Executor
             NO_ERRORS_NO_TIMEOUT = 0,
-            ERRORS_NO_TIMEOUT,
+
+            // Mono exits with exitcode 1 if there are uncaught exceptions so
+            // we should use the same exit code when we catch them
+            EXCEPTION_RAISED = 1,
+
+            // For Executor
+            ERRORS_NO_TIMEOUT = 2,
             NO_ERRORS_TIMEOUT,
             ERRORS_TIMEOUT,
             OUT_OF_MEMORY,
@@ -222,7 +228,6 @@ namespace SymbooglixDriver
             SOLVER_NOT_FOUND,
             ENTRY_POINT_NOT_FOUND_ERROR,
             CTRL_C_FORCED_EXIT,
-            EXCEPTION_RAISED,
         }
 
         private static bool TimeoutHit = false;
