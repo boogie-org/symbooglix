@@ -1,11 +1,11 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %eec 1 %symbooglix --output-dir %t.symbooglix-out %s 2>&1 | %OutputCheck -d %s
+// RUN: %eec 2 %symbooglix --output-dir %t.symbooglix-out %s
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtFailingAssert 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithDisallowedSpeculativePath 0
 procedure main()
 {
-    // CHECK-L: Creating Symbolic ~sb_a_0:int
-    // CHECK-L: Creating Symbolic ~sb_b_0:int
     var a:int;
     var b:int;
-    // CHECK-L: Assert : (exists c: int :: ~sb_a_0 + c == ~sb_b_0)
     assert (exists c:int :: a + c == b);
 }
