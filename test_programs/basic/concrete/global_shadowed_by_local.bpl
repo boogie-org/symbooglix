@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out %s --print-call-seq 2>&1 | %OutputCheck %s
+// RUN: %eec 0 %symbooglix --output-dir %t.symbooglix-out %s
 var g:bv8;
 
 procedure main()
@@ -7,13 +7,9 @@ modifies g;
 {
     var x:bv8;
     g := 12bv8;
-    // CHECK-L: Entering: ov()
     call x := ov();
-    // CHECK-L: Leaving: ov(...)
 
     // FIXME: Boogie cannot verify this assertion
-    // CHECK-NEXT-L: Mutating tree: '12bv8 != 99bv8' => 'true'
-    // CHECK-NEXT-L: Assert : true
     assert g != x; // Should be 12bv8 != 99bv8 which is trivially true
 }
 
