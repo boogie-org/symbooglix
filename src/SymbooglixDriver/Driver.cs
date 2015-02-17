@@ -204,7 +204,7 @@ namespace SymbooglixDriver
         public enum ExitCode : int
         {
             // For Executor
-            NO_ERRORS_NO_TIMEOUT = 0,
+            NO_ERRORS_NO_TIMEOUT = 0, // Essentially means path exploration was exhaustive
 
             // Mono exits with exitcode 1 if there are uncaught exceptions so
             // we should use the same exit code when we catch them
@@ -218,6 +218,8 @@ namespace SymbooglixDriver
             NOT_IMPLEMENTED_EXCEPTION,
             NOT_SUPPORTED_EXCEPTION,
             INITIAL_STATE_TERMINATED,
+            NO_ERRORS_NO_TIMEOUT_BUT_FOUND_SPECULATIVE_PATHS,
+            NO_ERRORS_NO_TIMEOUT_BUT_HIT_BOUND,
 
 
             // Other stuff
@@ -582,6 +584,17 @@ namespace SymbooglixDriver
             }
 
             var exitCode = terminationCounter.NumberOfFailures > 0 ? ExitCode.ERRORS_NO_TIMEOUT : ExitCode.NO_ERRORS_NO_TIMEOUT;
+            if (exitCode == ExitCode.NO_ERRORS_NO_TIMEOUT)
+            {
+                // If no errors were found we may need to pick a different exit code
+                // because path exploration may not have been exhaustive due to speculative paths
+                // or hitting a bound. This isn't perfect because we may hit a bound and have speculative
+                // paths so we could use either exit code in this case.
+                if (terminationCounter.DisallowedSpeculativePaths > 0)
+                    exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_FOUND_SPECULATIVE_PATHS;
+                else if (terminationCounter.DisallowedPathDepths > 0)
+                    exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_HIT_BOUND;
+            }
             ExitWith(exitCode);
             return (int) exitCode; // This is required to keep the compiler happy.
         }

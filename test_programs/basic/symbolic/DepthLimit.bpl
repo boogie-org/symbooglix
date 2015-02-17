@@ -1,5 +1,5 @@
 // RUN: %rmdir %t.symbooglix-out
-// RUN: %symbooglix --output-dir %t.symbooglix-out --max-depth=1 %s
+// RUN: %eec 10 %symbooglix --output-dir %t.symbooglix-out --max-depth=1 %s
 // RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 1
 // RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithDisallowedExplicitBranchDepth 2
 procedure main(bound: int);
