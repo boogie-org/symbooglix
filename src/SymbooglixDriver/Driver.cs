@@ -528,7 +528,7 @@ namespace SymbooglixDriver
                         executor.Run(entryPoint, options.timeout);
                     }
                 }
-                catch (ExecuteTerminatedStateException)
+                catch (InitialStateTerminated)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("The initial state terminated. Execution cannot continue");

@@ -13,7 +13,7 @@ namespace SymbooglixLibTests
             this.e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
         }
 
-        [Test(),ExpectedException(typeof(Symbooglix.ExecuteTerminatedStateException))]
+        [Test(),ExpectedException(typeof(Symbooglix.InitialStateTerminated))]
         public void ExceptionThrown()
         {
             Init();

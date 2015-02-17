@@ -505,7 +505,7 @@ namespace Symbooglix
                 if (ExecutorTerminated != null)
                     ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
 
-                throw new ExecuteTerminatedStateException(this, InitialState);
+                throw new InitialStateTerminated(this, InitialState);
             }
 
             // Clone the state so we can keep the special initial state around

@@ -21,7 +21,7 @@ namespace SymbooglixLibTests
             {
                 e.Run(GetMain(p));
             }
-            catch (ExecuteTerminatedStateException)
+            catch (InitialStateTerminated)
             {
                 // Ignore this
             }

@@ -12,11 +12,11 @@ namespace Symbooglix
         }
     }
 
-    public class ExecuteTerminatedStateException : ExecutorException
+    public class InitialStateTerminated : ExecutorException
     {
         public ExecutionState State { get; private set; }
 
-        public ExecuteTerminatedStateException(Executor executor, ExecutionState state) : base(executor, "Cannot execute terminated state")
+        public InitialStateTerminated(Executor executor, ExecutionState state) : base(executor, "Cannot execute terminated state")
         {
             this.State = state;
         }

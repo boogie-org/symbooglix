@@ -44,7 +44,7 @@ namespace SymbooglixLibTests
             {
                 e.Run(GetMain(p));
             }
-            catch (ExecuteTerminatedStateException)
+            catch (InitialStateTerminated)
             {
                 hitException = true;
                 Assert.AreEqual(Executor.ExecutorTerminationType.INITIAL_STATE_TERMINATED, e.TerminationType);
