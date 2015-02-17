@@ -217,6 +217,7 @@ namespace SymbooglixDriver
             OUT_OF_MEMORY,
             NOT_IMPLEMENTED_EXCEPTION,
             NOT_SUPPORTED_EXCEPTION,
+            INITIAL_STATE_TERMINATED,
 
 
             // Other stuff
@@ -532,7 +533,7 @@ namespace SymbooglixDriver
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
                     Console.ResetColor();
-                    ExitWith(ExitCode.ERRORS_NO_TIMEOUT);
+                    ExitWith(ExitCode.INITIAL_STATE_TERMINATED);
                 }
                 catch (RecursiveFunctionDetectedException rfdException)
                 {

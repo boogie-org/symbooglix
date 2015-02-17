@@ -54,7 +54,7 @@ namespace Symbooglix
             {
                 get
                 {
-                    throw new NotImplementedException();
+                    return new DummyStatistics();
                 }
             }
                 
@@ -93,8 +93,18 @@ namespace Symbooglix
             }
         }
 
+        public class DummyStatistics : ISolverImplStatistics
+        {
+            public void Reset()
+            {
+                return;
+            }
 
-
+            public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
+            {
+                TW.WriteLine("null");
+            }
+        }
     }
 }
 

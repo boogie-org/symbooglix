@@ -125,6 +125,7 @@ namespace Symbooglix
         public enum ExecutorTerminationType
         {
             UNKNOWN,
+            INITIAL_STATE_TERMINATED,
             FINISHED,
             TIMEOUT,
             OUT_OF_MEMORY
@@ -499,6 +500,8 @@ namespace Symbooglix
 
             if (InitialState.Finished())
             {
+                this.TerminationType = ExecutorTerminationType.INITIAL_STATE_TERMINATED;
+
                 if (ExecutorTerminated != null)
                     ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
 
