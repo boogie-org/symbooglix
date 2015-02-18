@@ -21,7 +21,7 @@ namespace ExprSMTLIBTest
             {
                 var printer = new SMTLIBQueryPrinter(writer, false, false);
                 printer.PrintExpr(neq);
-                Assert.AreEqual("(not (= (_ bv0 32) (_ bv1 32) ) )", writer.ToString());
+                Assert.AreEqual("(distinct (_ bv0 32) (_ bv1 32) )", writer.ToString());
             }
 
         }

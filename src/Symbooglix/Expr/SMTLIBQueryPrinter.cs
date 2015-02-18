@@ -697,28 +697,7 @@ namespace Symbooglix
 
         public Expr VisitNeq(NAryExpr e)
         {
-            // There isn't a != operator in SMTLIBv2 so print the equivalent
-
-            // We cannot construct the equivalent here because that will break printing bindings
-            // because we will be introducing Expr that have never been seen before
-            TW.Write("(not");
-            PushIndent();
-            PrintSeperator();
-
-            TW.Write("(=");
-            PushIndent();
-            PrintSeperator();
-            PrintExpr(e.Args[0]);
-            PrintSeperator();
-            PrintExpr(e.Args[1]);
-            PopIndent();
-            PrintSeperator();
-            TW.Write(")");
-
-            PopIndent();
-            PrintSeperator();
-            TW.Write(")");
-            return e;
+            return PrintBinaryOperator("distinct", e);
         }
 
         public Expr VisitGt(NAryExpr e)
