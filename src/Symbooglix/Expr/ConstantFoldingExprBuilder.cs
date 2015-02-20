@@ -570,6 +570,42 @@ namespace Symbooglix
             return UB.Sub(lhs, rhs);
         }
 
+        /// <summary>
+        /// Computes the euclidean div and mod.
+        /// 
+        /// Euclidean Division and mod are defined as follows (assuming n != 0)
+        /// 
+        /// q = m div n
+        /// r = m mod n
+        /// n*q + r = m
+        /// 0 <= r < |n|
+        ///
+        /// This implementation is based on
+        /// "Division and Modulus for Computer Scientists" by Daan Leijen
+        /// http://research.microsoft.com/pubs/151917/divmodnote-letter.pdf
+        ///
+        /// It based on the assumption that "/" and "%" in C# perform "truncated division"
+        /// </summary>
+        /// <returns>Tuple, first item is the result of div and second item is result of mod</returns>
+        /// <param name="n">Dividend/param>
+        /// <param name="m">Divisor</param>
+        private Tuple<BigInteger,BigInteger> ComputeEuclideanDivAndMod(BigInteger n, BigInteger m)
+        {
+            Debug.Assert(m != 0);
+            var truncatedDiv = n / m;
+            var truncatedMod = n % m;
+
+            if (truncatedMod.IsZero || truncatedMod > 0)
+                return Tuple.Create(truncatedDiv, truncatedMod);
+            else
+            {
+                if (m > 0)
+                    return Tuple.Create(truncatedDiv - 1, truncatedMod + m);
+                else
+                    return Tuple.Create(truncatedDiv + 1, truncatedMod - m);
+            }
+        }
+
         public override Expr Mod(Expr lhs, Expr rhs)
         {
             var litLhs = ExprUtil.AsLiteral(lhs);
@@ -582,13 +618,14 @@ namespace Symbooglix
                 if (!litRhs.isBigNum)
                     throw new ExprTypeCheckException("rhs must be int");
 
-                var numerator = litLhs.asBigNum;
-                var denominator = litRhs.asBigNum;
+                var numerator = litLhs.asBigNum.ToBigInteger;
+                var denominator = litRhs.asBigNum.ToBigInteger;
 
                 // Can't do modulo by zero so check it's safe to compute first
                 if (!denominator.IsZero)
                 {
-                    return this.ConstantInt((numerator % denominator).ToBigInteger);
+                    var computedValue = ComputeEuclideanDivAndMod(numerator, denominator);
+                    return this.ConstantInt(computedValue.Item2);
                 }
             }
 
@@ -608,13 +645,14 @@ namespace Symbooglix
                 if (!litRhs.isBigNum)
                     throw new ExprTypeCheckException("rhs must be int");
 
-                var numerator = litLhs.asBigNum;
-                var denominator = litRhs.asBigNum;
+                var numerator = litLhs.asBigNum.ToBigInteger;
+                var denominator = litRhs.asBigNum.ToBigInteger;
 
                 // Can't do modulo by zero so check it's safe to compute first
                 if (!denominator.IsZero)
                 {
-                    return this.ConstantInt((numerator / denominator).ToBigInteger);
+                    var computedValue = ComputeEuclideanDivAndMod(numerator, denominator);
+                    return this.ConstantInt(computedValue.Item1);
                 }
             }
 
