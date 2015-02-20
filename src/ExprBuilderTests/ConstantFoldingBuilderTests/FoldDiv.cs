@@ -10,12 +10,17 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldDiv : ConstantFoldingExprBuilderTests
     {
+        // m div n = q
+        // m mod n = r
+        // nq + r = m
+        // 0 <= r <= ( |n| =-1 )
         [TestCase(8, 2, 4)]
         [TestCase(8, 3, 2)]
         [TestCase(1, -4, 0)] // check round towards zero
-        [TestCase(-6, 2, -3)]
-        [TestCase(6, -2, -3)]
-        [TestCase(-6, -2, 3)]
+        [TestCase(11, 3, 3)] // q = 3 , r=2
+        [TestCase(11, -3, -3)] // q = -3, r=2
+        [TestCase(-11, 3, -4)] // q = -4, r =1
+        [TestCase(-11, -3, 4)] // q = 4, r=1
         public void DivideSimpleConstantsInt(int numerator, int denomiator, int expectedValue)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
@@ -24,7 +29,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             CheckIsInt(result);
-            Assert.AreEqual(expectedValue, asLit.asBigNum.ToInt);
+            Assert.AreEqual(BigNum.FromInt(expectedValue), asLit.asBigNum);
         }
 
         [Test()]

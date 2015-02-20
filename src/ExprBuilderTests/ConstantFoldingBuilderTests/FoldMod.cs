@@ -10,15 +10,24 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldMod : ConstantFoldingExprBuilderTests
     {
-        [Test()]
-        public void ModSimpleConstantsInt()
+        // m div n = q
+        // m mod n = r
+        // nq + r = m
+        // 0 <= r <= ( |n| =-1 )
+        [TestCase(1, 1, 0)]
+        [TestCase(11, 3, 2)]  // q = 3
+        [TestCase(11, -3, 2)] // q = -3
+        [TestCase(-11, 3, 1)]  // q = -4
+        [TestCase(-11, -3, 1)] // q = 4
+        public void ModSimpleConstantsInt(int m, int n, int r)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
-            var result = cfb.Mod(cfb.ConstantInt(10), cfb.ConstantInt(3));
-            Assert.IsInstanceOf<LiteralExpr>(result);
+            var result = cfb.Mod(cfb.ConstantInt(m), cfb.ConstantInt(n));
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsNotNull(asLit);
             CheckType(result, p => p.IsInt);
-            Assert.AreEqual("1", result.ToString());
+            Assert.AreEqual(BigNum.FromInt(r), asLit.asBigNum);
         }
 
         [Test()]
