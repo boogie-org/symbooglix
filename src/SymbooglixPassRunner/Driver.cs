@@ -23,6 +23,12 @@ namespace SymbooglixPassRunner
             [Option("emit-after", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool EmitProgramAfter { get; set; }
 
+            [OptionList('e', "entry-points",
+                Separator = ',',
+                DefaultValue = null,
+                HelpText = "Comma seperated list of implementations to use as entry points for execution.")]
+            public List<string> EntryPoints { get; set; }
+
             // FIXME: Urgh... how do you set the default value of the list?
             [OptionList('p', "passes",
                 Separator = ',',
@@ -185,7 +191,7 @@ namespace SymbooglixPassRunner
             {
                 try
                 {
-                    var newPass = PBuilder.GetPass(passName);
+                    var newPass = PBuilder.GetPass(passName, options);
                     PM.Add(newPass);
                 }
                 catch (NonExistantPassException)
@@ -244,64 +250,89 @@ namespace SymbooglixPassRunner
         }
 
 
+        internal class PassBuilder
+        {
+            private Dictionary<string, System.Type> Map = new Dictionary<string, System.Type>();
+            public PassBuilder()
+            {
+                var types = GetPassTypes();
+                foreach (var type in types)
+                {
+                    Map.Add(StripSymbooglixPrefix(type.ToString()), type);
+                }
+            }
+
+            public Symbooglix.Transform.IPass GetPass(string name, CmdLineOpts cmdLine)
+            {
+                // Passes without default constructors
+                if (name == StripSymbooglixPrefix(typeof(Transform.AxiomAndEntryRequiresCheckTransformPass).ToString()))
+                {
+                    // This pass needs to know the entry points
+                    if (cmdLine.EntryPoints == null)
+                    {
+                        Console.Error.WriteLine("Entry points must be specified to use AxiomAndEntryRequiresCheckTransformPass");
+                        ExitWith(ExitCode.COMMAND_LINE_ERROR);
+                    }
+
+                    Predicate<Implementation> isEntryPoint = delegate(Implementation impl)
+                    {
+                        foreach (var entryPointName in cmdLine.EntryPoints)
+                        {
+                            if (impl.Name == entryPointName)
+                                return true;
+                        }
+
+                        return false;
+                    };
+
+                    return new Transform.AxiomAndEntryRequiresCheckTransformPass(isEntryPoint);
+                }
+
+                // Passes with default constructors
+                try
+                {
+                    var passType = Map[name];
+                    return (Symbooglix.Transform.IPass) Activator.CreateInstance(passType);
+                }
+                catch (KeyNotFoundException)
+                {
+                    throw new NonExistantPassException();
+                }
+            }
+
+            public IEnumerable<string> GetPassNames()
+            {
+                return Map.Keys;
+            }
+
+            public static string StripSymbooglixPrefix(string passName)
+            {
+                int dotPosition =  passName.IndexOf('.');
+                if (dotPosition == -1)
+                    throw new Exception("Passname is wrong");
+                return passName.Substring(dotPosition +1);
+            }
+
+            public static IList<System.Type> GetPassTypes()
+            {
+                var passInterfaceType = typeof(Symbooglix.Transform.IPass);
+                var typeList = new List<System.Type>();
+                var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => passInterfaceType.IsAssignableFrom(p));
+                foreach (var t in types)
+                {
+                    if (t == passInterfaceType)
+                        continue;
+
+                    typeList.Add(t);
+                }
+                return typeList;
+            }
+        }
+
+        class NonExistantPassException : Exception
+        {
+            public NonExistantPassException() : base() { }
+        }
     }
 
-    internal class PassBuilder
-    {
-        private Dictionary<string, System.Type> Map = new Dictionary<string, System.Type>();
-        public PassBuilder()
-        {
-            var types = GetPassTypes();
-            foreach (var type in types)
-            {
-                Map.Add(StripSymbooglixPrefix(type.ToString()), type);
-            }
-        }
-
-        public Symbooglix.Transform.IPass GetPass(string name)
-        {
-            try
-            {
-                var passType = Map[name];
-                return (Symbooglix.Transform.IPass) Activator.CreateInstance(passType);
-            }
-            catch (KeyNotFoundException)
-            {
-                throw new NonExistantPassException();
-            }
-        }
-
-        public IEnumerable<string> GetPassNames()
-        {
-            return Map.Keys;
-        }
-
-        public static string StripSymbooglixPrefix(string passName)
-        {
-            int dotPosition =  passName.IndexOf('.');
-            if (dotPosition == -1)
-                throw new Exception("Passname is wrong");
-            return passName.Substring(dotPosition +1);
-        }
-
-        public static IList<System.Type> GetPassTypes()
-        {
-            var passInterfaceType = typeof(Symbooglix.Transform.IPass);
-            var typeList = new List<System.Type>();
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => passInterfaceType.IsAssignableFrom(p));
-            foreach (var t in types)
-            {
-                if (t == passInterfaceType)
-                    continue;
-
-                typeList.Add(t);
-            }
-            return typeList;
-        }
-    }
-    
-    class NonExistantPassException : Exception
-    {
-        public NonExistantPassException() : base() { }
-    }
 }
