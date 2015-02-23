@@ -28,8 +28,7 @@ namespace SymbooglixLibTests
             {
                 Assert.IsInstanceOf<TerminatedAtUnsatisfiableAxiom>(eventArgs.State.TerminationType);
                 var tt = eventArgs.State.TerminationType as TerminatedAtUnsatisfiableAxiom;
-                // FIXME: GROSS! Boogie seems to rewrite the expression!
-                Assert.AreEqual("(a <==> !b) && (a <==> !c) && (b <==> !c)", tt.ExitLocation.AsAxiom.Expr.ToString());
+                Assert.AreEqual("a != b && a != c && b != c", tt.ExitLocation.AsAxiom.Expr.ToString());
                 hit = true;
             };
 

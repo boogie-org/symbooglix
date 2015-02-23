@@ -127,8 +127,7 @@ namespace TransformTests
             Assert.AreEqual(2, GetAxioms(prog).Count());
             var axioms = GetAxioms(prog).ToList();
             Assert.AreEqual("a != b", axioms[0].Expr.ToString());
-            // FIXME: Boogie rewrites the Expr!
-            Assert.AreEqual("c <==> !d", axioms[1].Expr.ToString());
+            Assert.AreEqual("c != d", axioms[1].Expr.ToString());
 
             Assert.AreEqual(2, UVEP.AddedAxioms.Count());
         }
