@@ -148,6 +148,64 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, tc.NumberOfFailures);
         }
 
+        [Test()]
+        public void RequiresEqualityConcretisesOldExpr()
+        {
+            p = LoadProgramFrom(@"
+                var g:int;
+                procedure main()
+                modifies g;
+                requires g == 0;
+                {
+                    // At this point make sure ""g"" is concrete but
+                    // also make sure that the old(g) is also concrete
+                    assert {:symbooglix_bp ""check""} true;
+                    g := 2;
+                    assert old(g + 1 -1) == 0;
+                }
+                ", "test.bpl");
+
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+            int bpCounter = 0;
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                ++bpCounter;
+                switch (eventArgs.Name)
+                {
+                    case "check":
+                        // Check that the global "g" is concrete
+                        var p1 = e.CurrentState.GetInScopeVariableAndExprByName("g");
+                        var asLit = ExprUtil.AsLiteral(p1.Value);
+                        Assert.IsNotNull(asLit);
+                        Assert.IsTrue(asLit.isBigNum);
+                        Assert.AreEqual(Microsoft.Basetypes.BigNum.FromInt(0), asLit.asBigNum);
+
+                        // Now check that old expr for "g" also was concretised
+                        var oldVars = e.CurrentState.GetCurrentStackFrame().Impl.GetOldExprVariables();
+                        Assert.AreEqual(1, oldVars.Count);
+                        var gVariable = oldVars[0];
+                        Assert.AreEqual("g", gVariable.Name);
+                        var oldExprForG = e.CurrentState.GetCurrentStackFrame().OldGlobals[gVariable];
+                        var oldExprForGAsLit = ExprUtil.AsLiteral(oldExprForG);
+                        Assert.IsNotNull(oldExprForGAsLit);
+                        Assert.IsTrue(oldExprForGAsLit.isBigNum);
+                        Assert.AreEqual(Microsoft.Basetypes.BigNum.ZERO, oldExprForGAsLit.asBigNum);
+
+                        break;
+                    default:
+                        Assert.Fail("Unexpected break point");
+                        break;
+                }
+            };
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+            e.Run(GetMain(p));
+            Assert.AreEqual(1, bpCounter);
+            Assert.AreEqual(1, tc.Sucesses);
+            Assert.AreEqual(0, tc.NumberOfFailures);
+        }
+
 
     }
 }

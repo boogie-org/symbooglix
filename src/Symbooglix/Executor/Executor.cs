@@ -837,6 +837,7 @@ namespace Symbooglix
                 LiteralExpr literal = null;
                 if (FindLiteralAssignment.findAnyVariable(r.Condition, out V, out literal))
                 {
+                    Debug.Assert(literal != null, "Literal assignment cannot be null");
                     // HACK: For locals the requires statement attached to the procedure refer
                     // to arguments attached procedure and not to the implementation. This means we
                     // need to remap these Variables to implementation version when checking if a variable
@@ -847,6 +848,15 @@ namespace Symbooglix
                     if (CurrentState.IsInScopeVariable(V) && IsSymbolic(V))
                     {
                         MakeConcrete(V, literal);
+                    }
+
+                    if (V is GlobalVariable)
+                    {
+                        // Also concretise stored old expressions
+                        if (oldExprImplGlobals.Contains(V))
+                        {
+                            CurrentState.GetCurrentStackFrame().OldGlobals[V as GlobalVariable] = literal;
+                        }
                     }
                 }
             }
