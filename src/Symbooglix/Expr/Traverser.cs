@@ -149,6 +149,10 @@ namespace Symbooglix
             {
                 return Visitor.VisitArithmeticCoercion(e);
             }
+            else if (e.Fun is DistinctOperator)
+            {
+                return Visitor.VisitDistinct(e);
+            }
 
             throw new NotImplementedException("NAry not handled!");
         }

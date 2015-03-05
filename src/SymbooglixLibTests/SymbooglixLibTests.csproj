@@ -139,6 +139,7 @@
     <Compile Include="EnterAndLeaveProcedureImplementationEvents.cs" />
     <Compile Include="Havoc.cs" />
     <Compile Include="TerminateInitialState.cs" />
+    <Compile Include="ExprSMTLIB\Distinct.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

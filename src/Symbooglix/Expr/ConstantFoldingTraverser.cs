@@ -27,6 +27,11 @@ namespace Symbooglix
             return e;
         }
 
+        public Expr VisitDistinct(NAryExpr e)
+        {
+            return e;
+        }
+
         public Expr VisitOldExpr(OldExpr e)
         {
             if (e.Expr is LiteralExpr)

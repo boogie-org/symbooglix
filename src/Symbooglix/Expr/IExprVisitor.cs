@@ -106,6 +106,8 @@ namespace Symbooglix
         Expr Visit_bvsgt(NAryExpr e);
         Expr Visit_bvsge(NAryExpr e);
 
+        Expr VisitDistinct(NAryExpr e);
+
     }
 }
 

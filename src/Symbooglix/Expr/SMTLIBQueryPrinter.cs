@@ -846,6 +846,24 @@ namespace Symbooglix
             }
         }
 
+        public Expr VisitDistinct(NAryExpr e)
+        {
+            TW.Write("(distinct");
+            PushIndent();
+            PrintSeperator();
+            for (int index = 0; index < e.Args.Count; ++index)
+            {
+                PrintExpr(e.Args[index]);
+
+                if (index < (e.Args.Count -1))
+                    PrintSeperator();
+            }
+            PopIndent();
+            PrintSeperator();
+            TW.Write(")");;
+            return e;
+        }
+
         public Expr Visit_bvadd(NAryExpr e)
         {
             return PrintBinaryOperator("bvadd", e);
