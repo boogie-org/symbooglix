@@ -44,8 +44,6 @@ namespace Symbooglix
                          || operation == BinaryOperator.Opcode.Iff // var <==> Literal (for bools)
                        )
                     {
-                        Debug.Assert(idExpr.Count() == 1, "Found more than one Identifier expression");
-
                         var literalExpr = naryExpr.Args.OfType<LiteralExpr>();
                         if (literalExpr.Count() > 0)
                         {
