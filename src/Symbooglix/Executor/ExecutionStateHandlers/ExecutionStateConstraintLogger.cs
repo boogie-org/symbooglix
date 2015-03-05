@@ -18,7 +18,7 @@ namespace Symbooglix
             else
                 terminatationTypeName = State.TerminationType.GetType().ToString();
 
-            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".smt2");
+            var path = Path.Combine(Directory, ((State.Id >= 0)?State.Id.ToString():"initial") + "-" + terminatationTypeName + ".smt2");
 
             using (var SW = new StreamWriter(path))
             {

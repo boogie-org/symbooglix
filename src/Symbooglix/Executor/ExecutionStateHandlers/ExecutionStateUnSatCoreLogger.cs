@@ -20,7 +20,7 @@ namespace Symbooglix
             if (terminationType.ConditionForUnsat == null)
                 return;
 
-            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".unsatcore.smt2");
+            var path = Path.Combine(Directory, ((State.Id >= 0)?State.Id.ToString():"initial") + "-" + terminatationTypeName + ".unsatcore.smt2");
             using (var SW = new StreamWriter(path))
             {
                 Console.WriteLine("Logging State {0} unsat core constraints to {1}", State.Id, path);

@@ -25,7 +25,7 @@ namespace Symbooglix
             else
                 terminatationTypeName = State.TerminationType.GetType().ToString();
 
-            var path = Path.Combine(Directory, State.Id + "-" + terminatationTypeName + ".yml");
+            var path = Path.Combine(Directory, ((State.Id >= 0)?State.Id.ToString():"initial") + "-" + terminatationTypeName + ".yml");
             using (var SW = new StreamWriter(path))
             {
                 using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(SW, " "))
