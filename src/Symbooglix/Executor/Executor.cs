@@ -288,7 +288,6 @@ namespace Symbooglix
                 InternalPreparationPassManager.Add(new Transform.GlobalDeadDeclEliminationPass());
 
             InternalPreparationPassManager.Add(new Transform.OldExprCanonicaliser());
-            InternalPreparationPassManager.Add(new Transform.UniqueVariableEnforcingPass());
 
             // We need ProgramLocation annotations to work out where stuff comes from
             InternalPreparationPassManager.Add(new Annotation.ProgramLocationAnnotater());
@@ -389,6 +388,53 @@ namespace Symbooglix
                 }
             }
 
+            // Enforce "unique" keyword
+            var groupedVariables = TheProgram.TopLevelDeclarations.OfType<Constant>().Where( c => c.Unique).GroupBy( c => c.TypedIdent.Type);
+            foreach (var grouping in groupedVariables)
+            {
+                var varsToEnforceUnique = grouping.ToList();
+
+                var exprToEnforceUnique = new List<Expr>();
+                foreach (var constantVar in varsToEnforceUnique)
+                {
+                    exprToEnforceUnique.Add(InitialState.Mem.Globals[constantVar]);
+                }
+
+                var distinctConstraint = Builder.Distinct(exprToEnforceUnique);
+                // Check the constraint is satisfiable
+                TheSolver.SetConstraints(InitialState.Constraints);
+                Solver.Result result = TheSolver.IsQuerySat(distinctConstraint);
+                switch (result)
+                {
+                    case Symbooglix.Solver.Result.SAT:
+                        break;
+                    case Symbooglix.Solver.Result.UNSAT:
+                        goto default;
+                    case Symbooglix.Solver.Result.UNKNOWN:
+                        InitialState.MakeSpeculative();
+                        goto default; // Eurgh...
+                    default:
+                        // FIXME: Need different termination type
+                        var terminatedWithUnsatUniqueAttr = new TerminatedWithUnsatisfiableUniqueAttribute(varsToEnforceUnique);
+                        terminatedWithUnsatUniqueAttr.ConditionForUnsat = distinctConstraint;
+
+                        // Expr.Not(constraint) will only be satisfiable if
+                        // the original constraints are satisfiable
+                        // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
+                        // ∀ x constraints(x) ∧ ¬query(x)
+                        // So here we assume
+                        terminatedWithUnsatUniqueAttr.ConditionForSat = Builder.Not(distinctConstraint);
+
+                        TerminateState(InitialState, terminatedWithUnsatUniqueAttr, /*removeFromStateScheduler=*/false);
+                        HasBeenPrepared = true; // Don't allow this method to run again
+                        PrepareTimer.Stop();
+                        return false;
+                }
+
+                // This is kind of a hack a distinctConstraint is associated with multiple source locations rather than just one.
+                InitialState.Constraints.AddConstraint(distinctConstraint, varsToEnforceUnique[0].GetProgramLocation());
+                Debug.WriteLine("Adding constraint : " + distinctConstraint);
+            }
 
             HasBeenPrepared = true;
             PrepareTimer.Stop();
@@ -611,7 +657,10 @@ namespace Symbooglix
                     type = new TerminatedWithDisallowedSpeculativePath(type.ExitLocation);
             }
             state.Terminate(type);
-            type.ExitLocation.InstrStatistics.IncrementTerminations(); // Increment the Termination account at the relevant instruction
+
+            // Constant variables don't have InstrStatistics so don't try to increment them
+            if (!(type is TerminatedWithUnsatisfiableUniqueAttribute))
+                type.ExitLocation.InstrStatistics.IncrementTerminations(); // Increment the Termination account at the relevant instruction
 
             if (removeFromStateScheduler)
                 StateScheduler.RemoveState(state);

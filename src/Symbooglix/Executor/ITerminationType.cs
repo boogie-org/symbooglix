@@ -2,7 +2,9 @@
 using System.IO;
 using Microsoft.Boogie;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Symbooglix
 {
@@ -348,6 +350,30 @@ namespace Symbooglix
             get;
             internal set;
         }
+    }
+
+    public class TerminatedWithUnsatisfiableUniqueAttribute : TerminationTypeWithSatAndUnsatExpr
+    {
+        IList<Constant> UniqueVariables;
+        public TerminatedWithUnsatisfiableUniqueAttribute(IList<Constant> variables)
+        {
+            Debug.Assert(variables.Count > 1);
+            // Just make the exit location the first variable
+            this.ExitLocation = variables[0].GetProgramLocation();
+            this.UniqueVariables = variables;
+        }
+
+        public override string GetMessage()
+        {
+            var SB = new StringBuilder();
+
+            var theType = UniqueVariables[0].TypedIdent.Type;
+            SB.Append("Terminated with unsatisfiable unique attribute for variables of type ");
+            SB.Append(theType.ToString());
+            return SB.ToString();
+        }
+
+
     }
 }
 

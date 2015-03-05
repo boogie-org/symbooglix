@@ -127,6 +127,43 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, counter.Sucesses);
             Assert.AreEqual(1, counter.UnexplorableGotos);
         }
+
+        [Test()]
+        public void UnsatUniqueAttribute()
+        {
+            p = LoadProgramFrom(@"
+                const unique a:int;
+                const unique b:int;
+                axiom a == b;
+
+                procedure main()
+                {
+                    var x:int;
+                    x := a;
+                }
+
+            ", "test.bpl");
+
+            var counter = new TerminationCounter();
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+            counter.Connect(e);
+
+            bool initialStateTerminated = false;
+            try
+            {
+                e.Run(GetMain(p));
+            }
+            catch (InitialStateTerminated)
+            {
+                initialStateTerminated = true;
+            }
+
+            Assert.AreEqual(0, counter.Sucesses);
+            Assert.AreEqual(1, counter.UnsatsifiableUniqueConstants);
+            Assert.AreEqual(1, counter.NumberOfFailures);
+            Assert.AreEqual(1, counter.NumberOfTerminatedStates);
+            Assert.IsTrue(initialStateTerminated);
+        }
     }
 }
 

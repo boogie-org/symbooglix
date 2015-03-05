@@ -305,6 +305,46 @@ namespace SymbooglixLibTests
             e.Run(main);
             Assert.AreEqual(3, hit);
         }
+
+        [Test()]
+        public void UnsatUniqueAttribute()
+        {
+            p = LoadProgramFrom(@"
+            const unique a:int;
+            const unique b:int;
+            axiom a == b;
+
+            procedure main()
+            {
+                var x:int;
+                x := a;
+            }
+
+            ", "test.bpl");
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            int counter = 0;
+            TerminatedWithUnsatisfiableUniqueAttribute terminationType = null;
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs executionStateEventArgs)
+            {
+                Assert.IsInstanceOf<TerminatedWithUnsatisfiableUniqueAttribute>(executionStateEventArgs.State.TerminationType);
+                terminationType = executionStateEventArgs.State.TerminationType as TerminatedWithUnsatisfiableUniqueAttribute;
+                ++counter;
+                Assert.IsFalse(executionStateEventArgs.State.Speculative);
+            };
+            try
+            {
+                e.Run(GetMain(p));
+            }
+            catch (InitialStateTerminated)
+            {
+
+            }
+
+            Assert.AreEqual(1, counter);
+            Assert.AreEqual("distinct(~sb_a_0, ~sb_b_0)", terminationType.ConditionForUnsat.ToString());
+            Assert.AreEqual("!distinct(~sb_a_0, ~sb_b_0)", terminationType.ConditionForSat.ToString());
+        }
     }
 }
 

@@ -20,6 +20,7 @@ namespace Symbooglix
         public int DisallowedSpeculativePaths { get { return GetCounter<TerminatedWithDisallowedSpeculativePath>(); }}
         public int UnexplorableGotos { get { return GetCounter<TerminatedAtGotoWithUnsatisfiableTargets>(); }}
         public int DisallowedPathDepths { get { return GetCounter<TerminatedWithDisallowedExplicitBranchDepth>(); } }
+        public int UnsatsifiableUniqueConstants { get { return GetCounter<TerminatedWithUnsatisfiableUniqueAttribute>(); }}
 
         private Dictionary<System.Type, int> Counters;
 
@@ -38,7 +39,8 @@ namespace Symbooglix
                 FailingRequires +
                 FailingEnsures +
                 UnsatisfiableEnsures +
-                UnsatisfiableAxioms;
+                UnsatisfiableAxioms +
+                UnsatsifiableUniqueConstants;
                 // Note we don't consider a UnsatisfiableAssumes, DisallowedSpeculativePath or UnExplorableGotos or DisallowedPathDepths to be failures
             }
         }
@@ -87,6 +89,7 @@ namespace Symbooglix
             Counters.Add(typeof(TerminatedWithDisallowedSpeculativePath), 0);
             Counters.Add(typeof(TerminatedAtGotoWithUnsatisfiableTargets), 0);
             Counters.Add(typeof(TerminatedWithDisallowedExplicitBranchDepth), 0);
+            Counters.Add(typeof(TerminatedWithUnsatisfiableUniqueAttribute), 0);
         }
 
 

@@ -26,9 +26,9 @@ namespace SymbooglixLibTests
             bool hit = false;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
             {
-                Assert.IsInstanceOf<TerminatedAtUnsatisfiableAxiom>(eventArgs.State.TerminationType);
-                var tt = eventArgs.State.TerminationType as TerminatedAtUnsatisfiableAxiom;
-                Assert.AreEqual("a != b && a != c && b != c", tt.ExitLocation.AsAxiom.Expr.ToString());
+                Assert.IsInstanceOf<TerminatedWithUnsatisfiableUniqueAttribute>(eventArgs.State.TerminationType);
+                var tt = eventArgs.State.TerminationType as TerminatedWithUnsatisfiableUniqueAttribute;
+                Assert.AreEqual("distinct(~sb_a_0, ~sb_b_0, ~sb_c_0)", tt.ConditionForUnsat.ToString());
                 hit = true;
             };
 
