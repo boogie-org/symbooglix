@@ -125,7 +125,6 @@
     <Compile Include="Assignment.cs" />
     <Compile Include="ExprSMTLIB\TypeCtor.cs" />
     <Compile Include="Transforms\GlobalDDE.cs" />
-    <Compile Include="Transforms\UniqueVariableEnforcing.cs" />
     <Compile Include="UniqueVariables.cs" />
     <Compile Include="Solver\IndependenceSolverTests.cs" />
     <Compile Include="ConstantFolding\FoldBvnot.cs" />
