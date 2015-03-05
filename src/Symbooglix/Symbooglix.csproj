@@ -124,6 +124,7 @@
     <Compile Include="Expr\ExprUtil.cs" />
     <Compile Include="Transform\TrivialAssumeElimination.cs" />
     <Compile Include="Transform\AxiomAndEntryRequiresCheckTransformPass.cs" />
+    <Compile Include="Expr\DistinctOperator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

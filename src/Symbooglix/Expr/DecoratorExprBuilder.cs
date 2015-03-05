@@ -358,6 +358,10 @@ namespace Symbooglix
             return UB.Exists(freeVargs, body);
         }
 
+        public Expr Distinct(IList<Expr> exprs)
+        {
+            return UB.Distinct(exprs);
+        }
     }
 }
 

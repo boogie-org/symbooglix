@@ -1052,5 +1052,28 @@ namespace Symbooglix
             result.Type = BasicType.Bool;
             return result;
         }
+
+        public Expr Distinct(IList<Expr> exprs)
+        {
+            if (exprs.Count < 1)
+                throw new ArgumentException("Distinct must have at least two arguments");
+
+            // Check the types
+            var firstType = exprs[0].Type;
+
+            if (firstType == null)
+                throw new ExprTypeCheckException("First argument cannot have a null Type");
+
+            for (int index = 1; index < exprs.Count; ++index)
+            {
+                if (!firstType.Equals(exprs[index].Type))
+                    throw new ExprTypeCheckException(String.Format("The first argument and expr type at index (zero indexded) {0} do not match", index));
+            }
+
+            var distinctOp = new DistinctOperator(Token.NoToken, exprs.Count);
+            var result = new NAryExpr(Token.NoToken, distinctOp, exprs, Immutable);
+            result.Type = BasicType.Bool;
+            return result;
+        }
     }
 }
