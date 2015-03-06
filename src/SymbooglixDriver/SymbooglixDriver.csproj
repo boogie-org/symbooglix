@@ -6,7 +6,7 @@
     <ProjectGuid>{87456C5D-145F-4C52-80F7-8E0B7A1573E9}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>SymbooglixDriver</RootNamespace>
-    <AssemblyName>symbooglix</AssemblyName>
+    <AssemblyName>sbx</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +20,6 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
