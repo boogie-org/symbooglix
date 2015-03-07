@@ -1495,8 +1495,8 @@ namespace Symbooglix
                 else
                 {
                     Debug.Assert(!numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero);
-                    result = ( BvNegOnNaturalNumber(numerator.asBvConst.Value.ToBigInteger, bitwidth) %
-                              BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth) ) % maxValuePlusOne;
+                    result = BvNegOnNaturalNumber(( BvNegOnNaturalNumber(numerator.asBvConst.Value.ToBigInteger, bitwidth) %
+                                                   BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth) ) % maxValuePlusOne, bitwidth);
                 }
 
                 Debug.Assert(result >= 0);
