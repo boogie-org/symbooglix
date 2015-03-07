@@ -75,6 +75,7 @@
     <Compile Include="ConstantFoldingBuilderTests\FoldBVSDIV.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldBVSREM.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldBVSMOD.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldBVNEG.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

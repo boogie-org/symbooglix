@@ -1635,6 +1635,32 @@ namespace Symbooglix
 
             return UB.BVSMOD(lhs, rhs);
         }
+
+        public override Expr BVNEG(Expr operand)
+        {
+            var asLit = ExprUtil.AsLiteral(operand);
+            if (asLit != null)
+            {
+                if (!asLit.isBvConst)
+                    throw new ExprTypeCheckException("operand must be of bitvector type");
+
+                return ConstantBV(BvNegOnNaturalNumber(asLit.asBvConst.Value.ToBigInteger, asLit.asBvConst.Bits), asLit.asBvConst.Bits);
+            }
+
+            // - (- x) ==> x
+            //
+            // (declare-fun x () (_ BitVec 4))
+            // (assert (distinct x (bvneg (bvneg x))))
+            // (check-sat)
+            // unsat
+            var asBvNeg = ExprUtil.AsBVNEG(operand);
+            if (asBvNeg != null)
+            {
+                return asBvNeg.Args[0];
+            }
+
+            return UB.BVNEG(operand);
+        }
     }
 }
 
