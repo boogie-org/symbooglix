@@ -123,6 +123,26 @@ namespace ExprBuilderTests
             Assert.IsNull(asNot);
         }
 
+        [Test()]
+        public void AsBVSEXTWithBVSEXT()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var sext = sb.BVSEXT(v, 8);
+            var asBvSExt = ExprUtil.AsBVSEXT(sext);
+            Assert.IsNotNull(asBvSExt);
+        }
+
+        [Test()]
+        public void AsBVSEXTNotWithBVSEXT()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var sext = sb.BVADD(v, v);
+            var asBvSExt = ExprUtil.AsBVSEXT(sext);
+            Assert.IsNull(asBvSExt);
+        }
+
         [TestCase(1)]
         [TestCase(10)]
         //[TestCase(1000), Ignore("FIXME: hash code computation is slow on construction")]

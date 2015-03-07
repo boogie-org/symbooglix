@@ -201,6 +201,30 @@ namespace Symbooglix
             return GetBVOperator(e, "bvnot");
         }
 
+        public static NAryExpr AsBVSEXT(Expr e)
+        {
+            var nary = e as NAryExpr;
+            if (nary == null)
+                return null;
+            var fc = nary.Fun as FunctionCall;
+            if (fc == null)
+                return null;
+
+            var usedBuiltin = fc.Func.FindStringAttribute("bvbuiltin");
+
+            if (usedBuiltin == null)
+                return null;
+
+            var regex = new System.Text.RegularExpressions.Regex("^sign_extend \\d+$");
+
+            if (regex.IsMatch(usedBuiltin))
+            {
+                return nary;
+            }
+
+            return null;
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);

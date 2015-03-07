@@ -1693,6 +1693,68 @@ namespace Symbooglix
 
             return UB.BVNOT(operand);
         }
+
+        public override Expr BVSEXT(Expr operand, int newWidth)
+        {
+            var asLit = ExprUtil.AsLiteral(operand);
+            if (asLit != null)
+            {
+                if (newWidth < asLit.asBvConst.Bits)
+                    throw new ExprTypeCheckException("Can't extend bitvector to a small length");
+
+                if (newWidth == asLit.asBvConst.Bits)
+                {
+                    // Not doing any extending so just return the literal
+                    return operand;
+                }
+
+                // Check the sign of the bitvector in a two's complement representation
+                var threshold = BigInteger.Pow(2, asLit.asBvConst.Bits - 1);
+
+                if (asLit.asBvConst.Value.ToBigInteger < threshold)
+                {
+                    // The bitvector is a positive bitvector under two's complement interpretation
+                    // So sign extend does not change internal representation
+                    return ConstantBV(asLit.asBvConst.Value.ToBigInteger, newWidth);
+                }
+                else
+                {
+                    // The bitvector is a negative bitvector under two's complement interpretation
+                    // So we need to change the internal representation
+
+                    // One way of looking at this as follows. Let x be the natural number representing
+                    // the negative bitvector where m is the original bitvector width n is the new width
+                    //
+                    // 1. Compute the positive version of the bitvector which is (2^m - x) mod m
+                    // 2. Sign extend that (which changes nothing)
+                    // 3. Now negate again
+                    //
+                    // So the natural number representation of a bitvector of length n extend from a bitvector
+                    // of length m is given by (assuming the bitvector was originally negative)
+                    //
+                    // (2^n - ((2^m -x) mod m)) mod n
+                    //
+                    // The mods are only for the case where x is zero so can drop those and have
+                    // 2^n - 2^m + x
+
+                    var maxNewPlusOne = BigInteger.Pow(2, newWidth);
+                    var maxOldPlusOne = BigInteger.Pow(2, asLit.asBvConst.Bits);
+                    var result = (maxNewPlusOne - maxOldPlusOne) + asLit.asBvConst.Value.ToBigInteger;
+                    return ConstantBV(result, newWidth);
+                }
+            }
+
+            // Sign extending to the same as the curent size is a no-op
+            var asBvSExt = ExprUtil.AsBVSEXT(operand);
+            if (asBvSExt != null)
+            {
+                var operandWidth = asBvSExt.ShallowType.BvBits;
+                if (operandWidth == newWidth)
+                    return operand;
+            }
+
+            return UB.BVSEXT(operand, newWidth);
+        }
     }
 }
 
