@@ -63,14 +63,14 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var sb = pair.Item1;
             var cfb = pair.Item2;
             var id = GetVarAndIdExpr("foo", BasicType.GetBvType(8)).Item2;
-            var foldedResult = cfb.BVNEG(id);
-            var simpleResult = sb.BVNEG(id);
-            CheckIsBvType(foldedResult, 8);
+            var foldedResult = cfb.BVSEXT(id, 16);
+            var simpleResult = sb.BVSEXT(id, 16);
+            CheckIsBvType(foldedResult, 16);
             Assert.AreEqual(simpleResult, foldedResult);
 
-            var asBvNeg = ExprUtil.AsBVNEG(foldedResult);
-            Assert.IsNotNull(asBvNeg);
-            Assert.AreSame(id, asBvNeg.Args[0]);
+            var asBvSExt = ExprUtil.AsBVSEXT(foldedResult);
+            Assert.IsNotNull(asBvSExt);
+            Assert.AreSame(id, asBvSExt.Args[0]);
         }
     }
 }
