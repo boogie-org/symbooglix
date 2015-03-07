@@ -1792,6 +1792,40 @@ namespace Symbooglix
 
             return UB.BVZEXT(operand, newWidth);
         }
+
+        public override Expr BVCONCAT(Expr MSB, Expr LSB)
+        {
+            var asLitMSB = ExprUtil.AsLiteral(MSB);
+            var asLitLSB = ExprUtil.AsLiteral(LSB);
+
+            if (!MSB.Type.IsBv || !LSB.Type.IsBv)
+                throw new ExprTypeCheckException("Both MSB and LSB must be of bitvector type");
+
+            if (asLitMSB != null && asLitLSB != null)
+            {
+                var MSBBV = asLitMSB.asBvConst;
+                var LSBBV = asLitLSB.asBvConst;
+
+                // Compute concatenation
+                BigInteger MSBShifted = MSBBV.Value.ToBigInteger << LSBBV.Bits;
+                BigInteger resultAsBigInt = MSBShifted + LSBBV.Value.ToBigInteger;
+                return ConstantBV(resultAsBigInt, MSBBV.Bits + LSBBV.Bits);
+            }
+
+            // CONCAT( 0bvX, <expr>) ==> BVZEXT(<expr>, newWidth)
+            if (asLitMSB != null && ExprUtil.IsZero(asLitMSB))
+            {
+                var newWidth = MSB.Type.BvBits + LSB.Type.BvBits;
+                return BVZEXT(LSB, newWidth);
+            }
+
+            // CONCAT( <expr>, 0bvX) == > BVSHL(BVZEXT(<expr>, newWidth), X)
+            // Above is anoter transformation that could be applied is lsb is zero
+            // but this wouldn't really simplify things so don't do it.
+
+            // Can't constant fold
+            return UB.BVCONCAT(MSB, LSB);
+        }
     }
 }
 

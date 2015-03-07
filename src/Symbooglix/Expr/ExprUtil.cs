@@ -249,6 +249,11 @@ namespace Symbooglix
             return null;
         }
 
+        public static BvConcatExpr AsBVCONCAT(Expr e)
+        {
+            return e as BvConcatExpr;
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);
