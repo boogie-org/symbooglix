@@ -26,6 +26,23 @@ namespace ExprBuilderTests.ConstantFoldingTests
         [TestCase(13, 4, 4, 1)]
         [TestCase(14, 4, 4, 2)]
         [TestCase(15, 4, 4, 3)]
+        // Large divisor
+        [TestCase(0, 9, 4, 0)]
+        [TestCase(1, 9, 4, 1)]
+        [TestCase(2, 9, 4, 2)]
+        [TestCase(3, 9, 4, 3)]
+        [TestCase(4, 9, 4, 4)]
+        [TestCase(5, 9, 4, 5)]
+        [TestCase(6, 9, 4, 6)]
+        [TestCase(7, 9, 4, 7)]
+        [TestCase(8, 9, 4, 8)]
+        [TestCase(9, 9, 4, 0)]
+        [TestCase(10, 9, 4, 1)]
+        [TestCase(11, 9, 4, 2)]
+        [TestCase(12, 9, 4, 3)]
+        [TestCase(13, 9, 4, 4)]
+        [TestCase(14, 9, 4, 5)]
+        [TestCase(15, 9, 4, 6)]
         public void SimpleConstants(int dividendValue, int divisorValue, int bitWidth, int expectedValue)
         {
             var cfb = GetConstantFoldingBuilder();
