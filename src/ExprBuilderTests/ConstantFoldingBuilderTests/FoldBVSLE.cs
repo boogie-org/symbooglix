@@ -6,11 +6,11 @@ using Microsoft.Boogie;
 namespace ExprBuilderTests.ConstantFoldingTests
 {
     [TestFixture()]
-    public class FoldBVSLT : ConstantFoldingExprBuilderTests
+    public class FoldBVSLE : ConstantFoldingExprBuilderTests
     {
         // lhs +ve and rhs +ve
-        [TestCase(0, 0, 4, false)]
-        [TestCase(1, 1, 4, false)]
+        [TestCase(0, 0, 4, true)]
+        [TestCase(1, 1, 4, true)]
         [TestCase(2, 1, 4, false)]
         [TestCase(1, 2, 4, true)]
         // lhs +ve and rhs -ve
@@ -22,10 +22,10 @@ namespace ExprBuilderTests.ConstantFoldingTests
         // lhs -ve and rhs -ve
         [TestCase(15, 8, 4, false)]
         [TestCase(8, 15, 4, true)]
-        public void simpleBVSLT(int lhsValue, int rhsValue, int bitWidth, bool expectedTruth)
+        public void simpleBVSLE(int lhsValue, int rhsValue, int bitWidth, bool expectedTruth)
         {
             var cfb = GetConstantFoldingBuilder();
-            var result = cfb.BVSLT(cfb.ConstantBV(lhsValue, bitWidth), cfb.ConstantBV(rhsValue, bitWidth));
+            var result = cfb.BVSLE(cfb.ConstantBV(lhsValue, bitWidth), cfb.ConstantBV(rhsValue, bitWidth));
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             Assert.AreEqual(expectedTruth, asLit.asBool);
@@ -35,7 +35,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
         {
             var cfb = GetConstantFoldingBuilder();
             var id = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
-            var result = cfb.BVSLT(id, id);
+            var result = cfb.BVSLE(id, id);
             Assert.IsNotNull(ExprUtil.AsLiteral(result));
             Assert.IsTrue(ExprUtil.IsFalse(result));
         }
@@ -48,10 +48,10 @@ namespace ExprBuilderTests.ConstantFoldingTests
             ConstantFoldingExprBuilder cfb = builders.Item2;
             var arg0 = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
-            var simpleResult = sfb.BVSLT(arg0, arg1);
-            var result = cfb.BVSLT(arg0, arg1);
+            var simpleResult = sfb.BVSLE(arg0, arg1);
+            var result = cfb.BVSLE(arg0, arg1);
             Assert.IsNull(ExprUtil.AsLiteral(result));
-            Assert.IsNotNull(ExprUtil.AsBVSLT(result));
+            Assert.IsNotNull(ExprUtil.AsBVSLE(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));
         }
 
