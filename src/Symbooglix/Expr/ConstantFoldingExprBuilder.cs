@@ -1260,6 +1260,36 @@ namespace Symbooglix
 
             return UB.BVUDIV(lhs, rhs);
         }
+
+        public override Expr BVUREM(Expr lhs, Expr rhs)
+        {
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhsAsLit.isBvConst || !rhsAsLit.isBvConst)
+                    throw new ExprTypeCheckException("lhs and rhs must be of bvtype");
+
+                if (lhsAsLit.asBvConst.Bits != rhsAsLit.asBvConst.Bits)
+                    throw new ExprTypeCheckException("lhs and rhs bitwidth must match");
+
+                if (rhsAsLit.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return UB.BVUREM(lhs, rhs);
+                }
+
+
+                var maxValuePlusOne = MaxValuePlusOne(lhsAsLit.asBvConst.Bits); // 2^( number of bits)
+                Debug.Assert(!lhsAsLit.asBvConst.Value.IsNegative);
+                Debug.Assert(!rhsAsLit.asBvConst.Value.IsNegative);
+                var result = ( lhsAsLit.asBvConst.Value.ToBigInteger % rhsAsLit.asBvConst.Value.ToBigInteger ) % maxValuePlusOne;
+                return ConstantBV(result, lhsAsLit.asBvConst.Bits);
+            }
+
+            return UB.BVUREM(lhs, rhs);
+        }
     }
 }
 
