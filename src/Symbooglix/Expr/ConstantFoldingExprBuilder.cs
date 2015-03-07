@@ -1062,6 +1062,11 @@ namespace Symbooglix
             return UB.Exists(freeVars, body);
         }
 
+        private BigInteger MaxValuePlusOne(int bitWidth)
+        {
+            return BigInteger.One << bitWidth; // 2^(number of bits)
+        }
+
         public override Expr BVADD(Expr lhs, Expr rhs)
         {
             // Ensure if there is a constant there will always be one of the left
@@ -1085,10 +1090,10 @@ namespace Symbooglix
                     throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
 
                 // Compute bvand
-                var MaxValuePlusOne = BigInteger.One << litLhs.asBvConst.Bits; // 2^( number of bits)
+                var maxValuePlusOne = MaxValuePlusOne(litLhs.asBvConst.Bits); // 2^( number of bits)
                 var lhsBI = litLhs.asBvConst.Value.ToBigInteger;
                 var rhsBI = litRhs.asBvConst.Value.ToBigInteger;
-                var result = ( lhsBI + rhsBI ) % MaxValuePlusOne; // Wrapping overflow
+                var result = ( lhsBI + rhsBI ) % maxValuePlusOne; // Wrapping overflow
                 return this.ConstantBV(result, litLhs.asBvConst.Bits);
             }
 
@@ -1168,10 +1173,10 @@ namespace Symbooglix
                     throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
 
                 // Compute bvand
-                var MaxValuePlusOne = BigInteger.One << litLhs.asBvConst.Bits; // 2^( number of bits)
+                var maxValuePlusOne = MaxValuePlusOne(litLhs.asBvConst.Bits); // 2^( number of bits)
                 var lhsBI = litLhs.asBvConst.Value.ToBigInteger;
                 var rhsBI = litRhs.asBvConst.Value.ToBigInteger;
-                var result = ( lhsBI * rhsBI ) % MaxValuePlusOne; // Wrapping overflow
+                var result = ( lhsBI * rhsBI ) % maxValuePlusOne; // Wrapping overflow
                 return this.ConstantBV(result, litLhs.asBvConst.Bits);
             }
 
@@ -1246,10 +1251,10 @@ namespace Symbooglix
                 //    [[(bvudiv s t)]] := if bv2nat([[t]]) != 0 then
                 //                           nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
                 //
-                var MaxValuePlusOne = (new BigInteger(1)) << lhsAsLit.asBvConst.Bits ; // 2^( number of bits)
+                var maxValuePlusOne = MaxValuePlusOne(lhsAsLit.asBvConst.Bits); // 2^( number of bits)
                 Debug.Assert(!lhsAsLit.asBvConst.Value.IsNegative);
                 Debug.Assert(!rhsAsLit.asBvConst.Value.IsNegative);
-                var result = ( lhsAsLit.asBvConst.Value.ToBigInteger / rhsAsLit.asBvConst.Value.ToBigInteger ) % MaxValuePlusOne;
+                var result = ( lhsAsLit.asBvConst.Value.ToBigInteger / rhsAsLit.asBvConst.Value.ToBigInteger ) % maxValuePlusOne;
                 return ConstantBV(result, lhsAsLit.asBvConst.Bits);
             }
 
