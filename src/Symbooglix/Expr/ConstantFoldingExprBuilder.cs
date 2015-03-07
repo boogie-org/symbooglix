@@ -1820,8 +1820,25 @@ namespace Symbooglix
             }
 
             // CONCAT( <expr>, 0bvX) == > BVSHL(BVZEXT(<expr>, newWidth), X)
-            // Above is anoter transformation that could be applied is lsb is zero
+            // Above is another transformation that could be applied if lsb is zero
             // but this wouldn't really simplify things so don't do it.
+
+
+            // <expr>[a:z] ++ <expr>[z:c] ==> <expr>[a:c]
+            //
+            // If concatenating two BvExtractExpr whose ranges join
+            // and the <expr> is the same then we can simplify to a single BvExtractExpr
+            var msbAsBvExtract = ExprUtil.AsBVEXTRACT(MSB);
+            var lsbAsBvExtract = ExprUtil.AsBVEXTRACT(LSB);
+            if (msbAsBvExtract != null && lsbAsBvExtract != null && msbAsBvExtract.Start == lsbAsBvExtract.End)
+            {
+                if (ExprUtil.StructurallyEqual(msbAsBvExtract.Bitvector, lsbAsBvExtract.Bitvector))
+                {
+                    return BVEXTRACT(msbAsBvExtract.Bitvector, msbAsBvExtract.End, lsbAsBvExtract.Start);
+                }
+            }
+
+
 
             // Can't constant fold
             return UB.BVCONCAT(MSB, LSB);

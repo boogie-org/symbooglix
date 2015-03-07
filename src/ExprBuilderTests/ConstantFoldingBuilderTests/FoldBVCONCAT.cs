@@ -78,6 +78,49 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.AreSame(id0, asBvConcat.E0);
             Assert.AreSame(id1, asBvConcat.E1);
         }
+
+        [Test()]
+        public void ConcatExtractsToOriginal()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var id = GetVarAndIdExpr("x", BasicType.GetBvType(16)).Item2;
+            var msb = cfb.BVEXTRACT(id, 16, 8);
+            var lsb = cfb.BVEXTRACT(id, 8, 0);
+            var result = cfb.BVCONCAT(msb, lsb);
+            Assert.AreSame(id, result);
+        }
+
+        [Test()]
+        public void ConcatExtractsToSingleExtract()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var id = GetVarAndIdExpr("x", BasicType.GetBvType(16)).Item2;
+            var msb = cfb.BVEXTRACT(id, 16, 8);
+            var lsb = cfb.BVEXTRACT(id, 8, 5);
+            var result = cfb.BVCONCAT(msb, lsb);
+            var asBvExtract = ExprUtil.AsBVEXTRACT(result);
+            Assert.IsNotNull(asBvExtract);
+            Assert.AreSame(id, asBvExtract.Bitvector);
+            Assert.AreEqual(16, asBvExtract.End);
+            Assert.AreEqual(5, asBvExtract.Start);
+        }
+
+        [Test()]
+        public void ConcatExtractsNoFold()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var id0 = GetVarAndIdExpr("x", BasicType.GetBvType(16)).Item2;
+            var id1 = GetVarAndIdExpr("y", BasicType.GetBvType(16)).Item2;
+            var msb = cfb.BVEXTRACT(id0, 16, 8);
+            var lsb = cfb.BVEXTRACT(id1, 8, 0);
+
+            // Different variables so this should not be simplified to a single extract
+            var result = cfb.BVCONCAT(msb, lsb);
+            var asBvConcat = ExprUtil.AsBVCONCAT(result);
+            Assert.IsNotNull(asBvConcat);
+            Assert.AreSame(msb, asBvConcat.E0);
+            Assert.AreSame(lsb, asBvConcat.E1);
+        }
     }
 }
 
