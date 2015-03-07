@@ -673,7 +673,15 @@ namespace Symbooglix
             // because we cannot guarantee that <expr> never evaluates
             // to zero value unless it's a constant (in which case
             // it's already evaluated by the case that handles when lhs and rhs
-            // are constant
+            // are constant.
+            //
+            // (declare-fun x () Int)
+            // (declare-fun y () Int)
+            // (assert (= x 0))
+            // (assert (distinct 0 (div x y)))
+            // (check-sat)
+            // sat
+
 
 
             // ((a div b) div c) ==> (a div (b * c))
@@ -1310,11 +1318,11 @@ namespace Symbooglix
             // (assert (= y (_ bv1 8)))
             // (assert (distinct (_ bv0 8) (bvurem x y)))
             // (check-sat)
+            // unsat
             if (ExprUtil.IsOne(rhs))
             {
                 return ConstantBV(0, rhs.Type.BvBits);
             }
-             
 
             return UB.BVUREM(lhs, rhs);
         }
