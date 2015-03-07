@@ -1948,6 +1948,17 @@ namespace Symbooglix
                 }
             }
 
+            // <expr> < <expr> ==> false
+            //
+            // (declare-fun x () (_ BitVec 4))
+            // (declare-fun y () (_ BitVec 4))
+            // (assert (= x y))
+            // (assert (distinct false (bvslt x y)))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+                return this.False;
+
             return UB.BVSLT(lhs, rhs);
         }
     }

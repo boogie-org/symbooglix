@@ -30,6 +30,15 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.AreEqual(expectedTruth, asLit.asBool);
         }
 
+        public void EqualExpr()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var id = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
+            var result = cfb.BVSLT(id, id);
+            Assert.IsNotNull(ExprUtil.AsLiteral(result));
+            Assert.IsTrue(ExprUtil.IsFalse(result));
+        }
+
         [Test()]
         public void NoFold()
         {
