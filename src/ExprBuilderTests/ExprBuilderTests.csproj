@@ -72,6 +72,7 @@
     <Compile Include="SimpleExprBuilderTests\Distinct.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldBVUDIV.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldBVUREM.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldBVSDIV.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

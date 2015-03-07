@@ -59,7 +59,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
         public void RemByOne()
         {
             var cfb = GetConstantFoldingBuilder();
-            var dividend = cfb.ConstantBV(5, 4);
+            var dividend = GetVarAndIdExpr("x", BasicType.GetBvType(4)).Item2;
             var divisor = cfb.ConstantBV(1, 4);
             var result = cfb.BVUREM(dividend, divisor);
             var asLit = ExprUtil.AsLiteral(result);
