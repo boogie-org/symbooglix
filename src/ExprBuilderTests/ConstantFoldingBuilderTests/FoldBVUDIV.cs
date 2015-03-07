@@ -56,6 +56,17 @@ namespace ExprBuilderTests.ConstantFoldingTests
         }
 
         [Test()]
+        public void DivideByOne()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var dividend = cfb.ConstantBV(5, 4);
+            var divisor = cfb.ConstantBV(1, 4);
+            var result = cfb.BVUDIV(dividend, divisor);
+            Assert.IsTrue(ExprUtil.StructurallyEqual(result, dividend));
+            CheckIsBvType(result, 4);
+        }
+
+        [Test()]
         public void NoFold()
         {
             var builders = GetSimpleAndConstantFoldingBuilder();

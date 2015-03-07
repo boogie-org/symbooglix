@@ -40,7 +40,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
         }
 
         [Test()]
-        public void DivideByZero()
+        public void RemByZero()
         {
             var builders = GetSimpleAndConstantFoldingBuilder();
             var sfb = builders.Item1;
@@ -53,6 +53,19 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.IsNull(ExprUtil.AsLiteral(cfbNoFold));
             Assert.IsTrue(ExprUtil.StructurallyEqual(noFoldResult, cfbNoFold));
             CheckIsBvType(cfbNoFold, 4);
+        }
+
+        [Test()]
+        public void RemByOne()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var dividend = cfb.ConstantBV(5, 4);
+            var divisor = cfb.ConstantBV(1, 4);
+            var result = cfb.BVUREM(dividend, divisor);
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsNotNull(asLit);
+            CheckIsBvType(result, 4);
+            Assert.IsTrue(ExprUtil.IsZero(result));
         }
 
         [Test()]

@@ -197,6 +197,28 @@ namespace Symbooglix
 
             return false;
         }
+
+        public static bool IsOne(Expr e)
+        {
+            var lit = AsLiteral(e);
+            if (lit == null)
+                return false;
+
+            if (lit.isBvConst)
+            {
+                return lit.asBvConst.Value.ToBigInteger.IsOne;
+            }
+            else if (lit.isBigNum)
+            {
+                return lit.asBigNum.ToBigInteger.IsOne;
+            }
+            else if (lit.isBigDec)
+            {
+                return lit.asBigDec.Equals(Microsoft.Basetypes.BigDec.FromInt(1));
+            }
+
+            return false;
+        }
     }
 }
 

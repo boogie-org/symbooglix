@@ -1230,18 +1230,19 @@ namespace Symbooglix
 
         public override Expr BVUDIV(Expr lhs, Expr rhs)
         {
+            // FIXME: I'm not sure about this, we're potentially type checking all Expr twice by doing this (here and in UB)
+            if (!lhs.Type.Equals(rhs.Type))
+                throw new ExprTypeCheckException("lhs and rhs type must be the same type");
+
+            if (!lhs.Type.IsBv)
+                throw new ExprTypeCheckException("arguments must be of bv type");
+
             var lhsAsLit = ExprUtil.AsLiteral(lhs);
             var rhsAsLit = ExprUtil.AsLiteral(rhs);
 
 
             if (lhsAsLit != null && rhsAsLit != null)
             {
-                if (!lhsAsLit.isBvConst || !rhsAsLit.isBvConst)
-                    throw new ExprTypeCheckException("lhs and rhs must be of bvtype");
-
-                if (lhsAsLit.asBvConst.Bits != rhsAsLit.asBvConst.Bits)
-                    throw new ExprTypeCheckException("lhs and rhs bitwidth must match");
-
                 if (rhsAsLit.asBvConst.Value.IsZero)
                 {
                     // Can't divide by zero, don't fold
@@ -1258,22 +1259,36 @@ namespace Symbooglix
                 return ConstantBV(result, lhsAsLit.asBvConst.Bits);
             }
 
+            // x / 1 ==> x
+            //
+            // (declare-fun x () (_ BitVec 8))
+            // (declare-fun y () (_ BitVec 8))
+            // (assert (= y (_ bv1 8)))
+            // (assert (distinct x (bvudiv x y)))
+            // (check-sat)
+            // unsat
+            if (rhsAsLit != null && ExprUtil.IsOne(rhsAsLit))
+            {
+                return lhs;
+            }
+
             return UB.BVUDIV(lhs, rhs);
         }
 
         public override Expr BVUREM(Expr lhs, Expr rhs)
         {
+            // FIXME: I'm not sure about this, we're potentially type checking all Expr twice by doing this (here and in UB)
+            if (!lhs.Type.Equals(rhs.Type))
+                throw new ExprTypeCheckException("lhs and rhs type must be the same type");
+
+            if (!lhs.Type.IsBv)
+                throw new ExprTypeCheckException("arguments must be of bv type");
+
             var lhsAsLit = ExprUtil.AsLiteral(lhs);
             var rhsAsLit = ExprUtil.AsLiteral(rhs);
 
             if (lhsAsLit != null && rhsAsLit != null)
             {
-                if (!lhsAsLit.isBvConst || !rhsAsLit.isBvConst)
-                    throw new ExprTypeCheckException("lhs and rhs must be of bvtype");
-
-                if (lhsAsLit.asBvConst.Bits != rhsAsLit.asBvConst.Bits)
-                    throw new ExprTypeCheckException("lhs and rhs bitwidth must match");
-
                 if (rhsAsLit.asBvConst.Value.IsZero)
                 {
                     // Can't divide by zero, don't fold
@@ -1287,6 +1302,19 @@ namespace Symbooglix
                 var result = ( lhsAsLit.asBvConst.Value.ToBigInteger % rhsAsLit.asBvConst.Value.ToBigInteger ) % maxValuePlusOne;
                 return ConstantBV(result, lhsAsLit.asBvConst.Bits);
             }
+
+            // x % 1 ==> 0
+            //
+            // (declare-fun x () (_ BitVec 8))
+            // (declare-fun y () (_ BitVec 8))
+            // (assert (= y (_ bv1 8)))
+            // (assert (distinct (_ bv0 8) (bvurem x y)))
+            // (check-sat)
+            if (ExprUtil.IsOne(rhs))
+            {
+                return ConstantBV(0, rhs.Type.BvBits);
+            }
+             
 
             return UB.BVUREM(lhs, rhs);
         }
