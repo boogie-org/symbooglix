@@ -225,6 +225,30 @@ namespace Symbooglix
             return null;
         }
 
+        public static NAryExpr AsBVZEXT(Expr e)
+        {
+            var nary = e as NAryExpr;
+            if (nary == null)
+                return null;
+            var fc = nary.Fun as FunctionCall;
+            if (fc == null)
+                return null;
+
+            var usedBuiltin = fc.Func.FindStringAttribute("bvbuiltin");
+
+            if (usedBuiltin == null)
+                return null;
+
+            var regex = new System.Text.RegularExpressions.Regex("^zero_extend \\d+$");
+
+            if (regex.IsMatch(usedBuiltin))
+            {
+                return nary;
+            }
+
+            return null;
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);

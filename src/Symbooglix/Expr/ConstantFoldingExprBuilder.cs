@@ -1755,6 +1755,40 @@ namespace Symbooglix
 
             return UB.BVSEXT(operand, newWidth);
         }
+
+        public override Expr BVZEXT(Expr operand, int newWidth)
+        {
+            var asLit = ExprUtil.AsLiteral(operand);
+            if (asLit != null)
+            {
+                if (newWidth < asLit.asBvConst.Bits)
+                    throw new ExprTypeCheckException("Can't extend bitvector to a small length");
+
+                if (newWidth == asLit.asBvConst.Bits)
+                {
+                    // Not doing any extending so just return the literal
+                    return operand;
+                }
+
+                // Zero extend is very simple, we just make a wider bitvector with the same natural number representation
+                return ConstantBV(asLit.asBvConst.Value.ToBigInteger, newWidth);
+            }
+
+            // BVZEXT(BVZEXT(<expr>)) ==> BVZEXT(<expr>)
+            var asBvZExt = ExprUtil.AsBVZEXT(operand);
+            if (asBvZExt != null)
+            {
+                var operandWidth = asBvZExt.ShallowType.BvBits;
+
+                // Sign extending to the same width is a no-op
+                if (operandWidth == newWidth)
+                    return operand;
+
+                return UB.BVZEXT(asBvZExt.Args[0], newWidth);
+            }
+
+            return UB.BVZEXT(operand, newWidth);
+        }
     }
 }
 

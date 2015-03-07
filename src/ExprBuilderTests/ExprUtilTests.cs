@@ -134,13 +134,33 @@ namespace ExprBuilderTests
         }
 
         [Test()]
-        public void AsBVSEXTNotWithBVSEXT()
+        public void AsBVSEXTWithoutBVSEXT()
         {
             var sb = GetSimpleBuilder();
             var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
             var sext = sb.BVADD(v, v);
             var asBvSExt = ExprUtil.AsBVSEXT(sext);
             Assert.IsNull(asBvSExt);
+        }
+
+        [Test()]
+        public void AsBVZEXTWithBVZEXT()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var zext = sb.BVZEXT(v, 8);
+            var asBvZExt = ExprUtil.AsBVZEXT(zext);
+            Assert.IsNotNull(asBvZExt);
+        }
+
+        [Test()]
+        public void AsBVZEXTNotWithoutBVZEXT()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var zext = sb.BVADD(v, v);
+            var asBvZExt = ExprUtil.AsBVZEXT(zext);
+            Assert.IsNull(asBvZExt);
         }
 
         [TestCase(1)]
