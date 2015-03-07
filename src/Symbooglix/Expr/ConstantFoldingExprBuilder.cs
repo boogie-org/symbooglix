@@ -1423,6 +1423,102 @@ namespace Symbooglix
 
             return UB.BVSDIV(lhs, rhs);
         }
+
+        public override Expr BVSREM(Expr lhs, Expr rhs)
+        {
+            // FIXME: I'm not sure about this, we're potentially type checking all Expr twice by doing this (here and in UB)
+            if (!lhs.Type.Equals(rhs.Type))
+                throw new ExprTypeCheckException("lhs and rhs type must be the same type");
+
+            if (!lhs.Type.IsBv)
+                throw new ExprTypeCheckException("arguments must be of bv type");
+
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                var numerator = lhsAsLit;
+                var denominator = rhsAsLit;
+                Debug.Assert(numerator.isBvConst);
+                Debug.Assert(denominator.isBvConst);
+                Debug.Assert(numerator .asBvConst.Bits == denominator.asBvConst.Bits);
+
+                // 2's complement signed remainder (sign follows dividend)
+                //
+                //     (bvsrem s t) abbreviates
+                // (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+                // (?msb_t ((_ extract |m-1| |m-1|) t)))
+                // (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+                //   (bvurem s t)
+                // (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+                //   (bvneg (bvurem (bvneg s) t))
+                // (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+                //   (bvurem s (bvneg t)))
+                // (bvneg (bvurem (bvneg s) (bvneg t))))))
+
+                if (denominator.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return UB.BVSREM(lhs, rhs);
+                }
+
+                // Check the sign of the bitvector in a two's complement representation
+                int bitwidth = numerator.asBvConst.Bits;
+                var threshold = BigInteger.Pow(2, bitwidth - 1);
+                var maxValuePlusOne = MaxValuePlusOne(bitwidth); // 2^( number of bits)
+
+                bool numeratorIsPositiveOrZero = numerator.asBvConst.Value.ToBigInteger < threshold;
+                bool denominatorIsPositiveOrZero = denominator.asBvConst.Value.ToBigInteger < threshold;
+
+                BigInteger result=0;
+
+                if (numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    result = (numerator.asBvConst.Value.ToBigInteger %
+                              denominator.asBvConst.Value.ToBigInteger) % maxValuePlusOne;
+                }
+                else if (!numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    result = BvNegOnNaturalNumber(
+                        BvNegOnNaturalNumber(numerator.asBvConst.Value.ToBigInteger, bitwidth) %
+                        denominator.asBvConst.Value.ToBigInteger,
+                        bitwidth
+                    ) % maxValuePlusOne;
+                }
+                else if (numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero)
+                {
+                    result = (
+                        numerator.asBvConst.Value.ToBigInteger %
+                        BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth )
+                    ) % maxValuePlusOne;
+                }
+                else
+                {
+                    Debug.Assert(!numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero);
+                    result = ( BvNegOnNaturalNumber(numerator.asBvConst.Value.ToBigInteger, bitwidth) %
+                              BvNegOnNaturalNumber(denominator.asBvConst.Value.ToBigInteger, bitwidth) ) % maxValuePlusOne;
+                }
+
+                Debug.Assert(result >= 0);
+                return ConstantBV(result, bitwidth);
+            }
+
+            // x % 1 ==> 0
+            //
+            // (declare-fun x () (_ BitVec 8))
+            // (declare-fun y () (_ BitVec 8))
+            // (assert (= y (_ bv1 8)))
+            // (assert (distinct (_ bv0 8) (bvsrem x y)))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.IsOne(rhs))
+            {
+                return ConstantBV(0, rhs.Type.BvBits);
+            }
+
+
+            return UB.BVSREM(lhs, rhs);
+        }
     }
 }
 
