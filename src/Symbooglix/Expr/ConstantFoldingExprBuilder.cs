@@ -2022,6 +2022,67 @@ namespace Symbooglix
 
             return UB.BVSLE(lhs, rhs);
         }
+
+        public override Expr BVSGT(Expr lhs, Expr rhs)
+        {
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!lhs.Type.IsBv)
+                    throw new ExprTypeCheckException("lhs must be a bitvector");
+
+
+                // Check the sign of the bitvectors in a two's complement representation
+                var threshold = BigInteger.Pow(2, lhsAsLit.asBvConst.Bits - 1);
+
+                bool lhsIsPositiveOrZero = lhsAsLit.asBvConst.Value.ToBigInteger < threshold;
+                bool rhsIsPositiveOrZero = rhsAsLit.asBvConst.Value.ToBigInteger < threshold;
+
+                if (lhsIsPositiveOrZero == rhsIsPositiveOrZero)
+                {
+                    // For this case with twos complement representation
+                    //
+                    // Notation: (x+ve) means x where x is a positive or zero bitvector under two's complement
+                    //  _decimal_rep means the decimal representation of the bitvector treating it as unsigned
+                    //
+                    //
+                    // (x+ve) > (y+ve) == (x_decimal_rep) > (y_decimal_rep)
+                    // (x-ve) > (y-ve) == (x_decimal_rep) > (y_decimal_rep)
+                    return ConstantBool(lhsAsLit.asBvConst.Value > rhsAsLit.asBvConst.Value);
+                }
+                else if (lhsIsPositiveOrZero && !rhsIsPositiveOrZero)
+                {
+                    // (x+ve) > (y-ve) == True
+                    return this.True;
+                }
+                else if (!lhsIsPositiveOrZero && rhsIsPositiveOrZero)
+                {
+                    // (x-ve) > (y+ve) == False
+                    return this.False;
+                }
+                else
+                {
+                    throw new InvalidProgramException("Unreachable!");
+                }
+            }
+
+            // <expr> > <expr> ==> false
+            //
+            // (declare-fun x () (_ BitVec 4))
+            // (declare-fun y () (_ BitVec 4))
+            // (assert (= x y))
+            // (assert (distinct false (bvsgt x y)))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+                return this.False;
+
+            return UB.BVSGT(lhs, rhs);
+        }
     }
 }
 
