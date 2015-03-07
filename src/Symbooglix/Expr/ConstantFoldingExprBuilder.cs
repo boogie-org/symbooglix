@@ -1222,6 +1222,39 @@ namespace Symbooglix
             // Can't constant fold
             return UB.BVMUL(lhs, rhs);
         }
+
+        public override Expr BVUDIV(Expr lhs, Expr rhs)
+        {
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+
+
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhsAsLit.isBvConst || !rhsAsLit.isBvConst)
+                    throw new ExprTypeCheckException("lhs and rhs must be of bvtype");
+
+                if (lhsAsLit.asBvConst.Bits != rhsAsLit.asBvConst.Bits)
+                    throw new ExprTypeCheckException("lhs and rhs bitwidth must match");
+
+                if (rhsAsLit.asBvConst.Value.IsZero)
+                {
+                    // Can't divide by zero, don't fold
+                    return UB.BVUDIV(lhs, rhs);
+                }
+
+                //    [[(bvudiv s t)]] := if bv2nat([[t]]) != 0 then
+                //                           nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
+                //
+                var MaxValuePlusOne = (new BigInteger(1)) << lhsAsLit.asBvConst.Bits ; // 2^( number of bits)
+                Debug.Assert(!lhsAsLit.asBvConst.Value.IsNegative);
+                Debug.Assert(!rhsAsLit.asBvConst.Value.IsNegative);
+                var result = ( lhsAsLit.asBvConst.Value.ToBigInteger / rhsAsLit.asBvConst.Value.ToBigInteger ) % MaxValuePlusOne;
+                return ConstantBV(result, lhsAsLit.asBvConst.Bits);
+            }
+
+            return UB.BVUDIV(lhs, rhs);
+        }
     }
 }
 
