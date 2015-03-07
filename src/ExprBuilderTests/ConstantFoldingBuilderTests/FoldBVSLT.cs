@@ -31,6 +31,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.AreEqual(expectedTruth, asLit.asBool);
         }
 
+        [Test()]
         public void EqualExpr()
         {
             var cfb = GetConstantFoldingBuilder();
