@@ -1519,6 +1519,122 @@ namespace Symbooglix
 
             return UB.BVSREM(lhs, rhs);
         }
+
+        public override Expr BVSMOD(Expr lhs, Expr rhs)
+        {
+            // FIXME: I'm not sure about this, we're potentially type checking all Expr twice by doing this (here and in UB)
+            if (!lhs.Type.Equals(rhs.Type))
+                throw new ExprTypeCheckException("lhs and rhs type must be the same type");
+
+            if (!lhs.Type.IsBv)
+                throw new ExprTypeCheckException("arguments must be of bv type");
+
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                // SMTLIBv2 definition
+                // 2's complement signed remainder (sign follows divisor)
+                //
+                //    (bvsmod s t) abbreviates
+                // (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+                //       (?msb_t ((_ extract |m-1| |m-1|) t)))
+                //       (let ((abs_s (ite (= ?msb_s #b0) s (bvneg s)))
+                //             (abs_t (ite (= ?msb_t #b0) t (bvneg t))))
+                //             (let ((u (bvurem abs_s abs_t)))
+                //                  (ite (= u (_ bv0 m))
+                //                       u
+                //                       (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+                //                             u
+                //                             (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+                //                                  (bvadd (bvneg u) t)
+                //                                  (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+                //                                  (bvadd u t)
+                //                                  (bvneg u))))))))
+
+                var numerator = lhsAsLit.asBvConst;
+                var denominator = rhsAsLit.asBvConst;
+                int bitWidth = numerator.Bits;
+                Debug.Assert(numerator.Bits == denominator.Bits);
+                Debug.Assert(!numerator.Value.IsNegative);
+                Debug.Assert(!denominator.Value.IsNegative);
+
+                if (denominator.Value.IsZero)
+                {
+                    // Can't do bvsmod by zero so don't fold
+                    return UB.BVSMOD(lhs, rhs);
+                }
+
+                var threshold = BigInteger.Pow(2, bitWidth - 1);
+                var numeratorIsPositiveOrZero = numerator.Value.ToBigInteger < threshold;
+                var denominatorIsPositiveOrZero = denominator.Value.ToBigInteger < threshold;
+
+                BigInteger absNumerator = 0;
+
+                // Compute the absolute value represented by the bitvector
+                if (numeratorIsPositiveOrZero)
+                    absNumerator = numerator.Value.ToBigInteger;
+                else
+                    absNumerator = BvNegOnNaturalNumber(numerator.Value.ToBigInteger, bitWidth);
+
+                BigInteger absDenominator = 0;
+
+                if (denominatorIsPositiveOrZero)
+                    absDenominator = denominator.Value.ToBigInteger;
+                else
+                    absDenominator = BvNegOnNaturalNumber(denominator.Value.ToBigInteger, bitWidth);
+
+                // Compute (bvurem absNumerator absDenominator). This corresponds to "u" in the SMTLIBv2 definition
+                Debug.Assert(absNumerator >= 0);
+                Debug.Assert(absDenominator >= 0);
+
+                var bvuremAbsArgs = absNumerator % absDenominator;
+                var maxValuePlusOne = BigInteger.Pow(2, bitWidth);
+
+                BigInteger result = 0;
+                if (bvuremAbsArgs.IsZero)
+                {
+                    result = 0;
+                }
+                else if (numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    result = bvuremAbsArgs;
+                }
+                else if (!numeratorIsPositiveOrZero && denominatorIsPositiveOrZero)
+                {
+                    // (bvadd (bvneg u) t)
+                    var bvNegU = BvNegOnNaturalNumber(bvuremAbsArgs, bitWidth);
+                    result = ( bvNegU + denominator.Value.ToBigInteger ) % maxValuePlusOne;
+                }
+                else if (numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero)
+                {
+                    //  (bvadd u t)
+                    result = (bvuremAbsArgs + denominator.Value.ToBigInteger) % maxValuePlusOne;
+                }
+                else
+                {
+                    Debug.Assert(!numeratorIsPositiveOrZero && !denominatorIsPositiveOrZero);
+                    result = BvNegOnNaturalNumber(bvuremAbsArgs, bitWidth);
+                }
+
+                return ConstantBV(result, bitWidth);
+            }
+
+            // x % 1 ==> 0
+            //
+            // (declare-fun x () (_ BitVec 8))
+            // (declare-fun y () (_ BitVec 8))
+            // (assert (= y (_ bv1 8)))
+            // (assert (distinct (_ bv0 8) (bvsmod x y)))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.IsOne(rhs))
+            {
+                return ConstantBV(0, rhs.Type.BvBits);
+            }
+
+            return UB.BVSMOD(lhs, rhs);
+        }
     }
 }
 
