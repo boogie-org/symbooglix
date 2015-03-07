@@ -259,6 +259,11 @@ namespace Symbooglix
             return e as BvExtractExpr;
         }
 
+        public static NAryExpr AsBVSLT(Expr e)
+        {
+            return GetBVOperator(e, "bvslt");
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);
