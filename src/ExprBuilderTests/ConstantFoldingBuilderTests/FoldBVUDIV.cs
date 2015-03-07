@@ -58,12 +58,16 @@ namespace ExprBuilderTests.ConstantFoldingTests
         [Test()]
         public void NoFold()
         {
-            var cfb = GetConstantFoldingBuilder();
-            var dividend = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
-            var divisor = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
-            var result = cfb.BVUDIV(dividend, divisor);
+            var builders = GetSimpleAndConstantFoldingBuilder();
+            SimpleExprBuilder sfb = builders.Item1;
+            ConstantFoldingExprBuilder cfb = builders.Item2;
+            var arg0 = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
+            var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
+            var simpleResult = sfb.BVUDIV(arg0, arg1);
+            var result = cfb.BVUDIV(arg0, arg1);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVUDIV(result));
+            Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));
         }
     }
 }
