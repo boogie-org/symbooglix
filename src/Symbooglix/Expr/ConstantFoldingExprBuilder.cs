@@ -1762,7 +1762,7 @@ namespace Symbooglix
             if (asLit != null)
             {
                 if (newWidth < asLit.asBvConst.Bits)
-                    throw new ExprTypeCheckException("Can't extend bitvector to a small length");
+                    throw new ExprTypeCheckException("Can't extend bitvector to a smaller length");
 
                 if (newWidth == asLit.asBvConst.Bits)
                 {
@@ -1783,6 +1783,9 @@ namespace Symbooglix
                 // Sign extending to the same width is a no-op
                 if (operandWidth == newWidth)
                     return operand;
+
+                if (newWidth < operandWidth)
+                    throw new ExprTypeCheckException("Can't extend bitvector to a smaller length");
 
                 return UB.BVZEXT(asBvZExt.Args[0], newWidth);
             }
