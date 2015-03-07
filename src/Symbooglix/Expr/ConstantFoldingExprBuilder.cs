@@ -1826,6 +1826,63 @@ namespace Symbooglix
             // Can't constant fold
             return UB.BVCONCAT(MSB, LSB);
         }
+
+        public override Expr BVEXTRACT(Expr operand, int end, int start)
+        {
+            var asLit = ExprUtil.AsLiteral(operand);
+            if (asLit != null)
+            {
+                // FIXME: We've just reimplemented the type checking in the SimpleExprBuilder
+                if (!operand.Type.IsBv)
+                    throw new ExprTypeCheckException("operand must be a bitvector");
+
+                if (end < 0)
+                    throw new ExprTypeCheckException("end must be >= 0");
+
+                if (end <= start)
+                    throw new ExprTypeCheckException("end must be > start");
+
+
+                var BV = asLit.asBvConst;
+                // ABitVector[<end>:<start>]
+                // This operation selects bits starting at <start> to <end> but not including <end>
+
+                // Compute the bit extraction
+                BigInteger bitsBeforeStartRemoved = BV.Value.ToBigInteger >> start;
+                int numberOfBitsInResult = end - start;
+                BigInteger bitMask = (BigInteger.One << numberOfBitsInResult) -1;
+                BigInteger result = bitsBeforeStartRemoved & bitMask; // Mask off bits we don't want
+                return ConstantBV(result, numberOfBitsInResult);
+            }
+
+            // If end and start just select the whole bitvector
+            // then is operation is a no-op
+            if (operand.Type.IsBv && start == 0 && end == operand.Type.BvBits)
+            {
+                return operand;
+            }
+
+
+            // Check for trying extract a region with an extracted region.
+            // We can recompute the effective end and start so there
+            // is a single BvExtractExpr rather than two nested BvExtractExpr
+            var operandAsBvExtract = ExprUtil.AsBVEXTRACT(operand);
+            if (operand.Type.IsBv && operandAsBvExtract != null)
+            {
+                var originalEnd = operandAsBvExtract.End;
+                var originalStart = operandAsBvExtract.Start;
+
+                var effectiveStart = start + originalStart;
+                var effectiveEnd = end + originalStart;
+
+                if (effectiveEnd > originalEnd)
+                    throw new ExprTypeCheckException("end is too large");
+
+                return UB.BVEXTRACT(operandAsBvExtract.Bitvector, effectiveEnd, effectiveStart);
+            }
+
+            return UB.BVEXTRACT(operand, end, start);
+        }
     }
 }
 
