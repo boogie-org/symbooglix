@@ -1661,6 +1661,38 @@ namespace Symbooglix
 
             return UB.BVNEG(operand);
         }
+
+        private BigInteger InvertDecimalReprBVBits(BigInteger decimalRepr, int bitWidth)
+        {
+            Debug.Assert(bitWidth > 0);
+            var bitMask = BigInteger.Pow(2, bitWidth) -1; // Decimal representation of all ones
+            var result = decimalRepr ^ bitMask; // Using Xor with all ones will invert all the bits
+            return result;
+        }
+
+        public override Expr BVNOT(Expr operand)
+        {
+            var asLit = ExprUtil.AsLiteral(operand);
+            if (asLit != null)
+            {
+                var result = InvertDecimalReprBVBits(asLit.asBvConst.Value.ToBigInteger, asLit.asBvConst.Bits);
+                return ConstantBV(result, asLit.asBvConst.Bits);
+            }
+
+            // ~ (~x) ==> x
+            //
+            // (declare-fun x () (_ BitVec 8))
+            // (assert (distinct x (bvnot (bvnot x))))
+            // (check-sat)
+            // unsat
+            var asBvNot = ExprUtil.AsBVNOT(operand);
+            if (asBvNot != null)
+            {
+                return asBvNot.Args[0];
+            }
+
+            return UB.BVNOT(operand);
+        }
     }
 }
 
