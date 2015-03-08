@@ -310,6 +310,11 @@ namespace Symbooglix
             return GetBVOperator(e, "bvxor");
         }
 
+        public static NAryExpr AsBVSHL(Expr e)
+        {
+            return GetBVOperator(e, "bvshl");
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);

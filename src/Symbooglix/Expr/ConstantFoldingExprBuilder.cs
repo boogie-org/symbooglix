@@ -2546,6 +2546,70 @@ namespace Symbooglix
             return UB.BVXOR(lhs, rhs);
         }
 
+        public override Expr BVSHL(Expr lhs, Expr rhs)
+        {
+            var valueToShift = ExprUtil.AsLiteral(lhs);
+            var shiftWidth = ExprUtil.AsLiteral(rhs);
+            if (shiftWidth != null)
+            {
+                var bitWidth = ( lhs.Type.BvBits );
+
+                // <expr> << X (where X is a constant greater or equal to bit width)
+                //
+                //(declare-fun x () (_ BitVec 4))
+                // (declare-fun y () (_ BitVec 4))
+                // (assert (bvuge y (_ bv4 4)))
+                // (assert (distinct (_ bv0 4) (bvshl x (_ bv4 4))))
+                // (check-sat)
+                // unsat
+                if (shiftWidth.asBvConst.Value >= BigNum.FromInt(bitWidth))
+                {
+                    return ConstantBV(0, bitWidth);
+                }
+
+                if (valueToShift != null)
+                {
+                    if (!lhs.Type.Equals(rhs.Type))
+                        throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                    if (!rhs.Type.IsBv)
+                        throw new ExprTypeCheckException("rhs must be a bitvector");
+
+                    // SMTLIBv2 definition is
+                    //
+                    //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
+                    //
+                    //  nat2bv[m], with 0 < m, which takes a non-negative integer
+                    //  n and returns the (unique) bitvector b: [0,...,m) -> {0,1}
+                    //    such that
+                    //
+                    //   b(m-1)*2^{m-1} + ... + b(0)*2^0 = n rem 2^m
+                    //
+                    // NOTE: Even though there is a "rem 2^m" there when the multiplication
+                    // multiplies all the bits out of the original value then any division by
+                    // 2^m is guaranteed to have zero remainder
+                    var maxWidthPlusOne = MaxValuePlusOne(bitWidth);
+                    var result = ( valueToShift.asBvConst.Value.ToBigInteger << shiftWidth.asBvConst.Value.ToIntSafe ) % maxWidthPlusOne;
+                    Debug.Assert(result < ( BigInteger.Pow(2, bitWidth) - 1 ));
+                    return ConstantBV(result, bitWidth);
+                }
+            }
+            else if (valueToShift != null && ExprUtil.IsZero(valueToShift))
+            {
+                // 0 << <expr> ==> 0
+                return ConstantBV(0, valueToShift.Type.BvBits);
+            }
+
+
+            // <expr> << 0 ==> <expr>
+            if (ExprUtil.IsZero(shiftWidth))
+            {
+                return lhs;
+            }
+
+            return UB.BVSHL(lhs, rhs);
+        }
+
 
     }
 }
