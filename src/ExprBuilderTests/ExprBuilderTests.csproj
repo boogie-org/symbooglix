@@ -86,6 +86,7 @@
     <Compile Include="ConstantFoldingBuilderTests\FoldBVSGT.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldBVSGE.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldBVULT.cs" />
+    <Compile Include="ConstantFoldingBuilderTests\FoldBVULE.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
