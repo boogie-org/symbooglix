@@ -2260,6 +2260,110 @@ namespace Symbooglix
 
             return UB.BVUGE(lhs, rhs);
         }
+
+        public override Expr BVAND(Expr lhs, Expr rhs)
+        {
+            // BVAND is commutative so always ensure that if at least one of the operands
+            // is constant there will be a constant on the lhs
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!lhs.Type.IsBv)
+                    throw new ExprTypeCheckException("lhs must be a bitvector");
+
+                return ConstantBV(lhsAsLit.asBvConst.Value.ToBigInteger & rhsAsLit.asBvConst.Value.ToBigInteger, lhs.Type.BvBits);
+            }
+
+            // 0 & <expr> ==> 0
+            if (lhsAsLit != null && lhsAsLit.isBvConst && lhsAsLit.asBvConst.Value.IsZero)
+            {
+                return ConstantBV(0, lhsAsLit.asBvConst.Bits);
+            }
+
+            // <all ones> & <expr> ==> <expr>
+            if (ExprUtil.IsBVAllOnes(lhs))
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!rhs.Type.IsBv)
+                    throw new ExprTypeCheckException("rhs must be a bitvector");
+
+                return rhs;
+            }
+
+
+
+            // Use associativity and commutivity to rewrite
+            // a + (b + c) ==> (a + b) +c  where a is a constant
+            // The aim to try to propagate constants up (towards the root)
+            var rhsAsBVAND = ExprUtil.AsBVAND(rhs);
+            if (rhsAsBVAND != null)
+            {
+                var rhsBVANDlhs = rhsAsBVAND.Args[0];
+                var rhsBVANDrhs = rhsAsBVAND.Args[1];
+
+                var rhsBVANDlhsAsLit = ExprUtil.AsLiteral(rhsBVANDlhs);
+                if (lhsAsLit != null && rhsBVANDlhsAsLit != null)
+                {
+                    //     &
+                    //    / \
+                    //   1   &
+                    //      / \
+                    //      2 x
+                    // fold to
+                    // (1 & 2) & x
+                    return BVAND(BVAND(lhsAsLit, rhsBVANDlhsAsLit), rhsBVANDrhs);
+                }
+                else if (rhsBVANDlhsAsLit != null)
+                {
+                    //     &
+                    //    / \
+                    //   x   &
+                    //      / \
+                    //     1  y
+                    // propagate constant up
+                    //  1 & (x & y)
+                    Debug.Assert(lhsAsLit == null);
+                    return BVAND(rhsBVANDlhsAsLit, BVAND(lhs, rhsBVANDrhs));
+                }
+            }
+
+            // If the lhs is a constant and it contains a single contigious pattern of ones
+            // e.g. 01110 we can convert this into a BvExtractExpr
+            if (lhsAsLit != null)
+            {
+                var bitRange = ExprUtil.FindContiguousBitMask(lhsAsLit);
+                if (bitRange != null)
+                {
+                    Debug.Assert(bitRange.Item2 >= bitRange.Item1);
+                    // Note +1 is because BVEXTRACT is an open range on the hit bit side whereas
+                    // FindContigouous returns a closed range of both sides.
+                    return BVEXTRACT(rhs, bitRange.Item2 + 1, bitRange.Item1);
+                }
+            }
+
+            // <expr> & <expr> ==> <expr>
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return lhs;
+            }
+
+            return UB.BVAND(lhs, rhs);
+        }
+
+
     }
 }
 
