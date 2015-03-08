@@ -2449,6 +2449,103 @@ namespace Symbooglix
             return UB.BVOR(lhs, rhs);
         }
 
+        //!
+        public override Expr BVXOR(Expr lhs, Expr rhs)
+        {
+            // BVOR is commutative so always ensure that if at least one of the operands
+            // is constant there will be a constant on the lhs
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!lhs.Type.IsBv)
+                    throw new ExprTypeCheckException("lhs must be a bitvector");
+
+                return ConstantBV(lhsAsLit.asBvConst.Value.ToBigInteger ^ rhsAsLit.asBvConst.Value.ToBigInteger, lhs.Type.BvBits);
+            }
+
+            // 0 ^ <expr> ==> <expr>
+            // (declare-fun x () (_ BitVec 4))
+            // (declare-fun y () (_ BitVec 4))
+            // (assert (distinct y (bvxor (_ bv0 4) y)))
+            // (check-sat)
+            // unsat
+            if (lhsAsLit != null && lhsAsLit.isBvConst && lhsAsLit.asBvConst.Value.IsZero)
+            {
+                return rhs;
+            }
+
+            // <all ones> ^ <expr> ==> (bvnot <expr>)
+            // (declare-fun x () (_ BitVec 4))
+            // (declare-fun y () (_ BitVec 4))
+            // (assert (distinct (bvnot y) (bvxor (_ bv15 4) y)))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.IsBVAllOnes(lhs))
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!rhs.Type.IsBv)
+                    throw new ExprTypeCheckException("rhs must be a bitvector");
+
+                return BVNOT(rhs);
+            }
+
+            // Use associativity and commutivity to rewrite
+            // a ^ (b ^ c) ==> (a ^ b) ^ c  where a is a constant
+            // The aim to try to propagate constants up (towards the root)
+            var rhsAsBVXOR = ExprUtil.AsBVXOR(rhs);
+            if (rhsAsBVXOR != null)
+            {
+                var rhsBVXORlhs = rhsAsBVXOR.Args[0];
+                var rhsBVXORrhs = rhsAsBVXOR.Args[1];
+
+                var rhsBVXORlhsAsLit = ExprUtil.AsLiteral(rhsBVXORlhs);
+                if (lhsAsLit != null && rhsBVXORlhsAsLit != null)
+                {
+                    //     ^
+                    //    / \
+                    //   1   ^
+                    //      / \
+                    //      2 x
+                    // fold to
+                    // (1 ^ 2) ^ x
+                    return BVXOR(BVXOR(lhsAsLit, rhsBVXORlhsAsLit), rhsBVXORrhs);
+                }
+                else if (rhsBVXORlhsAsLit != null)
+                {
+                    //     ^
+                    //    / \
+                    //   x   ^
+                    //      / \
+                    //     1  y
+                    // propagate constant up
+                    //  1 ^ (x ^ y)
+                    Debug.Assert(lhsAsLit == null);
+                    return BVXOR(rhsBVXORlhsAsLit, BVXOR(lhs, rhsBVXORrhs));
+                }
+            }
+
+            // <expr> ^ <expr> ==> 0
+            if (ExprUtil.StructurallyEqual(lhs, rhs) && lhs.Type.IsBv)
+            {
+                return ConstantBV(0, lhs.Type.BvBits);
+            }
+
+            return UB.BVXOR(lhs, rhs);
+        }
+
 
     }
 }
