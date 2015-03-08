@@ -2202,6 +2202,35 @@ namespace Symbooglix
 
             return UB.BVULE(lhs, rhs);
         }
+
+        public override Expr BVUGT(Expr lhs, Expr rhs)
+        {
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!lhs.Type.IsBv)
+                    throw new ExprTypeCheckException("lhs must be a bitvector");
+
+                return ConstantBool(lhsAsLit.asBvConst.Value > rhsAsLit.asBvConst.Value);
+            }
+
+            // <expr> > <expr> ==> false
+            //
+            // (declare-fun x () (_ BitVec 4))
+            // (declare-fun y () (_ BitVec 4))
+            // (assert (= x y))
+            // (assert (distinct false (bvugt x y)))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+                return this.False;
+
+            return UB.BVUGT(lhs, rhs);
+        }
     }
 }
 
