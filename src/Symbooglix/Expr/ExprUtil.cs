@@ -161,11 +161,6 @@ namespace Symbooglix
             return GetBVOperator(e, "bvmul");
         }
 
-        public static NAryExpr AsBVUGT(Expr e)
-        {
-            return GetBVOperator(e, "bvugt");
-        }
-
         public static NAryExpr AsBVUDIV(Expr e)
         {
             return GetBVOperator(e, "bvudiv");
@@ -287,6 +282,16 @@ namespace Symbooglix
         public static NAryExpr AsBVULE(Expr e)
         {
             return GetBVOperator(e, "bvule");
+        }
+
+        public static NAryExpr AsBVUGT(Expr e)
+        {
+            return GetBVOperator(e, "bvugt");
+        }
+
+        public static NAryExpr AsBVUGE(Expr e)
+        {
+            return GetBVOperator(e, "bvuge");
         }
 
         public static bool IsZero(Expr e)
