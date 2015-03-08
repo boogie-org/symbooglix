@@ -2363,6 +2363,92 @@ namespace Symbooglix
             return UB.BVAND(lhs, rhs);
         }
 
+        public override Expr BVOR(Expr lhs, Expr rhs)
+        {
+            // BVOR is commutative so always ensure that if at least one of the operands
+            // is constant there will be a constant on the lhs
+            if (ExprUtil.AsLiteral(rhs) != null)
+            {
+                Expr temp = lhs;
+                lhs = rhs;
+                rhs = temp;
+            }
+
+            var lhsAsLit = ExprUtil.AsLiteral(lhs);
+            var rhsAsLit = ExprUtil.AsLiteral(rhs);
+            if (lhsAsLit != null && rhsAsLit != null)
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!lhs.Type.IsBv)
+                    throw new ExprTypeCheckException("lhs must be a bitvector");
+
+                return ConstantBV(lhsAsLit.asBvConst.Value.ToBigInteger | rhsAsLit.asBvConst.Value.ToBigInteger, lhs.Type.BvBits);
+            }
+
+            // 0 | <expr> ==> <expr>
+            if (lhsAsLit != null && lhsAsLit.isBvConst && lhsAsLit.asBvConst.Value.IsZero)
+            {
+                return rhs;
+            }
+
+            // <all ones> | <expr> ==> <all ones>
+            if (ExprUtil.IsBVAllOnes(lhs))
+            {
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!rhs.Type.IsBv)
+                    throw new ExprTypeCheckException("rhs must be a bitvector");
+
+                return lhs;
+            }
+
+            // Use associativity and commutivity to rewrite
+            // a | (b | c) ==> (a | b) | c  where a is a constant
+            // The aim to try to propagate constants up (towards the root)
+            var rhsAsBVOR = ExprUtil.AsBVOR(rhs);
+            if (rhsAsBVOR != null)
+            {
+                var rhsBVORlhs = rhsAsBVOR.Args[0];
+                var rhsBVORrhs = rhsAsBVOR.Args[1];
+
+                var rhsBVORlhsAsLit = ExprUtil.AsLiteral(rhsBVORlhs);
+                if (lhsAsLit != null && rhsBVORlhsAsLit != null)
+                {
+                    //     |
+                    //    / \
+                    //   1   |
+                    //      / \
+                    //      2 x
+                    // fold to
+                    // (1 | 2) | x
+                    return BVOR(BVOR(lhsAsLit, rhsBVORlhsAsLit), rhsBVORrhs);
+                }
+                else if (rhsBVORlhsAsLit != null)
+                {
+                    //     |
+                    //    / \
+                    //   x   |
+                    //      / \
+                    //     1  y
+                    // propagate constant up
+                    //  1 | (x | y)
+                    Debug.Assert(lhsAsLit == null);
+                    return BVOR(rhsBVORlhsAsLit, BVOR(lhs, rhsBVORrhs));
+                }
+            }
+
+            // <expr> | <expr> ==> <expr>
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return lhs;
+            }
+
+            return UB.BVOR(lhs, rhs);
+        }
+
 
     }
 }
