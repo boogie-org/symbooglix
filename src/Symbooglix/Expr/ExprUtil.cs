@@ -325,6 +325,11 @@ namespace Symbooglix
             return GetBVOperator(e, "bvlshr");
         }
 
+        public static NAryExpr AsBVASHR(Expr e)
+        {
+            return GetBVOperator(e, "bvashr");
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);

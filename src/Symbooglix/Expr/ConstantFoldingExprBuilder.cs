@@ -2583,10 +2583,10 @@ namespace Symbooglix
 
                 // <expr> << X (where X is a constant greater or equal to bit width)
                 //
-                //(declare-fun x () (_ BitVec 4))
+                // (declare-fun x () (_ BitVec 4))
                 // (declare-fun y () (_ BitVec 4))
                 // (assert (bvuge y (_ bv4 4)))
-                // (assert (distinct (_ bv0 4) (bvshl x (_ bv4 4))))
+                // (assert (distinct (_ bv0 4) (bvshl x y)))
                 // (check-sat)
                 // unsat
                 if (shiftWidth.asBvConst.Value >= BigNum.FromInt(bitWidth))
@@ -2647,10 +2647,10 @@ namespace Symbooglix
 
                 // <expr> >> X (where X is a constant greater or equal to bit width)
                 //
-                //(declare-fun x () (_ BitVec 4))
+                // (declare-fun x () (_ BitVec 4))
                 // (declare-fun y () (_ BitVec 4))
                 // (assert (bvuge y (_ bv4 4)))
-                // (assert (distinct (_ bv0 4) (bvlshr x (_ bv4 4))))
+                // (assert (distinct (_ bv0 4) (bvlshr x y)))
                 // (check-sat)
                 // unsat
                 if (shiftWidth.asBvConst.Value >= BigNum.FromInt(bitWidth))
@@ -2689,6 +2689,96 @@ namespace Symbooglix
             }
 
             return UB.BVLSHR(lhs, rhs);
+        }
+
+        public override Expr BVASHR(Expr lhs, Expr rhs)
+        {
+            var valueToShift = ExprUtil.AsLiteral(lhs);
+            var shiftWidth = ExprUtil.AsLiteral(rhs);
+
+            // <expr> >> X != 0 (where X is a constant greater or equal to bit width)
+            //
+            // (declare-fun x () (_ BitVec 4))
+            // (declare-fun y () (_ BitVec 4))
+            // (declare-fun z () (_ BitVec 4))
+            // (assert (bvuge y (_ bv5 4)))
+            // (assert (= z (bvashr x y)))
+            // (assert (distinct (_ bv0 4) z)))
+            // (check-sat)
+            // sat
+            //
+            // So we can't fold to zero (or to all ones). It depends on the sign of valueToShift
+
+
+            if (shiftWidth != null && valueToShift != null)
+            {
+                var bitWidth = ( lhs.Type.BvBits );
+
+                if (!lhs.Type.Equals(rhs.Type))
+                    throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                if (!rhs.Type.IsBv)
+                    throw new ExprTypeCheckException("rhs must be a bitvector");
+
+                // SMTLIBv2 definition is
+                //     (bvashr s t) abbreviates
+                //     (ite (= ((_ extract |m-1| |m-1|) s) #b0)
+                //     (bvlshr s t)
+                //     (bvnot (bvlshr (bvnot s) t)))
+
+
+                var valueToShiftBI = valueToShift.asBvConst.Value.ToBigInteger;
+                Debug.Assert(valueToShiftBI >= 0);
+                var shiftWidthBI = shiftWidth.asBvConst.Value.ToBigInteger;
+                Debug.Assert(shiftWidthBI >= 0);
+                var threshold = BigInteger.Pow(2, bitWidth - 1);
+                bool MSBIsZero = valueToShiftBI < threshold;
+
+                BigInteger result = 0;
+                if (MSBIsZero)
+                {
+                    // Fold just like bvlshr
+                    result = ( valueToShiftBI >> shiftWidth.asBvConst.Value.ToIntSafe ) % MaxValuePlusOne(bitWidth);
+                }
+                else
+                {
+                    // Shift the inverted bit pattern
+                    var invertedValueToShift = InvertDecimalReprBVBits(valueToShiftBI, bitWidth);
+                    result = invertedValueToShift >> shiftWidth.asBvConst.Value.ToIntSafe;
+
+                    // now invert back
+                    result = InvertDecimalReprBVBits(result, bitWidth);
+                    result = result % MaxValuePlusOne(bitWidth);
+                }
+                Debug.Assert(result <= ( BigInteger.Pow(2, bitWidth) - 1 ));
+                return ConstantBV(result, bitWidth);
+
+            }
+
+            if (ExprUtil.IsZero(lhs))
+            {
+                // 0 >> <expr> ==> 0
+                //
+                // (declare-fun x () (_ BitVec 4))
+                // (assert (distinct (_ bv0 4) (bvashr (_ bv0 4) x)))
+                // (check-sat)
+                // unsat
+                return ConstantBV(0, valueToShift.Type.BvBits);
+            }
+
+
+            // <expr> >> 0 ==> <expr>
+            //
+            // (declare-fun x () (_ BitVec 4))
+            // (assert (distinct x (bvashr x (_ bv0 4))))
+            // (check-sat)
+            // unsat
+            if (ExprUtil.IsZero(rhs))
+            {
+                return lhs;
+            }
+
+            return UB.BVASHR(lhs, rhs);
         }
 
 
