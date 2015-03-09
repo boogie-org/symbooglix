@@ -60,7 +60,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v0 = GetVarAndIdExpr("x", BasicType.Int);
             var side = cfb.Add(v0.Item2, v0.Item2);
             var foldedResult = cfb.Le(side, side);
-            CheckType(foldedResult, p => p.IsBool);
+            CheckIsBoolType(foldedResult);
             Assert.IsTrue(ExprUtil.IsTrue(foldedResult));
         }
 
@@ -74,7 +74,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.Le(v0.Item2, v1.Item2);
             var simpleResult = sfb.Le(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsBool);
+            CheckIsBoolType(foldedResult);
+            CheckIsBoolType(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

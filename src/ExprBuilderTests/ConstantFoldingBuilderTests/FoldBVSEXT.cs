@@ -51,6 +51,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 // Sign extending to the same width should be a no-op
                 result = cfb.BVSEXT(result, 8);
+                CheckIsBvType(result, 8);
             }
 
             Assert.AreSame(root, result);
@@ -65,6 +66,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var id = GetVarAndIdExpr("foo", BasicType.GetBvType(8)).Item2;
             var foldedResult = cfb.BVSEXT(id, 16);
             var simpleResult = sb.BVSEXT(id, 16);
+            CheckIsBvType(simpleResult, 16);
             CheckIsBvType(foldedResult, 16);
             Assert.AreEqual(simpleResult, foldedResult);
 

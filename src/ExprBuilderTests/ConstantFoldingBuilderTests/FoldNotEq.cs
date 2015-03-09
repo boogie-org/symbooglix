@@ -8,92 +8,75 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldNotEq : ConstantFoldingExprBuilderTests
     {
-        [Test()]
-        public void simpleConstantBoolEqual()
+        [TestCase(true, true, false)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, false)]
+        public void simpleConstantBool(bool lhs, bool rhs, bool truth)
         {
             var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.True;
-            var constant1 = cfb.True;
+            var constant0 = cfb.ConstantBool(lhs);
+            var constant1 = cfb.ConstantBool(rhs);
             var result = cfb.NotEq(constant0, constant1);
             CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsFalse(result));
+            if (truth)
+                Assert.IsTrue(ExprUtil.IsTrue(result));
+            else
+                Assert.IsTrue(ExprUtil.IsFalse(result));
         }
 
-        [Test()]
-        public void simpleConstantBoolNotEqual()
+
+        [TestCase(0, 0, 4, false)]
+        [TestCase(0, 1, 4, true)]
+        [TestCase(1, 0, 4, true)]
+        public void simpleConstantBv(int lhsDecRepr, int rhsDecRepr, int bitWidth, bool truth)
         {
             var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.False;
-            var constant1 = cfb.True;
+            var constant0 = cfb.ConstantBV(lhsDecRepr, 4);
+            var constant1 = cfb.ConstantBV(rhsDecRepr, 4);
             var result = cfb.NotEq(constant0, constant1);
             CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
+            if (truth)
+                Assert.IsTrue(ExprUtil.IsTrue(result));
+            else
+                Assert.IsTrue(ExprUtil.IsFalse(result));
         }
 
-        [Test()]
-        public void simpleConstantBvEqual()
+        [TestCase(0, 0, false)]
+        [TestCase(0, 1, true)]
+        [TestCase(1, -1, true)]
+        [TestCase(2, -1, true)]
+        [TestCase(2, -2, true)]
+        [TestCase(1, 1, false)]
+        public void simpleConstantInt(int lhs, int rhs, bool truth)
         {
             var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.ConstantBV(0, 4);
-            var constant1 = cfb.ConstantBV(0, 4);
+            var constant0 = cfb.ConstantInt(lhs);
+            var constant1 = cfb.ConstantInt(rhs);
             var result = cfb.NotEq(constant0, constant1);
             CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsFalse(result));
+            if (truth)
+                Assert.IsTrue(ExprUtil.IsTrue(result));
+            else
+                Assert.IsTrue(ExprUtil.IsFalse(result));
         }
 
-        [Test()]
-        public void simpleConstantBvNotEqual()
+        [TestCase("0.0", "0.0", false)]
+        [TestCase("0.0", "0.1", true)]
+        [TestCase("0.1", "0.0", true)]
+        [TestCase("-0.0", "0.0", false)]
+        [TestCase("15.0", "15.0001", true)]
+        public void simpleConstantReal(string lhs, string rhs, bool truth)
         {
             var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.ConstantBV(0, 4);
-            var constant1 = cfb.ConstantBV(2, 4);
+            var constant0 = cfb.ConstantReal(lhs);
+            var constant1 = cfb.ConstantReal(rhs);
             var result = cfb.NotEq(constant0, constant1);
             CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
-        }
-
-        [Test()]
-        public void simpleConstantIntEqual()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.ConstantInt(0);
-            var constant1 = cfb.ConstantInt(0);
-            var result = cfb.NotEq(constant0, constant1);
-            CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsFalse(result));
-        }
-
-        [Test()]
-        public void simpleConstantIntNotEqual()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.ConstantInt(0);
-            var constant1 = cfb.ConstantInt(1);
-            var result = cfb.NotEq(constant0, constant1);
-            CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
-        }
-
-        [Test()]
-        public void simpleConstantRealEqual()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.ConstantReal("0.0");
-            var constant1 = cfb.ConstantReal("0.0");
-            var result = cfb.NotEq(constant0, constant1);
-            CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsFalse(result));
-        }
-
-        [Test()]
-        public void simpleConstantRealNotEqual()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var constant0 = cfb.ConstantReal("0.0");
-            var constant1 = cfb.ConstantReal("0.1");
-            var result = cfb.NotEq(constant0, constant1);
-            CheckIsBoolType(result);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
+            if (truth)
+                Assert.IsTrue(ExprUtil.IsTrue(result));
+            else
+                Assert.IsTrue(ExprUtil.IsFalse(result));
         }
 
         [Test()]
@@ -104,7 +87,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v0 = GetVarAndIdExpr("x", BasicType.Int);
             var side = cfb.Add(v0.Item2, v0.Item2);
             var foldedResult = cfb.NotEq(side, side);
-            CheckType(foldedResult, p => p.IsBool);
+            CheckIsBoolType(foldedResult);
             Assert.IsTrue(ExprUtil.IsFalse(foldedResult));
         }
 
@@ -118,7 +101,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.NotEq(v0.Item2, v1.Item2);
             var simpleResult = sfb.NotEq(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsBool);
+            CheckIsBoolType(foldedResult);
+            CheckIsBoolType(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

@@ -37,6 +37,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var simpleResult = sfb.BVSUB(arg0, arg1);
             var result = cfb.BVSUB(arg0, arg1);
             CheckIsBvType(result, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVSUB(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));

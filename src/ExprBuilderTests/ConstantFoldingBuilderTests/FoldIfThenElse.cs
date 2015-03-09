@@ -39,6 +39,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var id1 = GetVarAndIdExpr("bar", BasicType.GetBvType(8)).Item2;
             var condition = builder.Eq(id0, id1);
             var result = builder.IfThenElse(condition, builder.True, builder.False);
+            CheckIsBoolType(result);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.AreSame(condition, result);
         }
@@ -51,6 +52,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var id1 = GetVarAndIdExpr("bar", BasicType.GetBvType(8)).Item2;
             var condition = builder.Eq(id0, id1);
             var result = builder.IfThenElse(condition, builder.False, builder.True);
+            CheckIsBoolType(result);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             var expected = builder.Not(condition);
             Assert.IsNull(ExprUtil.AsLiteral(expected));
@@ -122,6 +124,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var ite = builder.IfThenElse(condition, builder.ConstantBV(1, 1), builder.ConstantBV(0, 1));
             Assert.IsNull(ExprUtil.AsLiteral(ite));
             var result = builder.NotEq(ite, builder.ConstantBV(0, 1));
+            CheckIsBoolType(result);
             Assert.AreSame(condition, result);
         }
 
@@ -137,8 +140,9 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var ite = builder.IfThenElse(condition, builder.ConstantBV(0, 1), builder.ConstantBV(1, 1));
             Assert.IsNull(ExprUtil.AsLiteral(ite));
             var result = builder.NotEq(ite, builder.ConstantBV(0, 1));
+            CheckIsBoolType(result);
             var expected = builder.Not(condition);
-            Assert.IsNotInstanceOf<LiteralExpr>(expected);
+            Assert.IsNotNull(ExprUtil.AsNot(result));
             Assert.IsTrue(expected.Equals(result));
         }
 
@@ -153,7 +157,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v2 = GetVarAndIdExpr("cond", BasicType.Bool);
             var foldedResult = cfb.IfThenElse(v2.Item2, v0.Item2, v1.Item2);
             var simpleResult = sfb.IfThenElse(v2.Item2, v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsInt);
+            CheckIsInt(foldedResult);
+            CheckIsInt(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

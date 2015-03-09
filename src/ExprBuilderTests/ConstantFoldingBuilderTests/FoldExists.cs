@@ -17,6 +17,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var freeVarX = xPair.Item1;
             var x = xPair.Item2;
             var result = cfb.Exists(new List<Variable>() {freeVarX}, cfb.True);
+            CheckIsBoolType(result);
             Assert.IsTrue(ExprUtil.IsTrue(result));
         }
 
@@ -28,6 +29,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var freeVarX = xPair.Item1;
             var x = xPair.Item2;
             var result = cfb.Exists(new List<Variable>() {freeVarX}, cfb.False);
+            CheckIsBoolType(result);
             Assert.IsTrue(ExprUtil.IsFalse(result));
         }
 
@@ -47,6 +49,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
 
             var foldedResult = cfb.Exists(new List<Variable>() { freeVarX, freeVarY}, cfb.Lt(x,y));
             var simpleResult = sb.Exists(new List<Variable>() {freeVarX, freeVarY}, sb.Lt(x,y));
+            CheckIsBoolType(foldedResult);
+            CheckIsBoolType(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

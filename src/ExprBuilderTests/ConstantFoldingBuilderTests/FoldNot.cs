@@ -39,6 +39,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             for (int i = 0; i < depth; ++i)
             {
                 result = cfb.Not(result);
+                CheckIsBoolType(result);
             }
 
             if (depth % 2 == 0)

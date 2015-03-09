@@ -49,6 +49,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var dividend = cfb.ConstantBV(dividendValue, bitWidth);
             var divisor = cfb.ConstantBV(divisorValue, bitWidth);
             var result = cfb.BVSREM(dividend, divisor);
+            CheckIsBvType(result, bitWidth);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             CheckIsBvType(result, bitWidth);
@@ -66,6 +67,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
 
             var noFoldResult = sfb.BVSREM(dividend, divisor);
             var cfbNoFold = cfb.BVSREM(dividend, divisor);
+            CheckIsBvType(cfbNoFold, 4);
+            CheckIsBvType(noFoldResult, 4);
             Assert.IsNull(ExprUtil.AsLiteral(cfbNoFold));
             Assert.IsTrue(ExprUtil.StructurallyEqual(noFoldResult, cfbNoFold));
             CheckIsBvType(cfbNoFold, 4);
@@ -78,6 +81,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var dividend = GetVarAndIdExpr("x", BasicType.GetBvType(4)).Item2;
             var divisor = cfb.ConstantBV(1, 4);
             var result = cfb.BVSREM(dividend, divisor);
+            CheckIsBvType(result, 4);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             CheckIsBvType(result, 4);
@@ -94,6 +98,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
             var simpleResult = sfb.BVSREM(arg0, arg1);
             var result = cfb.BVSREM(arg0, arg1);
+            CheckIsBvType(result, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVSREM(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));

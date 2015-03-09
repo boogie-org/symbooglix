@@ -92,6 +92,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
             var simpleResult = sfb.BVSDIV(arg0, arg1);
             var result = cfb.BVSDIV(arg0, arg1);
+            CheckIsBvType(result, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVSDIV(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));

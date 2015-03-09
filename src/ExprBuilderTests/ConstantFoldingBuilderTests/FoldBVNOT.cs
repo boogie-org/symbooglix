@@ -72,6 +72,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var id = GetVarAndIdExpr("foo", BasicType.GetBvType(8)).Item2;
             var foldedResult = cfb.BVNOT(id);
             var simpleResult = sb.BVNOT(id);
+            CheckIsBvType(simpleResult, 8);
             CheckIsBvType(foldedResult, 8);
             Assert.AreEqual(simpleResult, foldedResult);
 

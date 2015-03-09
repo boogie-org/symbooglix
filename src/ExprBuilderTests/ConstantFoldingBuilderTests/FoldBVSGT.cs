@@ -26,6 +26,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
         {
             var cfb = GetConstantFoldingBuilder();
             var result = cfb.BVSGT(cfb.ConstantBV(lhsValue, bitWidth), cfb.ConstantBV(rhsValue, bitWidth));
+            CheckIsBoolType(result);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             Assert.AreEqual(expectedTruth, asLit.asBool);
@@ -37,6 +38,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var id = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var result = cfb.BVSGT(id, id);
+            CheckIsBoolType(result);
             Assert.IsNotNull(ExprUtil.AsLiteral(result));
             Assert.IsTrue(ExprUtil.IsFalse(result));
         }
@@ -51,6 +53,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
             var simpleResult = sfb.BVSGT(arg0, arg1);
             var result = cfb.BVSGT(arg0, arg1);
+            CheckIsBoolType(result);
+            CheckIsBoolType(simpleResult);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVSGT(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));

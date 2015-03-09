@@ -38,6 +38,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var id = GetVarAndIdExpr("x", BasicType.GetBvType(bitWidth)).Item2;
             var result = cfb.BVSHL(id, cfb.ConstantBV(shiftWidth, bitWidth));
+            CheckIsBvType(result, bitWidth);
             Assert.IsTrue(ExprUtil.IsZero(result));
         }
 
@@ -47,6 +48,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var id = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var result = cfb.BVSHL(id, cfb.ConstantBV(0, 8));
+            CheckIsBvType(result, 8);
             Assert.AreSame(id, result);
         }
 
@@ -71,6 +73,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVSHL(v0.Item2, v1.Item2);
             var simpleResult = sfb.BVSHL(v0.Item2, v1.Item2);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNotNull(ExprUtil.AsBVSHL(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }

@@ -73,6 +73,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVNEG(id);
             var simpleResult = sb.BVNEG(id);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.AreEqual(simpleResult, foldedResult);
 
             var asBvNeg = ExprUtil.AsBVNEG(foldedResult);

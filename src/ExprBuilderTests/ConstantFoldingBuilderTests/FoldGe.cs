@@ -74,7 +74,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.Ge(v0.Item2, v1.Item2);
             var simpleResult = sfb.Ge(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsBool);
+            CheckIsBoolType(foldedResult);
+            CheckIsBoolType(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

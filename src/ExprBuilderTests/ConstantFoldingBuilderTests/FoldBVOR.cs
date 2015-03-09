@@ -135,6 +135,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVOR(v0.Item2, v1.Item2);
             var simpleResult = sfb.BVOR(v0.Item2, v1.Item2);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNotNull(ExprUtil.AsBVOR(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }

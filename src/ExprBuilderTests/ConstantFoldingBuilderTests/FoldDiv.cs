@@ -38,6 +38,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
             var result = cfb.Div(cfb.ConstantInt(8), cfb.ConstantInt(0));
+            CheckIsInt(result);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsDiv(result));
             Assert.AreEqual("8 div 0", result.ToString());
@@ -50,6 +51,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var cfb = builderPair.Item2;
             var result = cfb.Div(x, cfb.ConstantInt(1));
+            CheckIsInt(result);
             Assert.AreSame(x, result);
         }
 
@@ -69,9 +71,9 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var cfb = builderPair.Item2;
             var result = cfb.Div(cfb.ConstantInt(0), x);
+            CheckIsInt(result);
             Assert.IsFalse(ExprUtil.IsZero(result));
             Assert.IsNotNull(ExprUtil.AsDiv(result));
-            CheckIsInt(result);
         }
 
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
@@ -113,7 +115,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.Div(v0.Item2, v1.Item2);
             var simpleResult = sfb.Div(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsInt);
+            CheckIsInt(foldedResult);
+            CheckIsInt(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

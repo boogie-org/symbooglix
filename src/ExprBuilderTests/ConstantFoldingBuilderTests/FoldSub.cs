@@ -10,26 +10,31 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldSub : ConstantFoldingExprBuilderTests
     {
-        [Test()]
-        public void SubSimpleConstantsInt()
+        [TestCase(5,3,2)]
+        [TestCase(5,5,0)]
+        [TestCase(5,6,-1)]
+        public void SubSimpleConstantsInt(int lhs, int rhs, int expectedValue)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
-            var result = cfb.Sub(cfb.ConstantInt(5), cfb.ConstantInt(3));
-            Assert.IsInstanceOf<LiteralExpr>(result);
-            CheckType(result, p => p.IsInt);
-            Assert.AreEqual("2", result.ToString());
+            var result = cfb.Sub(cfb.ConstantInt(lhs), cfb.ConstantInt(rhs));
+            CheckIsInt(result);
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsNotNull(asLit);
+            Assert.AreEqual(BigNum.FromInt(expectedValue), asLit.asBigNum);
         }
 
-        [Test()]
-        public void SubSimpleConstantsReal()
+        [TestCase("5.0", "3.0", "2e0")]
+        [TestCase("5.1", "3.0", "21e-1")]
+        public void SubSimpleConstantsReal(string lhs, string rhs, string expectedValue)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
-            var result = cfb.Sub(cfb.ConstantReal("5.0"), cfb.ConstantReal("3.0"));
-            Assert.IsInstanceOf<LiteralExpr>(result);
-            CheckType(result, p => p.IsReal);
-            Assert.AreEqual("2e0", result.ToString());
+            var result = cfb.Sub(cfb.ConstantReal(lhs), cfb.ConstantReal(rhs));
+            CheckIsReal(result);
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsNotNull(asLit);
+            Assert.AreEqual(expectedValue, asLit.asBigDec.ToString());
         }
 
         [Test()]
@@ -42,41 +47,45 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.Sub(v0.Item2, v1.Item2);
             var simpleResult = sfb.Sub(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsInt);
+            CheckIsInt(foldedResult);
+            CheckIsInt(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
 
-        // TODO: 0 - <expr> ==> -<expr>
+        // 0 - <expr> ==> -<expr>
         [Test()]
         public void LhsIntZero()
         {
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var result = cfb.Sub(cfb.ConstantInt(0), x);
+            CheckIsInt(result);
             var asNeg = ExprUtil.AsNeg(result);
             Assert.IsNotNull(asNeg);
             Assert.AreSame(x, asNeg.Args[0]);
         }
 
-        // TODO: 0 - <expr> ==> -<expr>
+        // 0 - <expr> ==> -<expr>
         [Test()]
         public void LhsRealZero()
         {
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
             var result = cfb.Sub(cfb.ConstantReal("0.0"), x);
+            CheckIsReal(result);
             var asNeg = ExprUtil.AsNeg(result);
             Assert.IsNotNull(asNeg);
             Assert.AreSame(x, asNeg.Args[0]);
         }
 
-        // TODO: <expr> - 0 ==> <expr>
+        // <expr> - 0 ==> <expr>
         [Test()]
         public void RhsIntZero()
         {
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var result = cfb.Sub(x, cfb.ConstantInt(0));
+            CheckIsInt(result);
             Assert.AreSame(x, result);
         }
 
@@ -86,6 +95,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
             var result = cfb.Sub(x, cfb.ConstantReal("0.0"));
+            CheckIsReal(result);
             Assert.AreSame(x, result);
         }
 
@@ -97,6 +107,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var constant = cfb.ConstantInt(2);
             var result = cfb.Sub(x, constant);
+            CheckIsInt(result);
             var asAdd = ExprUtil.AsAdd(result);
             Assert.IsNotNull(asAdd);
             var lhs = ExprUtil.AsLiteral(asAdd.Args[0]);
@@ -112,6 +123,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
             var constant = cfb.ConstantReal("2.0");
             var result = cfb.Sub(x, constant);
+            CheckIsReal(result);
             var asAdd = ExprUtil.AsAdd(result);
             Assert.IsNotNull(asAdd);
             var lhs = ExprUtil.AsLiteral(asAdd.Args[0]);

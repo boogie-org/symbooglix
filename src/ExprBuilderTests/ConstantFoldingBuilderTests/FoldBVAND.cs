@@ -133,6 +133,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVAND(v0.Item2, v1.Item2);
             var simpleResult = sfb.BVAND(v0.Item2, v1.Item2);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNotNull(ExprUtil.AsBVAND(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }

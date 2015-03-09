@@ -73,6 +73,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVLSHR(v0.Item2, v1.Item2);
             var simpleResult = sfb.BVLSHR(v0.Item2, v1.Item2);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNotNull(ExprUtil.AsBVLSHR(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }

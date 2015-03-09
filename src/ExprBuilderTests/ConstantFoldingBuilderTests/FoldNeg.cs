@@ -39,6 +39,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             for (int i = 0; i < depth; ++i)
             {
                 result = cfb.Neg(result);
+                CheckIsInt(result);
             }
 
             if (depth % 2 == 0)
@@ -63,6 +64,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.Neg(id);
             var simpleResult = sb.Neg(id);
             CheckIsInt(foldedResult);
+            CheckIsInt(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
 
             var asNeg = ExprUtil.AsNeg(foldedResult);

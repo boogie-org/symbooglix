@@ -50,8 +50,10 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 // The newest (closest to the root) zero_extend superseeds any below
                 result = cfb.BVZEXT(result, 8 + i);
+                CheckIsBvType(result, 8 + i);
             }
 
+            CheckIsBvType(result, depth + 8 -1);
             var asBvZext = ExprUtil.AsBVZEXT(result);
             Assert.IsNotNull(asBvZext);
             Assert.AreSame(id, asBvZext.Args[0]);
@@ -67,6 +69,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVZEXT(id, 16);
             var simpleResult = sb.BVZEXT(id, 16);
             CheckIsBvType(foldedResult, 16);
+            CheckIsBvType(simpleResult, 16);
             Assert.AreEqual(simpleResult, foldedResult);
 
             var asBvZExt = ExprUtil.AsBVZEXT(foldedResult);

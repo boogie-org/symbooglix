@@ -8,36 +8,19 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldOr : ConstantFoldingExprBuilderTests
     {
-        [Test()]
-        public void TrueOrTrue()
+        [TestCase(true, true, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, false)]
+        public void SimpleConstants(bool lhs, bool rhs, bool truth)
         {
             var cfb = GetConstantFoldingBuilder();
-            var result = cfb.Or(cfb.True, cfb.True);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
-        }
-
-        [Test()]
-        public void TrueOrFalse()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var result = cfb.Or(cfb.True, cfb.False);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
-        }
-
-        [Test()]
-        public void FalseOrTrue()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var result = cfb.Or(cfb.False, cfb.True);
-            Assert.IsTrue(ExprUtil.IsTrue(result));
-        }
-
-        [Test()]
-        public void FalseOrFalse()
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var result = cfb.Or(cfb.False, cfb.False);
-            Assert.IsTrue(ExprUtil.IsFalse(result));
+            var result = cfb.Or(cfb.ConstantBool(lhs), cfb.ConstantBool(rhs));
+            CheckIsBoolType(result);
+            if (truth)
+                Assert.IsTrue(ExprUtil.IsTrue(result));
+            else
+                Assert.IsTrue(ExprUtil.IsFalse(result));
         }
 
         [Test()]
@@ -46,6 +29,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var variable = GetVarAndIdExpr("foo", BasicType.Bool).Item2;
             var result = cfb.Or(cfb.False, variable);
+            CheckIsBoolType(result);
             Assert.AreSame(variable, result);
         }
 
@@ -55,6 +39,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var variable = GetVarAndIdExpr("foo", BasicType.Bool).Item2;
             var result = cfb.Or(variable, cfb.False);
+            CheckIsBoolType(result);
             Assert.AreSame(variable, result);
         }
 
@@ -64,6 +49,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var variable = GetVarAndIdExpr("foo", BasicType.Bool).Item2;
             var result = cfb.Or(cfb.True, variable);
+            CheckIsBoolType(result);
             Assert.IsTrue(ExprUtil.IsTrue(result));
         }
 
@@ -73,6 +59,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var variable = GetVarAndIdExpr("foo", BasicType.Bool).Item2;
             var result = cfb.Or(variable, cfb.True);
+            CheckIsBoolType(result);
             Assert.IsTrue(ExprUtil.IsTrue(result));
         }
 
@@ -84,6 +71,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var variable1 = GetVarAndIdExpr("foo2", BasicType.Int).Item2;
             var side = cfb.Gt(variable0, variable1);
             var result = cfb.Or(side, side);
+            CheckIsBoolType(result);
             Assert.AreSame(side, result);
         }
 
@@ -97,6 +85,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var variable1 = GetVarAndIdExpr("foo2", BasicType.Bool).Item2;
             var foldedResult = cfb.Or(variable0, variable1);
             var simpleResult = sb.Or(variable0, variable1);
+            CheckIsBoolType(foldedResult);
+            CheckIsBoolType(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

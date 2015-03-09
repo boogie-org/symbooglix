@@ -42,6 +42,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var result = cfb.BVASHR(id, cfb.ConstantBV(shiftWidth, bitWidth));
             var simpleResult = sb.BVASHR(id, sb.ConstantBV(shiftWidth, bitWidth));
             CheckIsBvType(result, bitWidth);
+            CheckIsBvType(simpleResult, bitWidth);
             Assert.IsFalse(ExprUtil.IsZero(result));
             Assert.IsNotNull(ExprUtil.AsBVASHR(result));
             Assert.IsNotNull(ExprUtil.AsBVASHR(simpleResult));
@@ -79,6 +80,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVASHR(v0.Item2, v1.Item2);
             var simpleResult = sfb.BVASHR(v0.Item2, v1.Item2);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNotNull(ExprUtil.AsBVASHR(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }

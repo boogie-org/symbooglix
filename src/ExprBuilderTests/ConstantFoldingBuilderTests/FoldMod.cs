@@ -24,9 +24,9 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
             var result = cfb.Mod(cfb.ConstantInt(m), cfb.ConstantInt(n));
+            CheckIsInt(result);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
-            CheckType(result, p => p.IsInt);
             Assert.AreEqual(BigNum.FromInt(r), asLit.asBigNum);
         }
 
@@ -36,6 +36,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
             var result = cfb.Mod(cfb.ConstantInt(8), cfb.ConstantInt(0));
+            CheckIsInt(result);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsMod(result));
             Assert.AreEqual("8 mod 0", result.ToString());
@@ -51,7 +52,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.Mod(v0.Item2, v1.Item2);
             var simpleResult = sfb.Mod(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsInt);
+            CheckIsInt(foldedResult);
+            CheckIsInt(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }

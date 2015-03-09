@@ -82,6 +82,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
                 var x = GetVarAndIdExpr("x" + index.ToString(), BasicType.GetBvType(4)).Item2;
                 foldedResult = cfb.BVXOR(x, foldedResult);
                 unfoldedResult = sb.BVXOR(x, unfoldedResult);
+                CheckIsBvType(foldedResult, 4);
+                CheckIsBvType(unfoldedResult, 4);
             }
 
             Assert.AreEqual("BVXOR4(x2, BVXOR4(x1, BVXOR4(x0, 5bv4)))", unfoldedResult.ToString());
@@ -111,6 +113,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 foldedResult = cfb.BVXOR(cfb.ConstantBV(5, 4), foldedResult);
                 unfoldedResult = sb.BVXOR(sb.ConstantBV(5, 4), unfoldedResult);
+                CheckIsBvType(foldedResult, 4);
+                CheckIsBvType(unfoldedResult, 4);
             }
             Assert.AreEqual("BVXOR4(5bv4, BVXOR4(5bv4, BVXOR4(5bv4, x)))", unfoldedResult.ToString());
             Assert.AreEqual("BVXOR4(5bv4, x)", foldedResult.ToString());
@@ -134,6 +138,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVXOR(v0.Item2, v1.Item2);
             var simpleResult = sfb.BVXOR(v0.Item2, v1.Item2);
             CheckIsBvType(foldedResult, 8);
+            CheckIsBvType(simpleResult, 8);
             Assert.IsNotNull(ExprUtil.AsBVXOR(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }

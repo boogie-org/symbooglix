@@ -70,6 +70,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var id = GetVarAndIdExpr("foo", BasicType.GetBvType(bitWidth)).Item2;
             var result = cfb.BVEXTRACT(id, bitWidth, 0);
+            CheckIsBvType(result, bitWidth);
             Assert.AreSame(id, result);
         }
 
@@ -92,6 +93,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 int topBitMinusOne = result.Type.BvBits - 1;
                 result = cfb.BVEXTRACT(result, topBitMinusOne, 0);
+                CheckIsBvType(result, bitWidth - count - 1);
             }
 
             var asBvExtract = ExprUtil.AsBVEXTRACT(result);
@@ -123,6 +125,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 int topBitPlusOne = bitWidth - count;
                 result = cfb.BVEXTRACT(result, topBitPlusOne, 1);
+                CheckIsBvType(result, bitWidth - count - 1);
             }
 
             var asBvExtract = ExprUtil.AsBVEXTRACT(result);
@@ -158,6 +161,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 int topBit = result.Type.BvBits - 1;
                 result = cfb.BVEXTRACT(result, topBit, 1);
+                CheckIsBvType(result, bitWidth - (2*(count +1)));
             }
 
             var asBvExtract = ExprUtil.AsBVEXTRACT(result);
@@ -182,6 +186,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var foldedResult = cfb.BVEXTRACT(id, 7, 0);
             var simpleResult = sb.BVEXTRACT(id, 7, 0);
             CheckIsBvType(foldedResult, 7);
+            CheckIsBvType(simpleResult, 7);
             Assert.AreEqual(simpleResult, foldedResult);
 
             var asBvExtract = ExprUtil.AsBVEXTRACT(foldedResult);
