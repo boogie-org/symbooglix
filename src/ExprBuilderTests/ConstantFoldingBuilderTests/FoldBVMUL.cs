@@ -17,6 +17,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
         {
             var cfb = GetConstantFoldingBuilder();
             var result = cfb.BVMUL(cfb.ConstantBV(lhsValue, bitWidth), cfb.ConstantBV(rhsValue, bitWidth));
+            CheckIsBvType(result, bitWidth);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             Assert.AreEqual(expectedValue, asLit.asBvConst.Value.ToInt);
@@ -32,6 +33,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
             var simpleResult = sfb.BVMUL(arg0, arg1);
             var result = cfb.BVMUL(arg0, arg1);
+            CheckIsBvType(simpleResult, 8);
+            CheckIsBvType(result, 8);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVMUL(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));
@@ -44,6 +47,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var result = cfb.BVMUL(cfb.ConstantBV(0, 8), x);
+            CheckIsBvType(result, 8);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             Assert.IsTrue(ExprUtil.IsZero(asLit));
@@ -56,6 +60,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var result = cfb.BVMUL(x, cfb.ConstantBV(0, 8));
+            CheckIsBvType(result, 8);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             Assert.IsTrue(ExprUtil.IsZero(asLit));
@@ -76,6 +81,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
                 var x = GetVarAndIdExpr("x" + index.ToString(), BasicType.GetBvType(8)).Item2;
                 foldedResult = cfb.BVMUL(x, foldedResult);
                 unfoldedResult = sb.BVMUL(x, unfoldedResult);
+                CheckIsBvType(foldedResult, 8);
+                CheckIsBvType(unfoldedResult, 8);
             }
             Assert.AreEqual("BVMUL8(1bv8, BVMUL8(x2, BVMUL8(x1, x0)))", foldedResult.ToString());
             Assert.AreEqual("BVMUL8(x2, BVMUL8(x1, BVMUL8(x0, 1bv8)))", unfoldedResult.ToString());
@@ -106,6 +113,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 foldedResult = cfb.BVMUL(cfb.ConstantBV(index, 8), foldedResult);
                 unfoldedResult = sb.BVMUL(sb.ConstantBV(index, 8), unfoldedResult);
+                CheckIsBvType(foldedResult, 8);
+                CheckIsBvType(unfoldedResult, 8);
             }
             Assert.AreEqual("BVMUL8(24bv8, x)", foldedResult.ToString());
             Assert.AreEqual("BVMUL8(4bv8, BVMUL8(3bv8, BVMUL8(2bv8, x)))", unfoldedResult.ToString());
