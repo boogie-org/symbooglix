@@ -711,8 +711,6 @@ namespace Symbooglix
 
         public override Expr And(Expr lhs, Expr rhs)
         {
-            // TODO: Implement associativity (like we've done for Add)
-
             // And is commutative so to simplify code if there is a constant ensure
             // it is always on the left
             if (ExprUtil.AsLiteral(rhs) != null)
@@ -746,16 +744,12 @@ namespace Symbooglix
                 return lhs;
             }
 
-            // TODO: Implement propagation of constants upwards like "Add" operator
-
             // Can't constant fold
             return UB.And(lhs, rhs);
         }
 
         public override Expr Or(Expr lhs, Expr rhs)
         {
-            // TODO: Implement associativity (like we've done for Add)
-
             // Or is commutative so to simplify code if there is a constant ensure
             // it is always on the left
             if (ExprUtil.AsLiteral(rhs) != null)
@@ -788,8 +782,6 @@ namespace Symbooglix
                 }
                 return lhs;
             }
-
-            // TODO: Implement propagation of constants upwards like "Add" operator
 
             // Can't constant fold
             return UB.Or(lhs, rhs);
