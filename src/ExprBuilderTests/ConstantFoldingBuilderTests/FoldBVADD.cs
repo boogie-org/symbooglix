@@ -19,6 +19,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
         {
             var cfb = GetConstantFoldingBuilder();
             var result = cfb.BVADD(cfb.ConstantBV(lhsValue, bitWidth), cfb.ConstantBV(rhsValue, bitWidth));
+            CheckIsBvType(result, bitWidth);
             var asLit = ExprUtil.AsLiteral(result);
             Assert.IsNotNull(asLit);
             Assert.AreEqual(expectedValue, asLit.asBvConst.Value.ToInt);
@@ -34,6 +35,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var arg1 = GetVarAndIdExpr("y", BasicType.GetBvType(8)).Item2;
             var simpleResult = sfb.BVADD(arg0, arg1);
             var result = cfb.BVADD(arg0, arg1);
+            CheckIsBvType(result, 8);
             Assert.IsNull(ExprUtil.AsLiteral(result));
             Assert.IsNotNull(ExprUtil.AsBVADD(result));
             Assert.IsTrue(ExprUtil.StructurallyEqual(result, simpleResult));
@@ -46,6 +48,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var result = cfb.BVADD(cfb.ConstantBV(0, 8), x);
+            CheckIsBvType(result, 8);
             Assert.AreSame(x, result);
         }
 
@@ -56,6 +59,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var result = cfb.BVADD(x, cfb.ConstantBV(0, 8));
+            CheckIsBvType(result, 8);
             Assert.AreSame(x, result);
         }
 
@@ -67,8 +71,10 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var y = GetVarAndIdExpr("x", BasicType.GetBvType(8)).Item2;
             var side = cfb.BVADD(x, y);
+            CheckIsBvType(side, 8);
             Assert.IsNull(ExprUtil.AsLiteral(side));
             var result = cfb.BVADD(side, side);
+            CheckIsBvType(result, 8);
             var mul = ExprUtil.AsBVMUL(result);
             Assert.IsNotNull(mul);
             var lhs = ExprUtil.AsLiteral(mul.Args[0]);
@@ -92,6 +98,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
                 var x = GetVarAndIdExpr("x" + index.ToString(), BasicType.GetBvType(8)).Item2;
                 foldedResult = cfb.BVADD(x, foldedResult);
                 unfoldedResult = sb.BVADD(x, unfoldedResult);
+                CheckIsBvType(foldedResult, 8);
+                CheckIsBvType(unfoldedResult, 8);
             }
             Assert.AreEqual("BVADD8(1bv8, BVADD8(x2, BVADD8(x1, x0)))", foldedResult.ToString());
             Assert.AreEqual("BVADD8(x2, BVADD8(x1, BVADD8(x0, 1bv8)))", unfoldedResult.ToString());
@@ -122,6 +130,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 foldedResult = cfb.BVADD(cfb.ConstantBV(index, 8), foldedResult);
                 unfoldedResult = sb.BVADD(sb.ConstantBV(index, 8), unfoldedResult);
+                CheckIsBvType(foldedResult, 8);
+                CheckIsBvType(unfoldedResult, 8);
             }
             Assert.AreEqual("BVADD8(6bv8, x)", foldedResult.ToString());
             Assert.AreEqual("BVADD8(3bv8, BVADD8(2bv8, BVADD8(1bv8, x)))", unfoldedResult.ToString());
