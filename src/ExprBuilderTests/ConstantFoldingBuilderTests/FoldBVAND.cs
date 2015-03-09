@@ -62,7 +62,6 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.AreSame(id, result);
         }
 
-
         [Test()]
         public void BVANDAssociativityPropagateConstantUp()
         {
@@ -70,8 +69,6 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var sb = builderPair.Item1;
             var cfb = builderPair.Item2;
 
-            // Be careful here. Need to use constant without a contiguous bit pattern
-            // other it will folded into a bvextract
             Expr foldedResult = sb.ConstantBV(5, 4);
             Expr unfoldedResult = foldedResult;
 
@@ -107,8 +104,6 @@ namespace ExprBuilderTests.ConstantFoldingTests
 
             for (int index = 1; index <= 3; ++index)
             {
-                // Be careful here. Need to use constant without a contiguous bit pattern
-                // other it will folded into a bvextract
                 foldedResult = cfb.BVAND(cfb.ConstantBV(5, 4), foldedResult);
                 unfoldedResult = sb.BVAND(sb.ConstantBV(5, 4), unfoldedResult);
             }
@@ -137,46 +132,6 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.IsNotNull(ExprUtil.AsBVAND(foldedResult));
             Assert.AreEqual(simpleResult, foldedResult);
         }
-
-        // A mask of 0bv8 gets folded to zero so can't use it for this test
-        [TestCase(1, true, 0, 1)]
-        [TestCase(2, true, 1, 2)]
-        [TestCase(3, true, 0, 2)]
-        [TestCase(4, true, 2, 3)]
-        [TestCase(5, false, 0, 0)]
-        [TestCase(6, true, 1, 3)]
-        [TestCase(7, true, 0, 3)]
-        [TestCase(8, true, 3, 4)]
-        [TestCase(9, false, 0, 0)]
-        [TestCase(10, false, 0, 0)]
-        [TestCase(11, false, 0, 0)]
-        [TestCase(12, true, 2, 4)]
-        [TestCase(13, false, 0, 2)]
-        [TestCase(14, true, 1, 4)]
-        public void ContiguousBitmaskToBvExtract(int valueDecRepr, bool expectBvExtract, int expectedStart, int expectedEnd)
-        {
-            var cfb = GetConstantFoldingBuilder();
-            var mask = cfb.ConstantBV(valueDecRepr, 4);
-            var id = GetVarAndIdExpr("x", BasicType.GetBvType(4)).Item2;
-            var result = cfb.BVAND(mask, id);
-
-
-            if (expectBvExtract)
-            {
-                var resultAsBvExtract = ExprUtil.AsBVEXTRACT(result);
-                Assert.IsNotNull(resultAsBvExtract);
-                Assert.AreEqual(expectedStart, resultAsBvExtract.Start);
-                Assert.AreEqual(expectedEnd, resultAsBvExtract.End);
-            }
-            else
-            {
-                var resultAsBvAnd = ExprUtil.AsBVAND(result);
-                Assert.IsNotNull(resultAsBvAnd);
-                Assert.AreSame(id, resultAsBvAnd.Args[1]);
-                Assert.AreSame(mask, resultAsBvAnd.Args[0]);
-            }
-        }
-
     }
 }
 

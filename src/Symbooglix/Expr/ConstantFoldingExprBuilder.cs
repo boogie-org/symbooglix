@@ -2303,8 +2303,6 @@ namespace Symbooglix
                 return rhs;
             }
 
-
-
             // Use associativity and commutivity to rewrite
             // a + (b + c) ==> (a + b) +c  where a is a constant
             // The aim to try to propagate constants up (towards the root)
@@ -2337,20 +2335,6 @@ namespace Symbooglix
                     //  1 & (x & y)
                     Debug.Assert(lhsAsLit == null);
                     return BVAND(rhsBVANDlhsAsLit, BVAND(lhs, rhsBVANDrhs));
-                }
-            }
-
-            // If the lhs is a constant and it contains a single contigious pattern of ones
-            // e.g. 01110 we can convert this into a BvExtractExpr
-            if (lhsAsLit != null)
-            {
-                var bitRange = ExprUtil.FindContiguousBitMask(lhsAsLit);
-                if (bitRange != null)
-                {
-                    Debug.Assert(bitRange.Item2 >= bitRange.Item1);
-                    // Note +1 is because BVEXTRACT is an open range on the hit bit side whereas
-                    // FindContigouous returns a closed range of both sides.
-                    return BVEXTRACT(rhs, bitRange.Item2 + 1, bitRange.Item1);
                 }
             }
 

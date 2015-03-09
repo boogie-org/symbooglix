@@ -246,39 +246,6 @@ namespace ExprBuilderTests
             Assert.AreNotEqual(e0.GetHashCode(), e1.GetHashCode());
             Assert.IsFalse(ExprUtil.StructurallyEqual(e0, e1));
         }
-
-        [TestCase(0, 4, false, 0, 0)] // 0b0000
-        [TestCase(1, 4, true, 0, 0)] // 0b0001 <contiguous>
-        [TestCase(2, 4, true, 1, 1)] // 0b0010 <contiguous>
-        [TestCase(3, 4, true, 0, 1)] // 0b0011 <contiguous>
-        [TestCase(4, 4, true, 2, 2)] // 0b0100 <contiguous>
-        [TestCase(5, 4, false, 0, 0)] // 0b0101
-        [TestCase(6, 4, true, 1, 2)] // 0b0110 <contiguous>
-        [TestCase(7, 4, true, 0, 2)] // 0b0111 <contiguous>
-        [TestCase(8, 4, true, 3, 3)] // 0b1000 <contiguous>
-        [TestCase(9, 4, false, 0, 0)] // 0b1001
-        [TestCase(10, 4, false, 0, 0)] // 0b1010
-        [TestCase(11, 4, false, 0, 0)] // 0b1011
-        [TestCase(12, 4, true, 2, 3)] // 0b1100 <contiguous>
-        [TestCase(13, 4, false, 0, 0)] // 0b1101
-        [TestCase(14, 4, true, 1, 3)] // 0b1110 <contiguous>
-        [TestCase(15, 4, true, 0, 3)] // 0b1110 <contiguous>
-        public void FindContiguousBitMask(int valueDecRepr, int bitWidth, bool expectContiguousBitMask, int expectedStart, int expectedEnd)
-        {
-            Assert.IsTrue(expectedEnd >= expectedStart);
-            var sb = GetSimpleBuilder();
-            var constant = sb.ConstantBV(valueDecRepr, bitWidth);
-            var cMask = ExprUtil.FindContiguousBitMask(constant);
-
-            if (!expectContiguousBitMask)
-                Assert.IsNull(cMask);
-            else
-            {
-                Assert.IsNotNull(cMask);
-                Assert.AreEqual(expectedStart, cMask.Item1);
-                Assert.AreEqual(expectedEnd, cMask.Item2);
-            }
-        }
     }
 }
 
