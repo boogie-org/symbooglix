@@ -10,15 +10,20 @@ namespace ExprBuilderTests.ConstantFoldingTests
     [TestFixture()]
     public class FoldAdd : ConstantFoldingExprBuilderTests
     {
-        [Test()]
-        public void AddSimpleConstantsInt()
+        [TestCase(5, 3, 8)]
+        [TestCase(3, 5, 8)]
+        [TestCase(3, 0, 3)]
+        [TestCase(0, 3, 3)]
+        [TestCase(0, 0, 0)]
+        public void AddSimpleConstantsInt(int lhs, int rhs, int expectedValue)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
-            var result = cfb.Add(cfb.ConstantInt(5), cfb.ConstantInt(3));
-            Assert.IsInstanceOf<LiteralExpr>(result);
-            CheckType(result, p => p.IsInt);
-            Assert.AreEqual("8", result.ToString());
+            var result = cfb.Add(cfb.ConstantInt(lhs), cfb.ConstantInt(rhs));
+            CheckIsInt(result);
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsTrue(asLit.isBigNum);
+            Assert.AreEqual(BigNum.FromInt(expectedValue), asLit.asBigNum);
         }
 
         [Test()]
@@ -28,9 +33,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var cfb = builderPair.Item2;
             var result = cfb.Add(x, cfb.ConstantInt(0));
-            Assert.AreEqual("x", result.ToString());
-            Assert.IsInstanceOf<IdentifierExpr>(result);
-            CheckType(result, p => p.IsInt);
+            CheckIsInt(result);
             Assert.AreSame(x, result);
         }
 
@@ -41,56 +44,53 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
             var cfb = builderPair.Item2;
             var result = cfb.Add(x, cfb.ConstantReal("0.0"));
-            Assert.AreEqual("x", result.ToString());
-            Assert.IsInstanceOf<IdentifierExpr>(result);
-            CheckType(result, p => p.IsReal);
+            CheckIsReal(result);
             Assert.AreSame(x, result);
         }
 
-        [Test()]
-        public void AddSimpleConstantsReal()
+        [TestCase("5.0", "3.0", "8e0")]
+        [TestCase("3.0", "5.0", "8e0")]
+        [TestCase("5.5", "3.0", "8.5e0")]
+        [TestCase("3.0", "5.5", "8.5e0")]
+        public void AddSimpleConstantsReal(string lhs, string rhs, string expectedValue)
         {
             var builderPair = GetSimpleAndConstantFoldingBuilder();
             var cfb = builderPair.Item2;
-            var result = cfb.Add(cfb.ConstantReal("5.0"), cfb.ConstantReal("3.0"));
-            Assert.IsInstanceOf<LiteralExpr>(result);
-            CheckType(result, p => p.IsReal);
-            Assert.AreEqual("8e0", result.ToString());
+            var result = cfb.Add(cfb.ConstantReal(lhs), cfb.ConstantReal(rhs));
+            CheckIsReal(result);
+            var asLit = ExprUtil.AsLiteral(result);
+            Assert.IsTrue(asLit.isBigDec);
         }
 
         [Test()]
-        public void AddSimpleConstantsIntVars()
+        public void AddSameIntVars()
         {
-            var builderPair = GetSimpleAndConstantFoldingBuilder();
-            var sb = builderPair.Item1;
-            var cfb = builderPair.Item2;
+            var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.Int).Item2;
             var result = cfb.Add(x, x);
-            CheckType(result, p => p.IsInt);
-            Assert.IsInstanceOf<NAryExpr>(result);
-            var foldedTopAsNAry = result as NAryExpr;
-            Assert.IsInstanceOf<BinaryOperator>(foldedTopAsNAry.Fun);
-            Assert.AreEqual(BinaryOperator.Opcode.Mul, (foldedTopAsNAry.Fun as BinaryOperator).Op);
-            Assert.IsInstanceOf<LiteralExpr>(foldedTopAsNAry.Args[0]);
-            Assert.AreSame(x, foldedTopAsNAry.Args[1]);
+            CheckIsInt(result);
+            var asMul = ExprUtil.AsMul(result);
+            Assert.IsNotNull(asMul);
+            var asMulLhs = ExprUtil.AsLiteral(asMul.Args[0]);
+            Assert.IsNotNull(asMulLhs);
+            Assert.AreEqual(BigNum.FromInt(2), asMulLhs.asBigNum);
+            Assert.AreSame(x, asMul.Args[1]);
             Assert.AreEqual("2 * x", result.ToString());
         }
 
         [Test()]
         public void AddSimpleConstantsRealVars()
         {
-            var builderPair = GetSimpleAndConstantFoldingBuilder();
-            var sb = builderPair.Item1;
-            var cfb = builderPair.Item2;
+            var cfb = GetConstantFoldingBuilder();
             var x = GetVarAndIdExpr("x", BasicType.Real).Item2;
             var result = cfb.Add(x, x);
-            CheckType(result, p => p.IsReal);
-            Assert.IsInstanceOf<NAryExpr>(result);
-            var foldedTopAsNAry = result as NAryExpr;
-            Assert.IsInstanceOf<BinaryOperator>(foldedTopAsNAry.Fun);
-            Assert.AreEqual(BinaryOperator.Opcode.Mul, (foldedTopAsNAry.Fun as BinaryOperator).Op);
-            Assert.IsInstanceOf<LiteralExpr>(foldedTopAsNAry.Args[0]);
-            Assert.AreSame(x, foldedTopAsNAry.Args[1]);
+            CheckIsReal(result);
+            var asMul = ExprUtil.AsMul(result);
+            Assert.IsNotNull(asMul);
+            var asMulLhs = ExprUtil.AsLiteral(asMul.Args[0]);
+            Assert.IsNotNull(asMulLhs);
+            Assert.AreEqual("2e0", asMulLhs.asBigDec.ToString());
+            Assert.AreSame(x, asMul.Args[1]);
             Assert.AreEqual("2e0 * x", result.ToString());
         }
 
@@ -109,17 +109,18 @@ namespace ExprBuilderTests.ConstantFoldingTests
                 var x = GetVarAndIdExpr("x" + index.ToString(), BasicType.Int).Item2;
                 foldedResult = cfb.Add(x, foldedResult);
                 unfoldedResult = sb.Add(x, unfoldedResult);
+                CheckIsInt(foldedResult);
+                CheckIsInt(unfoldedResult);
             }
             Assert.AreEqual("1 + x2 + x1 + x0", foldedResult.ToString());
             Assert.AreEqual("x2 + x1 + x0 + 1", unfoldedResult.ToString());
             Assert.IsFalse(foldedResult.Equals(unfoldedResult));
 
-            Assert.IsInstanceOf<NAryExpr>(foldedResult);
-            var foldedTopAsNAry = foldedResult as NAryExpr;
-            Assert.IsInstanceOf<BinaryOperator>(foldedTopAsNAry.Fun);
-            Assert.AreEqual(BinaryOperator.Opcode.Add, (foldedTopAsNAry.Fun as BinaryOperator).Op);
-            // Check the constant is the top left argument
-            Assert.IsInstanceOf<LiteralExpr>(foldedTopAsNAry.Args[0]);
+            var topAsAdd = ExprUtil.AsAdd(foldedResult);
+            Assert.IsNotNull(topAsAdd);
+            var topLhsAsLit = ExprUtil.AsLiteral(topAsAdd.Args[0]);
+            Assert.IsNotNull(topLhsAsLit);
+            Assert.AreEqual(BigNum.FromInt(1), topLhsAsLit.asBigNum);
         }
 
         [Test()]
@@ -143,12 +144,11 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.AreEqual("3 + 2 + 1 + x", unfoldedResult.ToString());
             Assert.IsFalse(foldedResult.Equals(unfoldedResult));
 
-            Assert.IsInstanceOf<NAryExpr>(foldedResult);
-            var foldedTopAsNAry = foldedResult as NAryExpr;
-            Assert.IsInstanceOf<BinaryOperator>(foldedTopAsNAry.Fun);
-            Assert.AreEqual(BinaryOperator.Opcode.Add, (foldedTopAsNAry.Fun as BinaryOperator).Op);
-            // Check the constant is the top left argument
-            Assert.IsInstanceOf<LiteralExpr>(foldedTopAsNAry.Args[0]);
+            var topAsAdd = ExprUtil.AsAdd(foldedResult);
+            Assert.IsNotNull(topAsAdd);
+            var topLhsAsLit = ExprUtil.AsLiteral(topAsAdd.Args[0]);
+            Assert.IsNotNull(topLhsAsLit);
+            Assert.AreEqual(BigNum.FromInt(6), topLhsAsLit.asBigNum);
         }
 
         [Test()]
@@ -161,7 +161,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var v1 = GetVarAndIdExpr("y", BasicType.Int);
             var foldedResult = cfb.Add(v0.Item2, v1.Item2);
             var simpleResult = sfb.Add(v0.Item2, v1.Item2);
-            CheckType(foldedResult, p => p.IsInt);
+            CheckIsInt(foldedResult);
             Assert.AreEqual(simpleResult, foldedResult);
         }
     }
