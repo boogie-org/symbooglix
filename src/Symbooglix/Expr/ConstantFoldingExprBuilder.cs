@@ -2637,6 +2637,60 @@ namespace Symbooglix
             return UB.BVSHL(lhs, rhs);
         }
 
+        public override Expr BVLSHR(Expr lhs, Expr rhs)
+        {
+            var valueToShift = ExprUtil.AsLiteral(lhs);
+            var shiftWidth = ExprUtil.AsLiteral(rhs);
+            if (shiftWidth != null)
+            {
+                var bitWidth = ( lhs.Type.BvBits );
+
+                // <expr> >> X (where X is a constant greater or equal to bit width)
+                //
+                //(declare-fun x () (_ BitVec 4))
+                // (declare-fun y () (_ BitVec 4))
+                // (assert (bvuge y (_ bv4 4)))
+                // (assert (distinct (_ bv0 4) (bvlshr x (_ bv4 4))))
+                // (check-sat)
+                // unsat
+                if (shiftWidth.asBvConst.Value >= BigNum.FromInt(bitWidth))
+                {
+                    return ConstantBV(0, bitWidth);
+                }
+
+                if (valueToShift != null)
+                {
+                    if (!lhs.Type.Equals(rhs.Type))
+                        throw new ExprTypeCheckException("lhs and rhs types must match");
+
+                    if (!rhs.Type.IsBv)
+                        throw new ExprTypeCheckException("rhs must be a bitvector");
+
+                    // SMTLIBv2 defintion is
+                    //
+                    // [[(bvlshr s t)]] := nat2bv[m](bv2nat([[s]]) div 2^(bv2nat([[t]])))
+                    var maxWidthPlusOne = MaxValuePlusOne(bitWidth);
+                    var result = ( valueToShift.asBvConst.Value.ToBigInteger >> shiftWidth.asBvConst.Value.ToIntSafe ) % maxWidthPlusOne;
+                    Debug.Assert(result < ( BigInteger.Pow(2, bitWidth) - 1 ));
+                    return ConstantBV(result, bitWidth);
+                }
+            }
+            else if (valueToShift != null && ExprUtil.IsZero(valueToShift))
+            {
+                // 0 >> <expr> ==> 0
+                return ConstantBV(0, valueToShift.Type.BvBits);
+            }
+
+
+            // <expr> >> 0 ==> <expr>
+            if (ExprUtil.IsZero(shiftWidth))
+            {
+                return lhs;
+            }
+
+            return UB.BVLSHR(lhs, rhs);
+        }
+
 
     }
 }
