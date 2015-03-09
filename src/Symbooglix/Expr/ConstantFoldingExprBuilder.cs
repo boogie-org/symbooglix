@@ -2773,6 +2773,52 @@ namespace Symbooglix
             return UB.BVASHR(lhs, rhs);
         }
 
+        public override Expr ArithmeticCoercion(Microsoft.Boogie.ArithmeticCoercion.CoercionType coercionType, Expr operand)
+        {
+            var asLit = ExprUtil.AsLiteral(operand);
+            if (asLit != null)
+            {
+                switch (coercionType)
+                {
+                    case Microsoft.Boogie.ArithmeticCoercion.CoercionType.ToInt:
+                        if (!operand.Type.IsReal)
+                            throw new ExprTypeCheckException("To coerce to int operand must be of a real type");
+
+                        // From SMT-LIBv2:
+                        //   - to_int as the function that maps each real number r to its integer part,
+                        // that is, to the largest integer n that satisfies (<= (to_real n) r)
+                        //
+                        // Basically that means we need to floor the value towards - infinity
+                        var valueReal = asLit.asBigDec;
+                        BigInteger floor;
+                        BigInteger ceiling;
+                        valueReal.FloorCeiling(out floor, out ceiling);
+                        // We expect floor to round towards infinity
+                        Debug.Assert(floor <= ceiling);
+
+                        if (valueReal.IsNegative)
+                        {
+                            // FIXME: The floor, ceiling calculation is wrong when the value is negative
+                            // this needs fixing in Boogie. Don't fold for now
+                            return UB.ArithmeticCoercion(coercionType, operand);
+                        }
+
+                        return ConstantInt(floor);
+                    case Microsoft.Boogie.ArithmeticCoercion.CoercionType.ToReal:
+                        if (!operand.Type.IsInt)
+                            throw new ExprTypeCheckException("To coerce to int operand must be of a real type");
+
+                        var valueInt = asLit.asBigNum;
+                        var bigDec = BigDec.FromBigInt(valueInt.ToBigInteger);
+                        return ConstantReal(bigDec);
+                    default:
+                        throw new NotImplementedException("Coercion type " + coercionType.ToString() + " not supported");
+                }
+            }
+
+            return UB.ArithmeticCoercion(coercionType, operand);
+        }
+
 
     }
 }

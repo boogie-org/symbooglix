@@ -330,6 +330,19 @@ namespace Symbooglix
             return GetBVOperator(e, "bvashr");
         }
 
+        public static NAryExpr AsArithmeticCoercion(Expr e)
+        {
+            var asNary = e as NAryExpr;
+            if (asNary == null)
+                return null;
+
+            var fun = asNary.Fun;
+            if (fun is ArithmeticCoercion)
+                return asNary;
+
+            return null;
+        }
+
         public static bool IsZero(Expr e)
         {
             var lit = AsLiteral(e);
