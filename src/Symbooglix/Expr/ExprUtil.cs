@@ -157,6 +157,11 @@ namespace Symbooglix
             return GetBVOperator(e, "bvadd");
         }
 
+        public static NAryExpr AsBVSUB(Expr e)
+        {
+            return GetBVOperator(e, "bvsub");
+        }
+
         public static NAryExpr AsBVMUL(Expr e)
         {
             return GetBVOperator(e, "bvmul");

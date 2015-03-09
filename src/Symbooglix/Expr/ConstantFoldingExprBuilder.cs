@@ -1158,6 +1158,49 @@ namespace Symbooglix
             return UB.BVADD(lhs, rhs);
         }
 
+        public override Expr BVSUB(Expr lhs, Expr rhs)
+        {
+            if (!lhs.Type.Equals(rhs.Type))
+                throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
+
+            if (!lhs.Type.IsBv)
+                throw new ExprTypeCheckException("lhs and rhs must be bitvectors");
+
+            var litLhs = ExprUtil.AsLiteral(lhs);
+            var litRhs = ExprUtil.AsLiteral(rhs);
+
+            if (litLhs != null && litRhs != null)
+            {
+                // Compute bvand
+                var maxValuePlusOne = MaxValuePlusOne(litLhs.asBvConst.Bits); // 2^( number of bits)
+                var lhsBI = litLhs.asBvConst.Value.ToBigInteger;
+                var rhsBI = litRhs.asBvConst.Value.ToBigInteger;
+                var result = ( lhsBI - rhsBI ) % maxValuePlusOne; // Wrapping overflow
+                return this.ConstantBV(result, litLhs.asBvConst.Bits);
+            }
+
+            // <expr> - 0 ==> <expr>
+            if (ExprUtil.IsZero(rhs))
+            {
+                return lhs;
+            }
+
+            // 0 - <expr> ==> (bvneg <expr>)
+            if (ExprUtil.IsZero(lhs))
+            {
+                return BVNEG(rhs);
+            }
+
+            // <expr> - <expr> ==> 0
+            if (ExprUtil.StructurallyEqual(lhs, rhs))
+            {
+                return ConstantBV(0, lhs.Type.BvBits);
+            }
+
+            return UB.BVSUB(lhs, rhs);
+        }
+
+
         public override Expr BVMUL(Expr lhs, Expr rhs)
         {
             // Ensure if there is a constant there will always be one of the left
