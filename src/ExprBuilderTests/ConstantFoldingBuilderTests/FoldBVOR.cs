@@ -79,6 +79,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
                 var x = GetVarAndIdExpr("x" + index.ToString(), BasicType.GetBvType(4)).Item2;
                 foldedResult = cfb.BVOR(x, foldedResult);
                 unfoldedResult = sb.BVOR(x, unfoldedResult);
+                CheckIsBvType(foldedResult, 4);
+                CheckIsBvType(unfoldedResult, 4);
             }
 
             Assert.AreEqual("BVOR4(x2, BVOR4(x1, BVOR4(x0, 5bv4)))", unfoldedResult.ToString());
@@ -108,6 +110,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             {
                 foldedResult = cfb.BVOR(cfb.ConstantBV(5, 4), foldedResult);
                 unfoldedResult = sb.BVOR(sb.ConstantBV(5, 4), unfoldedResult);
+                CheckIsBvType(foldedResult, 4);
+                CheckIsBvType(unfoldedResult, 4);
             }
             Assert.AreEqual("BVOR4(5bv4, BVOR4(5bv4, BVOR4(5bv4, x)))", unfoldedResult.ToString());
             Assert.AreEqual("BVOR4(5bv4, x)", foldedResult.ToString());
