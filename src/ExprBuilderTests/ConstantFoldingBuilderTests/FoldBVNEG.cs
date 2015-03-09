@@ -48,6 +48,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             for (int i = 0; i < depth; ++i)
             {
                 result = cfb.BVNEG(result);
+                CheckIsBvType(result, 8);
             }
 
             if (depth % 2 == 0)
