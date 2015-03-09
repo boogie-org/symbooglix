@@ -87,6 +87,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var msb = cfb.BVEXTRACT(id, 16, 8);
             var lsb = cfb.BVEXTRACT(id, 8, 0);
             var result = cfb.BVCONCAT(msb, lsb);
+            CheckIsBvType(result, 16);
             Assert.AreSame(id, result);
         }
 
@@ -98,6 +99,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var msb = cfb.BVEXTRACT(id, 16, 8);
             var lsb = cfb.BVEXTRACT(id, 8, 5);
             var result = cfb.BVCONCAT(msb, lsb);
+            CheckIsBvType(result, 11);
             var asBvExtract = ExprUtil.AsBVEXTRACT(result);
             Assert.IsNotNull(asBvExtract);
             Assert.AreSame(id, asBvExtract.Bitvector);
@@ -116,6 +118,12 @@ namespace ExprBuilderTests.ConstantFoldingTests
 
             // Different variables so this should not be simplified to a single extract
             var result = cfb.BVCONCAT(msb, lsb);
+
+            // FIXME: Can't check type due to bugs in Boogie. It tries to change the type on immutabl Expr
+            // CheckIsBvType(result, 16);
+            Assert.IsTrue(result.Type.IsBv);
+            Assert.AreEqual(16, result.Type.BvBits);
+
             var asBvConcat = ExprUtil.AsBVCONCAT(result);
             Assert.IsNotNull(asBvConcat);
             Assert.AreSame(msb, asBvConcat.E0);
