@@ -39,15 +39,7 @@ namespace Symbooglix
 
         public static NAryExpr AsIfThenElse(Expr e)
         {
-            var narry = e as NAryExpr;
-            if (narry == null)
-                return null;
-
-            var fun = narry.Fun;
-            if (fun is IfThenElse)
-                return narry;
-            else
-                return null;
+            return InternalAsFun<IfThenElse>(e);
         }
 
         public static bool StructurallyEqual(Expr a, Expr b)
@@ -330,17 +322,37 @@ namespace Symbooglix
             return GetBVOperator(e, "bvashr");
         }
 
-        public static NAryExpr AsArithmeticCoercion(Expr e)
+        private static NAryExpr InternalAsFun<T>(Expr e)
         {
             var asNary = e as NAryExpr;
             if (asNary == null)
                 return null;
 
             var fun = asNary.Fun;
-            if (fun is ArithmeticCoercion)
+            if (fun is T)
                 return asNary;
 
             return null;
+        }
+
+        public static NAryExpr AsArithmeticCoercion(Expr e)
+        {
+            return InternalAsFun<ArithmeticCoercion>(e);
+        }
+
+        public static NAryExpr AsMapSelect(Expr e)
+        {
+            return InternalAsFun<MapSelect>(e);
+        }
+
+        public static NAryExpr AsMapStore(Expr e)
+        {
+            return InternalAsFun<MapStore>(e);
+        }
+
+        public static NAryExpr AsFunctionCall(Expr e)
+        {
+            return InternalAsFun<FunctionCall>(e);
         }
 
         public static bool IsZero(Expr e)
