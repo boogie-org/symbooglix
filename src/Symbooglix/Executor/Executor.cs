@@ -53,7 +53,6 @@ namespace Symbooglix
             get;
             private set;
         }
-        public ConstantFoldingTraverser CFT;
         public Solver.ISolver TheSolver;
         private bool AllowExecutorToRun= false;
         public Predicate<AssertCmd> AssertFilter

@@ -41,8 +41,6 @@
     <Compile Include="Expr\FindLiteralAssignment.cs" />
     <Compile Include="Expr\IExprVisitor.cs" />
     <Compile Include="Expr\Traverser.cs" />
-    <Compile Include="Expr\ConstantFoldingTraverser.cs" />
-    <Compile Include="Expr\DFSPostOrderTraverser.cs" />
     <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
     <Compile Include="Expr\NonSymbolicDuplicator.cs" />
     <Compile Include="Util\ExceptionThrowingTextWriterTraceListener.cs" />
