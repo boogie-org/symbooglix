@@ -2895,6 +2895,62 @@ namespace Symbooglix
             return UB.MapSelect(map, indices);
         }
 
+        public override Expr MapStore(Expr map, Expr value, params Expr[] indices)
+        {
+            // Look below us, if there is a store and it's
+            // to the same indicies that this map store is for
+            // then we can optimise this slightly
+            // FIXME: We only look one node down but if the indicies are concrete would
+            // potentially keep walk past more map stores (provided we only walk past
+            // MapStores with concrete indicies) but this would be really inefficient.
+            // This suggests we need to rethink how Symbooglix's executor treats maps.
+            var asMapStore = ExprUtil.AsMapStore(map);
+            if (asMapStore != null)
+            {
+                if (!map.Type.IsMap)
+                {
+                    throw new ExprTypeCheckException("map must be of map type");
+                }
+
+                if (indices.Length < 1)
+                {
+                    throw new ArgumentException("Must pass at least one index");
+                }
+
+                if (map.Type.AsMap.MapArity != indices.Length)
+                {
+                    throw new ArgumentException("the number of arguments does not match the map arity");
+                }
+
+                var childMapStoreStoresTo = asMapStore.Args[0];
+                var childMapStoreValueStored = asMapStore.Args[asMapStore.Args.Count - 1];
+
+                bool indiciesMatch = true;
+                for (int index = 0; index < map.Type.AsMap.MapArity; ++index)
+                {
+                    if (!ExprUtil.StructurallyEqual(asMapStore.Args[index + 1], indices[index]))
+                        indiciesMatch = false;
+                }
+
+                if (indiciesMatch)
+                {
+                    if (ExprUtil.StructurallyEqual(value, childMapStoreValueStored))
+                    {
+                        // the child store writes exactly the same value as the MapStore that we
+                        // are trying to create which is redundant so just return the child Map store
+                        // i.e. we just reuse the MapStore that already exists
+                        return asMapStore;
+                    }
+
+                    // Make a new map store but skip the current childMapStore because it is redundant
+                    return UB.MapStore(childMapStoreStoresTo, value, indices);
+
+                }
+            }
+
+            return UB.MapStore(map, value, indices);
+        }
+
 
     }
 }

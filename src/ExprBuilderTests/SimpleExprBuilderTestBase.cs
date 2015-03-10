@@ -104,6 +104,25 @@ namespace ExprBuilderTests
             e.Typecheck(TC);
         }
 
+        protected void CheckIsMapType(Expr e, Microsoft.Boogie.Type mapsToType, params Microsoft.Boogie.Type[] indicesType)
+        {
+            Assert.IsNotNull(e.ShallowType);
+            InternalCheckIsMapType(e.ShallowType, mapsToType, indicesType);
+            Assert.IsNotNull(e.Type);
+            InternalCheckIsMapType(e.Type, mapsToType, indicesType);
+        }
+
+        private void InternalCheckIsMapType(Microsoft.Boogie.Type theMapType, Microsoft.Boogie.Type mapsToType, params Microsoft.Boogie.Type[] indicesType)
+        {
+            Assert.IsTrue(theMapType.IsMap);
+            Assert.AreEqual(mapsToType, theMapType.AsMap.Result);
+            Assert.AreEqual(theMapType.MapArity, indicesType.Length);
+            for (int index = 0; index < indicesType.Length; ++index)
+            {
+                Assert.AreEqual(theMapType.AsMap.Arguments[index], indicesType[index]);
+            }
+        }
+
         protected Tuple<IdentifierExpr, BPLType> GetMapVariable(string name, BPLType resultTyp, params BPLType[] indices)
         {
             var mapType = new MapType(Token.NoToken,
