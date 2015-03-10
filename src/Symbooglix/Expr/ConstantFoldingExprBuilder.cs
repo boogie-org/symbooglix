@@ -2812,6 +2812,89 @@ namespace Symbooglix
             return UB.ArithmeticCoercion(coercionType, operand);
         }
 
+        // FIXME: This choice is kind of arbitrary and overly pesimistic
+        // but this suggests we need a different representation for Maps that allows looking for
+        // constant assignment in less than O(n). Walking the entire list of updates in the worst
+        // case is now desirable.
+        private readonly int MaxMapSelectLookDepth = 5;
+        public override Expr MapSelect(Expr map, params Expr[] indices)
+        {
+            // If this MapSelect is being built on top of map stores
+            // see if we can pick out the relevant store
+            var asMapStore = ExprUtil.AsMapStore(map);
+            if (asMapStore != null)
+            {
+                if (!map.Type.IsMap)
+                {
+                    throw new ExprTypeCheckException("map must be of map type");
+                }
+
+                if (indices.Length < 1)
+                {
+                    throw new ArgumentException("Must pass at least one index");
+                }
+
+                if (map.Type.AsMap.MapArity != indices.Length)
+                {
+                    throw new ArgumentException("the number of arguments does not match the map arity");
+                }
+
+                int count = 0;
+                bool hasConcreteIndicies = true;
+                do
+                {
+                    ++count;
+
+                    var mapStoredTo = asMapStore.Args[0];
+                    var mapArity = map.Type.AsMap.MapArity;
+                    var mapStoreIndicies = new List<Expr>();
+                    for (int index=0; index < mapArity ; ++index)
+                    {
+                        mapStoreIndicies.Add(asMapStore.Args[index + 1]);
+                    }
+                    var mapStoreValue = asMapStore.Args[mapArity + 1];
+
+                    // Go over the indicies and see if it matches.
+                    // We can only go deeper if all indicies are concrete and no match is found
+                    bool indiciesAllMatched = true;
+                    for (int index = 0; index < mapArity; ++ index)
+                    {
+                        var selectIndex = indices[index];
+
+                        if (ExprUtil.AsLiteral(selectIndex) == null || ExprUtil.AsLiteral(mapStoreIndicies[index]) == null)
+                            hasConcreteIndicies = false;
+
+                        if (!ExprUtil.StructurallyEqual(selectIndex, mapStoreIndicies[index]))
+                        {
+                            indiciesAllMatched = false;
+                            break;
+                        }
+                    }
+
+                    if (indiciesAllMatched)
+                    {
+                        // We are trying to read from this MapStore so we can just return the stored value
+                        return mapStoreValue;
+                    }
+
+                    if (hasConcreteIndicies)
+                    {
+                        // Set up variables for doing deeper. We can only look at
+                        // MapStores lower down if all the indicies written by the current
+                        // MapStore were concrete and the indicies we are trying to read from are also
+                        // concrete and they didn't match
+                        asMapStore = ExprUtil.AsMapStore(mapStoredTo);
+
+                        if (asMapStore == null)
+                            break;
+                    }
+
+                } while (count < this.MaxMapSelectLookDepth && hasConcreteIndicies);
+            }
+
+            return UB.MapSelect(map, indices);
+        }
+
 
     }
 }
