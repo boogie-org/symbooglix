@@ -2796,13 +2796,6 @@ namespace Symbooglix
                         // We expect floor to round towards infinity
                         Debug.Assert(floor <= ceiling);
 
-                        if (valueReal.IsNegative)
-                        {
-                            // FIXME: The floor, ceiling calculation is wrong when the value is negative
-                            // this needs fixing in Boogie. Don't fold for now
-                            return UB.ArithmeticCoercion(coercionType, operand);
-                        }
-
                         return ConstantInt(floor);
                     case Microsoft.Boogie.ArithmeticCoercion.CoercionType.ToReal:
                         if (!operand.Type.IsInt)
