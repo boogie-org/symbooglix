@@ -257,18 +257,18 @@ namespace Symbooglix
                     if (computeAssignment)
                         throw new NotSupportedException("Can't handle assignments yet");
 
-                    // FIXME: This is only needed for PersistentProcess mode but we need
-                    // to initialise it before we could get a response from the solver other we might race.
-                    // In fact there still might be a race here...
-                    using (ReceivedResultEvent = new CountdownEvent(1))
+                    try
                     {
-                        ReadExprTimer.Start();
-                        Printer.AddDeclarations(queryExpr);
-                        ReadExprTimer.Stop();
-
-                        // Assume the process has already been setup
-                        try
+                        // FIXME: This is only needed for PersistentProcess mode but we need
+                        // to initialise it before we could get a response from the solver other we might race.
+                        // In fact there still might be a race here...
+                        using (ReceivedResultEvent = new CountdownEvent(1))
                         {
+                            ReadExprTimer.Start();
+                            Printer.AddDeclarations(queryExpr);
+                            ReadExprTimer.Stop();
+
+                            // Assume the process has already been setup
                             PrintExprTimer.Start();
 
                             // Set options if the current process hasn't been given them before or if we're using (reset)
@@ -289,102 +289,110 @@ namespace Symbooglix
 
                             Printer.PrintCheckSat();
                             PrintExprTimer.Stop();
-                        }
-                        catch (System.IO.IOException)
-                        {
-                            // This might happen if the process gets killed whilst we are trying to write
-                            if (!ReceivedResult)
-                            {
-                                Console.Error.WriteLine("Failed to get solver result!");
-                                SolverResult = Result.UNKNOWN;
-                                return Tuple.Create(SolverResult, null as IAssignment);
-                            }
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                            Console.Error.WriteLine("Warning hit ObjectDisposedException. Assuming we are being disposed of!");
-                            // Race condition, We got killed while trying to print. Just give up!
-                            SolverResult = Result.UNKNOWN;
-                            return Tuple.Create(SolverResult, null as IAssignment);
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            Console.Error.WriteLine("Warning hit UnauthorizedAccessException. Just returning unknown");
-                            SolverResult = Result.UNKNOWN;
-                            return Tuple.Create(SolverResult, null as IAssignment);
-                        }
 
-                        // Handle result
-                        if (PersistentProcess)
-                        {
-                            // In persistent mode try to avoid killing the solver process so have to use
-                            // a different synchronisation method to check if we've received a result
-
-                            // Wait for result
-                            if (Timeout > 0)
-                                ReceivedResultEvent.Wait(Timeout * 1000);
-                            else
-                                ReceivedResultEvent.Wait();
-
-                            bool processExited = false;
-                            try
+                            // Handle result
+                            if (PersistentProcess)
                             {
-                                processExited = TheProcess.HasExited;
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                processExited = true;
-                            }
+                                // In persistent mode try to avoid killing the solver process so have to use
+                                // a different synchronisation method to check if we've received a result
 
-                            if (ReceivedError)
-                                throw new SolverErrorException(SolverErrorMsg);
+                                // Wait for result
+                                if (Timeout > 0)
+                                    ReceivedResultEvent.Wait(Timeout * 1000);
+                                else
+                                    ReceivedResultEvent.Wait();
 
-                            if (!ReceivedResult || processExited || ReceivedResultEvent.CurrentCount > 0)
-                            {
-                                // We don't know what state the process is in so we should kill it and make a fresh process
-                                SolverResult = Result.UNKNOWN;
-                                CreateNewProcess();
-                            }
-                            else
-                            {
-                                // Clear all the declarations and assertions, ready for the next query
-                                if (UseReset)
+                                bool processExited = false;
+                                try
                                 {
-                                    Printer.PrintReset();
+                                    processExited = TheProcess.HasExited;
+                                }
+                                catch (InvalidOperationException)
+                                {
+                                    processExited = true;
+                                }
+
+                                if (ReceivedError)
+                                    throw new SolverErrorException(SolverErrorMsg);
+
+                                if (!ReceivedResult || processExited || ReceivedResultEvent.CurrentCount > 0)
+                                {
+                                    // We don't know what state the process is in so we should kill it and make a fresh process
+                                    SolverResult = Result.UNKNOWN;
+                                    CreateNewProcess();
                                 }
                                 else
                                 {
-                                    Printer.PrintPopDeclStack(1);
-                                    Printer.Reset();
+                                    // Clear all the declarations and assertions, ready for the next query
+                                    if (UseReset)
+                                    {
+                                        Printer.PrintReset();
+                                    }
+                                    else
+                                    {
+                                        Printer.PrintPopDeclStack(1);
+                                        Printer.Reset();
+                                    }
                                 }
-                            }
 
-                            if (SolverProcessTimer.IsRunning)
-                                SolverProcessTimer.Stop();
-                        }
-                        else
-                        {
-                            // Non-persistent process mode. We create and destroy a process for every query
-                            if (Timeout > 0)
-                                TheProcess.WaitForExit(Timeout * 1000);
+                                if (SolverProcessTimer.IsRunning)
+                                    SolverProcessTimer.Stop();
+                            }
                             else
-                                TheProcess.WaitForExit();
-
-                            if (!ReceivedResult)
                             {
-                                Console.Error.WriteLine("Failed to get solver result!");
-                                SolverResult = Result.UNKNOWN;
+                                // Non-persistent process mode. We create and destroy a process for every query
+                                if (Timeout > 0)
+                                    TheProcess.WaitForExit(Timeout * 1000);
+                                else
+                                    TheProcess.WaitForExit();
+
+                                if (!ReceivedResult)
+                                {
+                                    Console.Error.WriteLine("Failed to get solver result!");
+                                    SolverResult = Result.UNKNOWN;
+                                }
+
+                                if (ReceivedError)
+                                    throw new SolverErrorException(SolverErrorMsg);
+
+                                if (SolverProcessTimer.IsRunning)
+                                    SolverProcessTimer.Stop();
+
+                                CreateNewProcess(); // For next invocation
                             }
-
-                            if (ReceivedError)
-                                throw new SolverErrorException(SolverErrorMsg);
-
-                            if (SolverProcessTimer.IsRunning)
-                                SolverProcessTimer.Stop();
-
-                            CreateNewProcess(); // For next invocation
                         }
                     }
+                    catch (System.IO.IOException)
+                    {
+                        // This might happen if the process gets killed whilst we are trying to write
+                        if (!ReceivedResult)
+                        {
+                            Console.Error.WriteLine("Failed to get solver result!");
+                            SolverResult = Result.UNKNOWN;
+                        }
+
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Console.Error.WriteLine("Warning hit ObjectDisposedException. Assuming we are being disposed of!");
+                        // Race condition, We got killed while trying to print. Just give up!
+                        SolverResult = Result.UNKNOWN;
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.Error.WriteLine("Warning hit UnauthorizedAccessException. Just returning unknown");
+                        SolverResult = Result.UNKNOWN;
+                    }
+                    catch (System.NotSupportedException excep)
+                    {
+                        if (!Interrupted)
+                            throw excep;
+                        // Apparently this can be thrown if the process gets killed whilst writing
+                        // System.NotSupportedException: Stream does not support writing
+                        Console.Error.WriteLine("Warning hit System.NotSupportedException. Just returning unknown");
+                        SolverResult = Result.UNKNOWN;
+                    }
+
                     ReceivedResultEvent = null;
                     return Tuple.Create(SolverResult, null as IAssignment);
                 }
