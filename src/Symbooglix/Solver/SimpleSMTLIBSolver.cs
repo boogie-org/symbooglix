@@ -312,7 +312,7 @@ namespace Symbooglix
                                     processExited = true;
                                 }
 
-                                if (ReceivedError)
+                                if (ReceivedError && !Interrupted)
                                     throw new SolverErrorException(SolverErrorMsg);
 
                                 if (!ReceivedResult || processExited || ReceivedResultEvent.CurrentCount > 0)
@@ -352,7 +352,7 @@ namespace Symbooglix
                                     SolverResult = Result.UNKNOWN;
                                 }
 
-                                if (ReceivedError)
+                                if (ReceivedError && !Interrupted)
                                     throw new SolverErrorException(SolverErrorMsg);
 
                                 if (SolverProcessTimer.IsRunning)
