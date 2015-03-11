@@ -253,6 +253,7 @@ namespace Symbooglix
                     ReceivedResult = false;
                     ReceivedError = false;
                     SolverResult = Result.UNKNOWN;
+                    bool timeoutOccured = false;
 
                     if (computeAssignment)
                         throw new NotSupportedException("Can't handle assignments yet");
@@ -298,7 +299,9 @@ namespace Symbooglix
 
                                 // Wait for result
                                 if (Timeout > 0)
-                                    ReceivedResultEvent.Wait(Timeout * 1000);
+                                {
+                                    timeoutOccured = !ReceivedResultEvent.Wait(Timeout * 1000);
+                                }
                                 else
                                     ReceivedResultEvent.Wait();
 
@@ -342,7 +345,9 @@ namespace Symbooglix
                             {
                                 // Non-persistent process mode. We create and destroy a process for every query
                                 if (Timeout > 0)
-                                    TheProcess.WaitForExit(Timeout * 1000);
+                                {
+                                    timeoutOccured = !TheProcess.WaitForExit(Timeout * 1000);
+                                }
                                 else
                                     TheProcess.WaitForExit();
 
@@ -394,6 +399,10 @@ namespace Symbooglix
                     }
 
                     ReceivedResultEvent = null;
+
+                    if (timeoutOccured)
+                        ++InternalStatistics.TimeoutCount;
+
                     return Tuple.Create(SolverResult, null as IAssignment);
                 }
             }
@@ -419,6 +428,7 @@ namespace Symbooglix
                     case "unknown":
                         SolverResult = Result.UNKNOWN;
                         ReceivedResult = true;
+                        ++InternalStatistics.SolverRepliedUnknownCount;
                         break;
                     default:
                         SolverResult = Result.UNKNOWN;
@@ -492,12 +502,15 @@ namespace Symbooglix
             public TimeSpan ReadExprTime;
             public TimeSpan PrintExprTime;
             public int ProcessCreationCount;
+            public int TimeoutCount;
+            public int SolverRepliedUnknownCount;
 
             public void Reset()
             {
                 SolverProcessTime = TimeSpan.Zero;
                 ReadExprTime = TimeSpan.Zero;
                 PrintExprTime = TimeSpan.Zero;
+                TimeoutCount = 0;
             }
 
             public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
@@ -508,6 +521,8 @@ namespace Symbooglix
                 TW.WriteLine("read_expr_time: {0}", ReadExprTime.TotalSeconds);
                 TW.WriteLine("print_expr_time: {0}", PrintExprTime.TotalSeconds);
                 TW.WriteLine("process_create_count: {0}", ProcessCreationCount);
+                TW.WriteLine("timeout_count: {0}", TimeoutCount);
+                TW.WriteLine("solver_replied_unknown_count: {0}", SolverRepliedUnknownCount);
                 TW.Indent -= 1;
             }
 
