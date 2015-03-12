@@ -17,7 +17,10 @@ namespace Symbooglix
             public CVC4SMTLIBSolver(bool useNamedAttributes, string pathToSolver, bool persistentProcess, SMTLIBQueryPrinter.Logic logic) :
                 this(useNamedAttributes, pathToSolver, persistentProcess)
             {
-                LogicToUse = logic;
+                // We should not use DO_NOT_SET because CVC4 complains if no
+                // logic is set which causes a SolverErrorException to be raised.
+                if (logic != SMTLIBQueryPrinter.Logic.DO_NOT_SET)
+                    LogicToUse = logic;
             }
 
             protected override void SetSolverOptions()
