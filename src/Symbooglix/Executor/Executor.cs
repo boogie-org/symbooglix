@@ -320,6 +320,16 @@ namespace Symbooglix
                 InitialState.Mem.Globals.Add(gv, s.Expr);
                 InitialState.Symbolics.Add(s);
 
+                var gvAsConstant = gv as Constant;
+                if (gvAsConstant != null)
+                {
+                    if (gvAsConstant.ChildrenComplete)
+                        throw new NotSupportedException("complete keyword not supported");
+
+                    if (gvAsConstant.Parents != null)
+                        throw new NotSupportedException("extends keyword not supported");
+                }
+
             }
 
             // Add the axioms as path constraints
