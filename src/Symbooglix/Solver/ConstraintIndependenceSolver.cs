@@ -14,10 +14,12 @@ namespace Symbooglix
             IConstraintManager ReducedConstraints;
             ConstraintIndepenceSolverStatistics InternalStatistics;
             private bool Interrupted = false;
+            private Stopwatch ConstraintSetReductionTimer;
 
             public ConstraintIndependenceSolver(ISolverImpl underlyingSolver)
             {
                 this.UnderlyingSolver = underlyingSolver;
+                ConstraintSetReductionTimer = new Stopwatch();
                 InternalStatistics.Reset();
             }
 
@@ -45,6 +47,8 @@ namespace Symbooglix
                     throw new NotImplementedException();
                 }
 
+                ConstraintSetReductionTimer.Start();
+
                 HashSet<SymbolicVariable> usedVariables = new HashSet<SymbolicVariable>();
                 HashSet<Function> usedUinterpretedFunctions = new HashSet<Function>();
                 var FSV = new FindSymbolicsVisitor(usedVariables);
@@ -68,6 +72,7 @@ namespace Symbooglix
                         if (Interrupted)
                         {
                             Console.WriteLine("WARNING: ConstraintIndependenceSolver interrupted!");
+                            ConstraintSetReductionTimer.Stop();
                             return new Tuple<Result, IAssignment>(Result.UNKNOWN, null);
                         }
 
@@ -105,6 +110,7 @@ namespace Symbooglix
                 {
                     ++InternalStatistics.ConstraintSetsReduced;
                 }
+                ConstraintSetReductionTimer.Stop();
 
                 UnderlyingSolver.SetConstraints(ReducedConstraints);
                 return UnderlyingSolver.ComputeSatisfiability(queryExpr, computeAssignment);
@@ -127,6 +133,7 @@ namespace Symbooglix
                 get
                 {
                     InternalStatistics.UnderlyingSolverStats = UnderlyingSolver.Statistics;
+                    InternalStatistics.TimeUsedToComputeReducedConstraintSet = ConstraintSetReductionTimer.Elapsed;
                     return InternalStatistics; // Return a copy
                 }
             }
@@ -137,12 +144,14 @@ namespace Symbooglix
             public int ConstraintSetsReduced;
             public int ConstraintSetsLeftUnchanged;
             public ISolverImplStatistics UnderlyingSolverStats;
+            public TimeSpan TimeUsedToComputeReducedConstraintSet;
 
             public void Reset()
             {
                 ConstraintSetsReduced = 0;
                 ConstraintSetsLeftUnchanged = 0;
                 UnderlyingSolverStats = null;
+                TimeUsedToComputeReducedConstraintSet = TimeSpan.Zero;
             }
 
             public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
@@ -156,6 +165,7 @@ namespace Symbooglix
                 TW.Indent += 1;
                 TW.WriteLine("constraint_sets_reduced: {0} #({1}%)", ConstraintSetsReduced, reduceP);
                 TW.WriteLine("constraint_sets_left_unchanged: {0} #({1}%)", ConstraintSetsLeftUnchanged, sameP);
+                TW.WriteLine("constraint_set_reduction_time: {0}", TimeUsedToComputeReducedConstraintSet.TotalSeconds);
                 TW.WriteLine("underlying_solver:");
                 TW.Indent += 1;
                 UnderlyingSolverStats.WriteAsYAML(TW);
