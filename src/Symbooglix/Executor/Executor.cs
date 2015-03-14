@@ -127,7 +127,8 @@ namespace Symbooglix
             INITIAL_STATE_TERMINATED,
             FINISHED,
             TIMEOUT,
-            OUT_OF_MEMORY
+            OUT_OF_MEMORY,
+            TERMINATE_CALLED,
         }
 
         public ExecutorTerminationType TerminationType
@@ -473,11 +474,12 @@ namespace Symbooglix
             if (timeout <= 0)
                 return;
 
+            var theTerminationType = ExecutorTerminationType.TIMEOUT;
             // Create a thread that will kill the executor after the timeout is hit.
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(timeout * 1000); // argument is in milliseconds
-                this.TerminationType = ExecutorTerminationType.TIMEOUT;
+                this.TerminationType = theTerminationType;
                 // Notify
                 if (ExecutorTimeoutReached != null)
                 {
@@ -485,7 +487,8 @@ namespace Symbooglix
                     ExecutorTimeoutReached(this, eventArg );
                 }
 
-                this.Terminate(/*block=*/ false, /*interruptSolver=*/ true);
+                // Use internalTerminate so the terminationType does not get overwritten
+                this.InternalTerminate(/*block=*/ false, /*interruptSolver=*/ true, theTerminationType);
             }, TaskCreationOptions.LongRunning);
         }
 
@@ -630,7 +633,13 @@ namespace Symbooglix
 
         public void Terminate(bool block=false, bool interruptSolver=true)
         {
-            Console.WriteLine("Terminating early");
+            InternalTerminate(block, interruptSolver, ExecutorTerminationType.TERMINATE_CALLED);
+        }
+
+        private void InternalTerminate(bool block, bool interruptSolver, ExecutorTerminationType terminationType)
+        {
+            this.TerminationType = terminationType;
+            Console.WriteLine("Terminating Executor early with reason {0}", this.TerminationType);
 
             // Technically there is a race here
             // If Run() has not set AllowExecutorToRun to true yet and we set
