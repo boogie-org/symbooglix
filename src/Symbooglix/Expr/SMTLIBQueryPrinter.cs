@@ -932,7 +932,7 @@ namespace Symbooglix
 
         public Expr Visit_bvneg(NAryExpr e)
         {
-            return PrintBinaryOperator("bvneg", e);
+            return PrintUnaryOperator("bvneg", e);
         }
 
         public Expr Visit_bvand(NAryExpr e)
