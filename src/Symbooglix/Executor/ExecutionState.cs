@@ -57,9 +57,20 @@ namespace Symbooglix
             private set;
         }
 
-        public void MakeSpeculative()
+        /// <summary>
+        /// Gets the location at which the execution state became speculative
+        /// </summary>
+        public ProgramLocation SpeculativeStart
+        {
+            get;
+            private set;
+        }
+
+        public void MakeSpeculative(ProgramLocation loc)
         {
             Speculative = true;
+            Debug.Assert(loc != null);
+            SpeculativeStart = loc;
         }
 
         // Start at -1 so the executor can keep around the special "-1" state that will never enter any procedure

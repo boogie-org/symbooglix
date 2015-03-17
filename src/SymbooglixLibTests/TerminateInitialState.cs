@@ -34,8 +34,8 @@ namespace SymbooglixLibTests
             {
                 ++stateTerminationCounter;
 
-                Assert.IsInstanceOf<TerminatedWithDisallowedSpeculativePath>(eventArgs.State.TerminationType);
-                var terminationType = eventArgs.State.TerminationType as TerminatedWithDisallowedSpeculativePath;
+                Assert.IsInstanceOf<TerminatedAtUnsatisfiableAxiom>(eventArgs.State.TerminationType);
+                var terminationType = eventArgs.State.TerminationType as TerminatedAtUnsatisfiableAxiom;
                 Assert.IsTrue(terminationType.ExitLocation.IsAxiom);
             };
 

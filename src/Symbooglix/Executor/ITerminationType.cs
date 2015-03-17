@@ -233,11 +233,9 @@ namespace Symbooglix
             return "Disallowed speculative path. Starting at " + ExitLocation.ToString();
         }
 
-        private ProgramLocation _ExitLocation = null;
-        public TerminatedWithDisallowedSpeculativePath() {}
         public TerminatedWithDisallowedSpeculativePath(ProgramLocation loc)
         {
-            this._ExitLocation = loc;
+            this.ExitLocation = loc;
         }
 
         public ExecutionState State
@@ -248,33 +246,8 @@ namespace Symbooglix
 
         public ProgramLocation ExitLocation
         {
-            get
-            {
-                // If we were provided with an ExitLocation use that
-                if (_ExitLocation != null)
-                    return _ExitLocation;
-
-
-                // Try to guess the ExitLocation
-                // FIXME: This might not be reliable. We should perhaps move this into
-                // "Find nearest instruction" helper class.
-
-                // Go through the stack frame backwards without modifying it
-                // We need to walk the stack frame back because we might be in the middle
-                // of setting up a call and so the Current instruction might not be
-                // available in the newest stackframe.
-                foreach (var stackFrame in Enumerable.Reverse(State.Mem.Stack))
-                {
-                    var currentInstruction = stackFrame.CurrentInstruction.Current;
-
-                    if (currentInstruction != null)
-                        return currentInstruction.GetProgramLocation();
-                }
-
-                // If we've exhausted the stack we don't really know where the error
-                // is. Not sure what to do next so lets not implement it for now
-                throw new NotImplementedException();
-            }
+            get;
+            private set;
         }
     }
 

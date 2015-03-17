@@ -93,7 +93,7 @@ namespace SymbooglixLibTests
             int statesTerminated = 0;
             e.StateTerminated += delegate(object executor, Executor.ExecutionStateEventArgs data)
             {
-                Assert.IsInstanceOf<TerminatedWithDisallowedSpeculativePath>(data.State.TerminationType);
+                Assert.IsInstanceOf<TerminatedAtUnsatisfiableAxiom>(data.State.TerminationType);
                 Assert.IsTrue(data.State.Speculative);
                 Assert.IsTrue(data.State.TerminationType.ExitLocation.IsAxiom);
                 ++statesTerminated;
@@ -109,6 +109,89 @@ namespace SymbooglixLibTests
             }
 
             Assert.AreEqual(1, statesTerminated);
+        }
+
+        [Test()]
+        public void SpeculativeEntryRequires()
+        {
+            p = LoadProgramFrom(@"
+                type float;
+                function $fp2si(f:float) returns (int);
+                function $si2fp(i:int) returns (float);
+                procedure main()
+                requires (forall i: int :: $fp2si($si2fp(i)) == i);
+                {
+                var x:int;
+                assert x == $fp2si($si2fp(x));
+                }
+            ", "test.bpl");
+
+            // By using a dummy solver which always returns "UNKNOWN" every path should
+            // be consider to be speculative
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+
+            int count = 0;
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
+            {
+                ++count;
+                Assert.IsInstanceOf<TerminatedWithDisallowedSpeculativePath>(eventArgs.State.TerminationType);
+                Assert.IsTrue(eventArgs.State.TerminationType.ExitLocation.IsRequires);
+            };
+
+            e.Run(GetMain(p));
+            Assert.AreEqual(1, count);
+        }
+
+        [Test()]
+        public void SpeculativeCallRequires()
+        {
+            p = LoadProgramFrom(@"
+                type float;
+                function $fp2si(f:float) returns (int);
+                function $si2fp(i:int) returns (float);
+                procedure main()
+                {
+                    call foo();
+                }
+
+                procedure foo()
+                requires (forall i: int :: $fp2si($si2fp(i)) == i);
+                {
+                    return;
+                }
+            ", "test.bpl");
+
+            // By using a dummy solver which always returns "UNKNOWN" every path should
+            // be consider to be speculative
+            e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
+
+            int count = 0;
+            int countTermDisallowedSpeculativePath = 0;
+            int countTermAtFailingRequires = 0;
+            e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
+            {
+                ++count;
+                var terminationType = eventArgs.State.TerminationType;
+                Assert.IsTrue(terminationType.ExitLocation.IsRequires);
+                if (terminationType is TerminatedWithDisallowedSpeculativePath)
+                {
+                    ++countTermDisallowedSpeculativePath;
+
+                }
+                else if (terminationType is TerminatedAtFailingRequires)
+                {
+                    ++countTermAtFailingRequires;
+                }
+                else
+                {
+                    Assert.Fail("Wrong termination type");
+                }
+            };
+
+            e.Run(GetMain(p));
+            Assert.AreEqual(2, count);
+            Assert.AreEqual(1, countTermDisallowedSpeculativePath);
+            Assert.AreEqual(1, countTermAtFailingRequires);
         }
 
         [Test()]

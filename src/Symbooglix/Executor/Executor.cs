@@ -375,7 +375,7 @@ namespace Symbooglix
                         case Symbooglix.Solver.Result.UNSAT:
                             goto default;
                         case Symbooglix.Solver.Result.UNKNOWN:
-                            InitialState.MakeSpeculative();
+                            InitialState.MakeSpeculative(axiom.GetProgramLocation());
                             goto default; // Eurgh...
                         default:
                             var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
@@ -444,7 +444,8 @@ namespace Symbooglix
                     case Symbooglix.Solver.Result.UNSAT:
                         goto default;
                     case Symbooglix.Solver.Result.UNKNOWN:
-                        InitialState.MakeSpeculative();
+                        // HACK: There are multiple program locations associated with this.
+                        InitialState.MakeSpeculative(varsToEnforceUnique[0].GetProgramLocation());
                         goto default; // Eurgh...
                     default:
                         // FIXME: Need different termination type
@@ -620,7 +621,7 @@ namespace Symbooglix
                 {
                     // FIXME: Report hiting a speculative execution state as an event!
                     Console.WriteLine("Not executing a speculative Execution State!");
-                    this.TerminateState(CurrentState, new TerminatedWithDisallowedSpeculativePath());
+                    this.TerminateState(CurrentState, new TerminatedWithDisallowedSpeculativePath(CurrentState.SpeculativeStart));
                     continue;
                 }
 
@@ -685,18 +686,6 @@ namespace Symbooglix
 
         public void TerminateState(ExecutionState state, ITerminationType type, bool removeFromStateScheduler=true)
         {
-            if (state.Speculative)
-            {
-                // We currently disallow speculative states so change the termination type
-                // FIXME: This implicit setting of the State field of the ITerminationType is gross and is why
-                // this conditional is needed.
-
-                // FIXME: We are throwing away the passed in "type". It may be useful to keep this information
-                if (type is TerminatedWithDisallowedSpeculativePath)
-                    type = new TerminatedWithDisallowedSpeculativePath();
-                else
-                    type = new TerminatedWithDisallowedSpeculativePath(type.ExitLocation);
-            }
             state.Terminate(type);
 
             // Constant variables don't have InstrStatistics so don't try to increment them
@@ -1254,7 +1243,7 @@ namespace Symbooglix
             if (canFollowElse && !canFollowThen)
             {
                 if (followingElseIsSpeculative)
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(assignCmd.GetProgramLocation());
 
                 // The elseExpr will be used, because this a predicated assignment
                 // and the value is the current state won't be changed
@@ -1265,7 +1254,7 @@ namespace Symbooglix
             else if (!canFollowElse && canFollowThen)
             {
                 if (followThenIsSpeculative)
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(assignCmd.GetProgramLocation());
 
                 // Only the thenExpr will be used so perform assignment
                 CurrentState.AssignToVariableInScope(v, thenExpr);
@@ -1277,7 +1266,7 @@ namespace Symbooglix
                 ExecutionState elseState = Fork(CurrentState, assignCmd.GetProgramLocation());
 
                 if (followingElseIsSpeculative)
-                    elseState.MakeSpeculative();
+                    elseState.MakeSpeculative(assignCmd.GetProgramLocation());
 
                 // The elseExpr will be used, because this a predicated assignment
                 // and the value is the current state won't be changed
@@ -1287,7 +1276,7 @@ namespace Symbooglix
 
 
                 if (followThenIsSpeculative)
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(assignCmd.GetProgramLocation());
 
                 // thenExpr used
                 CurrentState.AssignToVariableInScope(v, thenExpr);
@@ -1520,7 +1509,7 @@ namespace Symbooglix
             if (canFail && !canSucceed)
             {
                 if (failureIsSpeculative)
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(location);
 
                 terminatationType.ConditionForUnsat = condition;
                 terminatationType.ConditionForSat = Expr.Not(condition);
@@ -1531,7 +1520,7 @@ namespace Symbooglix
             else if (!canFail && canSucceed)
             {
                 if (successIsSpeculative)
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(location);
 
                 // This state can only succeed
                 CurrentState.Constraints.AddConstraint(condition, location);
@@ -1547,7 +1536,7 @@ namespace Symbooglix
                 ExecutionState failingState = Fork(CurrentState, location);
 
                 if (failureIsSpeculative)
-                    failingState.MakeSpeculative();
+                    failingState.MakeSpeculative(location);
 
                 // For the failing state we want to state that the negation of the condition
                 // is satisfiable (i.e. it can be used to generate a model for the failing execution)
@@ -1560,7 +1549,7 @@ namespace Symbooglix
                 TerminateState(failingState, terminatationType, /*removeFromStateScheduler=*/false);
 
                 if (successIsSpeculative)
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(location);
 
                 // successful state can now have assertion expr in constraints
                 CurrentState.Constraints.AddConstraint(condition, location);
@@ -1621,7 +1610,7 @@ namespace Symbooglix
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
                     // FIXME: Is this a bug? HandleAssertLikeCmd() assumes that current constraints are satisfiable
-                    CurrentState.MakeSpeculative();
+                    CurrentState.MakeSpeculative(location);
 
                     CurrentState.Constraints.AddConstraint(condition, location);
                     break;
@@ -1683,6 +1672,7 @@ namespace Symbooglix
             public Expr ReWrittenAssumeExpr; // null if no assume to look ahead
             public Block Target;
             public bool IsSpeculative;
+            public AssumeCmd Assume; // null if no assume to look ahead
         }
 
         protected void LookAheadGotoFork(GotoCmd c)
@@ -1704,6 +1694,7 @@ namespace Symbooglix
                 info.IsSpeculative = false;
                 info.ReWrittenAssumeExpr = null;
                 info.Target = block;
+                info.Assume = null;
 
                 var targetInstruction = new BlockCmdEnumerator(block);
                 targetInstruction.MoveNext();
@@ -1717,6 +1708,7 @@ namespace Symbooglix
                 }
 
                 var assumeCmd = targetInstruction.Current as AssumeCmd;
+                info.Assume = assumeCmd;
 
                 Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
 
@@ -1812,7 +1804,8 @@ namespace Symbooglix
 
                 if (theInfo.IsSpeculative)
                 {
-                    theState.MakeSpeculative();
+                    Debug.Assert(theInfo.Assume != null);
+                    theState.MakeSpeculative(theInfo.Assume.GetProgramLocation());
                 }
 
                 // Transfer to the appropriate basic block
@@ -1823,7 +1816,7 @@ namespace Symbooglix
                     // For this state we looked ahead and there was a satisfiable assume
                     // so now add the assume constraint and walk past the assume that we
                     // already looked at because there is no need to execute it.
-                    var assumeCmd = (theInfo.Target.Cmds[0] as AssumeCmd);
+                    var assumeCmd = theInfo.Assume;
                     Debug.Assert(assumeCmd != null, "The target block does not start with the expected AssumeCmd");
                     theState.Constraints.AddConstraint(theInfo.ReWrittenAssumeExpr, assumeCmd.GetProgramLocation());
 

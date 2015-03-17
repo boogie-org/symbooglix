@@ -1,7 +1,8 @@
 // RUN: %rmdir %t.symbooglix-out
 // RUN: %eec 8 %symbooglix --output-dir %t.symbooglix-out --solver=DUMMY %s
 // RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithoutError 0
-// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithDisallowedSpeculativePath 1
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedWithDisallowedSpeculativePath 0
+// RUN: %ctcy %t.symbooglix-out/termination_counters.yml TerminatedAtUnsatisfiableAxiom 1
 const g:int;
 
 // We expect that the Dummy solve will say the satisfiability
