@@ -103,14 +103,22 @@ namespace SymbooglixLibTests
             // be consider to be speculative
             e = GetExecutor(p, new DFSStateScheduler(), new SimpleSolver( new DummySolver(Result.UNKNOWN)));
 
-            this.Counter = new TerminationCounter();
+            this.Counter = new TerminationCounter(TerminationCounter.CountType.ONLY_NON_SPECULATIVE);
+            var speculativeCounter = new TerminationCounter(TerminationCounter.CountType.ONLY_SPECULATIVE);
             Counter.Connect(e);
+            speculativeCounter.Connect(e);
 
             e.Run(GetMain(p));
 
-            Assert.AreEqual(2, Counter.DisallowedSpeculativePaths);
+            Assert.AreEqual(0, Counter.DisallowedSpeculativePaths);
             Assert.AreEqual(0, Counter.Sucesses);
             Assert.AreEqual(0, Counter.NumberOfFailures);
+            Assert.AreEqual(0, Counter.NumberOfTerminatedStates);
+
+            Assert.AreEqual(2, speculativeCounter.DisallowedSpeculativePaths);
+            Assert.AreEqual(0, speculativeCounter.Sucesses);
+            Assert.AreEqual(0, speculativeCounter.NumberOfFailures);
+            Assert.AreEqual(2, speculativeCounter.NumberOfTerminatedStates);
         }
 
         [Test()]

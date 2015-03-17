@@ -409,7 +409,8 @@ namespace SymbooglixDriver
 
             Console.WriteLine("Using Scheduler: {0}", scheduler.ToString());
 
-            var terminationCounter = new TerminationCounter();
+            var nonSpeculativeterminationCounter = new TerminationCounter(TerminationCounter.CountType.ONLY_NON_SPECULATIVE);
+            var speculativeTerminationCounter = new TerminationCounter(TerminationCounter.CountType.ONLY_SPECULATIVE);
             IExprBuilder builder = new SimpleExprBuilder(/*immutable=*/ true);
 
             if (options.useConstantFolding > 0)
@@ -524,7 +525,8 @@ namespace SymbooglixDriver
                 var stateHandler = new TerminationConsoleReporter();
                 stateHandler.Connect(executor);
 
-                terminationCounter.Connect(executor);
+                nonSpeculativeterminationCounter.Connect(executor);
+                speculativeTerminationCounter.Connect(executor);
 
                 if (options.FileLogging > 0)
                     SetupFileLoggers(options, executor, solver);
@@ -596,39 +598,41 @@ namespace SymbooglixDriver
 
 
                 Console.WriteLine("Finished executing");
-                DumpStats(executor, solver, terminationCounter);
+                DumpStats(executor, solver, nonSpeculativeterminationCounter, speculativeTerminationCounter);
             }
 
             if (TimeoutHit)
             {
-                ExitWith(terminationCounter.NumberOfFailures > 0 ? ExitCode.ERRORS_TIMEOUT : ExitCode.NO_ERRORS_TIMEOUT);
+                ExitWith(nonSpeculativeterminationCounter.NumberOfFailures > 0 ? ExitCode.ERRORS_TIMEOUT : ExitCode.NO_ERRORS_TIMEOUT);
                 throw new InvalidOperationException("Unreachable");
             }
 
-            var exitCode = terminationCounter.NumberOfFailures > 0 ? ExitCode.ERRORS_NO_TIMEOUT : ExitCode.NO_ERRORS_NO_TIMEOUT;
+            var exitCode = nonSpeculativeterminationCounter.NumberOfFailures > 0 ? ExitCode.ERRORS_NO_TIMEOUT : ExitCode.NO_ERRORS_NO_TIMEOUT;
             if (exitCode == ExitCode.NO_ERRORS_NO_TIMEOUT)
             {
                 // If no errors were found we may need to pick a different exit code
                 // because path exploration may not have been exhaustive due to speculative paths
                 // or hitting a bound. This isn't perfect because we may hit a bound and have speculative
                 // paths so we could use either exit code in this case.
-                if (terminationCounter.DisallowedSpeculativePaths > 0)
+                if (nonSpeculativeterminationCounter.DisallowedSpeculativePaths > 0 || speculativeTerminationCounter.NumberOfTerminatedStates > 0)
                     exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_FOUND_SPECULATIVE_PATHS;
-                else if (terminationCounter.DisallowedPathDepths > 0)
+                else if (nonSpeculativeterminationCounter.DisallowedPathDepths > 0)
                     exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_HIT_BOUND;
             }
             ExitWith(exitCode);
             return (int) exitCode; // This is required to keep the compiler happy.
         }
 
-        public static void DumpStats(Executor executor, Solver.ISolver solver, TerminationCounter terminationCounter)
+        public static void DumpStats(Executor executor, Solver.ISolver solver, TerminationCounter nonSpeculativeTerminationCounter,
+            TerminationCounter speculativeTerminationCounter)
         {
             using (var ITW = new System.CodeDom.Compiler.IndentedTextWriter(Console.Out))
             {
                 executor.Statistics.WriteAsYAML(ITW);
                 solver.Statistics.WriteAsYAML(ITW);
                 solver.SolverImpl.Statistics.WriteAsYAML(ITW);
-                terminationCounter.WriteAsYAML(ITW);
+                nonSpeculativeTerminationCounter.WriteAsYAML(ITW);
+                speculativeTerminationCounter.WriteAsYAML(ITW);
             }
         }
 
@@ -643,7 +647,8 @@ namespace SymbooglixDriver
             // Add our loggers
             executorLogger.AddRootDirLogger(new CallGrindFileLogger());
             //executorLogger.AddRootDirLogger(new MemoryUsageLogger()); // FIXME: Disable for experiments it is buggy
-            executorLogger.AddRootDirLogger(new TerminationCounterLogger());
+            executorLogger.AddRootDirLogger(new TerminationCounterLogger(TerminationCounter.CountType.ONLY_NON_SPECULATIVE));
+            executorLogger.AddRootDirLogger(new TerminationCounterLogger(TerminationCounter.CountType.ONLY_SPECULATIVE));
             //executorLogger.AddRootDirLogger(new ExecutionTreeLogger(true));
             executorLogger.AddRootDirLogger(new ExecutorInfoLogger());
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.CodeDom.Compiler;
+using System.Text;
 
 namespace Symbooglix
 {
@@ -8,9 +9,9 @@ namespace Symbooglix
     {
         private TerminationCounter TCounter;
 
-        public TerminationCounterLogger()
+        public TerminationCounterLogger(TerminationCounter.CountType countType)
         {
-            TCounter = new TerminationCounter();
+            TCounter = new TerminationCounter(countType);
         }
 
         public override void Connect(Executor e)
@@ -27,15 +28,22 @@ namespace Symbooglix
 
         private void handleExecutorTerminated(Object executor, Executor.ExecutorTerminatedArgs args)
         {
+            StringBuilder fileName = new StringBuilder("termination_counters");
+
+            if (TCounter.TheCountType != TerminationCounter.CountType.ONLY_NON_SPECULATIVE)
+            {
+                fileName.AppendFormat("_{0}", TCounter.TheCountType.ToString());
+            }
+
             // Write GNUPlot data
-            string path = Path.Combine(Directory, "termination_counters.txt");
+            string path = Path.Combine(Directory, fileName.ToString() + ".txt");
             Console.WriteLine("Writing termination counts to {0}", path);
             using (var SW = new StreamWriter(path))
             {
                 TCounter.WriteAsGnuPlotData(SW);
             }
 
-            path = Path.Combine(Directory, "termination_counters.yml");
+            path = Path.Combine(Directory, fileName.ToString() + ".yml");
             Console.WriteLine("Writing termination counts to {0}", path);
 
             // It is necessary to use to "using" blocks because IndentedTextWriter.Dispose()

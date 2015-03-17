@@ -24,6 +24,15 @@ namespace Symbooglix
 
         private Dictionary<System.Type, int> Counters;
 
+        public enum CountType
+        {
+            ONLY_NON_SPECULATIVE,
+            ONLY_SPECULATIVE,
+            BOTH,
+        }
+
+        public readonly CountType TheCountType;
+
         protected int GetCounter<T>()
         {
             Debug.Assert(Counters.ContainsKey(typeof(T)), "Requested an unhandled Termination type");
@@ -50,8 +59,9 @@ namespace Symbooglix
             get { return NumberOfFailures + Sucesses + UnsatisfiableAssumes + DisallowedSpeculativePaths + UnexplorableGotos + DisallowedPathDepths; }
         }
 
-        public TerminationCounter()
+        public TerminationCounter(CountType countType = CountType.BOTH)
         {
+            this.TheCountType = countType;
             this.Counters = new Dictionary<System.Type, int>();
             reset();
         }
@@ -69,10 +79,30 @@ namespace Symbooglix
         protected void handle(Object executor, Executor.ExecutionStateEventArgs arg)
         {
             var terminationType = arg.State.TerminationType.GetType();
+            var isSpeculative = arg.State.Speculative;
             Debug.Assert(Counters.ContainsKey(terminationType), "Termination type not handled!");
 
             var oldValue = Counters[terminationType];
-            Counters[terminationType] = ++oldValue;
+
+            switch (TheCountType)
+            {
+                case CountType.BOTH:
+                    goto doCount;
+                case CountType.ONLY_SPECULATIVE:
+                    if (isSpeculative)
+                        goto doCount;
+                    break;
+                case CountType.ONLY_NON_SPECULATIVE:
+                    if (!isSpeculative)
+                        goto doCount;
+                    break;
+                doCount:
+                    Counters[terminationType] = ++oldValue;
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported count type");
+            }
+
         }
 
         public void reset()
@@ -128,7 +158,7 @@ namespace Symbooglix
 
         public void WriteAsYAML(System.CodeDom.Compiler.IndentedTextWriter TW)
         {
-            TW.WriteLine("# Termination Counter info");
+            TW.WriteLine("# Termination Counter ({0}) info", TheCountType.ToString());
             foreach (var terminationTypeCounterPair in Counters)
             {
                 TW.WriteLine("{0}: {1}", StripPrefix(terminationTypeCounterPair.Key.ToString()), terminationTypeCounterPair.Value.ToString());
