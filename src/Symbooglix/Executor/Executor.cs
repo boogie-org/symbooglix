@@ -19,6 +19,8 @@ namespace Symbooglix
             UseGotoLookAhead = true;
             UseGlobalDDE = true;
             UseForkAtPredicatedAssign = false;
+            CheckEntryAxioms = true;
+            CheckEntryRequires = true;
             this.TheSolver = solver;
             this.Duplicator = new BuilderDuplicator(builder);
             this.InternalRequestedEntryPoints = new List<Implementation>();
@@ -61,6 +63,7 @@ namespace Symbooglix
             set;
         }
 
+        // FIXME: This API is lame make them constructor parameters
         public bool UseGotoLookAhead
         {
             get;
@@ -74,6 +77,18 @@ namespace Symbooglix
         }
 
         public bool UseForkAtPredicatedAssign
+        {
+            get;
+            set;
+        }
+
+        public bool CheckEntryAxioms
+        {
+            get;
+            set;
+        }
+
+        public bool CheckEntryRequires
         {
             get;
             set;
@@ -350,31 +365,39 @@ namespace Symbooglix
 
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
 
-                Solver.Result result = TheSolver.IsQuerySat(constraint);
-                switch (result)
+                if (CheckEntryAxioms)
                 {
-                    case Symbooglix.Solver.Result.SAT:
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
-                        goto default;
-                    case Symbooglix.Solver.Result.UNKNOWN:
-                        InitialState.MakeSpeculative();
-                        goto default; // Eurgh...
-                    default:
-                        var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
-                        terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
+                    Solver.Result result = TheSolver.IsQuerySat(constraint);
+                    switch (result)
+                    {
+                        case Symbooglix.Solver.Result.SAT:
+                            break;
+                        case Symbooglix.Solver.Result.UNSAT:
+                            goto default;
+                        case Symbooglix.Solver.Result.UNKNOWN:
+                            InitialState.MakeSpeculative();
+                            goto default; // Eurgh...
+                        default:
+                            var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
+                            terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
 
                         // Expr.Not(constraint) will only be satisfiable if
                         // the original constraints are satisfiable
                         // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
                         // ∀ x constraints(x) ∧ ¬query(x)
                         // So here we assume
-                        terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
+                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
 
-                        TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
-                        HasBeenPrepared = true; // Don't allow this method to run again
-                        PrepareTimer.Stop();
-                        return false;
+                            TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
+                            HasBeenPrepared = true; // Don't allow this method to run again
+                            PrepareTimer.Stop();
+                            return false;
+                    }
+                }
+                else
+                {
+                    // FIXME: Emit as event
+                    Console.Error.WriteLine("Warning: Not checking axiom {0}:{1} {2}", axiom.tok.filename, axiom.tok.line, axiom.Expr);
                 }
 
                 InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
@@ -875,7 +898,16 @@ namespace Symbooglix
                 {
                     // On entry we treat requires like an assume so it constrains
                     // the initial state
-                    stillInState = HandleAssumeLikeCommand(constraint, new TerminatedAtUnsatisfiableEntryRequires(r), r.GetProgramLocation());
+                    if (CheckEntryRequires)
+                    {
+                        stillInState = HandleAssumeLikeCommand(constraint, new TerminatedAtUnsatisfiableEntryRequires(r), r.GetProgramLocation());
+                    }
+                    else
+                    {
+                        // FIXME: Emit as event
+                        Console.Error.WriteLine("Warning: Not checking entry constraint {0}:{1} {2}", r.tok.filename, r.tok.line, r.Condition);
+                        CurrentState.Constraints.AddConstraint(constraint, r.GetProgramLocation());
+                    }
                 }
                 else
                 {

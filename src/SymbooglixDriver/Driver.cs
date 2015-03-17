@@ -28,6 +28,12 @@ namespace SymbooglixDriver
             [Option("concurrent-logging", DefaultValue = 1, HelpText = "Log files concurrently, otherwise do in serial")]
             public int ConcurrentLogging { get ; set; }
 
+            [Option("check-entry-requires", DefaultValue = 1, HelpText="Check entry point requires")]
+            public int CheckEntryRequires { get; set;}
+
+            [Option("check-entry-axioms", DefaultValue = 1, HelpText="Check axioms")]
+            public int CheckEntryAxioms { get; set;}
+
             [Option("emit-before", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool emitProgramBefore { get; set; }
 
@@ -483,6 +489,22 @@ namespace SymbooglixDriver
 
                 if (options.ForkAtPredicatedAssign)
                     executor.UseForkAtPredicatedAssign = true;
+
+                if (options.CheckEntryRequires > 0)
+                    executor.CheckEntryRequires = true;
+                else
+                {
+                    Console.WriteLine("Warning: Requires at the entry point are not being checked");
+                    executor.CheckEntryRequires = false;
+                }
+
+                if (options.CheckEntryAxioms > 0)
+                    executor.CheckEntryAxioms = true;
+                else
+                {
+                    Console.WriteLine("Warning: Axioms are not being checked");
+                    executor.CheckEntryAxioms = false;
+                }
 
                 if (options.GlobalDDE > 0)
                 {
