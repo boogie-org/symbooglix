@@ -34,6 +34,9 @@ namespace SymbooglixDriver
             [Option("check-entry-axioms", DefaultValue = 1, HelpText="Check axioms")]
             public int CheckEntryAxioms { get; set;}
 
+            [Option("check-unique-vars", DefaultValue = 1, HelpText="Check unique variables")]
+            public int CheckUniqueVariableDecls { get; set;}
+
             [Option("emit-before", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool emitProgramBefore { get; set; }
 
@@ -505,6 +508,14 @@ namespace SymbooglixDriver
                 {
                     Console.WriteLine("Warning: Axioms are not being checked");
                     executor.CheckEntryAxioms = false;
+                }
+
+                if (options.CheckUniqueVariableDecls > 0)
+                    executor.CheckUniqueVariableDecls = true;
+                else
+                {
+                    Console.WriteLine("Warning: Unique variables are not being checked");
+                    executor.CheckUniqueVariableDecls = false;
                 }
 
                 if (options.GlobalDDE > 0)

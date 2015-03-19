@@ -21,6 +21,7 @@ namespace Symbooglix
             UseForkAtPredicatedAssign = false;
             CheckEntryAxioms = true;
             CheckEntryRequires = true;
+            CheckUniqueVariableDecls = true;
             this.TheSolver = solver;
             this.Duplicator = new BuilderDuplicator(builder);
             this.InternalRequestedEntryPoints = new List<Implementation>();
@@ -89,6 +90,12 @@ namespace Symbooglix
         }
 
         public bool CheckEntryRequires
+        {
+            get;
+            set;
+        }
+
+        public bool CheckUniqueVariableDecls
         {
             get;
             set;
@@ -434,35 +441,44 @@ namespace Symbooglix
                 }
 
                 var distinctConstraint = Builder.Distinct(exprToEnforceUnique);
-                // Check the constraint is satisfiable
-                TheSolver.SetConstraints(InitialState.Constraints);
-                Solver.Result result = TheSolver.IsQuerySat(distinctConstraint);
-                switch (result)
+                if (CheckUniqueVariableDecls)
                 {
-                    case Symbooglix.Solver.Result.SAT:
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
-                        goto default;
-                    case Symbooglix.Solver.Result.UNKNOWN:
+                    // Check the constraint is satisfiable
+                    TheSolver.SetConstraints(InitialState.Constraints);
+                    Solver.Result result = TheSolver.IsQuerySat(distinctConstraint);
+                    switch (result)
+                    {
+                        case Symbooglix.Solver.Result.SAT:
+                            break;
+                        case Symbooglix.Solver.Result.UNSAT:
+                            goto default;
+                        case Symbooglix.Solver.Result.UNKNOWN:
                         // HACK: There are multiple program locations associated with this.
-                        InitialState.MakeSpeculative(varsToEnforceUnique[0].GetProgramLocation());
-                        goto default; // Eurgh...
-                    default:
+                            InitialState.MakeSpeculative(varsToEnforceUnique[0].GetProgramLocation());
+                            goto default; // Eurgh...
+                        default:
                         // FIXME: Need different termination type
-                        var terminatedWithUnsatUniqueAttr = new TerminatedWithUnsatisfiableUniqueAttribute(varsToEnforceUnique);
-                        terminatedWithUnsatUniqueAttr.ConditionForUnsat = distinctConstraint;
+                            var terminatedWithUnsatUniqueAttr = new TerminatedWithUnsatisfiableUniqueAttribute(varsToEnforceUnique);
+                            terminatedWithUnsatUniqueAttr.ConditionForUnsat = distinctConstraint;
 
                         // Expr.Not(constraint) will only be satisfiable if
                         // the original constraints are satisfiable
                         // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
                         // ∀ x constraints(x) ∧ ¬query(x)
                         // So here we assume
-                        terminatedWithUnsatUniqueAttr.ConditionForSat = Builder.Not(distinctConstraint);
+                            terminatedWithUnsatUniqueAttr.ConditionForSat = Builder.Not(distinctConstraint);
 
-                        TerminateState(InitialState, terminatedWithUnsatUniqueAttr, /*removeFromStateScheduler=*/false);
-                        HasBeenPrepared = true; // Don't allow this method to run again
-                        PrepareTimer.Stop();
-                        return false;
+                            TerminateState(InitialState, terminatedWithUnsatUniqueAttr, /*removeFromStateScheduler=*/false);
+                            HasBeenPrepared = true; // Don't allow this method to run again
+                            PrepareTimer.Stop();
+                            return false;
+                    }
+                }
+                else
+                {
+                    // FIXME: Emit as some sort of event
+                    Console.WriteLine("WARNING: Not checking if the uniqueness of variables of type {0} is satisfiable",
+                                      varsToEnforceUnique[0].TypedIdent.Type.ToString());
                 }
 
                 // This is kind of a hack a distinctConstraint is associated with multiple source locations rather than just one.
