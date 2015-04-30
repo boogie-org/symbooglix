@@ -4,6 +4,7 @@ using Symbooglix;
 using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Linq;
+using Solver = Symbooglix.Solver;
 
 namespace SolverTests
 {
@@ -14,18 +15,16 @@ namespace SolverTests
         {
             public List<Constraint> Constraints = new List<Constraint>();
             public Expr QueryExpr = null;
-            public void SetConstraints(IConstraintManager constraints)
+
+            public Tuple<Symbooglix.Solver.Result, Solver.IAssignment> ComputeSatisfiability(Solver.Query query, bool computeAssignment)
             {
                 // Record the constraints we receive
-                foreach (var c in constraints.Constraints)
+                foreach (var c in query.Constraints.Constraints)
                     Constraints.Add(c);
-            }
 
-            public Tuple<Symbooglix.Solver.Result, Symbooglix.Solver.IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
-            {
                 // Record what the QueryExpr was
-                QueryExpr = queryExpr;
-                return new Tuple<Symbooglix.Solver.Result, Symbooglix.Solver.IAssignment>(Symbooglix.Solver.Result.SAT, null);
+                QueryExpr = query.QueryExpr.Condition;
+                return new Tuple<Symbooglix.Solver.Result, Solver.IAssignment>(Solver.Result.SAT, null);
             }
 
             public void SetTimeout(int seconds)
@@ -43,7 +42,7 @@ namespace SolverTests
 
             }
 
-            public Symbooglix.Solver.ISolverImplStatistics Statistics
+            public Solver.ISolverImplStatistics Statistics
             {
                 get
                 {
@@ -84,11 +83,10 @@ namespace SolverTests
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
-            indepenceSolver.SetConstraints(CM);
 
             Expr queryExpr = builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8));
 
-            indepenceSolver.ComputeSatisfiability(queryExpr, false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)), false);
 
             // Check no constraints were removed
             Assert.AreEqual(2, mockSolver.Constraints.Count);
@@ -136,11 +134,10 @@ namespace SolverTests
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
-            indepenceSolver.SetConstraints(CM);
 
             Expr queryExpr = builder.Eq(s1, builder.ConstantBV(0, 8));
 
-            indepenceSolver.ComputeSatisfiability(queryExpr, false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM,new Constraint(queryExpr)), false);
 
             // Check one constraint was removed
             Assert.AreEqual(1, mockSolver.Constraints.Count);
@@ -184,14 +181,13 @@ namespace SolverTests
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
-            indepenceSolver.SetConstraints(CM);
 
             // The query expression uses the "foobar" function so we need to keep constraints on that function
             Expr queryExpr = builder.And( builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8)), 
                                           builder.NotEq(builder.UFC(foobarFunc, s1), s1)
             );
 
-            indepenceSolver.ComputeSatisfiability(queryExpr, false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)), false);
 
             // Check no constraints were removed
             Assert.AreEqual(3, mockSolver.Constraints.Count);
@@ -251,13 +247,12 @@ namespace SolverTests
 
             var mockSolver = new MockSolver();
             var indepenceSolver = new Symbooglix.Solver.ConstraintIndependenceSolver(mockSolver);
-            indepenceSolver.SetConstraints(CM);
 
             // The query expression does not use the "foobar" function so we don't need to keep constraints on that function
             Expr queryExpr = builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8));
 
 
-            indepenceSolver.ComputeSatisfiability(queryExpr, false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)), false);
 
             // Check no constraints were removed
             Assert.AreEqual(2, mockSolver.Constraints.Count);

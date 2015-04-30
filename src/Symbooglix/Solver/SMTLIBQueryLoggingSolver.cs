@@ -17,7 +17,6 @@ namespace Symbooglix
         {
             private ISolverImpl UnderlyingImpl;
             private SMTLIBQueryPrinter Printer;
-            private IConstraintManager CurrentConstraints = null;
             private int UseCounter=0;
             public SMTLIBQueryLoggingSolverImpl(ISolverImpl underlyingImplementation, TextWriter TW, bool namedAttributeBindings, bool humanReadable)
             {
@@ -25,43 +24,37 @@ namespace Symbooglix
                 Printer = new SMTLIBQueryPrinter(TW, namedAttributeBindings, humanReadable);
             }
 
-            public void SetConstraints(IConstraintManager constraints)
-            {
-                // Only clear the known declarations when we are given new constraints
-                Printer.ClearDeclarations();
-
-                // Let the printer find the declarations
-                CurrentConstraints = constraints;
-                foreach (var constraint in constraints.Constraints)
-                {
-                    Printer.AddDeclarations(constraint);
-                }
-                UnderlyingImpl.SetConstraints(constraints);
-            }
-
-            private void PrintDeclarationsAndConstraints()
+            private void PrintDeclarationsAndConstraints(IConstraintManager cm)
             {
                 Printer.PrintSortDeclarations();
                 Printer.PrintVariableDeclarations();
                 Printer.PrintFunctionDeclarations();
-                Printer.PrintCommentLine(CurrentConstraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in CurrentConstraints.Constraints)
+                Printer.PrintCommentLine(cm.Count.ToString() +  " Constraints");
+                foreach (var constraint in cm.Constraints)
                 {
                     Printer.PrintCommentLine("Origin : " + constraint.Origin.ToString());
                     Printer.PrintAssert(constraint.Condition);
                 }
             }
 
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
             {
-                Printer.AddDeclarations(queryExpr);
+                // FIXME: Optimise the case where only the query expression has changed
+                Printer.ClearDeclarations();
+                foreach (var constraint in query.Constraints.Constraints)
+                {
+                    Printer.AddDeclarations(constraint);
+                }
+                Printer.AddDeclarations(query.QueryExpr);
+
+
                 Printer.PrintCommentLine("Query " + UseCounter + " Begin");
-                PrintDeclarationsAndConstraints();
-                Printer.PrintCommentLine("Query Expr");
-                Printer.PrintAssert(queryExpr);
+                PrintDeclarationsAndConstraints(query.Constraints);
+                Printer.PrintCommentLine("Query Expr:" + query.QueryExpr.Origin.ToString());
+                Printer.PrintAssert(query.QueryExpr.Condition);
                 Printer.PrintCheckSat();
 
-                var result = UnderlyingImpl.ComputeSatisfiability(queryExpr, computeAssignment);
+                var result = UnderlyingImpl.ComputeSatisfiability(query, computeAssignment);
 
                 Printer.PrintCommentLine("Result : " + result.Item1);
 

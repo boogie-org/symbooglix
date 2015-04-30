@@ -13,6 +13,7 @@ namespace Symbooglix
         IEnumerable<Expr> ConstraintExprs{ get; }
         IEnumerable<Constraint> Constraints { get; }
         void AddConstraint(Expr e, ProgramLocation location);
+        void AddConstraint(Constraint c);
 
         /// <summary>
         /// Returns
@@ -78,22 +79,19 @@ namespace Symbooglix
             return other;
         }
 
+
         public void AddConstraint(Expr e, ProgramLocation location)
         {
-            Debug.Assert(e.ShallowType.IsBool, "Constraints stored must be boolean");
+            AddConstraint(new Constraint(e, location));
+        }
 
-            // Drop Literal constraints (i.e. "True")
-            if (e is LiteralExpr)
-            {
-                Debug.Assert(( e as LiteralExpr ).asBool, "Constraint cannot be false");
-                return;
-            }
+        public void AddConstraint(Constraint c)
+        {
+            if (ExprUtil.IsFalse(c.Condition))
+                throw new Exception("Cannot add false to constraint set");
 
-            var newConstraint = new Constraint(e, location);
-            if (InternalConstraints.Contains(newConstraint))
-                return; // Don't add constraints we already have
-
-            InternalConstraints.Add(new Constraint(e, location));
+            Debug.Assert(c.Condition.ShallowType.IsBool, "constraint must be boolean");
+            InternalConstraints.Add(c);
         }
 
         public IConstraintManager GetSubSet(ISet<Constraint> subset)

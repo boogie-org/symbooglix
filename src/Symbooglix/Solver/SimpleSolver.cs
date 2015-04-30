@@ -24,17 +24,12 @@ namespace Symbooglix
                 Timer = new Stopwatch();
             }
 
-            public void SetConstraints(IConstraintManager cm)
-            {
-                SolverImpl.SetConstraints(cm);
-            }
-
             public void SetTimeout(int seconds)
             {
                 SolverImpl.SetTimeout(seconds);
             }
 
-            private Tuple<Result, IAssignment> CallImplementation(Microsoft.Boogie.Expr queryExpr, bool getAssignment)
+            private Tuple<Result, IAssignment> CallImplementation(Query query, bool getAssignment)
             {
                 // FIXME: We need to enforce the timeout here but doing so isn't possible with the current design.
                 // If we implement a timeout then we need away to create a new solverImplementation when the timeout hits
@@ -43,53 +38,16 @@ namespace Symbooglix
                 // an ISolverImplFactory that we take so we can create new solver implementations whenever it's necessary.
 
                 //Console.WriteLine("Starting solver");
-                var result = SolverImpl.ComputeSatisfiability(queryExpr, getAssignment);
+                var result = SolverImpl.ComputeSatisfiability(query, getAssignment);
                 //Console.WriteLine("Finished solver");
                 return result;
             }
 
-            public Result IsQuerySat(Microsoft.Boogie.Expr query, out IAssignment assignment)
-            {
-                Timer.Start();
-
-                var result = CallImplementation(query, true);
-                assignment = result.Item2;
-                Debug.Assert(assignment != null, "Assignment object cannot be null");
-
-                Timer.Stop();
-                UpdateStatistics(result);
-                return result.Item1;
-            }
-
-            public Result IsQuerySat(Microsoft.Boogie.Expr query)
+            public Result IsQuerySat(Query query)
             {
                 Timer.Start();
 
                 var result = CallImplementation(query, false);
-
-                Timer.Stop();
-                UpdateStatistics(result);
-                return result.Item1;
-            }
-
-            public Result IsNotQuerySat(Microsoft.Boogie.Expr query, out IAssignment assignment)
-            {
-                Timer.Start();
-
-                var result = CallImplementation(Microsoft.Boogie.Expr.Not(query), true);
-                assignment = result.Item2;
-                Debug.Assert(assignment != null, "Assignment object cannot be null");
-
-                Timer.Stop();
-                UpdateStatistics(result);
-                return result.Item1;
-            }
-
-            public Result IsNotQuerySat(Microsoft.Boogie.Expr query)
-            {
-                Timer.Start();
-
-                var result = CallImplementation(Microsoft.Boogie.Expr.Not(query), false);
 
                 Timer.Stop();
                 UpdateStatistics(result);

@@ -10,8 +10,6 @@ namespace Symbooglix
         public class ConstraintIndependenceSolver : ISolverImpl
         {
             ISolverImpl UnderlyingSolver;
-            IConstraintManager OriginalConstraints;
-            IConstraintManager ReducedConstraints;
             ConstraintIndepenceSolverStatistics InternalStatistics;
             private bool Interrupted = false;
             private Stopwatch ConstraintSetReductionTimer;
@@ -23,19 +21,13 @@ namespace Symbooglix
                 InternalStatistics.Reset();
             }
 
-            public void SetConstraints(IConstraintManager constraints)
-            {
-                // Don't pass these on to the underlying solver.
-                OriginalConstraints = constraints;
-            }
-
             public void Interrupt()
             {
                 Interrupted = true;
                 UnderlyingSolver.Interrupt();
             }
 
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
             {
                 Interrupted = false;
                 if (computeAssignment)
@@ -49,25 +41,18 @@ namespace Symbooglix
 
                 ConstraintSetReductionTimer.Start();
 
-                HashSet<SymbolicVariable> usedVariables = new HashSet<SymbolicVariable>();
-                HashSet<Function> usedUinterpretedFunctions = new HashSet<Function>();
-                var FSV = new FindSymbolicsVisitor(usedVariables);
-                var FUFV = new FindUinterpretedFunctionsVisitor(usedUinterpretedFunctions);
-                FSV.Visit(queryExpr);
-                FUFV.Visit(queryExpr);
+                HashSet<SymbolicVariable> usedVariables = new HashSet<SymbolicVariable>(query.QueryExpr.UsedVariables);
+                HashSet<Function> usedUinterpretedFunctions = new HashSet<Function>(query.QueryExpr.UsedUninterpretedFunctions);
 
-
-                // FIXME: We might get called again with the negation of the previous query.
-                // we SHOULD OPTIMISE FOR THIS CASE (no recomputation needed, the used varaibles and hence
-                // relevant constraints won't have changed)
 
                 // Compute a new constraint set that only contains relevant contraints
                 HashSet<Constraint> relevantConstraints = new HashSet<Constraint>();
                 bool changed = false;
+                IConstraintManager reducedConstraints = null;
                 do
                 {
                     changed = false;
-                    foreach (var constraint in OriginalConstraints.Constraints)
+                    foreach (var constraint in query.Constraints.Constraints)
                     {
                         if (Interrupted)
                         {
@@ -98,11 +83,11 @@ namespace Symbooglix
                 } while (changed);
 
                 // Make the new IConstraintManager
-                ReducedConstraints = OriginalConstraints.GetSubSet(relevantConstraints);
+                reducedConstraints = query.Constraints.GetSubSet(relevantConstraints);
 
-                Debug.Assert(ReducedConstraints.Count <= OriginalConstraints.Count);
+                Debug.Assert(reducedConstraints.Count <= query.Constraints.Count);
                 // Update statistics
-                if (ReducedConstraints.Count == OriginalConstraints.Count)
+                if (reducedConstraints.Count == query.Constraints.Count)
                 {
                     ++InternalStatistics.ConstraintSetsLeftUnchanged;
                 }
@@ -112,8 +97,9 @@ namespace Symbooglix
                 }
                 ConstraintSetReductionTimer.Stop();
 
-                UnderlyingSolver.SetConstraints(ReducedConstraints);
-                return UnderlyingSolver.ComputeSatisfiability(queryExpr, computeAssignment);
+
+                var reducedQuery = new Query(reducedConstraints, query.QueryExpr);
+                return UnderlyingSolver.ComputeSatisfiability(reducedQuery, computeAssignment);
             }
 
             public void SetTimeout(int seconds)

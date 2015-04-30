@@ -365,16 +365,17 @@ namespace Symbooglix
                 ++InternalStatistics.InstructionsExecuted; // Increment now just in case we return early
 
                 // Check The axiom can be satisfied
-                TheSolver.SetConstraints(InitialState.Constraints);
-
                 var VMR = new MapExecutionStateVariablesDuplicator(InitialState, this.Builder);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
 
                 Expr constraint = (Expr) VMR.Visit(axiom.Expr);
+                // FIXME: bad name
+                var constraintAsC = new Constraint(constraint, axiom.GetProgramLocation());
 
                 if (CheckEntryAxioms)
                 {
-                    Solver.Result result = TheSolver.IsQuerySat(constraint);
+                    var query = new Solver.Query(InitialState.Constraints, constraintAsC);
+                    Solver.Result result = TheSolver.IsQuerySat(query);
                     switch (result)
                     {
                         case Symbooglix.Solver.Result.SAT:
@@ -407,7 +408,7 @@ namespace Symbooglix
                     Console.Error.WriteLine("Warning: Not checking axiom {0}:{1} {2}", axiom.tok.filename, axiom.tok.line, axiom.Expr);
                 }
 
-                InitialState.Constraints.AddConstraint(constraint, axiom.GetProgramLocation());
+                InitialState.Constraints.AddConstraint(constraintAsC);
                 Debug.WriteLine("Adding constraint : " + constraint);
 
                 // See if we can concretise using the program's axioms
@@ -440,12 +441,16 @@ namespace Symbooglix
                     exprToEnforceUnique.Add(InitialState.Mem.Globals[constantVar]);
                 }
 
+                // HACK: There are multiple program locations associated with the enforcement of a distinct Expr
+                var progLoc = varsToEnforceUnique[0].GetProgramLocation();
                 var distinctConstraint = Builder.Distinct(exprToEnforceUnique);
+                // FIXME: Bad variable name
+                var distinctConstraintC = new Constraint(distinctConstraint, progLoc);
                 if (CheckUniqueVariableDecls)
                 {
                     // Check the constraint is satisfiable
-                    TheSolver.SetConstraints(InitialState.Constraints);
-                    Solver.Result result = TheSolver.IsQuerySat(distinctConstraint);
+                    var query = new Solver.Query(InitialState.Constraints, distinctConstraintC);
+                    Solver.Result result = TheSolver.IsQuerySat(query);
                     switch (result)
                     {
                         case Symbooglix.Solver.Result.SAT:
@@ -453,8 +458,8 @@ namespace Symbooglix
                         case Symbooglix.Solver.Result.UNSAT:
                             goto default;
                         case Symbooglix.Solver.Result.UNKNOWN:
-                        // HACK: There are multiple program locations associated with this.
-                            InitialState.MakeSpeculative(varsToEnforceUnique[0].GetProgramLocation());
+
+                            InitialState.MakeSpeculative(progLoc);
                             goto default; // Eurgh...
                         default:
                         // FIXME: Need different termination type
@@ -482,7 +487,7 @@ namespace Symbooglix
                 }
 
                 // This is kind of a hack a distinctConstraint is associated with multiple source locations rather than just one.
-                InitialState.Constraints.AddConstraint(distinctConstraint, varsToEnforceUnique[0].GetProgramLocation());
+                InitialState.Constraints.AddConstraint(distinctConstraintC);
                 Debug.WriteLine("Adding constraint : " + distinctConstraint);
             }
 
@@ -1183,12 +1188,13 @@ namespace Symbooglix
             Debug.Assert(thenExpr.Immutable);
             Debug.Assert(elseExpr.Immutable);
 
-            TheSolver.SetConstraints(CurrentState.Constraints);
 
             // FIXME: code is from handleAssertLikeCommand, refactor
             // First see if it's possible for the assertion/ensures to fail
             // ∃ X constraints(X) ∧ ¬ condition(X)
-            Solver.Result result = TheSolver.IsNotQuerySat(condition);
+            var constraint = new Constraint(condition, assignCmd.GetProgramLocation());
+            var query = new Solver.Query(CurrentState.Constraints, constraint);
+            Solver.Result result = TheSolver.IsQuerySat(query.WithNegatedQueryExpr());
             bool canFollowElse = false;
             bool canFollowThen = false;
             bool canNeverFollowElse = false;
@@ -1237,7 +1243,7 @@ namespace Symbooglix
             {
                 // Now see if it's possible for execution to continue past the assertion
                 // ∃ X constraints(X) ∧ condition(X)
-                result = TheSolver.IsQuerySat(condition);
+                result = TheSolver.IsQuerySat(query);
                 switch (result)
                 {
                     case Solver.Result.SAT:
@@ -1264,7 +1270,7 @@ namespace Symbooglix
                 // The elseExpr will be used, because this a predicated assignment
                 // and the value is the current state won't be changed
                 Debug.Assert(CurrentState.GetInScopeVariableExpr(v).Equals(elseExpr), "elseExpr should just be the variable being assigned to");
-                CurrentState.Constraints.AddConstraint(Builder.Not(condition), assignCmd.GetProgramLocation());
+                CurrentState.Constraints.AddConstraint(constraint.GetNegatedConstraint());
 
             }
             else if (!canFollowElse && canFollowThen)
@@ -1274,7 +1280,7 @@ namespace Symbooglix
 
                 // Only the thenExpr will be used so perform assignment
                 CurrentState.AssignToVariableInScope(v, thenExpr);
-                CurrentState.Constraints.AddConstraint(condition, assignCmd.GetProgramLocation());
+                CurrentState.Constraints.AddConstraint(constraint);
             }
             else if (canFollowElse && canFollowThen)
             {
@@ -1287,7 +1293,7 @@ namespace Symbooglix
                 // The elseExpr will be used, because this a predicated assignment
                 // and the value is the current state won't be changed
                 Debug.Assert(elseState.GetInScopeVariableExpr(v).Equals(elseExpr), "elseExpr should just be the variable being assigned to");
-                elseState.Constraints.AddConstraint(Builder.Not(condition), assignCmd.GetProgramLocation());
+                elseState.Constraints.AddConstraint(constraint.GetNegatedConstraint());
                 StateScheduler.AddState(elseState);
 
 
@@ -1298,7 +1304,7 @@ namespace Symbooglix
                 CurrentState.AssignToVariableInScope(v, thenExpr);
 
                 // successful state can now have assertion expr in constraints
-                CurrentState.Constraints.AddConstraint(condition, assignCmd.GetProgramLocation());
+                CurrentState.Constraints.AddConstraint(constraint);
             }
         }
 
@@ -1450,11 +1456,11 @@ namespace Symbooglix
                     throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our own exception types
             }
 
-            TheSolver.SetConstraints(CurrentState.Constraints);
-
             // First see if it's possible for the assertion/ensures to fail
             // ∃ X constraints(X) ∧ ¬ condition(X)
-            Solver.Result result = TheSolver.IsNotQuerySat(condition);
+            var constraint = new Constraint(condition, location);
+            var query = new Solver.Query(CurrentState.Constraints, constraint);
+            Solver.Result result = TheSolver.IsQuerySat(query.WithNegatedQueryExpr());
             bool canFail = false;
             bool canSucceed = false;
             bool canNeverFail = false;
@@ -1503,7 +1509,7 @@ namespace Symbooglix
             {
                 // Now see if it's possible for execution to continue past the assertion
                 // ∃ X constraints(X) ∧ condition(X)
-                result = TheSolver.IsQuerySat(condition);
+                result = TheSolver.IsQuerySat(query);
                 switch (result)
                 {
                     case Solver.Result.SAT:
@@ -1539,7 +1545,7 @@ namespace Symbooglix
                     CurrentState.MakeSpeculative(location);
 
                 // This state can only succeed
-                CurrentState.Constraints.AddConstraint(condition, location);
+                CurrentState.Constraints.AddConstraint(constraint);
                 return true; // We are still in the current state
             }
             else if (canFail && canSucceed)
@@ -1568,7 +1574,7 @@ namespace Symbooglix
                     CurrentState.MakeSpeculative(location);
 
                 // successful state can now have assertion expr in constraints
-                CurrentState.Constraints.AddConstraint(condition, location);
+                CurrentState.Constraints.AddConstraint(constraint);
                 return true; // We are still in the current state
             }
             else
@@ -1602,8 +1608,8 @@ namespace Symbooglix
 
             // Is it possible for the condition to be satisfied
             // ∃ X : constraints(X) ∧ condition(X)
-            TheSolver.SetConstraints(CurrentState.Constraints);
-            Solver.Result result = TheSolver.IsQuerySat(condition);
+            var constraint = new Constraint(condition, location);
+            Solver.Result result = TheSolver.IsQuerySat(new Solver.Query(CurrentState.Constraints, constraint));
             switch (result)
             {
                 case Symbooglix.Solver.Result.UNSAT:
@@ -1621,14 +1627,14 @@ namespace Symbooglix
                     return false; // No longer in current state
 
                 case Symbooglix.Solver.Result.SAT:
-                    CurrentState.Constraints.AddConstraint(condition, location);
+                    CurrentState.Constraints.AddConstraint(constraint);
                     break;
                 case Symbooglix.Solver.Result.UNKNOWN:
                     Console.WriteLine("Solver returned UNKNOWN!"); // FIXME: Report this to an interface.
                     // FIXME: Is this a bug? HandleAssertLikeCmd() assumes that current constraints are satisfiable
                     CurrentState.MakeSpeculative(location);
 
-                    CurrentState.Constraints.AddConstraint(condition, location);
+                    CurrentState.Constraints.AddConstraint(constraint);
                     break;
                 default:
                     throw new InvalidOperationException("Invalid solver return code");
@@ -1685,7 +1691,7 @@ namespace Symbooglix
 
         private struct LookAheadInfo
         {
-            public Expr ReWrittenAssumeExpr; // null if no assume to look ahead
+            public Constraint ReWrittenAssumeConstraint; // null if no assume to look ahead
             public Block Target;
             public bool IsSpeculative;
             public AssumeCmd Assume; // null if no assume to look ahead
@@ -1708,7 +1714,7 @@ namespace Symbooglix
             {
                 LookAheadInfo info;
                 info.IsSpeculative = false;
-                info.ReWrittenAssumeExpr = null;
+                info.ReWrittenAssumeConstraint = null;
                 info.Target = block;
                 info.Assume = null;
 
@@ -1729,7 +1735,7 @@ namespace Symbooglix
                 Expr dupAndRw = (Expr) remapper.Visit(assumeCmd.Expr);
 
 
-                info.ReWrittenAssumeExpr = dupAndRw;
+                info.ReWrittenAssumeConstraint = new Constraint(dupAndRw, assumeCmd.GetProgramLocation());
 
                 // Fast path
                 if (dupAndRw is LiteralExpr)
@@ -1757,8 +1763,7 @@ namespace Symbooglix
                     }
 
                     // Ask to solver if the assume is satisfiable
-                    TheSolver.SetConstraints(CurrentState.Constraints);
-                    Solver.Result result = TheSolver.IsQuerySat(dupAndRw);
+                    Solver.Result result = TheSolver.IsQuerySat(new Solver.Query(CurrentState.Constraints, info.ReWrittenAssumeConstraint));
                     switch (result)
                     {
                         case Symbooglix.Solver.Result.UNKNOWN:
@@ -1827,14 +1832,14 @@ namespace Symbooglix
                 // Transfer to the appropriate basic block
                 theState.GetCurrentStackFrame().TransferToBlock(theInfo.Target);
 
-                if (theInfo.ReWrittenAssumeExpr != null)
+                if (theInfo.ReWrittenAssumeConstraint != null)
                 {
                     // For this state we looked ahead and there was a satisfiable assume
                     // so now add the assume constraint and walk past the assume that we
                     // already looked at because there is no need to execute it.
                     var assumeCmd = theInfo.Assume;
                     Debug.Assert(assumeCmd != null, "The target block does not start with the expected AssumeCmd");
-                    theState.Constraints.AddConstraint(theInfo.ReWrittenAssumeExpr, assumeCmd.GetProgramLocation());
+                    theState.Constraints.AddConstraint(theInfo.ReWrittenAssumeConstraint);
 
                     // We only increment the coverage on paths that we actually follow
                     assumeCmd.GetInstructionStatistics().IncrementCovered();

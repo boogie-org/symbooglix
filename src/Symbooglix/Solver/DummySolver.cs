@@ -21,11 +21,6 @@ namespace Symbooglix
                 this.ResultIsAlways = resultIsAlways;
             }
 
-            public void SetConstraints(IConstraintManager cm)
-            {
-                // The dummy solver doesn't care about these 
-            }
-
             public void SetTimeout(int seconds)
             {
                 // The dummy solver doesn't care about this
@@ -35,7 +30,7 @@ namespace Symbooglix
                 // Dummy solver doesn't need to do anything
             }
 
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
             {
                 // Dummy Solver thinks everything is satisfiable
                 if (computeAssignment)

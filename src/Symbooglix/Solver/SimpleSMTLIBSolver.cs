@@ -13,7 +13,6 @@ namespace Symbooglix
         {
             public int Timeout { get; private set;}
             protected SMTLIBQueryPrinter Printer = null;
-            protected IConstraintManager CurrentConstraints = null;
             protected ProcessStartInfo StartInfo;
             private Result SolverResult = Result.UNKNOWN;
             private bool ReceivedResult = false;
@@ -179,20 +178,6 @@ namespace Symbooglix
                 return streamWriter;
             }
 
-            public void SetConstraints(IConstraintManager cm)
-            {
-                ReadExprTimer.Start();
-                Printer.ClearDeclarations();
-
-                // Let the printer find the declarations
-                CurrentConstraints = cm;
-                foreach (var constraint in cm.Constraints)
-                {
-                    Printer.AddDeclarations(constraint);
-                }
-                ReadExprTimer.Stop();
-            }
-
             public void SetTimeout(int seconds)
             {
                 if (seconds < 0)
@@ -201,13 +186,13 @@ namespace Symbooglix
                 Timeout = seconds;
             }
 
-            private void PrintDeclarationsAndConstraints()
+            private void PrintDeclarationsAndConstraints(IConstraintManager cm)
             {
                 Printer.PrintSortDeclarations();
                 Printer.PrintVariableDeclarations();
                 Printer.PrintFunctionDeclarations();
-                Printer.PrintCommentLine(CurrentConstraints.Count.ToString() +  " Constraints");
-                foreach (var constraint in CurrentConstraints.ConstraintExprs)
+                Printer.PrintCommentLine(cm.Count.ToString() +  " Constraints");
+                foreach (var constraint in cm.ConstraintExprs)
                 {
                     Printer.PrintAssert(constraint);
                 }
@@ -245,7 +230,7 @@ namespace Symbooglix
 
             // This is not thread safe!
             private Object ComputeSatisfiabilityLock = new object();
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Expr queryExpr, bool computeAssignment)
+            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
             {
                 lock (ComputeSatisfiabilityLock)
                 {
@@ -266,7 +251,14 @@ namespace Symbooglix
                         using (ReceivedResultEvent = new CountdownEvent(1))
                         {
                             ReadExprTimer.Start();
-                            Printer.AddDeclarations(queryExpr);
+                            Printer.ClearDeclarations();
+
+                            // Let the printer find the declarations
+                            foreach (var constraint in query.Constraints.Constraints)
+                            {
+                                Printer.AddDeclarations(constraint);
+                            }
+                            Printer.AddDeclarations(query.QueryExpr);
                             ReadExprTimer.Stop();
 
                             // Assume the process has already been setup
@@ -282,8 +274,8 @@ namespace Symbooglix
                             if (PersistentProcess && !UseReset)
                                 Printer.PrintPushDeclStack(1);
 
-                            PrintDeclarationsAndConstraints();
-                            Printer.PrintAssert(queryExpr);
+                            PrintDeclarationsAndConstraints(query.Constraints);
+                            Printer.PrintAssert(query.QueryExpr.Condition);
 
                             // Start the timer for the process now. The solver should start processing as soon as we write (check-sat)
                             SolverProcessTimer.Start();
