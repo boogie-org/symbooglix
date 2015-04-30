@@ -173,57 +173,5 @@ namespace Symbooglix
         }
     }
 
-    public class Constraint
-    {
-        public Expr Condition { get; private set;}
-        public ProgramLocation Origin { get; private set;}
-
-        // Hide the implementation of the Set
-        private HashSet<SymbolicVariable> InternalUsedVariables;
-        public ISet<SymbolicVariable> UsedVariables { get { return InternalUsedVariables; } }
-
-        private HashSet<Function> InternalUsedUninterpretedFunctions;
-        public ISet<Function> UsedUninterpretedFunctions { get { return InternalUsedUninterpretedFunctions; } }
-
-        public Constraint(Expr condition)
-        {
-            Condition = condition;
-            Debug.Assert(condition.ShallowType.IsBool, "Constraint must be a boolean expression!");
-            Origin = null;
-            ComputeUsedVariablesAndUninterpretedFunctions();
-        }
-
-        public Constraint(Expr condition, ProgramLocation location) : this(condition)
-        {
-            Debug.Assert(location != null);
-            Origin = location;
-            ComputeUsedVariablesAndUninterpretedFunctions();
-        }
-
-        private void ComputeUsedVariablesAndUninterpretedFunctions()
-        {
-            this.InternalUsedVariables = new HashSet<SymbolicVariable>();
-            var fsv = new FindSymbolicsVisitor(this.InternalUsedVariables);
-            fsv.Visit(this.Condition);
-
-            this.InternalUsedUninterpretedFunctions = new HashSet<Function>();
-            var ffv = new FindUinterpretedFunctionsVisitor(this.InternalUsedUninterpretedFunctions);
-            ffv.Visit(this.Condition);
-        }
-    }
-
-    class ConstraintInHashSetCompare : IEqualityComparer<Constraint>
-    {
-        public bool Equals(Constraint x, Constraint y)
-        {
-            // Potentially slow comparision
-            return ExprUtil.StructurallyEqual(x.Condition, y.Condition);
-        }
-
-        public int GetHashCode(Constraint obj)
-        {
-            return obj.Condition.GetHashCode();
-        }
-    }
 }
 
