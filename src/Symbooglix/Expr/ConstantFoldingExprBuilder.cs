@@ -505,6 +505,13 @@ namespace Symbooglix
                     throw new Exception("Invalid operand to Not");
             }
 
+            // ! (e0 == e1) ==> e0 != e1
+            var asEq = ExprUtil.AsEq(e);
+            if (asEq != null)
+            {
+                return this.NotEq(asEq.Args[0], asEq.Args[1]);
+            }
+
             // !!<expr> ==> <expr>
             var asNot = ExprUtil.AsNot(e);
             if (asNot != null)

@@ -144,6 +144,48 @@ namespace ExprBuilderTests
         }
 
         [Test()]
+        public void AsNotEqWithNotEq()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var e = sb.NotEq(v, sb.ConstantBV(0, 4));
+            var asNotEq = ExprUtil.AsNotEq(e);
+            Assert.IsNotNull(asNotEq);
+            Assert.AreSame(e, asNotEq);
+        }
+
+        [Test()]
+        public void AsNotEqWithoutNotEq()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var e = sb.Eq(v, sb.ConstantBV(0, 4));
+            var asNotEq = ExprUtil.AsNotEq(e);
+            Assert.IsNull(asNotEq);
+        }
+
+        [Test()]
+        public void AsEqWithEq()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var e = sb.Eq(v, sb.ConstantBV(0, 4));
+            var asEq = ExprUtil.AsEq(e);
+            Assert.IsNotNull(asEq);
+            Assert.AreSame(e, asEq);
+        }
+
+        [Test()]
+        public void AsEqWithoutEq()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.GetBvType(4)).Item2;
+            var e = sb.NotEq(v, sb.ConstantBV(0, 4));
+            var asEq = ExprUtil.AsEq(e);
+            Assert.IsNull(asEq);
+        }
+
+        [Test()]
         public void AsBVZEXTWithBVZEXT()
         {
             var sb = GetSimpleBuilder();

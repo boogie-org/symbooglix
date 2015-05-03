@@ -63,6 +63,16 @@ namespace Symbooglix
             return GetUnaryOperator(e, UnaryOperator.Opcode.Not);
         }
 
+        public static NAryExpr AsNotEq(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Neq);
+        }
+
+        public static NAryExpr AsEq(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Eq);
+        }
+
         public static NAryExpr AsNeg(Expr e)
         {
             return GetUnaryOperator(e, UnaryOperator.Opcode.Neg);

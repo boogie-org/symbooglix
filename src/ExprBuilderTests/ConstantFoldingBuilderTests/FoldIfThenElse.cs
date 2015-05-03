@@ -130,7 +130,7 @@ namespace ExprBuilderTests.ConstantFoldingTests
 
         // (if group_size_y == 1bv32 then 0bv1 else 1bv1) != 0bv1;
         // fold to
-        // ! (group_size_y == 1bv32 )
+        // (group_size_y != 1bv32 )
         [Test()]
         public void MergeNotEqToNotCondition()
         {
@@ -141,8 +141,8 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.IsNull(ExprUtil.AsLiteral(ite));
             var result = builder.NotEq(ite, builder.ConstantBV(0, 1));
             CheckIsBoolType(result);
-            var expected = builder.Not(condition);
-            Assert.IsNotNull(ExprUtil.AsNot(result));
+            var expected = builder.NotEq(v, builder.ConstantBV(1, 32));
+            Assert.IsNotNull(ExprUtil.AsNotEq(result));
             Assert.IsTrue(expected.Equals(result));
         }
 

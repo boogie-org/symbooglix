@@ -26,6 +26,19 @@ namespace ExprBuilderTests.ConstantFoldingTests
             Assert.IsTrue(ExprUtil.IsTrue(result));
         }
 
+        [Test()]
+        public void notEq()
+        {
+            var cfb = GetConstantFoldingBuilder();
+            var x = GetVarAndIdExpr("x", Microsoft.Boogie.Type.Int).Item2;
+            var rhsConst = cfb.ConstantInt(0);
+            var e = cfb.Not(cfb.Eq(x, rhsConst));
+            var asNotEq = ExprUtil.AsNotEq(e);
+            Assert.IsNotNull(asNotEq);
+            Assert.AreSame(rhsConst, asNotEq.Args[0]);
+            Assert.AreSame(x, asNotEq.Args[1]);
+        }
+
         [TestCase(2)]
         [TestCase(3)]
         [TestCase(50)]
