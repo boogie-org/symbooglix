@@ -1188,79 +1188,14 @@ namespace Symbooglix
             Debug.Assert(thenExpr.Immutable);
             Debug.Assert(elseExpr.Immutable);
 
-
-            // FIXME: code is from handleAssertLikeCommand, refactor
-            // First see if it's possible for the assertion/ensures to fail
-            // ∃ X constraints(X) ∧ ¬ condition(X)
             var constraint = new Constraint(condition, assignCmd.GetProgramLocation());
-            var query = new Solver.Query(CurrentState.Constraints, constraint);
-            Solver.Result result = TheSolver.IsQuerySat(query.WithNegatedQueryExpr());
-            bool canFollowElse = false;
-            bool canFollowThen = false;
-            bool canNeverFollowElse = false;
-            bool followingElseIsSpeculative = false;
-            bool followThenIsSpeculative = false;
-            switch (result)
-            {
-                case Solver.Result.SAT:
-                    canFollowElse = true;
-                    break;
-                case Solver.Result.UNKNOWN:
-                    Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
-                    followingElseIsSpeculative = true;
-                    canFollowElse = true;
-                    break;
-                case Symbooglix.Solver.Result.UNSAT:
-                    // This actually implies that
-                    //
-                    // ∀X : C(X) → Q(X)
-                    // That is if the constraints are satisfiable then
-                    // the query expr is always true. Because we've been
-                    // checking constraints as we go we already know C(X) is satisfiable
-                    canFollowElse = false;
-                    canNeverFollowElse = true;
-                    break;
-                default:
-                    throw new InvalidOperationException("Invalid solver return code");
-            }
+            var result = TheSolver.CheckBranchSatisfiability(CurrentState.Constraints, constraint);
 
-            if (!AllowExecutorToRun)
-            {
-                // HACK: If we are interrupted we shouldn't perform anymore
-                // anymore solver calls. This will leave the ExecutionState in an undefined
-                // state however
-                return;
-            }
+            bool canFollowElse = (result.FalseBranch != Solver.Result.UNSAT);
+            bool canFollowThen = (result.TrueBranch != Solver.Result.UNSAT);
+            bool followingElseIsSpeculative = (result.FalseBranch == Solver.Result.UNKNOWN);
+            bool followThenIsSpeculative = (result.TrueBranch == Solver.Result.UNKNOWN);
 
-            // Only invoke solver again if necessary
-            if (canNeverFollowElse)
-            {
-                // In this case the, thenExpr will always be used
-                // so no need to call solver to ask if this is the case.
-                canFollowThen = true;
-            }
-            else
-            {
-                // Now see if it's possible for execution to continue past the assertion
-                // ∃ X constraints(X) ∧ condition(X)
-                result = TheSolver.IsQuerySat(query);
-                switch (result)
-                {
-                    case Solver.Result.SAT:
-                        canFollowThen = true;
-                        break;
-                    case Solver.Result.UNKNOWN:
-                        Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
-                        followThenIsSpeculative = true;
-                        canFollowThen = true;
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
-                        canFollowThen = false;
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid solver return code");
-                }
-            }
 
             if (canFollowElse && !canFollowThen)
             {
@@ -1305,6 +1240,10 @@ namespace Symbooglix
 
                 // successful state can now have assertion expr in constraints
                 CurrentState.Constraints.AddConstraint(constraint);
+            }
+            else
+            {
+                throw new InvalidProgramException("Solver error");
             }
         }
 
