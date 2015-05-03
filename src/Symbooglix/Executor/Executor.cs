@@ -1432,108 +1432,25 @@ namespace Symbooglix
 
         protected bool HandleAssertLikeCommand(Expr condition, TerminationTypeWithSatAndUnsatExpr terminatationType, ProgramLocation location)
         {
-            // Constant Folding might let us terminate without calling solver
-            if (condition is LiteralExpr)
-            {
-                var literalAssertion = condition as LiteralExpr;
-                Debug.Assert(literalAssertion.isBool);
+            var trueBranchConstraint = new Constraint(condition, location);
+            var result = TheSolver.CheckBranchSatisfiability(CurrentState.Constraints, trueBranchConstraint);
 
-                if (literalAssertion.IsTrue)
-                {
-                    // No need to add trivial "true" constraint
-                    return true; // Still in a state
-                }
-                else if (literalAssertion.IsFalse)
-                {
-                    // Terminate the state
-                    terminatationType.ConditionForSat = Expr.True;
-                    terminatationType.ConditionForUnsat = Expr.False;
-                    TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
-                    CurrentState = null;
-                    return false; // No longer in a state because removed the current state
-                }
-                else
-                    throw new InvalidOperationException("Unreachable!"); // FIXME: We should define our own exception types
-            }
+            bool canFail = (result.FalseBranch != Solver.Result.UNSAT);
+            bool canSucceed = (result.TrueBranch != Solver.Result.UNSAT);
+            bool failureIsSpeculative = (result.FalseBranch == Solver.Result.UNKNOWN);
+            bool successIsSpeculative = ( result.TrueBranch == Solver.Result.UNKNOWN);
 
-            // First see if it's possible for the assertion/ensures to fail
-            // ∃ X constraints(X) ∧ ¬ condition(X)
-            var constraint = new Constraint(condition, location);
-            var query = new Solver.Query(CurrentState.Constraints, constraint);
-            Solver.Result result = TheSolver.IsQuerySat(query.WithNegatedQueryExpr());
-            bool canFail = false;
-            bool canSucceed = false;
-            bool canNeverFail = false;
-            bool failureIsSpeculative = false;
-            bool successIsSpeculative = false;
-            switch (result)
-            {
-                case Solver.Result.SAT:
-                    canFail = true;
-                    break;
-                case Solver.Result.UNKNOWN:
-                    Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
-                    failureIsSpeculative = true;
-                    canFail = true;
-                    break;
-                case Symbooglix.Solver.Result.UNSAT:
-                    // This actually implies that
-                    //
-                    // ∀X : C(X) → Q(X)
-                    // That is if the constraints are satisfiable then
-                    // the query expr is always true. Because we've been
-                    // checking constraints as we go we already know C(X) is satisfiable
-                    canFail = false;
-                    canNeverFail = true;
-                    break;
-                default:
-                    throw new InvalidOperationException("Invalid solver return code");
-            }
-
-            if (!AllowExecutorToRun)
-            {
-                // HACK: If we are interrupted we shouldn't perform anymore
-                // anymore solver calls. This will leave the ExecutionState in an undefined
-                // state however
-                return false;
-            }
-
-            // Only invoke solver again if necessary
-            if (canNeverFail)
-            {
-                // In this case the assert/ensures will always succeed
-                // so no need to call solver to ask if this is the case.
-                canSucceed = true;
-            }
-            else
-            {
-                // Now see if it's possible for execution to continue past the assertion
-                // ∃ X constraints(X) ∧ condition(X)
-                result = TheSolver.IsQuerySat(query);
-                switch (result)
-                {
-                    case Solver.Result.SAT:
-                        canSucceed = true;
-                        break;
-                    case Solver.Result.UNKNOWN:
-                        Console.WriteLine("Error solver returned UNKNOWN"); // FIXME: Report this to some interface
-                        successIsSpeculative = true;
-                        canSucceed = true;
-                        break;
-                    case Symbooglix.Solver.Result.UNSAT:
-                        canSucceed = false;
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid solver return code");
-                }
-            }
 
             if (canFail && !canSucceed)
             {
+                Debug.Assert(result.TrueBranch == Solver.Result.UNSAT);
+                Debug.Assert(result.FalseBranch == Solver.Result.SAT || result.FalseBranch == Solver.Result.UNKNOWN);
+
                 if (failureIsSpeculative)
                     CurrentState.MakeSpeculative(location);
 
                 terminatationType.ConditionForUnsat = condition;
+                // FIXME: Use the Builder
                 terminatationType.ConditionForSat = Expr.Not(condition);
                 TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
                 CurrentState = null;
@@ -1541,15 +1458,21 @@ namespace Symbooglix
             }
             else if (!canFail && canSucceed)
             {
+                Debug.Assert(result.TrueBranch == Solver.Result.SAT || result.TrueBranch == Solver.Result.UNKNOWN);
+                Debug.Assert(result.FalseBranch == Solver.Result.UNSAT);
+
                 if (successIsSpeculative)
                     CurrentState.MakeSpeculative(location);
 
                 // This state can only succeed
-                CurrentState.Constraints.AddConstraint(constraint);
+                CurrentState.Constraints.AddConstraint(trueBranchConstraint);
                 return true; // We are still in the current state
             }
             else if (canFail && canSucceed)
             {
+                Debug.Assert(result.TrueBranch == Solver.Result.SAT || result.TrueBranch == Solver.Result.UNKNOWN);
+                Debug.Assert(result.FalseBranch == Solver.Result.SAT || result.FalseBranch == Solver.Result.UNKNOWN);
+
                 // This state can fail and suceed at the current assertion/ensures
 
                 // We need to fork and duplicate the states
@@ -1574,7 +1497,7 @@ namespace Symbooglix
                     CurrentState.MakeSpeculative(location);
 
                 // successful state can now have assertion expr in constraints
-                CurrentState.Constraints.AddConstraint(constraint);
+                CurrentState.Constraints.AddConstraint(trueBranchConstraint);
                 return true; // We are still in the current state
             }
             else

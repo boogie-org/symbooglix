@@ -77,7 +77,7 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForSat);
 
             Assert.AreEqual("false", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("true", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("!false", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]

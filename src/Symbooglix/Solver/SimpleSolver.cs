@@ -67,48 +67,64 @@ namespace Symbooglix
             public IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr)
             {
                 // Note: We implicitly assume that the constraints are satisfiable
-
-                // Fast path: trueExpr is constant
-                var trueExprAsLit = ExprUtil.AsLiteral(trueExpr.Condition);
-                if (trueExprAsLit != null)
+                Tuple<Result, IAssignment> falseBranchResult = null;
+                Tuple<Result, IAssignment> trueBranchResult = null;
+                try
                 {
-                    if (!trueExprAsLit.isBool)
-                        throw new ExprTypeCheckException("trueExpr must be of boolean type");
+                    Timer.Start();
+                    // Fast path: trueExpr is constant
+                    var trueExprAsLit = ExprUtil.AsLiteral(trueExpr.Condition);
+                    if (trueExprAsLit != null)
+                    {
+                        if (!trueExprAsLit.isBool)
+                            throw new ExprTypeCheckException("trueExpr must be of boolean type");
 
-                    if (trueExprAsLit.asBool)
-                        return new SimpleBranchSatsifiabilityResult(Result.SAT, Result.UNSAT);
+                        if (trueExprAsLit.asBool)
+                            return new SimpleBranchSatsifiabilityResult(Result.SAT, Result.UNSAT);
+                        else
+                            return new SimpleBranchSatsifiabilityResult(Result.UNSAT, Result.SAT);
+                    }
+
+                    // Slow path: Invoke solver
+
+                    // First see if it's possible for the false branch to be feasible
+                    // ∃ X constraints(X) ∧ ¬ condition(X)
+                    var query = new Solver.Query(constraints, trueExpr);
+                    falseBranchResult =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr(), false);
+                    var falseBranch = falseBranchResult.Item1;
+
+
+                    var trueBranch = Result.UNKNOWN;
+                    // Only invoke solver again if necessary
+                    if (falseBranch == Result.UNSAT)
+                    {
+                        // This actually implies that
+                        //
+                        // ∀X : C(X) → Q(X)
+                        // That is if the constraints are satisfiable then
+                        // the query expr is always true. Because we've been
+                        // checking constraints as we go we already know C(X) is satisfiable
+                        trueBranch = Result.SAT;
+                    }
                     else
-                        return new SimpleBranchSatsifiabilityResult(Result.UNSAT, Result.SAT);
+                    {
+                        // Now see if it's possible for execution to continue past the assertion
+                        // ∃ X constraints(X) ∧ condition(X)
+                        trueBranchResult = SolverImpl.ComputeSatisfiability(query, false);
+                        trueBranch = trueBranchResult.Item1;
+                    }
+
+                    return new SimpleBranchSatsifiabilityResult(trueBranch, falseBranch);
                 }
-
-                // Slow path: Invoke solver
-
-                // First see if it's possible for the false branch to be feasible
-                // ∃ X constraints(X) ∧ ¬ condition(X)
-                var query = new Solver.Query(constraints, trueExpr);
-                var falseBranch =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr(), false).Item1;
-                var trueBranch = Result.UNKNOWN;
-
-
-                // Only invoke solver again if necessary
-                if (falseBranch == Result.UNSAT)
+                finally
                 {
-                    // This actually implies that
-                    //
-                    // ∀X : C(X) → Q(X)
-                    // That is if the constraints are satisfiable then
-                    // the query expr is always true. Because we've been
-                    // checking constraints as we go we already know C(X) is satisfiable
-                    trueBranch = Result.SAT;
-                }
-                else
-                {
-                    // Now see if it's possible for execution to continue past the assertion
-                    // ∃ X constraints(X) ∧ condition(X)
-                    trueBranch = SolverImpl.ComputeSatisfiability(query, false).Item1;
-                }
+                    Timer.Stop();
+                    if (falseBranchResult != null)
+                        UpdateStatistics(falseBranchResult);
 
-                return new SimpleBranchSatsifiabilityResult(trueBranch, falseBranch);
+                    if (trueBranchResult != null)
+                        UpdateStatistics(trueBranchResult);
+                }
             }
 
             public Result IsQuerySat(Query query)
