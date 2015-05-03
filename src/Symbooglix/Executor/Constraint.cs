@@ -53,12 +53,9 @@ namespace Symbooglix
         private void ComputeUsedVariablesAndUninterpretedFunctions()
         {
             this.InternalUsedVariables = new HashSet<SymbolicVariable>();
-            var fsv = new FindSymbolicsVisitor(this.InternalUsedVariables);
-            fsv.Visit(this.Condition);
-
             this.InternalUsedUninterpretedFunctions = new HashSet<Function>();
-            var ffv = new FindUinterpretedFunctionsVisitor(this.InternalUsedUninterpretedFunctions);
-            ffv.Visit(this.Condition);
+            var fvuf = new FindSymbolicsAndUFsVisitor(this.InternalUsedVariables, this.InternalUsedUninterpretedFunctions);
+            fvuf.Visit(Condition);
         }
     }
 
@@ -73,6 +70,93 @@ namespace Symbooglix
         public int GetHashCode(Constraint obj)
         {
             return obj.Condition.GetHashCode();
+        }
+    }
+
+    class FindSymbolicsAndUFsVisitor
+    {
+        public HashSet<SymbolicVariable> SymbolicVariables;
+        public HashSet<Function> UninterpretedFunctions;
+        public FindSymbolicsAndUFsVisitor(HashSet<SymbolicVariable> symVars, HashSet<Function> ufs)
+        {
+            SymbolicVariables = symVars;
+            UninterpretedFunctions = ufs;
+        }
+
+        public FindSymbolicsAndUFsVisitor() : this(new HashSet<SymbolicVariable>(), new HashSet<Function>())
+        {
+        }
+
+        // Non-recursive version that records expressions it's visited because we might have a dag
+        public virtual void Visit(Expr e)
+        {
+            // We only do reference equality because the equal comparision is recursive and could cause a stackoverflow.
+            var visitedNodes = new HashSet<Expr>(new ExprReferenceCompare());
+
+            // Visit DFS pre-order
+            var queue = new Queue<Expr>();
+            queue.Enqueue(e);
+
+            do
+            {
+                // Pop off node from queue
+                var node = queue.Dequeue();
+
+                if (visitedNodes.Contains(node))
+                {
+                    // Don't traverse this node. We've seen it before
+                    continue;
+                }
+
+                // Add nodes children to the queue
+                for (int index=0; index < node.GetNumberOfChildren(); ++index)
+                {
+                    queue.Enqueue(node.GetChild(index));
+                }
+
+                // handle node
+                VisitNode(node);
+                visitedNodes.Add(node);
+
+            } while (queue.Count > 0);
+            visitedNodes.Clear();
+        }
+
+        protected virtual void VisitNode(Expr e)
+        {
+            // Collect Symbolic Variables
+            var asId= e as IdentifierExpr;
+            if (asId != null)
+            {
+                if (asId.Decl is BoundVariable)
+                {
+                    // These may appear if we are in a quantified expression
+                    return;
+                }
+
+                if (!( asId.Decl is SymbolicVariable ))
+                    throw new Exception("id not pointing to symbolic variable");
+
+                SymbolicVariables.Add(asId.Decl as SymbolicVariable);
+                return;
+            }
+
+            // Collect uninterpreted functions
+            var asFC = ExprUtil.AsFunctionCall(e);
+            if (asFC != null)
+            {
+                var FC = asFC.Fun as FunctionCall;
+
+                // Don't collect SMTLIBv2 functions
+                if (QKeyValue.FindStringAttribute(FC.Func.Attributes, "bvbuiltin") != null)
+                    return;
+
+                // Don't collect other builtins
+                if (QKeyValue.FindStringAttribute(FC.Func.Attributes, "builtin") != null)
+                    return;
+
+                UninterpretedFunctions.Add(FC.Func);
+            }
         }
     }
 }
