@@ -1450,8 +1450,7 @@ namespace Symbooglix
                     CurrentState.MakeSpeculative(location);
 
                 terminatationType.ConditionForUnsat = condition;
-                // FIXME: Use the Builder
-                terminatationType.ConditionForSat = Expr.Not(condition);
+                terminatationType.ConditionForSat = Builder.Not(condition);
                 TerminateState(CurrentState, terminatationType, /*removeFromStateScheduler=*/true);
                 CurrentState = null;
                 return false; // No longer in a state because we removed the current state

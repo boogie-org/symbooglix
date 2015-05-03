@@ -89,7 +89,7 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForSat);
 
             Assert.AreEqual("~sb_x_0 < 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("0 <= ~sb_x_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("!(~sb_x_0 < 0)", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -150,7 +150,7 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForSat);
 
             Assert.AreEqual("~sb_x_0 > 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("0 >= ~sb_x_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("!(~sb_x_0 > 0)", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -174,7 +174,7 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForSat);
 
             Assert.AreEqual("~sb_x_0 > 0", terminationType.ConditionForUnsat.ToString());
-            Assert.AreEqual("0 >= ~sb_x_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("!(~sb_x_0 > 0)", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
