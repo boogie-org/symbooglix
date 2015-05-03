@@ -519,6 +519,98 @@ namespace Symbooglix
                 return asNot.Args[0];
             }
 
+            // !(x > y) ==> ( x <= y )
+            var asGt = ExprUtil.AsGt(e);
+            if (asGt != null)
+            {
+                return this.Le(asGt.Args[0], asGt.Args[1]);
+            }
+
+            // !(x >= y) ==> ( x < y )
+            var asGe = ExprUtil.AsGe(e);
+            if (asGe != null)
+            {
+                return this.Lt(asGe.Args[0], asGe.Args[1]);
+            }
+
+            // !(x < y) ==> ( x >= y )
+            var asLt = ExprUtil.AsLt(e);
+            if (asLt != null)
+            {
+                return this.Ge(asLt.Args[0], asLt.Args[1]);
+            }
+
+            // !(x <= y) ==> ( x > y )
+            var asLe = ExprUtil.AsLe(e);
+            if (asLe != null)
+            {
+                return this.Gt(asLe.Args[0], asLe.Args[1]);
+            }
+
+            // BVUGT
+            // !(x > y) ==> ( x <= y )
+            var asBVUGT = ExprUtil.AsBVUGT(e);
+            if (asBVUGT != null)
+            {
+                return this.BVULE(asBVUGT.Args[0], asBVUGT.Args[1]);
+            }
+
+            // BVUGE
+            // !(x >= y) ==> ( x < y )
+            var asBVUGE = ExprUtil.AsBVUGE(e);
+            if (asBVUGE != null)
+            {
+                return this.BVULT(asBVUGE.Args[0], asBVUGE.Args[1]);
+            }
+
+            // BVULT
+            // !(x < y) ==> ( x >= y )
+            var asBVULT = ExprUtil.AsBVULT(e);
+            if (asBVULT != null)
+            {
+                return this.BVUGE(asBVULT.Args[0], asBVULT.Args[1]);
+            }
+
+            // BVULE
+            // !(x < y) ==> ( x >= y )
+            var asBVULE = ExprUtil.AsBVULE(e);
+            if (asBVULE != null)
+            {
+                return this.BVUGT(asBVULE.Args[0], asBVULE.Args[1]);
+            }
+
+            // BVSGT
+            // !(x > y) ==> ( x <= y )
+            var asBVSGT = ExprUtil.AsBVSGT(e);
+            if (asBVSGT != null)
+            {
+                return this.BVSLE(asBVSGT.Args[0], asBVSGT.Args[1]);
+            }
+
+            // BVSGE
+            // !(x >= y) ==> ( x < y )
+            var asBVSGE = ExprUtil.AsBVSGE(e);
+            if (asBVSGE != null)
+            {
+                return this.BVSLT(asBVSGE.Args[0], asBVSGE.Args[1]);
+            }
+
+            // BVSLT
+            // !(x < y) ==> ( x >= y )
+            var asBVSLT = ExprUtil.AsBVSLT(e);
+            if (asBVSLT != null)
+            {
+                return this.BVSGE(asBVSLT.Args[0], asBVSLT.Args[1]);
+            }
+
+            // BVSLE
+            // !(x < y) ==> ( x >= y )
+            var asBVSLE = ExprUtil.AsBVSLE(e);
+            if (asBVSLE != null)
+            {
+                return this.BVSGT(asBVSLE.Args[0], asBVSLE.Args[1]);
+            }
+
             // Can't constant fold
             return UB.Not(e);
         }

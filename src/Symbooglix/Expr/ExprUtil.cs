@@ -78,6 +78,26 @@ namespace Symbooglix
             return GetUnaryOperator(e, UnaryOperator.Opcode.Neg);
         }
 
+        public static NAryExpr AsGt(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Gt);
+        }
+
+        public static NAryExpr AsGe(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Ge);
+        }
+
+        public static NAryExpr AsLt(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Lt);
+        }
+
+        public static NAryExpr AsLe(Expr e)
+        {
+            return GetBinaryOperator(e, BinaryOperator.Opcode.Le);
+        }
+
         private static NAryExpr GetUnaryOperator(Expr e, UnaryOperator.Opcode opcode)
         {
             var nary = e as NAryExpr;

@@ -165,6 +165,90 @@ namespace ExprBuilderTests
         }
 
         [Test()]
+        public void AsLtWithLt()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Lt(v, sb.ConstantInt(0));
+            var asLt = ExprUtil.AsLt(e);
+            Assert.IsNotNull(asLt);
+            Assert.AreSame(e, asLt);
+        }
+
+        [Test()]
+        public void AsLtWithoutLt()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Eq(v, sb.ConstantInt(0));
+            var asLt = ExprUtil.AsLt(e);
+            Assert.IsNull(asLt);
+        }
+
+        [Test()]
+        public void AsLeWithLe()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Le(v, sb.ConstantInt(0));
+            var asLe = ExprUtil.AsLe(e);
+            Assert.IsNotNull(asLe);
+            Assert.AreSame(e, asLe);
+        }
+
+        [Test()]
+        public void AsLeWithoutLe()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Eq(v, sb.ConstantInt(0));
+            var asLe = ExprUtil.AsLe(e);
+            Assert.IsNull(asLe);
+        }
+
+        [Test()]
+        public void AsGtWithGt()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Gt(v, sb.ConstantInt(0));
+            var asGt = ExprUtil.AsGt(e);
+            Assert.IsNotNull(asGt);
+            Assert.AreSame(e, asGt);
+        }
+
+        [Test()]
+        public void AsGtWithoutGt()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Eq(v, sb.ConstantInt(0));
+            var asGt = ExprUtil.AsGt(e);
+            Assert.IsNull(asGt);
+        }
+
+        [Test()]
+        public void AsGeWithGe()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Ge(v, sb.ConstantInt(0));
+            var asGe = ExprUtil.AsGe(e);
+            Assert.IsNotNull(asGe);
+            Assert.AreSame(e, asGe);
+        }
+
+        [Test()]
+        public void AsGeWithoutGe()
+        {
+            var sb = GetSimpleBuilder();
+            var v = GetVarAndIdExpr("foo", BasicType.Int).Item2;
+            var e = sb.Eq(v, sb.ConstantInt(0));
+            var asGe = ExprUtil.AsGe(e);
+            Assert.IsNull(asGe);
+        }
+
+        [Test()]
         public void AsEqWithEq()
         {
             var sb = GetSimpleBuilder();
