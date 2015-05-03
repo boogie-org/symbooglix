@@ -30,13 +30,36 @@ namespace Symbooglix
                 // Dummy solver doesn't need to do anything
             }
 
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
+            class DummySolverResult : IQueryResult
             {
-                // Dummy Solver thinks everything is satisfiable
-                if (computeAssignment)
-                    return Tuple.Create(ResultIsAlways, new DummyAssignment(0) as IAssignment);
-                else
-                    return Tuple.Create(ResultIsAlways, null as IAssignment);
+                private DummyAssignment Assignment;
+                public DummySolverResult(Result r, int defaultValue)
+                {
+                    this.Satisfiability = r;
+                    Assignment = new DummyAssignment(defaultValue);
+                }
+
+                public IAssignment GetAssignment()
+                {
+                    return Assignment;
+                }
+
+                public IUnsatCore GetUnsatCore()
+                {
+                    throw new NotImplementedException();
+                }
+
+                public Result Satisfiability
+                {
+                    get;
+                    private set;
+                }
+            }
+
+            public IQueryResult ComputeSatisfiability(Query query)
+            {
+                // Dummy Solver thinks everything is "ResultIsAlways"
+                return new DummySolverResult(ResultIsAlways, 0);
             }
 
             public void Dispose()

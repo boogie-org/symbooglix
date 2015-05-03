@@ -10,7 +10,7 @@ namespace Symbooglix
         // as opposed to the Executor.
         public interface ISolverImpl : IDisposable
         {
-            Tuple<Solver.Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment);
+            IQueryResult ComputeSatisfiability(Query query);
             void SetTimeout(int seconds);
             ISolverImplStatistics Statistics { get;}
             void Interrupt();

@@ -16,7 +16,7 @@ namespace SolverTests
             public List<Constraint> Constraints = new List<Constraint>();
             public Expr QueryExpr = null;
 
-            public Tuple<Symbooglix.Solver.Result, Solver.IAssignment> ComputeSatisfiability(Solver.Query query, bool computeAssignment)
+            public Solver.IQueryResult ComputeSatisfiability(Solver.Query query)
             {
                 // Record the constraints we receive
                 foreach (var c in query.Constraints.Constraints)
@@ -24,7 +24,7 @@ namespace SolverTests
 
                 // Record what the QueryExpr was
                 QueryExpr = query.QueryExpr.Condition;
-                return new Tuple<Symbooglix.Solver.Result, Solver.IAssignment>(Solver.Result.SAT, null);
+                return new Solver.SimpleQueryResult(Solver.Result.SAT);
             }
 
             public void SetTimeout(int seconds)
@@ -86,7 +86,7 @@ namespace SolverTests
 
             Expr queryExpr = builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8));
 
-            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)), false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)));
 
             // Check no constraints were removed
             Assert.AreEqual(2, mockSolver.Constraints.Count);
@@ -137,7 +137,7 @@ namespace SolverTests
 
             Expr queryExpr = builder.Eq(s1, builder.ConstantBV(0, 8));
 
-            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM,new Constraint(queryExpr)), false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM,new Constraint(queryExpr)));
 
             // Check one constraint was removed
             Assert.AreEqual(1, mockSolver.Constraints.Count);
@@ -187,7 +187,7 @@ namespace SolverTests
                                           builder.NotEq(builder.UFC(foobarFunc, s1), s1)
             );
 
-            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)), false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)));
 
             // Check no constraints were removed
             Assert.AreEqual(3, mockSolver.Constraints.Count);
@@ -252,7 +252,7 @@ namespace SolverTests
             Expr queryExpr = builder.Eq(builder.BVAND(s1, s2), builder.ConstantBV(0, 8));
 
 
-            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)), false);
+            indepenceSolver.ComputeSatisfiability(new Solver.Query(CM, new Constraint(queryExpr)));
 
             // Check no constraints were removed
             Assert.AreEqual(2, mockSolver.Constraints.Count);

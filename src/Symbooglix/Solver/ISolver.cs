@@ -131,6 +131,31 @@ namespace Symbooglix
         {
 
         }
+
+        // Simplest implementation
+        public class SimpleQueryResult : IQueryResult
+        {
+            public SimpleQueryResult(Result r)
+            {
+                Satisfiability = r;
+            }
+
+            public IAssignment GetAssignment()
+            {
+                throw new NotSupportedException();
+            }
+
+            public IUnsatCore GetUnsatCore()
+            {
+                throw new NotSupportedException();
+            }
+
+            public Result Satisfiability
+            {
+                get;
+                private set;
+            }
+        }
     }
 }
 

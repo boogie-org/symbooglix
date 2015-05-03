@@ -37,7 +37,7 @@ namespace Symbooglix
                 }
             }
 
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
+            public IQueryResult ComputeSatisfiability(Query query)
             {
                 // FIXME: Optimise the case where only the query expression has changed
                 Printer.ClearDeclarations();
@@ -54,15 +54,9 @@ namespace Symbooglix
                 Printer.PrintAssert(query.QueryExpr.Condition);
                 Printer.PrintCheckSat();
 
-                var result = UnderlyingImpl.ComputeSatisfiability(query, computeAssignment);
+                var result = UnderlyingImpl.ComputeSatisfiability(query);
 
-                Printer.PrintCommentLine("Result : " + result.Item1);
-
-                if (computeAssignment)
-                {
-                    // FIXME: Support this for query logging
-                    Printer.PrintCommentLine(" WARNING: computeAssignment requested, but the printer doesn't support this!");
-                }
+                Printer.PrintCommentLine("Result : " + result.Satisfiability);
 
                 Printer.PrintExit();
                 Printer.PrintCommentLine("End of Query " + (UseCounter));

@@ -53,8 +53,8 @@ namespace Symbooglix
             public IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr)
             {
                 // Note: We implicitly assume that the constraints are satisfiable
-                Tuple<Result, IAssignment> falseBranchResult = null;
-                Tuple<Result, IAssignment> trueBranchResult = null;
+                IQueryResult falseBranchResult = null;
+                IQueryResult trueBranchResult = null;
                 try
                 {
                     Timer.Start();
@@ -76,8 +76,8 @@ namespace Symbooglix
                     // First see if it's possible for the false branch to be feasible
                     // ∃ X constraints(X) ∧ ¬ condition(X)
                     var query = new Solver.Query(constraints, trueExpr);
-                    falseBranchResult =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr(), false);
-                    var falseBranch = falseBranchResult.Item1;
+                    falseBranchResult =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr());
+                    var falseBranch = falseBranchResult.Satisfiability;
 
 
                     var trueBranch = Result.UNKNOWN;
@@ -96,8 +96,8 @@ namespace Symbooglix
                     {
                         // Now see if it's possible for execution to continue past the assertion
                         // ∃ X constraints(X) ∧ condition(X)
-                        trueBranchResult = SolverImpl.ComputeSatisfiability(query, false);
-                        trueBranch = trueBranchResult.Item1;
+                        trueBranchResult = SolverImpl.ComputeSatisfiability(query);
+                        trueBranch = trueBranchResult.Satisfiability;
                     }
 
                     return new SimpleBranchSatsifiabilityResult(trueBranch, falseBranch);
@@ -113,30 +113,7 @@ namespace Symbooglix
                 }
             }
 
-            // XXX: Temporary class for refactoring
-            private class SimpleQueryResult : IQueryResult
-            {
-                public SimpleQueryResult(Result r)
-                {
-                    this.Satisfiability = r;
-                }
-
-                public IAssignment GetAssignment()
-                {
-                    throw new NotImplementedException();
-                }
-
-                public IUnsatCore GetUnsatCore()
-                {
-                    throw new NotImplementedException();
-                }
-
-                public Result Satisfiability
-                {
-                    get;
-                    private set;
-                }
-            }
+           
 
             public IQueryResult CheckSatisfiability(Query query)
             {
@@ -147,11 +124,11 @@ namespace Symbooglix
                 // an ISolverImplFactory that we take so we can create new solver implementations whenever it's necessary.
                 Timer.Start();
 
-                var result = SolverImpl.ComputeSatisfiability(query, false);
+                var result = SolverImpl.ComputeSatisfiability(query);
 
                 Timer.Stop();
                 UpdateStatistics(result);
-                return new SimpleQueryResult(result.Item1);
+                return result;
             }
 
             public void Interrupt()
@@ -164,11 +141,11 @@ namespace Symbooglix
                 SolverImpl.Dispose();
             }
 
-            private void UpdateStatistics(Tuple<Result, IAssignment> result)
+            private void UpdateStatistics(IQueryResult result)
             {
                 Debug.Assert(!Timer.IsRunning, "Timer should not been running whilst statistics are being updated");
                 InternalStatistics.TotalRunTime = Timer.Elapsed;
-                InternalStatistics.Increment(result.Item1);
+                InternalStatistics.Increment(result.Satisfiability);
             }
 
             public SolverStats Statistics

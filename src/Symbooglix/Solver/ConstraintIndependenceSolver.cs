@@ -27,17 +27,9 @@ namespace Symbooglix
                 UnderlyingSolver.Interrupt();
             }
 
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
+            public IQueryResult ComputeSatisfiability(Query query)
             {
                 Interrupted = false;
-                if (computeAssignment)
-                {
-                    // We may prevent the underlying solver from seeing some variables
-                    // so it won't be able to provide an assignment to them.
-                    //
-                    // We need to handle this in some way.
-                    throw new NotImplementedException();
-                }
 
                 ConstraintSetReductionTimer.Start();
 
@@ -58,7 +50,7 @@ namespace Symbooglix
                         {
                             Console.WriteLine("WARNING: ConstraintIndependenceSolver interrupted!");
                             ConstraintSetReductionTimer.Stop();
-                            return new Tuple<Result, IAssignment>(Result.UNKNOWN, null);
+                            return new SimpleQueryResult(Result.UNKNOWN);
                         }
 
                         if (relevantConstraints.Contains(constraint))
@@ -98,8 +90,10 @@ namespace Symbooglix
                 ConstraintSetReductionTimer.Stop();
 
 
+                // FIXME: We should wrap the returned IQueryResult object because the client may ask
+                // for the assignment to variables which we removed.
                 var reducedQuery = new Query(reducedConstraints, query.QueryExpr);
-                return UnderlyingSolver.ComputeSatisfiability(reducedQuery, computeAssignment);
+                return UnderlyingSolver.ComputeSatisfiability(reducedQuery);
             }
 
             public void SetTimeout(int seconds)

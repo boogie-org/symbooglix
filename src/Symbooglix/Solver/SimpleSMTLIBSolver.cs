@@ -230,7 +230,7 @@ namespace Symbooglix
 
             // This is not thread safe!
             private Object ComputeSatisfiabilityLock = new object();
-            public Tuple<Result, IAssignment> ComputeSatisfiability(Query query, bool computeAssignment)
+            public IQueryResult ComputeSatisfiability(Query query)
             {
                 lock (ComputeSatisfiabilityLock)
                 {
@@ -239,9 +239,6 @@ namespace Symbooglix
                     ReceivedError = false;
                     SolverResult = Result.UNKNOWN;
                     bool timeoutOccured = false;
-
-                    if (computeAssignment)
-                        throw new NotSupportedException("Can't handle assignments yet");
 
                     try
                     {
@@ -395,7 +392,8 @@ namespace Symbooglix
                     if (timeoutOccured)
                         ++InternalStatistics.TimeoutCount;
 
-                    return Tuple.Create(SolverResult, null as IAssignment);
+                    // FIXME: We need to implement our own class so we can support assignments and the unsat core
+                    return new SimpleQueryResult(SolverResult);
                 }
             }
 
