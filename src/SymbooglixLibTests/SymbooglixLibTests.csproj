@@ -98,6 +98,7 @@
     <Compile Include="Havoc.cs" />
     <Compile Include="TerminateInitialState.cs" />
     <Compile Include="ExprSMTLIB\Distinct.cs" />
+    <Compile Include="Solver\SimpleSolverTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

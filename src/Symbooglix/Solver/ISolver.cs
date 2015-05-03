@@ -11,7 +11,7 @@ namespace Symbooglix
 
 
         // TODO: Make ISolver return this instead of just Result
-        public interface QueryResult
+        public interface IQueryResult
         {
             Result Satisfiability { get; }
 
@@ -20,11 +20,19 @@ namespace Symbooglix
             IUnsatCore GetUnsatCore();
         }
 
+        public interface IBranchSatisfiabilityResult
+        {
+            Result TrueBranch { get; }
+            Result FalseBranch { get; }
+        }
+
         // This solver interface is what the Executor uses and thus
         // is designed around the needs of the Executor rather than the solver
         public interface ISolver : IDisposable
         {
             void SetTimeout(int seconds);
+
+            IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr);
 
             Result IsQuerySat(Query query);
 
