@@ -375,8 +375,8 @@ namespace Symbooglix
                 if (CheckEntryAxioms)
                 {
                     var query = new Solver.Query(InitialState.Constraints, constraintAsC);
-                    Solver.Result result = TheSolver.IsQuerySat(query);
-                    switch (result)
+                    var result = TheSolver.CheckSatisfiability(query);
+                    switch (result.Satisfiability)
                     {
                         case Symbooglix.Solver.Result.SAT:
                             break;
@@ -450,8 +450,8 @@ namespace Symbooglix
                 {
                     // Check the constraint is satisfiable
                     var query = new Solver.Query(InitialState.Constraints, distinctConstraintC);
-                    Solver.Result result = TheSolver.IsQuerySat(query);
-                    switch (result)
+                    var result = TheSolver.CheckSatisfiability(query);
+                    switch (result.Satisfiability)
                     {
                         case Symbooglix.Solver.Result.SAT:
                             break;
@@ -1243,6 +1243,7 @@ namespace Symbooglix
             }
             else
             {
+                // FIXME: Use a proper exception
                 throw new InvalidProgramException("Solver error");
             }
         }
@@ -1470,8 +1471,8 @@ namespace Symbooglix
             // Is it possible for the condition to be satisfied
             // ∃ X : constraints(X) ∧ condition(X)
             var constraint = new Constraint(condition, location);
-            Solver.Result result = TheSolver.IsQuerySat(new Solver.Query(CurrentState.Constraints, constraint));
-            switch (result)
+            var result = TheSolver.CheckSatisfiability(new Solver.Query(CurrentState.Constraints, constraint));
+            switch (result.Satisfiability)
             {
                 case Symbooglix.Solver.Result.UNSAT:
                     terminationType.ConditionForUnsat = condition;
@@ -1624,8 +1625,8 @@ namespace Symbooglix
                     }
 
                     // Ask to solver if the assume is satisfiable
-                    Solver.Result result = TheSolver.IsQuerySat(new Solver.Query(CurrentState.Constraints, info.ReWrittenAssumeConstraint));
-                    switch (result)
+                    var result = TheSolver.CheckSatisfiability(new Solver.Query(CurrentState.Constraints, info.ReWrittenAssumeConstraint));
+                    switch (result.Satisfiability)
                     {
                         case Symbooglix.Solver.Result.UNKNOWN:
                             info.IsSpeculative = true;

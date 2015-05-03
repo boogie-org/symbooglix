@@ -34,7 +34,7 @@ namespace Symbooglix
 
             IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr);
 
-            Result IsQuerySat(Query query);
+            IQueryResult CheckSatisfiability(Query query);
 
             // Get access to the underlying implementation
             ISolverImpl SolverImpl { get; }
