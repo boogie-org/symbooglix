@@ -9,6 +9,7 @@ namespace Symbooglix
         // This simple solver calls on a ISolverImpl to do the work
         public class SimpleSolver : ISolver
         {
+            private bool TryInterupt = false;
             protected Stopwatch Timer;
             private SolverStats InternalStatistics;
             public ISolverImpl SolverImpl
@@ -53,6 +54,7 @@ namespace Symbooglix
             public IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr)
             {
                 // Note: We implicitly assume that the constraints are satisfiable
+                TryInterupt = false;
                 IQueryResult falseBranchResult = null;
                 IQueryResult trueBranchResult = null;
                 try
@@ -94,6 +96,13 @@ namespace Symbooglix
                     }
                     else
                     {
+                        if (TryInterupt)
+                        {
+                            // Don't do next solver call
+                            Console.Error.WriteLine("WARNING: Tried to kill solver during CheckBranchSatisfiability()");
+                            return new SimpleBranchSatsifiabilityResult(Result.UNKNOWN, falseBranch);
+                        }
+
                         // Now see if it's possible for execution to continue past the assertion
                         // ∃ X constraints(X) ∧ condition(X)
                         trueBranchResult = SolverImpl.ComputeSatisfiability(query);
@@ -133,6 +142,7 @@ namespace Symbooglix
 
             public void Interrupt()
             {
+                this.TryInterupt = true;
                 SolverImpl.Interrupt();
             }
 
