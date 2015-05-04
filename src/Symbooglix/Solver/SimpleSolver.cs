@@ -51,7 +51,7 @@ namespace Symbooglix
                 }
             };
 
-            public IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr)
+            public IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr, IExprBuilder builder)
             {
                 // Note: We implicitly assume that the constraints are satisfiable
                 TryInterupt = false;
@@ -78,7 +78,7 @@ namespace Symbooglix
                     // First see if it's possible for the false branch to be feasible
                     // ∃ X constraints(X) ∧ ¬ condition(X)
                     var query = new Solver.Query(constraints, trueExpr);
-                    falseBranchResult =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr());
+                    falseBranchResult =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr(builder));
                     var falseBranch = falseBranchResult.Satisfiability;
 
 

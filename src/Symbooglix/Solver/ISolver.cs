@@ -32,7 +32,7 @@ namespace Symbooglix
         {
             void SetTimeout(int seconds);
 
-            IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr);
+            IBranchSatisfiabilityResult CheckBranchSatisfiability(IConstraintManager constraints, Constraint trueExpr, IExprBuilder builder);
 
             IQueryResult CheckSatisfiability(Query query);
 

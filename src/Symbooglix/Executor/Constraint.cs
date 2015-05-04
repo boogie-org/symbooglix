@@ -33,7 +33,7 @@ namespace Symbooglix
             ComputeUsedVariablesAndUninterpretedFunctions();
         }
 
-        public Constraint GetNegatedConstraint()
+        public Constraint GetNegatedConstraint(IExprBuilder builder)
         {
             var that = (Constraint) this.MemberwiseClone();
 
@@ -45,8 +45,7 @@ namespace Symbooglix
             if (!Condition.Type.IsBool)
                 throw new ExprTypeCheckException("Cannot negate an expression that is not a bool");
 
-            // FIXME: We should be using an IExprBuilder
-            that.Condition = Expr.Not(this.Condition);
+            that.Condition = builder.Not(this.Condition);
             return that;
         }
 

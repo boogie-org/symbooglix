@@ -15,10 +15,10 @@ namespace Symbooglix
                 this.QueryExpr = queryExpr;
             }
 
-            public Query WithNegatedQueryExpr()
+            public Query WithNegatedQueryExpr(IExprBuilder builder)
             {
                 var that = (Query) this.MemberwiseClone();
-                that.QueryExpr = this.QueryExpr.GetNegatedConstraint();
+                that.QueryExpr = this.QueryExpr.GetNegatedConstraint(builder);
                 return that;
             }
         }

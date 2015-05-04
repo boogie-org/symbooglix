@@ -54,7 +54,7 @@ namespace SolverTests
             var cm = GetConstraintManager();
             cm.AddConstraint(constraint0);
 
-            var result = solver.CheckBranchSatisfiability(cm, new Constraint(builder.ConstantBool(trueBranch)));
+            var result = solver.CheckBranchSatisfiability(cm, new Constraint(builder.ConstantBool(trueBranch)), builder);
             Assert.AreEqual(expectedTrueBranch, result.TrueBranch);
             Assert.AreEqual(expectedFalseBranch, result.FalseBranch);
         }
@@ -73,7 +73,7 @@ namespace SolverTests
 
             var queryExpr = builder.Lt(xVar.Expr, builder.ConstantInt(1));
 
-            var result = solver.CheckBranchSatisfiability(cm, new Constraint(queryExpr));
+            var result = solver.CheckBranchSatisfiability(cm, new Constraint(queryExpr), builder);
             Assert.AreEqual(Solver.Result.SAT, result.TrueBranch);
             Assert.AreEqual(Solver.Result.UNSAT, result.FalseBranch);
         }
@@ -92,7 +92,7 @@ namespace SolverTests
 
             var queryExpr = builder.Gt(xVar.Expr, builder.ConstantInt(1));
 
-            var result = solver.CheckBranchSatisfiability(cm, new Constraint(queryExpr));
+            var result = solver.CheckBranchSatisfiability(cm, new Constraint(queryExpr), builder);
             Assert.AreEqual(Solver.Result.UNSAT, result.TrueBranch);
             Assert.AreEqual(Solver.Result.SAT, result.FalseBranch);
         }
@@ -111,7 +111,7 @@ namespace SolverTests
 
             var queryExpr = builder.Lt(xVar.Expr, builder.ConstantInt(-1));
 
-            var result = solver.CheckBranchSatisfiability(cm, new Constraint(queryExpr));
+            var result = solver.CheckBranchSatisfiability(cm, new Constraint(queryExpr), builder);
             Assert.AreEqual(Solver.Result.SAT, result.TrueBranch);
             Assert.AreEqual(Solver.Result.SAT, result.FalseBranch);
         }

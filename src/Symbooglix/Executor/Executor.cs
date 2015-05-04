@@ -1194,7 +1194,7 @@ namespace Symbooglix
             Debug.Assert(elseExpr.Immutable);
 
             var constraint = new Constraint(condition, assignCmd.GetProgramLocation());
-            var result = TheSolver.CheckBranchSatisfiability(CurrentState.Constraints, constraint);
+            var result = TheSolver.CheckBranchSatisfiability(CurrentState.Constraints, constraint, this.Builder);
 
             bool canFollowElse = (result.FalseBranch != Solver.Result.UNSAT);
             bool canFollowThen = (result.TrueBranch != Solver.Result.UNSAT);
@@ -1210,7 +1210,7 @@ namespace Symbooglix
                 // The elseExpr will be used, because this a predicated assignment
                 // and the value is the current state won't be changed
                 Debug.Assert(CurrentState.GetInScopeVariableExpr(v).Equals(elseExpr), "elseExpr should just be the variable being assigned to");
-                CurrentState.Constraints.AddConstraint(constraint.GetNegatedConstraint());
+                CurrentState.Constraints.AddConstraint(constraint.GetNegatedConstraint(this.Builder));
 
             }
             else if (!canFollowElse && canFollowThen)
@@ -1233,7 +1233,7 @@ namespace Symbooglix
                 // The elseExpr will be used, because this a predicated assignment
                 // and the value is the current state won't be changed
                 Debug.Assert(elseState.GetInScopeVariableExpr(v).Equals(elseExpr), "elseExpr should just be the variable being assigned to");
-                elseState.Constraints.AddConstraint(constraint.GetNegatedConstraint());
+                elseState.Constraints.AddConstraint(constraint.GetNegatedConstraint(this.Builder));
                 StateScheduler.AddState(elseState);
 
 
@@ -1378,7 +1378,7 @@ namespace Symbooglix
         protected bool HandleAssertLikeCommand(Expr condition, TerminationTypeWithSatAndUnsatExpr terminatationType, ProgramLocation location)
         {
             var trueBranchConstraint = new Constraint(condition, location);
-            var result = TheSolver.CheckBranchSatisfiability(CurrentState.Constraints, trueBranchConstraint);
+            var result = TheSolver.CheckBranchSatisfiability(CurrentState.Constraints, trueBranchConstraint, this.Builder);
 
             bool canFail = (result.FalseBranch != Solver.Result.UNSAT);
             bool canSucceed = (result.TrueBranch != Solver.Result.UNSAT);
