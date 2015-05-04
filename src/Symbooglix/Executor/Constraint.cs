@@ -108,7 +108,7 @@ namespace Symbooglix
                     continue;
                 }
 
-                // Add nodes children to the queue
+                // Add node's children to the queue
                 for (int index=0; index < node.GetNumberOfChildren(); ++index)
                 {
                     queue.Enqueue(node.GetChild(index));

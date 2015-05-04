@@ -99,6 +99,7 @@
     <Compile Include="TerminateInitialState.cs" />
     <Compile Include="ExprSMTLIB\Distinct.cs" />
     <Compile Include="Solver\SimpleSolverTests.cs" />
+    <Compile Include="LineCoverge.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

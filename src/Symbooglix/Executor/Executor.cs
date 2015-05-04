@@ -279,6 +279,11 @@ namespace Symbooglix
             TW.WriteLine("use_global_dde: {0}", UseGlobalDDE.ToString().ToLower());
             TW.WriteLine("use_goto_look_ahead: {0}", UseGotoLookAhead.ToString().ToLower());
 
+            // Line coverage
+            var lineCoverage = TheProgram.GetLineCoverage();
+            TW.WriteLine("lines_covered: {0} # ({1}%)", lineCoverage.CoveredLines, 100*(( (double) lineCoverage.CoveredLines)/lineCoverage.TotalLines));
+            TW.WriteLine("total_lines: {0}", lineCoverage.TotalLines);
+
             TW.WriteLine("state_scheduler:");
             TW.Indent += 1;
             StateScheduler.WriteAsYAML(TW);

@@ -2,6 +2,7 @@
 using Symbooglix;
 using Microsoft.Boogie;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Symbooglix
 {
@@ -52,6 +53,88 @@ namespace Symbooglix
         {
             return node.GetMetadata<InstructionStatistics>((int) Annotation.AnnotationIndex.PROFILE_DATA);
         }
+
+        // Extensions for computing coverage
+        public static LineCoverage GetLineCoverage(this Block node)
+        {
+            var count = new LineCoverage();
+            count.Reset();
+
+            foreach (var cmd in node.Cmds)
+            {
+                count.TotalLines += 1;
+                if (cmd.GetInstructionStatistics().Covered > 0)
+                    count.CoveredLines += 1;
+            }
+
+            // Return command
+            count.TotalLines += 1;
+            if (node.TransferCmd.GetInstructionStatistics().Covered > 0)
+                count.CoveredLines += 1;
+
+            return count;
+        }
+
+        public static LineCoverage GetLineCoverage(this Implementation impl)
+        {
+            var count = new LineCoverage();
+            count.Reset();
+
+            foreach (var block in impl.Blocks)
+            {
+                count += block.GetLineCoverage();
+            }
+
+            return count;
+        }
+
+        public static LineCoverage GetLineCoverage(this Procedure proc)
+        {
+            var count = new LineCoverage();
+            count.Reset();
+
+            foreach (var requires in proc.Requires)
+            {
+                count.TotalLines += 1;
+                if (requires.GetInstructionStatistics().Covered > 0)
+                    count.CoveredLines += 1;
+            }
+
+            foreach (var ensures in proc.Ensures)
+            {
+                count.TotalLines += 1;
+                if (ensures.GetInstructionStatistics().Covered > 0)
+                    count.CoveredLines += 1;
+            }
+
+            return count;
+        }
+
+        public static LineCoverage GetLineCoverage(this Program prog)
+        {
+            var count = new LineCoverage();
+            count.Reset();
+
+            foreach (var axiom in prog.TopLevelDeclarations.OfType<Axiom>())
+            {
+                count.TotalLines += 1;
+                if (axiom.GetInstructionStatistics().Covered > 0)
+                    count.CoveredLines += 1;
+            }
+
+            foreach (var proc in prog.TopLevelDeclarations.OfType<Procedure>())
+            {
+                count += proc.GetLineCoverage();
+            }
+
+            foreach (var impl in prog.TopLevelDeclarations.OfType<Implementation>())
+            {
+                count += impl.GetLineCoverage();
+            }
+
+            return count;
+        }
+
     }
 }
 
