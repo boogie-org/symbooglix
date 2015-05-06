@@ -393,12 +393,12 @@ namespace Symbooglix
                             var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
                             terminatedAtUnsatisfiableAxiom.ConditionForUnsat = axiomVMRExpr;
 
-                        // Expr.Not(constraint) will only be satisfiable if
+                        // Builder.Not(constraint) will only be satisfiable if
                         // the original constraints are satisfiable
                         // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
                         // ∀ x constraints(x) ∧ ¬query(x)
                         // So here we assume
-                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(axiomVMRExpr);
+                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Builder.Not(axiomVMRExpr);
 
                             TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
                             HasBeenPrepared = true; // Don't allow this method to run again
@@ -470,7 +470,7 @@ namespace Symbooglix
                             var terminatedWithUnsatUniqueAttr = new TerminatedWithUnsatisfiableUniqueAttribute(varsToEnforceUnique);
                             terminatedWithUnsatUniqueAttr.ConditionForUnsat = distinctConstraint;
 
-                        // Expr.Not(constraint) will only be satisfiable if
+                        // Builder.Not(constraint) will only be satisfiable if
                         // the original constraints are satisfiable
                         // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
                         // ∀ x constraints(x) ∧ ¬query(x)
@@ -1481,12 +1481,12 @@ namespace Symbooglix
                 case Symbooglix.Solver.Result.UNSAT:
                     terminationType.ConditionForUnsat = condition;
 
-                    // Expr.Not(condition) will only be satisfiable if
+                    // Builder.Not(condition) will only be satisfiable if
                     // the original constraints are satisfiable
                     // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
-                    // ∀ x constraints(x) ∧ ¬query(x)
+                    // ∀ x constraints(x) → ¬query(x)
                     // So here we assume
-                    terminationType.ConditionForSat = Expr.Not(condition);
+                    terminationType.ConditionForSat = Builder.Not(condition);
 
                     TerminateState(CurrentState, terminationType, /*removeStateFromScheduler=*/true);
                     CurrentState = null;

@@ -12,7 +12,7 @@ namespace SymbooglixLibTests
         {
             int counter = 0;
             p = LoadProgramFrom(program);
-            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver(), /*useConstantFolding=*/ false);
 
             T terminationType = null;
             e.StateTerminated += delegate(object sender, Executor.ExecutionStateEventArgs eventArgs)
@@ -198,7 +198,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual("~sb_r_0 > 20", terminationType.ConditionForUnsat.ToString());
 
             Assert.IsNotNull(terminationType.ConditionForSat);
-            Assert.AreEqual("20 >= ~sb_r_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("!(~sb_r_0 > 20)", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
@@ -209,7 +209,7 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(terminationType.ConditionForUnsat);
             Assert.AreEqual("~sb_g_0 < 0", terminationType.ConditionForUnsat.ToString());
             Assert.IsNotNull(terminationType.ConditionForSat);
-            Assert.AreEqual("0 <= ~sb_g_0", terminationType.ConditionForSat.ToString());
+            Assert.AreEqual("!(~sb_g_0 < 0)", terminationType.ConditionForSat.ToString());
         }
 
         [Test()]
