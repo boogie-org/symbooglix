@@ -447,13 +447,12 @@ namespace Symbooglix
 
                 // HACK: There are multiple program locations associated with the enforcement of a distinct Expr
                 var progLoc = varsToEnforceUnique[0].GetProgramLocation();
-                var distinctConstraint = Builder.Distinct(exprToEnforceUnique);
-                // FIXME: Bad variable name
-                var distinctConstraintC = new Constraint(distinctConstraint, progLoc);
+                var distinctExpr = Builder.Distinct(exprToEnforceUnique);
+                var distinctConstraint = new Constraint(distinctExpr, progLoc);
                 if (CheckUniqueVariableDecls)
                 {
                     // Check the constraint is satisfiable
-                    var query = new Solver.Query(InitialState.Constraints, distinctConstraintC);
+                    var query = new Solver.Query(InitialState.Constraints, distinctConstraint);
                     var result = TheSolver.CheckSatisfiability(query);
                     switch (result.Satisfiability)
                     {
@@ -466,16 +465,15 @@ namespace Symbooglix
                             InitialState.MakeSpeculative(progLoc);
                             goto default; // Eurgh...
                         default:
-                        // FIXME: Need different termination type
                             var terminatedWithUnsatUniqueAttr = new TerminatedWithUnsatisfiableUniqueAttribute(varsToEnforceUnique);
-                            terminatedWithUnsatUniqueAttr.ConditionForUnsat = distinctConstraint;
+                            terminatedWithUnsatUniqueAttr.ConditionForUnsat = distinctExpr;
 
                         // Builder.Not(constraint) will only be satisfiable if
                         // the original constraints are satisfiable
                         // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
                         // ∀ x constraints(x) ∧ ¬query(x)
                         // So here we assume
-                            terminatedWithUnsatUniqueAttr.ConditionForSat = Builder.Not(distinctConstraint);
+                            terminatedWithUnsatUniqueAttr.ConditionForSat = Builder.Not(distinctExpr);
 
                             TerminateState(InitialState, terminatedWithUnsatUniqueAttr, /*removeFromStateScheduler=*/false);
                             HasBeenPrepared = true; // Don't allow this method to run again
@@ -489,10 +487,8 @@ namespace Symbooglix
                     Console.WriteLine("WARNING: Not checking if the uniqueness of variables of type {0} is satisfiable",
                                       varsToEnforceUnique[0].TypedIdent.Type.ToString());
                 }
-
-                // This is kind of a hack a distinctConstraint is associated with multiple source locations rather than just one.
-                InitialState.Constraints.AddConstraint(distinctConstraintC);
-                Debug.WriteLine("Adding constraint : " + distinctConstraint);
+                InitialState.Constraints.AddConstraint(distinctConstraint);
+                Debug.WriteLine("Adding constraint : " + distinctExpr);
             }
 
             HasBeenPrepared = true;
