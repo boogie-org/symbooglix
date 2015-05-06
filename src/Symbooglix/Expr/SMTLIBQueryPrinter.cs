@@ -40,6 +40,8 @@ namespace Symbooglix
             ChangeOutput(TW);
             this.Indent = indent;
 
+            // FIXME: These declarations are broken. Declarations are part of the push-and-pop stack but we
+            // are treating them globally here. This is a mess.
             symbolicsToDeclare = new HashSet<SymbolicVariable>();
             functionsToDeclare = new HashSet<Function>();
             sortsToDeclare = new HashSet<TypeCtorDecl>();
@@ -375,6 +377,7 @@ namespace Symbooglix
             if (count < 1)
                 throw new ArgumentException("count must be > 0");
 
+            // FIXME: We should be keeping our decls in a stack so we can push and pop them
             TW.WriteLine("(push {0})", count);
         }
 
@@ -383,6 +386,7 @@ namespace Symbooglix
             if (count < 1)
                 throw new ArgumentException("count must be > 0");
 
+            // FIXME: We should be keeping our decls in a stack so we can push and pop them
             TW.WriteLine("(pop {0})", count);
         }
 
@@ -444,19 +448,11 @@ namespace Symbooglix
             Reset();
         }
 
-        // Not the same as ClearDeclarations() as we keep hold of the known sorts, functions etc...
-        // FIXME: I don't think we should have this. It will probably lead to mistakes
         public void Reset()
         {
             TW.Flush();
             AssertCounter = 0;
-
-            if (UseNamedAttributeBindings)
-            {
-                // We need to clear the bindings because if we keep them
-                // they'll be used for subsequent printing without actually declaring them
-                Bindings.Clear();
-            }
+            ClearDeclarations();
         }
 
         public void PrintReset()
