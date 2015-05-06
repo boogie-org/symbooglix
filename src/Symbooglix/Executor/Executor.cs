@@ -373,13 +373,12 @@ namespace Symbooglix
                 var VMR = new MapExecutionStateVariablesDuplicator(InitialState, this.Builder);
                 VMR.ReplaceGlobalsOnly = true; // The stackframe doesn't exist yet!
 
-                Expr constraint = (Expr) VMR.Visit(axiom.Expr);
-                // FIXME: bad name
-                var constraintAsC = new Constraint(constraint, axiom.GetProgramLocation());
+                Expr axiomVMRExpr = (Expr) VMR.Visit(axiom.Expr);
+                var constraint = new Constraint(axiomVMRExpr, axiom.GetProgramLocation());
 
                 if (CheckEntryAxioms)
                 {
-                    var query = new Solver.Query(InitialState.Constraints, constraintAsC);
+                    var query = new Solver.Query(InitialState.Constraints, constraint);
                     var result = TheSolver.CheckSatisfiability(query);
                     switch (result.Satisfiability)
                     {
@@ -392,14 +391,14 @@ namespace Symbooglix
                             goto default; // Eurgh...
                         default:
                             var terminatedAtUnsatisfiableAxiom = new TerminatedAtUnsatisfiableAxiom(axiom);
-                            terminatedAtUnsatisfiableAxiom.ConditionForUnsat = constraint;
+                            terminatedAtUnsatisfiableAxiom.ConditionForUnsat = axiomVMRExpr;
 
                         // Expr.Not(constraint) will only be satisfiable if
                         // the original constraints are satisfiable
                         // i.e. ¬ ∃ x constraints(x) ∧ query(x) implies that
                         // ∀ x constraints(x) ∧ ¬query(x)
                         // So here we assume
-                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(constraint);
+                            terminatedAtUnsatisfiableAxiom.ConditionForSat = Expr.Not(axiomVMRExpr);
 
                             TerminateState(InitialState, terminatedAtUnsatisfiableAxiom, /*removeFromStateScheduler=*/false);
                             HasBeenPrepared = true; // Don't allow this method to run again
@@ -413,8 +412,8 @@ namespace Symbooglix
                     Console.Error.WriteLine("Warning: Not checking axiom {0}:{1} {2}", axiom.tok.filename, axiom.tok.line, axiom.Expr);
                 }
 
-                InitialState.Constraints.AddConstraint(constraintAsC);
-                Debug.WriteLine("Adding constraint : " + constraint);
+                InitialState.Constraints.AddConstraint(constraint);
+                Debug.WriteLine("Adding constraint : " + axiomVMRExpr);
 
                 // See if we can concretise using the program's axioms
                 // Note we must use Expr that is not remapped (i.e. must contain original program variables)
