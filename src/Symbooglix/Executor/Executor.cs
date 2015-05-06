@@ -1781,7 +1781,7 @@ namespace Symbooglix
 
         protected ExecutionState Fork(ExecutionState stateToFork, ProgramLocation createdAt)
         {
-            var newState = stateToFork.Clone();
+            var newState = stateToFork.Clone(createdAt);
 
             // Should DeepClone() handle this instead?
             //newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);

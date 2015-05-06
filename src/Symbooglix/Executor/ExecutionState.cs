@@ -30,6 +30,11 @@ namespace Symbooglix
             internal set;
         }
 
+        public ProgramLocation CreatedAt
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// Gets the explicit branch depth. This is considered to be the number of goto
@@ -86,10 +91,11 @@ namespace Symbooglix
             Speculative = false;
             ExplicitBranchDepth = 0;
             TreeNode = null; //new ExecutionTreeNode(this, null, null); // FIXME: Disabled due to design issues.
+            CreatedAt = null;
 
         }
 
-        public ExecutionState Clone()
+        public ExecutionState Clone(ProgramLocation loc)
         {
             ExecutionState other = (ExecutionState) this.MemberwiseClone();
             other.Mem = this.Mem.Clone();
@@ -103,6 +109,7 @@ namespace Symbooglix
             other.Id = NewId++;
 
             other.Constraints = this.Constraints.Clone();
+            other.CreatedAt = loc;
             return other;
         }
 
@@ -121,7 +128,6 @@ namespace Symbooglix
         {
             TW.WriteLine("state_id: {0}", this.Id);
             TW.Write("status:");
-
             if (Finished())
             {
                 // Nested dictionary
@@ -137,6 +143,19 @@ namespace Symbooglix
             else
             {
                 TW.WriteLine(" \"running\"");
+            }
+
+            TW.Write("created_at:");
+            if (CreatedAt == null)
+                TW.WriteLine(" null");
+            else
+            {
+                TW.Indent += 1;
+                TW.WriteLine("");
+                TW.WriteLine("line_num: {0}", CreatedAt.LineNumber);
+                // FIXME: The line should be escaped to be YAML compatible
+                TW.WriteLine("line: \"{0}\"", CreatedAt.Line);
+                TW.Indent -= 1;
             }
 
             TW.WriteLine("explicit_branch_depth: {0}", this.ExplicitBranchDepth.ToString().ToLower());
