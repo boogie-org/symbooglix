@@ -167,6 +167,9 @@ namespace SymbooglixDriver
             [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
             public int useModSetTransform { get; set; }
 
+            [Option("symbolic-pool-cache", DefaultValue = 1, HelpText = "Use Symbolic pool cache (0 uses naive symbolic pool")]
+            public int useSymbolicPoolCache { get ; set ; }
+
             [Option("write-smt2", DefaultValue = 1, HelpText="Write constraints for each ExecutionState as SMTLIBv2 (Default 1)")]
             public int WriteConstraints { get ; set; }
 
@@ -415,6 +418,13 @@ namespace SymbooglixDriver
             var nonSpeculativeterminationCounter = new TerminationCounter(TerminationCounter.CountType.ONLY_NON_SPECULATIVE);
             var speculativeTerminationCounter = new TerminationCounter(TerminationCounter.CountType.ONLY_SPECULATIVE);
             IExprBuilder builder = new SimpleExprBuilder(/*immutable=*/ true);
+            ISymbolicPool symbolicPool = null;
+            if (options.useSymbolicPoolCache > 0)
+                symbolicPool = new CachingSymbolicPool();
+            else
+                symbolicPool = new SimpleSymbolicPool();
+
+            Console.WriteLine("Using Symbolic Pool: {0}", symbolicPool.ToString());
 
             if (options.useConstantFolding > 0)
             {
@@ -424,7 +434,7 @@ namespace SymbooglixDriver
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
             {
-                Executor executor = new Executor(program, scheduler, solver, builder, new SimpleSymbolicPool());
+                Executor executor = new Executor(program, scheduler, solver, builder, symbolicPool);
 
                 executor.ExecutorTimeoutReached += delegate(object sender, Executor.ExecutorTimeoutReachedArgs eventArgs)
                 {
