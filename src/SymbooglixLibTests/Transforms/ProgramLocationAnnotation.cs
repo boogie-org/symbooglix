@@ -45,6 +45,8 @@ namespace TransformTests
 
                 foreach (var outParam in proc.OutParams)
                     DoSomethingWithProgramLocation(outParam.GetProgramLocation());
+
+                DoSomethingWithProgramLocation(proc.GetModSetProgramLocation());
             }
 
             // Check Implementations

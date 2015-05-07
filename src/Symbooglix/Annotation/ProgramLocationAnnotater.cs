@@ -86,7 +86,8 @@ namespace Symbooglix
                 foreach (var outParam in procedure.OutParams)
                     outParam.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION, new ProgramLocation(outParam));
 
-                // TODO: Modset
+                // Modset
+                procedure.SetMetadata((int) AnnotationIndex.PROGRAM_LOCATION_PROCEDURE_MODSET, new ProgramLocation(new ModifiesSet(procedure)));
 
                 return procedure; // No need to traverse deeper
             }

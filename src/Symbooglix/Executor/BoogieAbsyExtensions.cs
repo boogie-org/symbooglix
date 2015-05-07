@@ -17,6 +17,11 @@ namespace Symbooglix
             return node.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION);
         }
 
+        public static ProgramLocation GetModSetProgramLocation(this Procedure node)
+        {
+            return node.GetMetadata<ProgramLocation>( (int) Annotation.AnnotationIndex.PROGRAM_LOCATION_PROCEDURE_MODSET);
+        }
+
         // Handy accessor for metadata added by the OldExprCanonicaliser pass
         public static IList<GlobalVariable> GetOldExprVariables(this Procedure node)
         {
