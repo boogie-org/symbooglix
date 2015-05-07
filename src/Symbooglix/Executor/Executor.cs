@@ -11,11 +11,11 @@ namespace Symbooglix
 
     public class Executor : Util.IYAMLWriter
     {
-        public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver, IExprBuilder builder)
+        public Executor(Program program, IStateScheduler scheduler, Solver.ISolver solver, IExprBuilder builder, ISymbolicPool symbolicPool)
         { 
             this.TheProgram = program;
             StateScheduler = scheduler;
-            SymbolicPool = new SymbolicPool();
+            SymbolicPool = symbolicPool;
             UseGotoLookAhead = true;
             UseGlobalDDE = true;
             UseForkAtPredicatedAssign = false;
@@ -50,7 +50,7 @@ namespace Symbooglix
 
         public Program TheProgram;
         private ExecutionState InitialState; // Represents a state that has not entered any procedures
-        private SymbolicPool SymbolicPool;
+        private ISymbolicPool SymbolicPool;
         public bool HasBeenPrepared
         {
             get;
@@ -284,6 +284,11 @@ namespace Symbooglix
             TW.WriteLine("lines_covered: {0} # ({1}%)", lineCoverage.CoveredLines, 100*(( (double) lineCoverage.CoveredLines)/lineCoverage.TotalLines));
             TW.WriteLine("total_lines: {0}", lineCoverage.TotalLines);
 
+            TW.WriteLine("symbolic_pool:");
+            TW.Indent += 1;
+            SymbolicPool.WriteAsYAML(TW);
+            TW.Indent -= 1;
+
             TW.WriteLine("state_scheduler:");
             TW.Indent += 1;
             StateScheduler.WriteAsYAML(TW);
@@ -343,7 +348,7 @@ namespace Symbooglix
                     throw new NotImplementedException("WhereExpr on globals not supported");
 
                 // Make symbolic
-                var s = SymbolicPool.getFreshSymbolic(gv);
+                var s = SymbolicPool.GetFreshSymbolic(gv, CurrentState);
                 Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
                 InitialState.Mem.Globals.Add(gv, s.Expr);
                 InitialState.Symbolics.Add(s);
@@ -762,7 +767,7 @@ namespace Symbooglix
         protected SymbolicVariable InitialiseAsSymbolic(Variable v)
         {
             Debug.Assert(CurrentState.IsInScopeVariable(v));
-            var s = SymbolicPool.getFreshSymbolic(v);
+            var s = SymbolicPool.GetFreshSymbolic(v, CurrentState);
             CurrentState.Symbolics.Add(s);
             CurrentState.AssignToVariableInScope(v, s.Expr);
             return s;
@@ -1034,7 +1039,7 @@ namespace Symbooglix
             // Make the Global variables in Modset Symbolic
             for (int modSetIndex=0;  modSetIndex < proc.Modifies.Count ; ++modSetIndex)
             {
-                var symbolic = SymbolicPool.getFreshSymbolic(proc, modSetIndex);
+                var symbolic = SymbolicPool.GetFreshSymbolic(proc, modSetIndex, CurrentState);
                 CurrentState.AssignToVariableInScope(proc.Modifies[modSetIndex].Decl, symbolic.Expr);
                 CurrentState.Symbolics.Add(symbolic);
             }
@@ -1765,7 +1770,7 @@ namespace Symbooglix
 
             for (int index=0; index < c.Vars.Count ; ++index)
             {
-                var s = SymbolicPool.getFreshSymbolic(c, index);
+                var s = SymbolicPool.GetFreshSymbolic(c, index, CurrentState);
                 Debug.Assert(CurrentState.IsInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
                 CurrentState.AssignToVariableInScope(c.Vars[index].Decl, s.Expr);
                 CurrentState.Symbolics.Add(s);

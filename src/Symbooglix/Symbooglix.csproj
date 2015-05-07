@@ -51,7 +51,6 @@
     <Compile Include="Executor\Executor.cs" />
     <Compile Include="Executor\Memory.cs" />
     <Compile Include="Executor\ExecutionState.cs" />
-    <Compile Include="Executor\SymbolicPool.cs" />
     <Compile Include="Executor\ConstraintManager.cs" />
     <Compile Include="Executor\ExecutorHandlers\BreakPointHandler.cs" />
     <Compile Include="Executor\BoogieExprExtensions.cs" />
@@ -126,6 +125,8 @@
     <Compile Include="Solver\Query.cs" />
     <Compile Include="Executor\Constraint.cs" />
     <Compile Include="Executor\LineCoverage.cs" />
+    <Compile Include="Executor\SimpleSymbolicPool.cs" />
+    <Compile Include="Executor\SymbolicVariable.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

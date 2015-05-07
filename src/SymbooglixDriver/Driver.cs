@@ -424,7 +424,7 @@ namespace SymbooglixDriver
             // Destroy the solver when we stop using it
             using (var solver = BuildSolverChain(options))
             {
-                Executor executor = new Executor(program, scheduler, solver, builder);
+                Executor executor = new Executor(program, scheduler, solver, builder, new SimpleSymbolicPool());
 
                 executor.ExecutorTimeoutReached += delegate(object sender, Executor.ExecutorTimeoutReachedArgs eventArgs)
                 {
