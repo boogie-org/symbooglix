@@ -127,6 +127,7 @@
     <Compile Include="Executor\LineCoverage.cs" />
     <Compile Include="Executor\SimpleSymbolicPool.cs" />
     <Compile Include="Executor\SymbolicVariable.cs" />
+    <Compile Include="Executor\ISymbolicPool.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
