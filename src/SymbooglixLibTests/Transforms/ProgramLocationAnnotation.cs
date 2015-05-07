@@ -25,7 +25,8 @@ namespace TransformTests
             // Check Variables (Global and constant)
             foreach (var variable in Prog.TopLevelDeclarations.OfType<Variable>())
             {
-                DoSomethingWithProgramLocation(variable.GetProgramLocation());
+                CheckIsNotNullAndString(variable.GetProgramLocation());
+                Assert.IsTrue(variable.GetProgramLocation().IsVariable);
             }
 
             // Check Procedures
@@ -35,18 +36,31 @@ namespace TransformTests
                 //DoSomethingWithProgramLocation(proc.GetProgramLocation());
 
                 foreach (var requires in proc.Requires)
-                    DoSomethingWithProgramLocation(requires.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(requires.GetProgramLocation());
+                    Assert.IsTrue(requires.GetProgramLocation().IsRequires);
+                }
 
                 foreach (var ensures in proc.Ensures)
-                    DoSomethingWithProgramLocation(ensures.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(ensures.GetProgramLocation());
+                    Assert.IsTrue(ensures.GetProgramLocation().IsEnsures);
+                }
 
                 foreach (var inParam in proc.InParams)
-                    DoSomethingWithProgramLocation(inParam.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(inParam.GetProgramLocation());
+                    Assert.IsTrue(inParam.GetProgramLocation().IsVariable);
+                }
 
                 foreach (var outParam in proc.OutParams)
-                    DoSomethingWithProgramLocation(outParam.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(outParam.GetProgramLocation());
+                    Assert.IsTrue(outParam.GetProgramLocation().IsVariable);
+                }
 
-                DoSomethingWithProgramLocation(proc.GetModSetProgramLocation());
+                CheckIsNotNullAndString(proc.GetModSetProgramLocation());
+                Assert.IsTrue(proc.GetModSetProgramLocation().IsModifiesSet);
             }
 
             // Check Implementations
@@ -56,29 +70,42 @@ namespace TransformTests
                 //DoSomethingWithProgramLocation(impl.GetProgramLocation());
 
                 foreach (var inParam in impl.InParams)
-                    DoSomethingWithProgramLocation(inParam.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(inParam.GetProgramLocation());
+                    Assert.IsTrue(inParam.GetProgramLocation().IsVariable);
+                }
 
                 foreach (var outParam in impl.OutParams)
-                    DoSomethingWithProgramLocation(outParam.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(outParam.GetProgramLocation());
+                    Assert.IsTrue(outParam.GetProgramLocation().IsVariable);
+                }
 
                 foreach (var localVariable in impl.LocVars)
-                    DoSomethingWithProgramLocation(localVariable.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(localVariable.GetProgramLocation());
+                    Assert.IsTrue(localVariable.GetProgramLocation().IsVariable);
+                }
             }
 
             // Check basic blocks
             foreach (var bb in Prog.Blocks())
             {
                 foreach (var cmd in bb.Cmds)
-                    DoSomethingWithProgramLocation(cmd.GetProgramLocation());
+                {
+                    CheckIsNotNullAndString(cmd.GetProgramLocation());
+                    Assert.IsTrue(cmd.GetProgramLocation().IsCmd);
+                }
 
-                DoSomethingWithProgramLocation(bb.TransferCmd.GetProgramLocation());
+                CheckIsNotNullAndString(bb.TransferCmd.GetProgramLocation());
+                Assert.IsTrue(bb.TransferCmd.GetProgramLocation().IsTransferCmd);
             }
         }
 
-        private void DoSomethingWithProgramLocation(ProgramLocation pl)
+        private void CheckIsNotNullAndString(ProgramLocation pl)
         {
-            var plAsString = pl.ToString();
-            Assert.IsNotEmpty(plAsString);
+            Assert.IsNotNull(pl);
+            Assert.IsNotNullOrEmpty(pl.ToString());
         }
     }
 }
