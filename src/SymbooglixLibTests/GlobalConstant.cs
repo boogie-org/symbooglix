@@ -42,18 +42,24 @@ namespace SymbooglixLibTests
                 Assert.IsFalse(e.IsSymbolic(constant)); // There is an equality constraint that forces this to be concrete
 
                 // Find the symbolic associated with Constant
-                var relevantSymbolic = e.CurrentState.Symbolics.Where( s => s.Origin.IsVariable && s.Origin.AsVariable == constant).First();
+                //var relevantSymbolic = e.CurrentState.Symbolics.Where( s => s.Origin.IsVariable && s.Origin.AsVariable == constant).First();
 
                 // Check for the expect equality constraint.
                 bool found = false;
                 foreach (Expr constraint in e.CurrentState.Constraints.ConstraintExprs)
                 {
                     LiteralExpr literal = null;
-                    if (FindLiteralAssignment.find(constraint, relevantSymbolic, out literal))
+                    Variable symbolic = null;
+                    if (FindLiteralAssignment.findAnyVariable(constraint, out symbolic, out literal))
                     {
-                        found = true;
-                        Assert.IsTrue(literal.isBvConst);
-                        Assert.AreEqual(literal.asBvConst.Value.ToInt, 7);
+                        Assert.IsInstanceOf<SymbolicVariable>(symbolic);
+                        var asSym = symbolic as SymbolicVariable;
+                        if( asSym.Origin.IsVariable && asSym.Origin.AsVariable == constant)
+                        {
+                            found = true;
+                            Assert.IsTrue(literal.isBvConst);
+                            Assert.AreEqual(literal.asBvConst.Value.ToInt, 7);
+                        }
                     }
                 }
                 Assert.IsTrue(found, "Did not find expected equality constraint");
@@ -74,26 +80,18 @@ namespace SymbooglixLibTests
                 Assert.IsTrue(e.CurrentState.IsInScopeVariable(constant));
                 Assert.IsTrue(e.IsSymbolic(constant));
 
-                // Find the symbolic associated with Constant
-                var relevantSymbolic = e.CurrentState.Symbolics.Where( s => s.Origin.IsVariable && s.Origin.AsVariable == constant).First();
-
                 // Check for the expected constraint
                 bool found = false;
                 foreach (Expr constraint in e.CurrentState.Constraints.ConstraintExprs)
                 {
-                    if (constraint is NAryExpr)
+                    var asNeq = ExprUtil.AsNotEq(constraint);
+                    if (asNeq != null)
                     {
-                        var nary = constraint as NAryExpr;
-                        if (nary.Fun is BinaryOperator)
-                        {
-                            var Bop = nary.Fun as BinaryOperator;
-                            if (Bop.Op == BinaryOperator.Opcode.Neq)
-                            {
-                                found = true;
-                                Assert.IsTrue(nary.Args[0] == relevantSymbolic.Expr);
-                                Assert.IsTrue(nary.Args[1] is LiteralExpr && ( nary.Args[1] as LiteralExpr ).asBvConst.Value.ToInt == 7);
-                            }
-                        }
+                        var asSymVar = ExprUtil.AsSymbolicVariable(asNeq.Args[0]);
+                        Assert.IsNotNull(asSymVar);
+                        Assert.IsTrue(asSymVar.Origin.IsVariable && asSymVar.Origin.AsVariable == constant);
+                        Assert.IsTrue(asNeq.Args[1] is LiteralExpr && ( asNeq.Args[1] as LiteralExpr ).asBvConst.Value.ToInt == 7);
+                        found = true;
                     }
                 }
                 Assert.IsTrue(found, "Did not find expected Neq constraint");

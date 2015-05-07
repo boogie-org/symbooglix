@@ -25,18 +25,24 @@ namespace SymbooglixLibTests
 
             // Find the symbolic associated with variable "a".
             var theLocal = e.CurrentState.GetInScopeVariableAndExprByName("a");
-            var symbolic = e.CurrentState.Symbolics.Where( s => s.Origin.AsVariable == theLocal.Key).First();
+            //var symbolic = e.CurrentState.Symbolics.Where( s => s.Origin.AsVariable == theLocal.Key).First();
 
 
             foreach (Expr constraint in e.CurrentState.Constraints.ConstraintExprs)
             {
                 LiteralExpr literal = null;
-                found = FindLiteralAssignment.find(constraint, symbolic, out literal);
+                Variable symbolic = null;
+                found = FindLiteralAssignment.findAnyVariable(constraint, out symbolic, out literal);
                 if (found)
                 {
-                    Assert.IsTrue(condition(literal));
-                    found = true;
-                    break;
+                    Assert.IsInstanceOf<SymbolicVariable>(symbolic);
+                    var asSym = symbolic as SymbolicVariable;
+                    if (asSym.Origin.IsVariable && asSym.Origin.AsVariable == theLocal.Key)
+                    {
+                        Assert.IsTrue(condition(literal));
+                        found = true;
+                        break;
+                    }
                 }
             }
             Assert.IsTrue(found, "Equality constraint not found");

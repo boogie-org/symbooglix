@@ -351,7 +351,6 @@ namespace Symbooglix
                 var s = SymbolicPool.GetFreshSymbolic(gv, CurrentState);
                 Debug.Assert(!InitialState.Mem.Globals.ContainsKey(gv), "Cannot insert global that is already in memory");
                 InitialState.Mem.Globals.Add(gv, s.Expr);
-                InitialState.Symbolics.Add(s);
 
                 var gvAsConstant = gv as Constant;
                 if (gvAsConstant != null)
@@ -768,7 +767,6 @@ namespace Symbooglix
         {
             Debug.Assert(CurrentState.IsInScopeVariable(v));
             var s = SymbolicPool.GetFreshSymbolic(v, CurrentState);
-            CurrentState.Symbolics.Add(s);
             CurrentState.AssignToVariableInScope(v, s.Expr);
             return s;
         }
@@ -1041,7 +1039,6 @@ namespace Symbooglix
             {
                 var symbolic = SymbolicPool.GetFreshSymbolic(proc, modSetIndex, CurrentState);
                 CurrentState.AssignToVariableInScope(proc.Modifies[modSetIndex].Decl, symbolic.Expr);
-                CurrentState.Symbolics.Add(symbolic);
             }
 
             // Assume each ensures
@@ -1773,8 +1770,6 @@ namespace Symbooglix
                 var s = SymbolicPool.GetFreshSymbolic(c, index, CurrentState);
                 Debug.Assert(CurrentState.IsInScopeVariable(c.Vars[index]), "Havoc variable is not in scope");
                 CurrentState.AssignToVariableInScope(c.Vars[index].Decl, s.Expr);
-                CurrentState.Symbolics.Add(s);
-
             }
         }
 

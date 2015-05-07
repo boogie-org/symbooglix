@@ -17,6 +17,20 @@ namespace Symbooglix
             return e as IdentifierExpr;
         }
 
+        public static SymbolicVariable AsSymbolicVariable(Expr e)
+        {
+            var asId = AsIdentifer(e);
+            if (asId == null)
+                return null;
+
+            if (asId.Decl is SymbolicVariable)
+            {
+                return asId.Decl as SymbolicVariable;
+            }
+            else
+                return null;
+        }
+
         public static bool IsTrue(Expr e)
         {
             var lit = AsLiteral(e);

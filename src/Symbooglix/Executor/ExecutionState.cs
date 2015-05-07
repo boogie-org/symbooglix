@@ -10,7 +10,6 @@ namespace Symbooglix
     public class ExecutionState : Util.IYAMLWriter
     {
         public Memory Mem;
-        public List<SymbolicVariable> Symbolics;
         public IConstraintManager Constraints;
         public int Id
         {
@@ -84,7 +83,6 @@ namespace Symbooglix
         public ExecutionState()
         {
             Mem = new Memory();
-            Symbolics = new List<SymbolicVariable>();
             Constraints = new ConstraintManager();
             Id = NewId++;
             TerminationType = null;
@@ -100,11 +98,6 @@ namespace Symbooglix
             ExecutionState other = (ExecutionState) this.MemberwiseClone();
             other.Mem = this.Mem.Clone();
 
-            other.Symbolics = new List<SymbolicVariable>();
-            foreach (SymbolicVariable s in this.Symbolics)
-            {
-                other.Symbolics.Add(s);
-            }
 
             other.Id = NewId++;
 
