@@ -86,21 +86,21 @@ namespace Symbooglix
             private set;
         }
 
-        public SymbolicVariable(string Name, Variable variable) : base(Token.NoToken, CopyAndRename(variable.TypedIdent, Name))
+        public SymbolicVariable(string name, Variable variable) : base(Token.NoToken, CopyAndRename(variable.TypedIdent, name))
         {
             Expr = new IdentifierExpr(Token.NoToken, this, /*immutable=*/ true);
             this.Origin = variable.GetProgramLocation();
             Debug.Assert(this.Origin.IsVariable, "Expected ProgramLocation to be a Variable");
-            this.Name = Name;
+            this.Name = name;
             Debug.WriteLine("Creating Symbolic " + this);
         }
 
-        public SymbolicVariable(string Name, HavocCmd cmd, int VarsIndex) : base(Token.NoToken, CopyAndRename(cmd.Vars[VarsIndex].Decl.TypedIdent, Name))
+        public SymbolicVariable(string name, HavocCmd cmd, int varsIndex) : base(Token.NoToken, CopyAndRename(cmd.Vars[varsIndex].Decl.TypedIdent, name))
         {
             Expr = new IdentifierExpr(Token.NoToken, this, /*immutable=*/ true);
             this.Origin = cmd.GetProgramLocation();
             Debug.Assert(this.Origin.IsCmd && ( this.Origin.AsCmd is HavocCmd ), "Expected ProgramLocation to be a HavocCmd");
-            this.Name = Name;
+            this.Name = name;
             Debug.WriteLine("Creating Symbolic " + this);
 
             // Should we record VarsIndex?
