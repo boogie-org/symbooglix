@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 namespace Symbooglix
 {
+    // FIXME: This design is Broken. See the tests
     public class CachingSymbolicPool : ISymbolicPool
     {
         private SimpleSymbolicPool Pool;

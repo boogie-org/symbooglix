@@ -23,7 +23,7 @@ namespace SymbooglixLibTests
             return new ExecutionState();
         }
 
-        [TestCase()]
+        [TestCase(), Ignore("Design is broken. It needs rethinking")]
         public void variableCache()
         {
             var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
@@ -101,7 +101,7 @@ namespace SymbooglixLibTests
 
         }
 
-        [TestCase()]
+        [TestCase(), Ignore("Design is broken. It needs rethinking")]
         public void HavocCache()
         {
             var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
@@ -178,7 +178,7 @@ namespace SymbooglixLibTests
             Assert.AreNotSame(xSymFirst, state3Request);
         }
 
-        [TestCase()]
+        [TestCase(), Ignore("Design is broken. It needs rethinking")]
         public void ModsetCache()
         {
             var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"

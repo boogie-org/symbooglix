@@ -124,7 +124,7 @@ namespace SymbooglixLibTests
                 builder = new ConstantFoldingExprBuilder(builder);
             }
 
-            Executor e = new Executor(p, scheduler, solver, builder, new CachingSymbolicPool());
+            Executor e = new Executor(p, scheduler, solver, builder, new SimpleSymbolicPool());
 
             return e;
         }

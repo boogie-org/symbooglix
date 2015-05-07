@@ -167,7 +167,7 @@ namespace SymbooglixDriver
             [Option("use-modset-transform", DefaultValue = 1, HelpText = "Run the modset analysis to fix incorrect modsets before type checking")]
             public int useModSetTransform { get; set; }
 
-            [Option("symbolic-pool-cache", DefaultValue = 1, HelpText = "Use Symbolic pool cache (0 uses naive symbolic pool")]
+            [Option("symbolic-pool-cache", DefaultValue = 0, HelpText = "Use Symbolic pool cache (0 uses naive symbolic pool")]
             public int useSymbolicPoolCache { get ; set ; }
 
             [Option("write-smt2", DefaultValue = 1, HelpText="Write constraints for each ExecutionState as SMTLIBv2 (Default 1)")]
@@ -420,7 +420,10 @@ namespace SymbooglixDriver
             IExprBuilder builder = new SimpleExprBuilder(/*immutable=*/ true);
             ISymbolicPool symbolicPool = null;
             if (options.useSymbolicPoolCache > 0)
+            {
+                throw new Exception("DON'T USE THIS. IT'S BROKEN");
                 symbolicPool = new CachingSymbolicPool();
+            }
             else
                 symbolicPool = new SimpleSymbolicPool();
 
