@@ -7,14 +7,14 @@ using System.Collections.Generic;
 
 namespace Symbooglix
 {
-    public class ConstantCachingBuilder : DecoratorExprBuilder
+    public class ConstantCachingExprBuilder : DecoratorExprBuilder
     {
         private LiteralExpr CachedTrueExpr;
         private LiteralExpr CachedFalseExpr;
         private Dictionary<BigInteger, LiteralExpr> IntegerCache; // FIXME: Should probably use concurrent dictionary for thread safety
         private Dictionary<BigDec, LiteralExpr> RealCache; // FIXME: Should probably use concurrent dictionary for thread safety
         private Dictionary<int, Dictionary<BigInteger,LiteralExpr>> BitVectorCache; // FIXME: Should probably use concurrent dictionary for thread safety
-        public ConstantCachingBuilder(IExprBuilder underlyingBuilder) : base(underlyingBuilder)
+        public ConstantCachingExprBuilder(IExprBuilder underlyingBuilder) : base(underlyingBuilder)
         {
             // It's not safe to cache expressions if the underlying builder does not give immutable LiteralExprs
             if (!UB.Immutable)

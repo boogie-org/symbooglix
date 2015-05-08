@@ -13,7 +13,7 @@ namespace ExprBuilderTests
         [Test()]
         public void testBoolean()
         {
-            var ccB = new ConstantCachingBuilder(this.GetSimpleBuilder());
+            var ccB = new ConstantCachingExprBuilder(this.GetSimpleBuilder());
 
             var trueExpr = ccB.True;
             Assert.IsTrue(trueExpr.isBool && trueExpr.asBool);
@@ -32,7 +32,7 @@ namespace ExprBuilderTests
         [TestCase(false)]
         public void testBv(bool useIntInterface)
         {
-            var ccB = new ConstantCachingBuilder(this.GetSimpleBuilder());
+            var ccB = new ConstantCachingExprBuilder(this.GetSimpleBuilder());
 
             for (int bitWidth = 1; bitWidth < 16; ++bitWidth)
             {
@@ -49,7 +49,7 @@ namespace ExprBuilderTests
         [TestCase(false)]
         public void testInt(bool useIntInterface)
         {
-            var ccB = new ConstantCachingBuilder(this.GetSimpleBuilder());
+            var ccB = new ConstantCachingExprBuilder(this.GetSimpleBuilder());
 
             for (int value = -1000; value < 1000; ++value)
             {
@@ -63,7 +63,7 @@ namespace ExprBuilderTests
         [TestCase(false)]
         public void testReal(bool useStringInterface)
         {
-            var ccB = new ConstantCachingBuilder(this.GetSimpleBuilder());
+            var ccB = new ConstantCachingExprBuilder(this.GetSimpleBuilder());
 
             for (BigDec value = BigDec.FromInt(-20); value <= BigDec.FromInt(20); value += BigDec.FromString("0.1"))
             {
