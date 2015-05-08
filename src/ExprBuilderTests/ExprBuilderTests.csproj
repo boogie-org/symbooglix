@@ -99,6 +99,7 @@
     <Compile Include="ConstantFoldingBuilderTests\FoldArithmeticCoercion.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldMapSelect.cs" />
     <Compile Include="ConstantFoldingBuilderTests\FoldMapStore.cs" />
+    <Compile Include="ConstantCacheBuilderTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

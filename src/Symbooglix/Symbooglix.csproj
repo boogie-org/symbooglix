@@ -129,6 +129,7 @@
     <Compile Include="Executor\SymbolicVariable.cs" />
     <Compile Include="Executor\ISymbolicPool.cs" />
     <Compile Include="Executor\CachingSymbolicPool.cs" />
+    <Compile Include="ConstantCachingBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
