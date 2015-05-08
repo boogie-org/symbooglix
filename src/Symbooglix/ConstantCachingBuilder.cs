@@ -79,7 +79,7 @@ namespace Symbooglix
 
         public override LiteralExpr ConstantReal(string value)
         {
-            return base.ConstantReal(BigDec.FromString(value));
+            return this.ConstantReal(BigDec.FromString(value));
         }
 
         public override LiteralExpr ConstantReal(BigDec value)
