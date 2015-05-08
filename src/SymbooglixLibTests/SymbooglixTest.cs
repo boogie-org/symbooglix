@@ -121,7 +121,7 @@ namespace SymbooglixLibTests
 
             if (useConstantFolding)
             {
-                builder = new ConstantFoldingExprBuilder(builder);
+                builder = new ConstantFoldingExprBuilder(new ConstantCachingExprBuilder(builder));
             }
 
             Executor e = new Executor(p, scheduler, solver, builder, new SimpleSymbolicPool());

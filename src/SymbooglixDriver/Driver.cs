@@ -25,6 +25,9 @@ namespace SymbooglixDriver
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
+            [Option("constant-caching", DefaultValue=1, HelpText="Cache constants when building expressions")]
+            public int ConstantCaching { get; set; }
+
             [Option("concurrent-logging", DefaultValue = 1, HelpText = "Log files concurrently, otherwise do in serial")]
             public int ConcurrentLogging { get ; set; }
 
@@ -431,6 +434,12 @@ namespace SymbooglixDriver
 
             if (options.useConstantFolding > 0)
             {
+                if (options.ConstantCaching > 0)
+                {
+                    Console.WriteLine("Using ConstantCachingExprBuilder");
+                    builder = new ConstantCachingExprBuilder(builder);
+                }
+
                 builder = new ConstantFoldingExprBuilder(builder);
             }
 
