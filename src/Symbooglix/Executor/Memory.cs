@@ -11,7 +11,7 @@ namespace Symbooglix
         public Memory()
         {
             Stack = new List<StackFrame>();
-            Globals = new Dictionary<Variable,Expr>();
+            Globals = new SimpleVariableStore();
         }
 
         public Memory Clone()
@@ -24,13 +24,7 @@ namespace Symbooglix
                 other.Stack.Add(sf.Clone());
             }
 
-            other.Globals = new Dictionary<Variable,Expr>();
-            foreach (var pair in this.Globals)
-            {
-                // Note we don't duplicate pair.Value here because we treat Expr immutably
-                other.Globals.Add(pair.Key, pair.Value);
-            }
-
+            other.Globals = this.Globals.Clone();
             return other;
         }
 
@@ -101,26 +95,26 @@ namespace Symbooglix
         }
 
         public List<StackFrame> Stack;
-        public Dictionary<Variable,Expr> Globals;
+        public IVariableStore Globals;
     }
 
     public class StackFrame : Util.IYAMLWriter
     {
-        public Dictionary<Variable,Expr> Locals;
+        public IVariableStore Locals;
         public Implementation Impl;
         public Procedure Proc;
         public BlockCmdEnumerator CurrentInstruction;
 
         // FIXME: Make this thread safe
         // Lazy initialisation
-        private Dictionary<GlobalVariable, Expr> InternalOldGlobals;
-        public Dictionary<GlobalVariable, Expr> OldGlobals
+        private IVariableStore InternalOldGlobals;
+        public IVariableStore OldGlobals
         {
             get
             {
                 if (InternalOldGlobals == null)
                 {
-                    InternalOldGlobals = new Dictionary<GlobalVariable, Expr>();
+                    InternalOldGlobals = new SimpleVariableStore();
                 }
 
                 return InternalOldGlobals;
@@ -130,7 +124,7 @@ namespace Symbooglix
 
         public StackFrame(Implementation impl)
         {
-            Locals = new Dictionary<Variable,Expr>();
+            Locals = new SimpleVariableStore();
             InternalOldGlobals = null;
             this.Impl = impl;
             this.Proc = null;
@@ -140,7 +134,7 @@ namespace Symbooglix
         // This is a dummy stack frame
         public StackFrame(Procedure proc)
         {
-            Locals = new Dictionary<Variable,Expr>();
+            Locals = new SimpleVariableStore();
             InternalOldGlobals = null;
             this.Proc = proc;
             this.Impl = null;
@@ -162,23 +156,12 @@ namespace Symbooglix
         {
             StackFrame other = (StackFrame) this.MemberwiseClone();
 
-            // procedure does not need to cloned
-            other.Locals = new Dictionary<Variable, Expr>();
-            foreach (var pair in Locals)
-            {
-                // Note we don't duplicate pair.Value here because we treat Expr immutably
-                other.Locals.Add(pair.Key, pair.Value);
-            }
+            // procedure/implementation does not need to cloned
+
+            other.Locals = this.Locals.Clone();
 
             if (this.OldGlobals != null)
-            {
-                other.InternalOldGlobals = new Dictionary<GlobalVariable, Expr>();
-                foreach (var pair in this.OldGlobals)
-                {
-                    // Note we don't duplicate pair.Value here because we treat Expr immutably
-                    other.InternalOldGlobals.Add(pair.Key, pair.Value);
-                }
-            }
+                other.InternalOldGlobals = this.InternalOldGlobals.Clone();
 
             // A dummy stack frame doesn't have an instruction iterator
             if (IsDummy)
