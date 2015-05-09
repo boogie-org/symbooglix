@@ -969,7 +969,7 @@ namespace Symbooglix
 
             if (!map.Type.AsMap.Result.Equals(value.Type))
             {
-                throw new ExprTypeCheckException("value must match map's result type");
+                throw new ExprTypeCheckException("value (" + value.Type.ToString() + ") must match map's result type (" + map.Type.AsMap.Result.ToString() + ")");
             }
 
             // Use Cache

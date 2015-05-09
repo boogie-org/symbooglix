@@ -37,10 +37,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Symbooglix\Symbooglix.csproj">
-      <Project>{69F04878-1CD0-454C-87A6-6B155D2D4855}</Project>
-      <Name>Symbooglix</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
       <Project>{B230A69C-C466-4065-B9C1-84D80E76D802}</Project>
       <Name>Core</Name>
@@ -52,6 +48,10 @@
     <ProjectReference Include="..\..\ExternalLibs\CommandLine\src\libcmdline\CommandLine.csproj">
       <Project>{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}</Project>
       <Name>CommandLine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Symbooglix\Symbooglix.csproj">
+      <Project>{69F04878-1CD0-454C-87A6-6B155D2D4855}</Project>
+      <Name>Symbooglix</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

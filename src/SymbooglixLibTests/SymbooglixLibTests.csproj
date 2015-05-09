@@ -103,6 +103,7 @@
     <Compile Include="LineCoverge.cs" />
     <Compile Include="CachingSymbolicPoolTests.cs" />
     <Compile Include="VariableStoreTests.cs" />
+    <Compile Include="MapProxyTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
