@@ -132,6 +132,7 @@
     <Compile Include="Executor\CachingSymbolicPool.cs" />
     <Compile Include="Expr\ConstantCachingExprBuilder.cs" />
     <Compile Include="Executor\IVariableStore.cs" />
+    <Compile Include="Executor\MapProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

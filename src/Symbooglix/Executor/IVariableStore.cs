@@ -27,18 +27,19 @@ namespace Symbooglix
         }
 
         Expr ReadMap(Variable mapVariable, IList<Expr> indicies);
-        Expr WriteMap(Variable mapVariable, IList<Expr> indicies, Expr value);
+        void WriteMap(Variable mapVariable, IList<Expr> indicies, Expr value);
+        void MapCopy(Variable dest, Variable src, IVariableStore srcStore);
     }
 
     public class SimpleVariableStore : IVariableStore
     {
         private Dictionary<Variable, Expr> BasicTypeVariableStore;
-        private Dictionary<Variable, Expr> MapTypeVariableStore;
+        private Dictionary<Variable, MapProxy> MapTypeVariableStore;
 
         public SimpleVariableStore()
         {
             BasicTypeVariableStore = new Dictionary<Variable, Expr>();
-            MapTypeVariableStore = new Dictionary<Variable, Expr>();
+            MapTypeVariableStore = new Dictionary<Variable, MapProxy>();
         }
 
         private bool IsMapVariable(Variable v)
@@ -48,10 +49,8 @@ namespace Symbooglix
 
         private void TypeCheckDirectAssign(Variable v, Expr initialValue)
         {
-            // FIXME: This is necessary because the executor assigns nulls to locals
-            // this bad and should be fixed
             if (initialValue == null)
-                return;
+                throw new ArgumentException("assignment cannot be null");
 
             if (!v.TypedIdent.Type.Equals(initialValue.Type))
                 throw new ExprTypeCheckException("Variable type and expression type do not match");
@@ -62,7 +61,9 @@ namespace Symbooglix
             TypeCheckDirectAssign(v, initialValue);
 
             if (IsMapVariable(v))
-                MapTypeVariableStore.Add(v, initialValue);
+            {
+                MapTypeVariableStore.Add(v, new MapProxy(initialValue));
+            }
             else
                 BasicTypeVariableStore.Add(v, initialValue);
         }
@@ -86,28 +87,88 @@ namespace Symbooglix
         public IVariableStore Clone()
         {
             var that = (SimpleVariableStore) this.MemberwiseClone();
+
+            // Expressions are immutable so no cloning is necessary.
             that.BasicTypeVariableStore = new Dictionary<Variable, Expr>(this.BasicTypeVariableStore);
-            that.MapTypeVariableStore = new Dictionary<Variable, Expr>(this.MapTypeVariableStore);
+
+            // Clone the MapProxies
+            that.MapTypeVariableStore = new Dictionary<Variable, MapProxy>(this.MapTypeVariableStore.Count);
+            foreach (var pair in this.MapTypeVariableStore)
+            {
+                that.MapTypeVariableStore.Add(pair.Key, pair.Value.Clone());
+            }
             return that;
         }
 
         public Expr ReadMap(Variable mapVariable, IList<Expr> indicies)
         {
-            throw new NotImplementedException();
+            if (!IsMapVariable(mapVariable))
+                throw new ArgumentException("expected map variable");
+
+            MapProxy mapProxyObj = null;
+            MapTypeVariableStore.TryGetValue(mapVariable, out mapProxyObj);
+
+            if (mapProxyObj == null)
+                throw new KeyNotFoundException("map variable not in store");
+
+            return mapProxyObj.ReadMapAt(indicies);
         }
 
-        public Expr WriteMap(Variable mapVariable, IList<Expr> indicies, Expr value)
+        public void WriteMap(Variable mapVariable, IList<Expr> indicies, Expr value)
         {
-            throw new NotImplementedException();
+            if (!IsMapVariable(mapVariable))
+                throw new ArgumentException("expected map variable");
+
+            MapProxy mapProxyObj = null;
+            MapTypeVariableStore.TryGetValue(mapVariable, out mapProxyObj);
+
+            if (mapProxyObj == null)
+                throw new KeyNotFoundException("map variable not in store");
+
+            mapProxyObj.WriteMapAt(indicies, value);
         }
 
+        public void MapCopy(Variable dest, Variable src, IVariableStore srcStore)
+        {
+            if (!IsMapVariable(dest))
+                throw new ArgumentException("dest is not a map variable");
+
+            if (!IsMapVariable(src))
+                throw new ArgumentException("src is not a map variable");
+
+            if (!MapTypeVariableStore.ContainsKey(dest))
+                throw new ArgumentException("destination variable not in store");
+
+            if (!srcStore.ContainsKey(src))
+                throw new ArgumentException("src is not in srcStore");
+
+            if (srcStore is SimpleVariableStore)
+            {
+                // We can peak into the internals
+                var srcInternalsMaps = ( srcStore as SimpleVariableStore ).MapTypeVariableStore;
+
+                // Clone the internal representation of the map to avoid causing any flushes
+                var mapProxyClone = srcInternalsMaps[src].Clone();
+                this.MapTypeVariableStore[dest] = mapProxyClone;
+            }
+            else
+            {
+                // Do potentially the expensive way (may trigger a flush of map stores)
+                this[dest] = srcStore[src];
+            }
+        }
+
+        // Warning: This will trigger map store flushes
         public IEnumerator<KeyValuePair<Variable, Expr>> GetEnumerator()
         {
             foreach (var pair in BasicTypeVariableStore)
                 yield return pair;
 
             foreach (var pair in MapTypeVariableStore)
-                yield return pair;
+            {
+                var flushedExpr = pair.Value.Read();
+                yield return new KeyValuePair<Variable, Expr>(pair.Key, flushedExpr);
+            }
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -123,12 +184,15 @@ namespace Symbooglix
             }
         }
 
+        // Avoid using this for maps. It will force map store flushes
         public Expr this[Variable v]
         {
             get
             {
                 if (IsMapVariable(v))
-                    return MapTypeVariableStore[v];
+                {
+                    return MapTypeVariableStore[v].Read();
+                }
                 else
                     return BasicTypeVariableStore[v];
             }
@@ -136,7 +200,9 @@ namespace Symbooglix
             {
                 TypeCheckDirectAssign(v, value);
                 if (IsMapVariable(v))
-                    MapTypeVariableStore[v] = value;
+                {
+                    MapTypeVariableStore[v].Write(value);
+                }
                 else
                     BasicTypeVariableStore[v] = value;
             }

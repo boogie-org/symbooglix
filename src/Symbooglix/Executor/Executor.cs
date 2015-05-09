@@ -763,11 +763,10 @@ namespace Symbooglix
                 BreakPointReached(this, new BreakPointEventArgs(breakPointName));
         }
 
-        protected SymbolicVariable InitialiseAsSymbolic(Variable v)
+        protected SymbolicVariable InitialiseLocalAsSymbolic(Variable v)
         {
-            Debug.Assert(CurrentState.IsInScopeVariable(v));
             var s = SymbolicPool.GetFreshSymbolic(v, CurrentState);
-            CurrentState.AssignToVariableInScope(v, s.Expr);
+            CurrentState.GetCurrentStackFrame().Locals.Add(v, s.Expr);
             return s;
         }
 
@@ -838,9 +837,7 @@ namespace Symbooglix
             {
                 foreach (var v in Impl.InParams)
                 {
-                    // FIXME: Assigning null is ugly
-                    CurrentState.GetCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
-                    InitialiseAsSymbolic(v);
+                    InitialiseLocalAsSymbolic(v);
                 }
             }
             else
@@ -859,9 +856,7 @@ namespace Symbooglix
             foreach(Variable v in Impl.OutParams)
             {
                 // Make symbolic;
-                // FIXME: Assigning null is ugly
-                CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
-                InitialiseAsSymbolic(v);
+                InitialiseLocalAsSymbolic(v);
             }
 
             // Load procedure's declared locals on to stack
@@ -870,11 +865,8 @@ namespace Symbooglix
                 if (v.TypedIdent.WhereExpr != null)
                     throw new NotImplementedException("WhereExpr not implemented yet");
 
-
-                // FIXME: Assigning null is ugly
                 // Make symbolic
-                CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
-                InitialiseAsSymbolic(v);
+                InitialiseLocalAsSymbolic(v);
             }
 
             // Record any Globals used in OldExpr for this implementation
@@ -1001,10 +993,8 @@ namespace Symbooglix
             // Add output parameters on to dummy stack as new symbolic variables
             foreach(Variable v in proc.OutParams)
             {
-                // FIXME: Assigning null is ugly
                 // Make symbolic;
-                CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
-                InitialiseAsSymbolic(v);
+                InitialiseLocalAsSymbolic(v);
             }
 
             // Record any globals that will be used in OldExpr
