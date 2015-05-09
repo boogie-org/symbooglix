@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Symbooglix
@@ -11,7 +12,7 @@ namespace Symbooglix
         void Add(Variable v, Expr initialValue);
         // FIXME: Change name
         bool ContainsKey(Variable v);
-        Dictionary<Variable, Expr>.KeyCollection Keys { get; }
+        IEnumerable<Variable> Keys { get; }
         IVariableStore Clone();
 
         int Count { get; }
@@ -31,35 +32,62 @@ namespace Symbooglix
 
     public class SimpleVariableStore : IVariableStore
     {
-        private Dictionary<Variable, Expr> Store;
+        private Dictionary<Variable, Expr> BasicTypeVariableStore;
+        private Dictionary<Variable, Expr> MapTypeVariableStore;
 
         public SimpleVariableStore()
         {
-            Store = new Dictionary<Variable, Expr>();
+            BasicTypeVariableStore = new Dictionary<Variable, Expr>();
+            MapTypeVariableStore = new Dictionary<Variable, Expr>();
+        }
+
+        private bool IsMapVariable(Variable v)
+        {
+            return v.TypedIdent.Type.IsMap;
+        }
+
+        private void TypeCheckDirectAssign(Variable v, Expr initialValue)
+        {
+            // FIXME: This is necessary because the executor assigns nulls to locals
+            // this bad and should be fixed
+            if (initialValue == null)
+                return;
+
+            if (!v.TypedIdent.Type.Equals(initialValue.Type))
+                throw new ExprTypeCheckException("Variable type and expression type do not match");
         }
 
         public void Add(Variable v, Expr initialValue)
         {
-            Store.Add(v, initialValue);
+            TypeCheckDirectAssign(v, initialValue);
+
+            if (IsMapVariable(v))
+                MapTypeVariableStore.Add(v, initialValue);
+            else
+                BasicTypeVariableStore.Add(v, initialValue);
         }
 
         public bool ContainsKey(Variable v)
         {
-            return Store.ContainsKey(v);
+            if (IsMapVariable(v))
+                return MapTypeVariableStore.ContainsKey(v);
+            else
+                return BasicTypeVariableStore.ContainsKey(v);
         }
 
-        public Dictionary<Variable, Expr>.KeyCollection Keys
+        public IEnumerable<Variable> Keys
         {
             get
             {
-                return Store.Keys;
+                return BasicTypeVariableStore.Keys.Concat(MapTypeVariableStore.Keys);
             }
         }
 
         public IVariableStore Clone()
         {
             var that = (SimpleVariableStore) this.MemberwiseClone();
-            that.Store = new Dictionary<Variable, Expr>(this.Store);
+            that.BasicTypeVariableStore = new Dictionary<Variable, Expr>(this.BasicTypeVariableStore);
+            that.MapTypeVariableStore = new Dictionary<Variable, Expr>(this.MapTypeVariableStore);
             return that;
         }
 
@@ -75,19 +103,23 @@ namespace Symbooglix
 
         public IEnumerator<KeyValuePair<Variable, Expr>> GetEnumerator()
         {
-            return Store.GetEnumerator();
+            foreach (var pair in BasicTypeVariableStore)
+                yield return pair;
+
+            foreach (var pair in MapTypeVariableStore)
+                yield return pair;
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return Store.GetEnumerator();
+            return GetEnumerator();
         }
 
         public int Count
         {
             get
             {
-                return Store.Count;
+                return BasicTypeVariableStore.Count + MapTypeVariableStore.Count;
             }
         }
 
@@ -95,11 +127,18 @@ namespace Symbooglix
         {
             get
             {
-                return Store[v];
+                if (IsMapVariable(v))
+                    return MapTypeVariableStore[v];
+                else
+                    return BasicTypeVariableStore[v];
             }
             set
             {
-                Store[v] = value;
+                TypeCheckDirectAssign(v, value);
+                if (IsMapVariable(v))
+                    MapTypeVariableStore[v] = value;
+                else
+                    BasicTypeVariableStore[v] = value;
             }
         }
     }

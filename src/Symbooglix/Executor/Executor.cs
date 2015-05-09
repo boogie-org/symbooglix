@@ -838,6 +838,7 @@ namespace Symbooglix
             {
                 foreach (var v in Impl.InParams)
                 {
+                    // FIXME: Assigning null is ugly
                     CurrentState.GetCurrentStackFrame().Locals.Add(v, null); // Add dummy to stack so makeSymbolic works
                     InitialiseAsSymbolic(v);
                 }
@@ -858,6 +859,7 @@ namespace Symbooglix
             foreach(Variable v in Impl.OutParams)
             {
                 // Make symbolic;
+                // FIXME: Assigning null is ugly
                 CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
                 InitialiseAsSymbolic(v);
             }
@@ -868,6 +870,8 @@ namespace Symbooglix
                 if (v.TypedIdent.WhereExpr != null)
                     throw new NotImplementedException("WhereExpr not implemented yet");
 
+
+                // FIXME: Assigning null is ugly
                 // Make symbolic
                 CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
                 InitialiseAsSymbolic(v);
@@ -997,6 +1001,7 @@ namespace Symbooglix
             // Add output parameters on to dummy stack as new symbolic variables
             foreach(Variable v in proc.OutParams)
             {
+                // FIXME: Assigning null is ugly
                 // Make symbolic;
                 CurrentState.GetCurrentStackFrame().Locals.Add(v, null);
                 InitialiseAsSymbolic(v);

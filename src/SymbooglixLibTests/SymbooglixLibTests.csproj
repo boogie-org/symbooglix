@@ -102,6 +102,7 @@
     <Compile Include="Solver\SimpleSolverTests.cs" />
     <Compile Include="LineCoverge.cs" />
     <Compile Include="CachingSymbolicPoolTests.cs" />
+    <Compile Include="VariableStoreTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
