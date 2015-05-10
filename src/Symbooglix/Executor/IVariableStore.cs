@@ -2,6 +2,7 @@
 using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Immutable;
 
 
 namespace Symbooglix
@@ -33,12 +34,13 @@ namespace Symbooglix
 
     public class SimpleVariableStore : IVariableStore
     {
-        private Dictionary<Variable, Expr> BasicTypeVariableStore;
+        private ImmutableDictionary<Variable, Expr>.Builder BasicTypeVariableStore;
         private Dictionary<Variable, MapProxy> MapTypeVariableStore;
 
         public SimpleVariableStore()
         {
-            BasicTypeVariableStore = new Dictionary<Variable, Expr>();
+            var emptyDict = ImmutableDictionary<Variable, Expr>.Empty;
+            BasicTypeVariableStore = emptyDict.ToBuilder();
             MapTypeVariableStore = new Dictionary<Variable, MapProxy>();
         }
 
@@ -89,8 +91,11 @@ namespace Symbooglix
             var that = (SimpleVariableStore) this.MemberwiseClone();
 
             // Expressions are immutable so no cloning is necessary.
-            that.BasicTypeVariableStore = new Dictionary<Variable, Expr>(this.BasicTypeVariableStore);
+            var copyBasicTypeVariableStore = this.BasicTypeVariableStore.ToImmutable();
+            that.BasicTypeVariableStore = copyBasicTypeVariableStore.ToBuilder();
 
+            // FIXME: We need to come up with some kind of copy-on-write mechanism
+            // so that we can avoid copying the MapProxies until we actually have to write to them
             // Clone the MapProxies
             that.MapTypeVariableStore = new Dictionary<Variable, MapProxy>(this.MapTypeVariableStore.Count);
             foreach (var pair in this.MapTypeVariableStore)
