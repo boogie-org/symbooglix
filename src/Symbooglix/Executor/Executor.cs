@@ -1299,8 +1299,9 @@ namespace Symbooglix
             }
 
             int index=0;
-            Dictionary<Variable, Expr> storedAssignments = new Dictionary<Variable, Expr>();
+            Dictionary<Variable, Expr> storedExprAssignments = new Dictionary<Variable, Expr>();
             Dictionary<Variable, Tuple<List<Expr>, Expr>> directMapAssignment = new Dictionary<Variable, Tuple<List<Expr>, Expr>>();
+            Dictionary<Variable, Variable> directMapCopies = new Dictionary<Variable, Variable>();
 
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
@@ -1316,11 +1317,26 @@ namespace Symbooglix
                 if (! CurrentState.IsInScopeVariable(lvalue))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
-                bool didIndexedMapAssign = false;
+                bool didExpressionAssign = true;
                 if (lhsrhs.Item1 is SimpleAssignLhs)
                 {
-                    // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
-                    rvalue = (Expr) r.Visit(lhsrhs.Item2);
+                    if (lhsrhs.Item1.DeepAssignedVariable.TypedIdent.Type.IsMap && ExprUtil.AsIdentifer(lhsrhs.Item2) != null)
+                    {
+                        // This is a direct map copy
+                        var destVar = lhsrhs.Item1.DeepAssignedVariable;
+                        var srcVar = ExprUtil.AsIdentifer(lhsrhs.Item2).Decl;
+                        Debug.Assert(destVar.TypedIdent.Type.Equals(srcVar.TypedIdent.Type));
+                        directMapCopies.Add(destVar, srcVar);
+                        didExpressionAssign = false;
+                    }
+                    else
+                    {
+                        // Direct expression assignment
+
+                        // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                        rvalue = (Expr) r.Visit(lhsrhs.Item2);
+                        didExpressionAssign = true;
+                    }
                 }
                 else if (lhsrhs.Item1 is MapAssignLhs)
                 {
@@ -1339,7 +1355,7 @@ namespace Symbooglix
                         }
 
                         directMapAssignment.Add(lvalue, Tuple.Create(dupAndRIndices, rvalue));
-                        didIndexedMapAssign = true;
+                        didExpressionAssign = false;
                     }
                     else
                     {
@@ -1352,6 +1368,7 @@ namespace Symbooglix
                         rvalue = ac.Rhss[index];
                         // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
                         rvalue = (Expr) r.Visit(rvalue);
+                        didExpressionAssign = true;
                     }
 
                 }
@@ -1360,9 +1377,9 @@ namespace Symbooglix
                     throw new NotSupportedException("Unknown type of assignment");
                 }
 
-                if (!didIndexedMapAssign)
+                if (didExpressionAssign)
                 {
-                    storedAssignments[lvalue] = rvalue;
+                    storedExprAssignments[lvalue] = rvalue;
                 }
                 ++index;
             }
@@ -1371,7 +1388,7 @@ namespace Symbooglix
             // everything
 
             // Now do the assignments safely
-            foreach (var assignment in storedAssignments)
+            foreach (var assignment in storedExprAssignments)
             {
                 CurrentState.AssignToVariableInScope(assignment.Key, assignment.Value);
             }
@@ -1380,6 +1397,12 @@ namespace Symbooglix
             foreach (var mapAssignment in directMapAssignment)
             {
                 CurrentState.AssignToMapVariableInScopeAt(mapAssignment.Key, mapAssignment.Value.Item1, mapAssignment.Value.Item2);
+            }
+
+            // Now do map copies safely
+            foreach (var pair in directMapCopies)
+            {
+                CurrentState.DirectMapCopy(pair.Key, pair.Value);
             }
         }
 

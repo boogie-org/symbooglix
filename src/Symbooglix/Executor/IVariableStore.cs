@@ -136,11 +136,20 @@ namespace Symbooglix
             if (!IsMapVariable(src))
                 throw new ArgumentException("src is not a map variable");
 
+            if (!dest.TypedIdent.Type.Equals(src.TypedIdent.Type))
+                throw new ArgumentException("src and dest type do not match");
+
             if (!MapTypeVariableStore.ContainsKey(dest))
                 throw new ArgumentException("destination variable not in store");
 
             if (!srcStore.ContainsKey(src))
                 throw new ArgumentException("src is not in srcStore");
+
+            if (Object.ReferenceEquals(dest, src))
+            {
+                // Copying to self shouldn't do anything.
+                return;
+            }
 
             if (srcStore is SimpleVariableStore)
             {

@@ -221,6 +221,72 @@ namespace SymbooglixLibTests
             Assert.IsTrue(check_sym_write);
         }
 
+        [Test()]
+        public void DirectMapCopy()
+        {
+            p = LoadProgramFrom(@"
+            procedure main()
+            {
+                var x:[int]bool;
+                var y:[int]bool;
+                x[0] := true;
+                x[1] := false;
+                assert {:symbooglix_bp ""check_written""} true;
+
+                // copy the map
+                y := x;
+
+                assert {:symbooglix_bp ""check_map_copy""} true;
+            }
+
+            ", "test.bpl");
+
+            e = GetExecutor(p);
+            bool check_written = false;
+            bool check_map_copy = false;
+            var builder = new SimpleExprBuilder(true);
+            var localVarX = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First().LocVars.Where(v => v.Name == "x").First();
+            var localVarY = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First().LocVars.Where(v => v.Name == "y").First();
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                switch (eventArgs.Name)
+                {
+                    case "check_written":
+                        check_written = true;
+
+                        // Check we can read x[0] and x[1] directly
+                        var x0 = e.CurrentState.ReadMapVariableInScopeAt(localVarX, new List<Expr>() { builder.ConstantInt(0) });
+                        Assert.AreEqual(builder.True, x0);
+                        var x1 = e.CurrentState.ReadMapVariableInScopeAt(localVarX, new List<Expr>() { builder.ConstantInt(1) } );
+                        Assert.AreEqual(builder.False, x1);
+
+                        // Check the full expression form
+                        Assert.AreEqual("~sb_x_0[0 := true][1 := false]", e.CurrentState.GetInScopeVariableExpr(localVarX).ToString());
+                        break;
+                    case "check_map_copy":
+                        check_map_copy = true;
+
+                        // Check we can read y[0] and y[1] directly
+                        var y0 = e.CurrentState.ReadMapVariableInScopeAt(localVarY, new List<Expr>() { builder.ConstantInt(0) });
+                        Assert.AreEqual(builder.True, y0);
+                        var y1 = e.CurrentState.ReadMapVariableInScopeAt(localVarY, new List<Expr>() { builder.ConstantInt(1) } );
+                        Assert.AreEqual(builder.False, y1);
+
+                        // Check the full expression form
+                        Assert.AreEqual("~sb_x_0[0 := true][1 := false]", e.CurrentState.GetInScopeVariableExpr(localVarX).ToString());
+                        Assert.AreEqual("~sb_x_0[0 := true][1 := false]", e.CurrentState.GetInScopeVariableExpr(localVarY).ToString());
+
+                        break;
+                    default:
+                        Assert.Fail("Unexpected breakpoint");
+                        break;
+                }
+            };
+            e.Run(GetMain(p));
+            Assert.IsTrue(check_written);
+            Assert.IsTrue(check_map_copy);
+        }
+
         [Test(),Ignore()]
         public void TwoDMap()
         {

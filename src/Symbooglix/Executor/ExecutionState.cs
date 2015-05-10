@@ -311,6 +311,27 @@ namespace Symbooglix
             return sf.Locals.ReadMap(v, indices);
         }
 
+        private IVariableStore FindStore(Variable v)
+        {
+            if (v is GlobalVariable)
+            {
+                if (!Mem.Globals.ContainsKey(v))
+                    throw new KeyNotFoundException("Variable not in globals");
+                return Mem.Globals;
+            }
+
+            if (!GetCurrentStackFrame().Locals.ContainsKey(v))
+                throw new KeyNotFoundException("Variable not in the locals of the current stack frame");
+            return GetCurrentStackFrame().Locals;
+        }
+
+        public void DirectMapCopy(Variable dest, Variable src)
+        {
+            var srcStore = FindStore(src);
+            var destStore = FindStore(dest);
+            destStore.MapCopy(dest, src, srcStore);
+        }
+
         public void AssignToGlobalVariable(GlobalVariable GV, Expr value)
         {
             Debug.Assert(GV.IsMutable, "Can't assign to a non mutable global!");
