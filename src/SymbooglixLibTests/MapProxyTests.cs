@@ -125,10 +125,97 @@ namespace SymbooglixLibTests
             read = mp.Read();
             Assert.AreEqual("map[0 := map[0][1, false := true]]", read.ToString());
 
-            // FIXME: The stored constants aren't, this a little annoying as we only did a read
+            // FIXME: The stored constants aren't directly accessible anymore, this a little annoying as we only did a read
             // but this is the current design
             readBack = mp.ReadMapAt(indices);
             Assert.AreEqual("map[0 := map[0][1, false := true]][0][1, false]", readBack.ToString());
+        }
+
+        [Test()]
+        public void WritesAndMisRead()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            // m[0] := false
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, builder.False);
+
+            // m[2] := true
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, builder.True);
+
+            // Read back
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+
+            // Read from location not stored. Should cause stores to be flushed
+            var readAtNonStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(1) });
+            Assert.IsNotNull(ExprUtil.AsMapSelect(readAtNonStoredLocation));
+            Assert.AreEqual("map[0 := false][2 := true][1]", readAtNonStoredLocation.ToString());
+
+            // Check read again
+            Assert.AreEqual("map[0 := false][2 := true]", mp.Read().ToString());
+
+            // Try reading from another location 
+            // FIXME: We've done no writes but don't read back the known store
+            var read2AtNonStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) });
+            Assert.IsNotNull(ExprUtil.AsMapSelect(read2AtNonStoredLocation));
+            Assert.AreEqual("map[0 := false][2 := true][2]", read2AtNonStoredLocation.ToString());
+
+            // This definitely isn't known about
+            var read3AtNonStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(18) });
+            Assert.IsNotNull(ExprUtil.AsMapSelect(read3AtNonStoredLocation));
+            Assert.AreEqual("map[0 := false][2 := true][18]", read3AtNonStoredLocation.ToString());
+
+            // Do another write and check we can read it back direcly
+            // m[18] := false
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(18) }, builder.False);
+            // Read back
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(18) }));
+        }
+
+        [Test()]
+        public void MultipleWritesAndClone()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            // m[0] := false
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, builder.False);
+
+            // m[2] := true
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, builder.True);
+
+            // Read back
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
+
+            // Clone and make sure we can read the same
+            var clonedMp = mp.Clone();
+
+            Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual(builder.True, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
+
+            // Modify the original and check the clone is unchanged
+            var symBool = builder.Identifier(GetVariable("symBool", BPLType.Bool));
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, symBool);
+            Assert.AreEqual(symBool, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+
+            // Modify the clone and check the original is unchanged
+            clonedMp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, symBool);
+            Assert.AreEqual(symBool, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
         }
 
         [Test()]
