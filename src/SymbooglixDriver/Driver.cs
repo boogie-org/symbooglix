@@ -261,6 +261,7 @@ namespace SymbooglixDriver
         {
             // We use this to capture if an unhandled exception was
             // raised and exit with the appropriate exit code if this happens.
+
             try
             {
                 return RealMain(args);

@@ -66,19 +66,28 @@ namespace Symbooglix
             this.ExpressionRepresentation = initialValue;
 
             // Precompute the number of indicies required to perform a read or write
-            NumberOfIndices = this.MapType.AsMap.MapArity;
-            BPLType mapCodomainTy = this.MapType.AsMap.Result;
-            while (mapCodomainTy.IsMap)
-            {
-                mapCodomainTy = mapCodomainTy.AsMap;
-                NumberOfIndices += mapCodomainTy.MapArity;
-                mapCodomainTy = mapCodomainTy.AsMap.Result;
-            }
+            NumberOfIndices = ComputeIndicesRequireToDirectlyIndex(this.MapType);
 
             // Setup StoresAtConcreteIndicies storage
             var initialMap = ImmutableDictionary<MapKey,Expr>.Empty;
             StoresAtConcreteIndices = initialMap.ToBuilder();
             UnflushedStores = initialMap.ToBuilder();
+        }
+
+        public static int ComputeIndicesRequireToDirectlyIndex(BPLType mapType)
+        {
+            if (!mapType.IsMap)
+                throw new ArgumentException("argument must be a map type");
+
+            int numberOfIndices = 0;
+            BPLType coDomainTy = mapType;
+            do
+            {
+                var asMapTy = coDomainTy.AsMap;
+                numberOfIndices += asMapTy.Arguments.Count;
+                coDomainTy = asMapTy.Result;
+            } while (coDomainTy.IsMap);
+            return numberOfIndices;
         }
 
         private void FlushUnflushedStores()

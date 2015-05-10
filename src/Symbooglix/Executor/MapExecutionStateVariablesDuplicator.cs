@@ -51,6 +51,63 @@ namespace Symbooglix
             return toReturn;
         }
 
+        public override Expr VisitNAryExpr(NAryExpr node)
+        {
+            // Try to do direct map indexing
+            // FIXME: If there are nested mapselects but they don't end on a variable
+            // then we'll do a lot of unnecessary work every time we traverse into a map select down.
+            var asMapSelect = ExprUtil.AsMapSelect(node);
+            if (asMapSelect != null)
+            {
+                // Gather the indices. They will be backwards
+                var indices = new List<Expr>();
+                Expr firstArg = null;
+                do
+                {
+                    for (int index=1; index < asMapSelect.Args.Count; ++index)
+                    {
+                        // Don't do index variable mapping here because we might
+                        // need to throw away what we've done
+                        indices.Add(asMapSelect.Args[index]);
+                    }
+                    firstArg = asMapSelect.Args[0];
+                    asMapSelect = ExprUtil.AsMapSelect(firstArg);
+                } while (asMapSelect != null);
+
+                // Hopefully a map variable we can write to
+                var asId = ExprUtil.AsIdentifer(firstArg);
+
+                // Note: the indices count is to check that map is being fully indexed into and not partially
+                if (asId != null && asId.Decl.TypedIdent.Type.IsMap && 
+                    indices.Count == MapProxy.ComputeIndicesRequireToDirectlyIndex(asId.Decl.TypedIdent.Type))
+                {
+                    // Put indices in correct order
+                    indices.Reverse();
+
+                    // Expand the indices so variables are mapped
+                    var expandedIndices = new List<Expr>();
+                    foreach (var index in indices)
+                    {
+                        expandedIndices.Add((Expr) this.Visit(index));
+                    }
+
+                    // Do a remapping if necessary
+                    // FIXME: This sucks. Fix boogie instead!
+                    Variable V = null;
+                    if (preReplacementReMap.ContainsKey(asId.Decl))
+                        V = preReplacementReMap[asId.Decl];
+                    else
+                        V = asId.Decl;
+
+                    var valueFromMap = State.ReadMapVariableInScopeAt(V, expandedIndices);
+                    return valueFromMap;
+                }
+            }
+
+            // Fallback
+            return base.VisitNAryExpr(node);
+        }
+
         public override Expr VisitIdentifierExpr(IdentifierExpr node)
         {
             // Look for variables and expand them to what they map to
