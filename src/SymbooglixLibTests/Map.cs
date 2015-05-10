@@ -4,6 +4,7 @@ using Symbooglix;
 using Microsoft.Basetypes;
 using Microsoft.Boogie;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace SymbooglixLibTests
 {
@@ -113,6 +114,111 @@ namespace SymbooglixLibTests
             e.Run(GetMain(p));
             Assert.AreEqual(4, hits);
 
+        }
+
+        [Test()]
+        public void PartialIndexMap()
+        {
+            p = LoadProgramFrom(@"
+            procedure main()
+            {
+                var x:[int][int]bool;
+                var y:[int][int]bool;
+                var symIndex:int;
+                x[0][0] := false;
+                // only partially index into y
+                y[0] := x[0];
+                assert {:symbooglix_bp ""check_written""} true;
+            }
+
+            ", "test.bpl");
+
+            e = GetExecutor(p);
+            bool check_written = false;
+            var builder = new SimpleExprBuilder(true);
+            var localVarX = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First().LocVars.Where(v => v.Name == "x").First();
+            var localVarY = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First().LocVars.Where(v => v.Name == "y").First();
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                Assert.AreEqual("check_written", eventArgs.Name);
+                check_written = true;
+
+                // Check we can read x[0][0] directly
+                var x00 = e.CurrentState.ReadMapVariableInScopeAt(localVarX, new List<Expr>() {
+                    builder.ConstantInt(0),
+                    builder.ConstantInt(0)
+                });
+                Assert.AreEqual(builder.False, x00);
+
+                var yExpr = e.CurrentState.GetInScopeVariableExpr(localVarY);
+                Assert.AreEqual("~sb_y_0[0 := ~sb_x_0[0 := ~sb_x_0[0][0 := false]][0]]", yExpr.ToString());
+            };
+            e.Run(GetMain(p));
+            Assert.IsTrue(check_written);
+        }
+
+        [Test()]
+        public void ConcreteMapAssign()
+        {
+            p = LoadProgramFrom(@"
+            procedure main()
+            {
+                var x:[int][int]bool;
+                var symIndex:int;
+                x[0][0] := true;
+                x[0][1] := false;
+                assert {:symbooglix_bp ""check_written""} true;
+
+                // write to symbolic location
+                x[1][symIndex] := false;
+
+                assert {:symbooglix_bp ""check_sym_write""} true;
+            }
+
+            ", "test.bpl");
+
+            e = GetExecutor(p);
+            bool check_written = false;
+            bool check_sym_write = false;
+            var builder = new SimpleExprBuilder(true);
+            var localVarV = p.TopLevelDeclarations.OfType<Implementation>().Where(i => i.Name == "main").First().LocVars.Where(v => v.Name == "x").First();
+            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs eventArgs)
+            {
+                switch (eventArgs.Name)
+                {
+                    case "check_written":
+                        check_written = true;
+
+
+                        // Check we can read x[0][0] directly
+                        var x00 = e.CurrentState.ReadMapVariableInScopeAt(localVarV, new List<Expr>() { builder.ConstantInt(0), builder.ConstantInt(0) });
+                        Assert.AreEqual(builder.True, x00);
+                        var x01 = e.CurrentState.ReadMapVariableInScopeAt(localVarV, new List<Expr>() { builder.ConstantInt(0), builder.ConstantInt(1) } );
+                        Assert.AreEqual(builder.False, x01);
+
+                        // Check the flushed expression from
+                        Assert.AreEqual("~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]]",
+                                        e.CurrentState.GetInScopeVariableExpr(localVarV).ToString());
+                        break;
+                    case "check_sym_write":
+                        check_sym_write = true;
+
+                        var x00After = e.CurrentState.ReadMapVariableInScopeAt(localVarV, new List<Expr>() { builder.ConstantInt(0), builder.ConstantInt(0) });
+                        Console.WriteLine(x00After.ToString());
+                        // FIXME: I'm unsure if this is correct
+                        Assert.AreEqual("~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]][1 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]][1][~sb_symIndex_0 := false]][0][0]",
+                            x00After.ToString());
+                        break;
+                    default:
+                        Assert.Fail("Unexpected breakpoint");
+                        break;
+                }
+
+            };
+            e.Run(GetMain(p));
+
+            Assert.IsTrue(check_written);
+            Assert.IsTrue(check_sym_write);
         }
 
         [Test(),Ignore()]

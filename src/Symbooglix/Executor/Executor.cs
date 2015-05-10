@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BPLType = Microsoft.Boogie.Type;
 
 namespace Symbooglix
 {
@@ -1299,6 +1300,7 @@ namespace Symbooglix
 
             int index=0;
             Dictionary<Variable, Expr> storedAssignments = new Dictionary<Variable, Expr>();
+            Dictionary<Variable, Tuple<List<Expr>, Expr>> directMapAssignment = new Dictionary<Variable, Tuple<List<Expr>, Expr>>();
 
             // FIXME: Should we zip asSimpleAssignCmd lhs and rhs instead?
             foreach(var lhsrhs in c.Lhss.Zip(c.Rhss))
@@ -1314,6 +1316,7 @@ namespace Symbooglix
                 if (! CurrentState.IsInScopeVariable(lvalue))
                     throw new IndexOutOfRangeException("Lhs of assignment not in scope"); // FIXME: Wrong type of exception
 
+                bool didIndexedMapAssign = false;
                 if (lhsrhs.Item1 is SimpleAssignLhs)
                 {
                     // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
@@ -1321,13 +1324,35 @@ namespace Symbooglix
                 }
                 else if (lhsrhs.Item1 is MapAssignLhs)
                 {
-                    // We need to use "AsSimleAssignCmd" so that we have a single Variable as lhs and MapStore expressions
-                    // on the right hand side
-                    var ac = c.AsSimpleAssignCmd;
-                    Debug.Assert(ac.Lhss[index].DeepAssignedVariable == lvalue, "lvalue mismatch");
-                    rvalue = ac.Rhss[index];
-                    // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
-                    rvalue = (Expr) r.Visit(rvalue);
+                    var indicies = ComputeMapAssignIndices(lhsrhs.Item1 as MapAssignLhs);
+
+                    if (indicies != null)
+                    {
+                        // Doing direct assignment to map using indicies
+                        rvalue = (Expr) r.Visit(lhsrhs.Item2);
+
+                        // Need to do replacement in the indicies
+                        var dupAndRIndices = new List<Expr>();
+                        foreach (var mapIndex in indicies)
+                        {
+                            dupAndRIndices.Add((Expr) r.Visit(mapIndex));
+                        }
+
+                        directMapAssignment.Add(lvalue, Tuple.Create(dupAndRIndices, rvalue));
+                        didIndexedMapAssign = true;
+                    }
+                    else
+                    {
+                        // The map isn't being fully indexed into so compute the necessary mapstores and selects to directly assign to the variable
+
+                        // We need to use "AsSimleAssignCmd" so that we have a single Variable as lhs and MapStore expressions
+                        // on the right hand side
+                        var ac = c.AsSimpleAssignCmd;
+                        Debug.Assert(ac.Lhss[index].DeepAssignedVariable == lvalue, "lvalue mismatch");
+                        rvalue = ac.Rhss[index];
+                        // Duplicate and Expand out the expression so we only have symbolic identifiers in the expression
+                        rvalue = (Expr) r.Visit(rvalue);
+                    }
 
                 }
                 else
@@ -1335,15 +1360,66 @@ namespace Symbooglix
                     throw new NotSupportedException("Unknown type of assignment");
                 }
 
-                storedAssignments[lvalue] = rvalue;
+                if (!didIndexedMapAssign)
+                {
+                    storedAssignments[lvalue] = rvalue;
+                }
                 ++index;
             }
+
+            // The semantics of parallel map assign mean that we shouldn't do any writes until we've read
+            // everything
 
             // Now do the assignments safely
             foreach (var assignment in storedAssignments)
             {
                 CurrentState.AssignToVariableInScope(assignment.Key, assignment.Value);
             }
+
+            // Now do direct map assignments safely
+            foreach (var mapAssignment in directMapAssignment)
+            {
+                CurrentState.AssignToMapVariableInScopeAt(mapAssignment.Key, mapAssignment.Value.Item1, mapAssignment.Value.Item2);
+            }
+        }
+
+        // Returns null if it not a direct assignment
+        private List<Expr> ComputeMapAssignIndices(MapAssignLhs malhs)
+        {
+            // We will traverse the assignment building up the indices. The indices
+            // are actually backwards so we will need reverse at the end
+            AssignLhs currentAssign = malhs;
+            var indices = new List<Expr>();
+            do
+            {
+                var asMapAssign = currentAssign as MapAssignLhs;
+                // Add the index at this assign backwards
+                foreach (var index in asMapAssign.Indexes.AsEnumerable().Reverse())
+                {
+                    indices.Add(index);
+                }
+                currentAssign = asMapAssign.Map;
+            } while (currentAssign is MapAssignLhs);
+
+            // traverse type to check indices length match. We might only be partially assigning into the map
+            // Precompute the number of indicies required to perform a read or write
+            int numberOfIndices = 0;
+            BPLType mapCodomainTy = malhs.DeepAssignedVariable.TypedIdent.Type.AsMap; // Initially not the codmain
+            do
+            {
+                Debug.Assert(mapCodomainTy is MapType);
+                var asMap = mapCodomainTy.AsMap;
+                numberOfIndices += asMap.Arguments.Count;
+                mapCodomainTy = asMap.Result;
+            } while (mapCodomainTy.IsMap);
+
+            if (numberOfIndices != indices.Count)
+                return null; // The assignment doesn't index all the way through the nested maps
+
+            // We do index all the
+            // Put the indices in the write order
+            indices.Reverse();
+            return indices;
         }
 
         protected void Handle(AssertCmd c)

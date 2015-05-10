@@ -286,6 +286,31 @@ namespace Symbooglix
             throw new InvalidOperationException("Cannot assign to variable not in scope.");
         }
 
+        public void AssignToMapVariableInScopeAt(Variable v, IList<Expr> indices, Expr value)
+        {
+            if (v is GlobalVariable)
+            {
+                Mem.Globals.WriteMap(v, indices, value);
+                return;
+            }
+
+            // Must be a local variable
+            var sf = GetCurrentStackFrame();
+            sf.Locals.WriteMap(v, indices, value);
+        }
+
+        public Expr ReadMapVariableInScopeAt(Variable v, IList<Expr> indices)
+        {
+            if (v is GlobalVariable)
+            {
+                return Mem.Globals.ReadMap(v, indices);
+            }
+
+            // Must be a local variable
+            var sf = GetCurrentStackFrame();
+            return sf.Locals.ReadMap(v, indices);
+        }
+
         public void AssignToGlobalVariable(GlobalVariable GV, Expr value)
         {
             Debug.Assert(GV.IsMutable, "Can't assign to a non mutable global!");
