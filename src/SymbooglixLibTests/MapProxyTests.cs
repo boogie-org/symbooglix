@@ -125,10 +125,63 @@ namespace SymbooglixLibTests
             read = mp.Read();
             Assert.AreEqual("map[0 := map[0][1, false := true]]", read.ToString());
 
-            // FIXME: The stored constants aren't directly accessible anymore, this a little annoying as we only did a read
-            // but this is the current design
+            // Should still be ble to read back directly
             readBack = mp.ReadMapAt(indices);
-            Assert.AreEqual("map[0 := map[0][1, false := true]][0][1, false]", readBack.ToString());
+            Assert.AreEqual(builder.True, readBack);
+        }
+
+        [Test()]
+        public void DirectWriteDropsStores()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            // m[0] := false
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, builder.False);
+
+            // m[2] := true
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, builder.True);
+
+            // The above stores aren't flushed. Do a direct write and then read
+            // the stores should not be flushed.
+            mp.Write(mapId);
+            Assert.AreEqual("map", mp.Read().ToString());
+        }
+
+        [Test()]
+        public void WriteMakesStoresInaccessible()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            // m[0] := false
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, builder.False);
+
+            // m[2] := true
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, builder.True);
+
+            // Read back
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
+
+            // Write at symbolic location should make reading the stores directly fail
+            // and instead return the flushed expression
+            var symIndex = builder.Identifier(GetVariable("symIndex", BPLType.Int));
+            mp.WriteMapAt(new List<Expr>() { symIndex }, builder.False);
+            Assert.AreEqual("map[0 := false][2 := true][symIndex := false][0]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }).ToString());
+            Assert.AreEqual("map[0 := false][2 := true][symIndex := false][2]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }).ToString());
         }
 
         [Test()]
@@ -151,6 +204,7 @@ namespace SymbooglixLibTests
 
             // Read back
             Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
 
             // Read from location not stored. Should cause stores to be flushed
             var readAtNonStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(1) });
@@ -161,10 +215,9 @@ namespace SymbooglixLibTests
             Assert.AreEqual("map[0 := false][2 := true]", mp.Read().ToString());
 
             // Try reading from another location 
-            // FIXME: We've done no writes but don't read back the known store
-            var read2AtNonStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) });
-            Assert.IsNotNull(ExprUtil.AsMapSelect(read2AtNonStoredLocation));
-            Assert.AreEqual("map[0 := false][2 := true][2]", read2AtNonStoredLocation.ToString());
+            var readAtStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) });
+            Assert.AreEqual(builder.True, readAtStoredLocation);
+
 
             // This definitely isn't known about
             var read3AtNonStoredLocation = mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(18) });
@@ -211,11 +264,18 @@ namespace SymbooglixLibTests
             mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, symBool);
             Assert.AreEqual(symBool, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
             Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual("map[0 := symBool][2 := true]", mp.Read().ToString());
+            Assert.AreEqual("map[0 := false][2 := true]", clonedMp.Read().ToString());
 
             // Modify the clone and check the original is unchanged
             clonedMp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, symBool);
             Assert.AreEqual(symBool, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
             Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
+
+            // Double store at index 2 because the earlier Read() flushed the unflushed stores
+            Assert.AreEqual("map[0 := false][2 := true][2 := symBool]", clonedMp.Read().ToString());
+
+            Assert.AreEqual("map[0 := symBool][2 := true]", mp.Read().ToString());
         }
 
         [Test()]
@@ -260,10 +320,15 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(asMapStore);
             Assert.AreEqual("map[0 := false][2 := true][5 := true]", asMapStore.ToString());
 
-            // The read will clear the stores so we will read back a full expression
-            Assert.AreEqual("map[0 := false][2 := true][5 := true][0]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }).ToString());
-            Assert.AreEqual("map[0 := false][2 := true][5 := true][2]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }).ToString());
-            Assert.AreEqual("map[0 := false][2 := true][5 := true][5]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(5) }).ToString());
+            // The read should not clear the stores so we will read back the stored expression
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(5) }));
+
+            // Reading at a index not stored should give full expression
+            Assert.AreEqual("map[0 := false][2 := true][5 := true][1]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(1) }).ToString());
+            Assert.AreEqual("map[0 := false][2 := true][5 := true][3]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(3) }).ToString());
+            Assert.AreEqual("map[0 := false][2 := true][5 := true][4]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(4) }).ToString());
         }
 
         [Test()]
@@ -294,8 +359,8 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(asMapStore);
             Assert.AreEqual("map[1 := map[1][2 := map[1][2][3 := false]]]", asMapStore.ToString());
 
-            // FIXME: We only did a read but now we can't get the constants
-            Assert.AreEqual("map[1 := map[1][2 := map[1][2][3 := false]]][1][2][3]", mp.ReadMapAt(indices).ToString());
+            // We only did a read so should still be able to get the stored expression
+            Assert.AreEqual(builder.False, mp.ReadMapAt(indices));
         }
 
         [Test()]

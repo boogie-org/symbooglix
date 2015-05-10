@@ -53,7 +53,8 @@ namespace Symbooglix
         }
 
         // For cheap Copy-on-write
-        ImmutableDictionary<MapKey,Expr>.Builder StoresAtConcreteIndices;
+        ImmutableDictionary<MapKey,Expr>.Builder StoresAtConcreteIndices; // Stores at concrete locations that can be quickly looked up
+        ImmutableDictionary<MapKey,Expr>.Builder UnflushedStores; // Stores not yet flushed to the ExpressionRepresentation
 
         public MapProxy(Expr initialValue)
         {
@@ -77,18 +78,20 @@ namespace Symbooglix
             // Setup StoresAtConcreteIndicies storage
             var initialMap = ImmutableDictionary<MapKey,Expr>.Empty;
             StoresAtConcreteIndices = initialMap.ToBuilder();
+            UnflushedStores = initialMap.ToBuilder();
         }
 
-        private void FlushStoresAtConcreteIndices()
+        private void FlushUnflushedStores()
         {
-            foreach (var mapping in StoresAtConcreteIndices)
+            foreach (var mapping in UnflushedStores)
             {
                 DirectWrite(mapping.Key.Indices, mapping.Value);
             }
-            DropStores();
+            UnflushedStores.Clear();
+            Debug.Assert(UnflushedStores.Count == 0);
         }
 
-        private void DropStores()
+        private void DropConcreteStores()
         {
             StoresAtConcreteIndices.Clear();
             Debug.Assert(StoresAtConcreteIndices.Count == 0);
@@ -123,13 +126,11 @@ namespace Symbooglix
                 }
             }
 
-            // FIXME: Doing a read clears the stores
-
             // Reading from a location in the map we don't have stored
             // so we need to flush all stores and return the full expression.
             // Note we aren't doing a write so we can keep the stores however
-            // (by not calling DropStores())
-            FlushStoresAtConcreteIndices();
+            // (by not calling DropConcreteStores())
+            FlushUnflushedStores();
 
             // Build map selects to access the location symbolically
             var groupedIndices = GroupIndices(indices);
@@ -152,13 +153,14 @@ namespace Symbooglix
                 // ReadMapAt()
                 var mapKey = new MapKey(indices);
                 StoresAtConcreteIndices[mapKey] = value;
+                UnflushedStores[mapKey] = value;
                 return;
             }
 
             // Writing to a symbolic index. We need to flush all stores, empty the stores
             // then store the new value
-            FlushStoresAtConcreteIndices();
-            DropStores(); // The stores are no longer valid so drop them
+            FlushUnflushedStores();
+            DropConcreteStores(); // The stores are no longer valid so drop them
             DirectWrite(indices, value);
         }
 
@@ -276,8 +278,7 @@ namespace Symbooglix
         // Will force map store flush
         public Expr Read()
         {
-            // FIXME: Doing a read clears the stores
-            FlushStoresAtConcreteIndices();
+            FlushUnflushedStores();
             return ExpressionRepresentation;
         }
 
@@ -286,7 +287,10 @@ namespace Symbooglix
             if (!newValue.Type.Equals(this.MapType))
                 throw new ArgumentException("newValue must have correct map type");
 
-            DropStores(); // The stores are no longer valid so drop them all
+            DropConcreteStores(); // The stores are no longer valid so drop them all
+            UnflushedStores.Clear(); // We don't want unflushed stores to ever get flushed onto the new expression
+            Debug.Assert(UnflushedStores.Count == 0);
+            Debug.Assert(StoresAtConcreteIndices.Count == 0);
             ExpressionRepresentation = newValue;
         }
 
@@ -295,8 +299,11 @@ namespace Symbooglix
             var other = (MapProxy) this.MemberwiseClone();
 
             // This should be a very lightweight copy
-            var copy = StoresAtConcreteIndices.ToImmutable();
-            other.StoresAtConcreteIndices = copy.ToBuilder();
+            var copySACI = StoresAtConcreteIndices.ToImmutable();
+            other.StoresAtConcreteIndices = copySACI.ToBuilder();
+
+            var copyUFS = UnflushedStores.ToImmutable();
+            other.UnflushedStores = copyUFS.ToBuilder();
 
             return other;
         }
