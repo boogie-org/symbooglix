@@ -91,7 +91,7 @@ namespace SymbooglixLibTests
         }
 
         [Test()]
-        public void SymbolicReadAtIndex()
+        public void ReadAtIndexMis()
         {
             // Build var m:[int][int,bool]bool
             var innerMapTy = GetMapVariable(BPLType.Bool, BPLType.Int, BPLType.Bool);
@@ -131,7 +131,7 @@ namespace SymbooglixLibTests
         }
 
         [Test()]
-        public void DirectWriteDropsStores()
+        public void DirectWriteDropsConstantStores()
         {
             // Build var m:[int]bool;
             var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
@@ -147,6 +147,37 @@ namespace SymbooglixLibTests
 
             // m[2] := true
             mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(2) }, builder.True);
+
+            // The above stores aren't flushed. Do a direct write and then read
+            // the stores should not be flushed.
+            mp.Write(mapId);
+            Assert.AreEqual("map", mp.Read().ToString());
+        }
+
+        [Test()]
+        public void DirectWriteDropsNonAliasingSymbolicStores()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            var sym = builder.Identifier(GetVariable("sym", BPLType.Int));
+
+            // m[1 + sym] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, builder.True);
+
+            // Read back directly
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}));
+
+            var sym2 = builder.Identifier(GetVariable("sym2", BPLType.Int));
+
+            // m[sym2] := true
+            mp.WriteMapAt(new List<Expr>() { sym2 }, builder.True);
 
             // The above stores aren't flushed. Do a direct write and then read
             // the stores should not be flushed.
@@ -279,6 +310,77 @@ namespace SymbooglixLibTests
         }
 
         [Test()]
+        public void AliasingSymbolicWrites()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            var sym = builder.Identifier(GetVariable("sym", BPLType.Int));
+            var sym2 = builder.Identifier(GetVariable("sym2", BPLType.Int));
+
+            // m[sym + sym2] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(sym2, sym) }, builder.True);
+
+            // Read back should give fully flushed expression
+            Assert.AreEqual("map[sym2 + sym := true][sym2 + sym]", mp.ReadMapAt(new List<Expr>() { builder.Add(sym2, sym) }).ToString());
+        }
+
+        [Test()]
+        public void MultipleNonAliasingSymbolicWritesAndClone()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            var sym = builder.Identifier(GetVariable("sym", BPLType.Int));
+
+            // m[1 + sym] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, builder.True);
+
+            // m[sym] := false
+            mp.WriteMapAt(new List<Expr>() { sym }, builder.False);
+
+            // Read back
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { sym }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }));
+
+
+            // Clone and make sure we can read the same
+            var clonedMp = mp.Clone();
+
+            Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { sym }));
+            Assert.AreEqual(builder.True, clonedMp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }));
+
+            // Modify the original and check the clone is unchanged
+            var symBool = builder.Identifier(GetVariable("symBool", BPLType.Bool));
+            mp.WriteMapAt(new List<Expr>() { sym }, symBool);
+            Assert.AreEqual(symBool, mp.ReadMapAt(new List<Expr>() { sym  }));
+            Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { sym }));
+
+            // FIXME: Non-determinstically fails due to non determinisic ordering of stores
+            //Assert.AreEqual("map[1 + sym := true][sym := symBool]", mp.Read().ToString());
+            //Assert.AreEqual("map[1 + sym := true][sym := false]", clonedMp.Read().ToString());
+
+            // Modify the clone and check the original is unchanged
+            clonedMp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, symBool);
+            Assert.AreEqual(symBool, clonedMp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }));
+
+            // FIXME: Check the ouput of Read(). Can't really do it due to non-deterministic ordering
+        }
+
+        [Test()]
         public void FlushMultipleWrites()
         {
             // Build var m:[int]bool;
@@ -401,6 +503,136 @@ namespace SymbooglixLibTests
             var result = mp.Read();
             Assert.AreEqual("map[a + b := map[a + b][e + f, x && y := true]]", result.ToString());
 
+        }
+
+        [Test()]
+        public void WriteAtSymbolicNonAliasingIndices()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            var sym = builder.Identifier(GetVariable("sym", BPLType.Int));
+
+            // m[sym] := false
+            mp.WriteMapAt(new List<Expr>() { sym }, builder.False);
+
+            // m[1 + sym] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, builder.True);
+
+            // Read back directly
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { sym }));
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}));
+
+            // Overwrite
+            // m[1 + sym] := false
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, builder.False);
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}));
+
+            // FIXME: We probably don't want non-determinism in symbooglix
+            // Get full expression, we have to do it this way because there's no explicit ordering of the stores.
+            // and the ordering appears to be random
+            var fullExprAsString = mp.Read().ToString();
+            if (fullExprAsString != "map[1 + sym := false][sym := false]" && fullExprAsString != "map[sym := false][1 + sym := false]")
+                Assert.Fail("wrong result");
+            //Assert.AreEqual("map[1 + sym := true][sym := false]", mp.Read().ToString());
+
+            // Check we can still read back directly
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { sym }));
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}));
+
+            // Try reading from a location not stored.
+            var mOffsetTwo = mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(2), sym) });
+            Assert.AreEqual(fullExprAsString + "[2 + sym]", mOffsetTwo.ToString());
+        }
+
+        [Test()]
+        public void WriteAtSymbolicNonAliasingIndicesThenConcrete()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            var sym = builder.Identifier(GetVariable("sym", BPLType.Int));
+
+            // m[1 + sym] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, builder.True);
+
+            // Read back directly
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}));
+
+            // Now write to a concrete location
+            // This should flush the stores at the symbolic locations
+
+            // m[0] := false
+            mp.WriteMapAt(new List<Expr>() { builder.ConstantInt(0) }, builder.False);
+
+            // Read back directly
+            Assert.AreEqual(builder.False, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
+
+            // Read back at the symbolic location. It shouldn't be directly accessible anymore and
+            // we should get the fully flushed expression
+            Assert.AreEqual("map[1 + sym := true][0 := false][1 + sym]", mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}).ToString());
+
+            // Read back full expression
+            Assert.AreEqual("map[1 + sym := true][0 := false]", mp.Read().ToString());
+
+            // Now write to a symbolic location
+            // This should flush the stores at concrete locations
+
+            // m[3 + sym] := false
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(3), sym) }, builder.True);
+
+            // Should be a flushed expression rather than "false"
+            Assert.AreEqual("map[1 + sym := true][0 := false][3 + sym := true][0]", mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }).ToString());
+        }
+
+        [Test()]
+        public void WriteAtSymbolicNonAliasAndThenWriteAtNewAliasingLocations()
+        {
+            // Build var m:[int]bool;
+            var mapTy = GetMapVariable(BPLType.Bool, BPLType.Int);
+
+            // Build map variable variable
+            var builder = GetSimpleExprBuilder();
+            var mv = GetVariable("map", mapTy);
+            var mapId = builder.Identifier(mv);
+            var mp = GetMapProxy(mapId);
+
+            var sym = builder.Identifier(GetVariable("sym", BPLType.Int));
+
+            // m[1 + sym] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }, builder.True);
+
+            // Read back directly
+            Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym)}));
+
+            var sym2 = builder.Identifier(GetVariable("sym2", BPLType.Int));
+
+            // m[sym2] := true
+            mp.WriteMapAt(new List<Expr>() { sym2 }, builder.True);
+
+            // FIXME: Due to the current implementation we won't be able to read this back directly
+            // and instead get back the fully flushed expression
+            Assert.AreEqual("map[1 + sym := true][sym2 := true][sym2]", mp.ReadMapAt( new List<Expr>() {sym2}).ToString());
+
+            // The next write to this non-aliasing location should be readable directly
+            // m[3 + sym2] := true
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(3), sym2) }, builder.True);
+            Assert.AreEqual(builder.True, mp.ReadMapAt( new List<Expr>() {builder.Add(builder.ConstantInt(3), sym2)}));
+
+            mp.WriteMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(2), sym2) }, builder.False);
+            Assert.AreEqual(builder.False, mp.ReadMapAt( new List<Expr>() {builder.Add(builder.ConstantInt(2), sym2)}));
         }
     }
 }

@@ -59,6 +59,7 @@ namespace Symbooglix
 
         // Stores at symbolic indices that we statically know cannot alias
         ImmutableDictionary<MapKey,Expr>.Builder StoresAtSymbolicNonAliasingIndices;
+        Variable SymVariable ; // FIXME: Type should be SymbolicVariable
 
         public MapProxy(Expr initialValue)
         {
@@ -77,6 +78,7 @@ namespace Symbooglix
             StoresAtConcreteIndices = initialMap.ToBuilder();
             UnflushedStores = initialMap.ToBuilder();
             StoresAtSymbolicNonAliasingIndices = initialMap.ToBuilder();
+            SymVariable = null;
         }
 
         public static int ComputeIndicesRequireToDirectlyIndex(BPLType mapType)
@@ -115,6 +117,7 @@ namespace Symbooglix
         {
             StoresAtSymbolicNonAliasingIndices.Clear();
             Debug.Assert(StoresAtSymbolicNonAliasingIndices.Count == 0);
+            SymVariable = null;
         }
 
         private bool AreConcrete(IList<Expr> indices)
@@ -139,12 +142,90 @@ namespace Symbooglix
             return false;
         }
 
-        // Only returns true if the indices definitely do not alias what we have stored
-        // in StoresAtSymbolicNonAliasingIndices.
+        // Only returns true if the indices definitely only alias up to one indice stored
+        // in StoresAtSymbolicNonAliasingIndices. i.e.
+        //
+        // returns true iff
+        //
+        // the indices do not alias anything in StoresAtSymbolicNonAliasingIndices
+        // OR
+        // the indices alias a single element in StoresAtSymbolicNonAliasingIndices
+        // which ok because this tells us which element to overwrite.
+        //
         // Note that if this method returns false it means that the indices "might" alias.
-        private bool DoesNotAliasSymbolicNonAliasingIndices(IList<Expr> indices)
+        private bool AliasesZeroOrOneSymbolicNonAliasingIndices(IList<Expr> indices)
         {
-            // TODO:
+            if (indices.Count > 1)
+            {
+                // Our alias analysis is very primitive and we only allow a single index
+                return false;
+            }
+
+            var indexExpr = indices[0];
+            // Analysis: We consider the follow expressions to not alias
+            // <sym_var>
+            // <constant> + <sym_var>
+            //
+            // Note sym_var must be the same
+
+
+            // Try single variable
+            var asId = ExprUtil.AsIdentifer(indexExpr);
+            if (asId != null)
+            {
+                if (SymVariable == null)
+                {
+                    // We haven't picked a variable for use in our non aliasing symbolci expressions yet
+                    // use this one
+                    Debug.Assert(StoresAtSymbolicNonAliasingIndices.Count == 0);
+                    SymVariable = asId.Decl;
+                    return true;
+                }
+                else
+                {
+                    // We have an existing symbolic variable that we are using
+                    if (SymVariable.Equals(asId.Decl))
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+            // We are relying on the expression simplification of the expression builder to always
+            // but the constant on the left child
+            // <constant> + <sym_var>
+            var asAdd = ExprUtil.AsAdd(indexExpr);
+            if (asAdd != null)
+            {
+                var lhsAsLit = ExprUtil.AsLiteral(asAdd.Args[0]);
+                if (lhsAsLit != null)
+                {
+                    var rhsAsId = ExprUtil.AsIdentifer(asAdd.Args[1]);
+                    if (rhsAsId != null)
+                    {
+                        if (SymVariable == null)
+                        {
+                            // We haven't picked a variable for use in our non aliasing symbolci expressions yet
+                            // use this one
+                            Debug.Assert(StoresAtSymbolicNonAliasingIndices.Count == 0);
+                            SymVariable = rhsAsId.Decl;
+                            return true;
+                        }
+                        else
+                        {
+                            // We have an existing symbolic variable that we are using
+                            if (SymVariable.Equals(rhsAsId.Decl))
+                            {
+                                return true;
+                            }
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // The indicies might alias something we already have stored.
             return false;
         }
 
@@ -245,8 +326,7 @@ namespace Symbooglix
                 Debug.Assert(GetCurrentMode() == CurrentMode.CONCRETE_STORE);
                 return;
             }
-            else if (AreKnownSymbolicNonAliasingIndices(indices) /* overwrite is okay */ || 
-                     DoesNotAliasSymbolicNonAliasingIndices(indices))
+            else if (AliasesZeroOrOneSymbolicNonAliasingIndices(indices))
             {
                 if (GetCurrentMode() == CurrentMode.CONCRETE_STORE)
                 {
@@ -264,7 +344,7 @@ namespace Symbooglix
                 // Don't create map store expression, just store directly which can be retrieved
                 // by ReadMapAt()
                 var mapKey = new MapKey(indices);
-                StoresAtConcreteIndices[mapKey] = value;
+                StoresAtSymbolicNonAliasingIndices[mapKey] = value;
                 UnflushedStores[mapKey] = value;
                 Debug.Assert(GetCurrentMode() == CurrentMode.SYMBOLIC_NON_ALIASING_STORE);
                 return;
