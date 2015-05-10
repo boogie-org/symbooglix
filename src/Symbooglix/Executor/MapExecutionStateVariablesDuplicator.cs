@@ -104,7 +104,8 @@ namespace Symbooglix
                 }
             }
 
-            // Fallback
+            // Handle all other NAryExpr and fall back when we encounter a mapselect we can't support
+            // (e.g. the map variable being used is not known).
             return base.VisitNAryExpr(node);
         }
 
