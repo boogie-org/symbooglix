@@ -57,6 +57,9 @@ namespace Symbooglix
         ImmutableDictionary<MapKey,Expr>.Builder StoresAtConcreteIndices; // Stores at concrete locations that can be quickly looked up
         ImmutableDictionary<MapKey,Expr>.Builder UnflushedStores; // Stores not yet flushed to the ExpressionRepresentation
 
+        // Stores at symbolic indices that we statically know cannot alias
+        ImmutableDictionary<MapKey,Expr>.Builder StoresAtSymbolicNonAliasingIndices;
+
         public MapProxy(Expr initialValue)
         {
             this.MapType = initialValue.Type;
@@ -73,6 +76,7 @@ namespace Symbooglix
             var initialMap = ImmutableDictionary<MapKey,Expr>.Empty;
             StoresAtConcreteIndices = initialMap.ToBuilder();
             UnflushedStores = initialMap.ToBuilder();
+            StoresAtSymbolicNonAliasingIndices = initialMap.ToBuilder();
         }
 
         public static int ComputeIndicesRequireToDirectlyIndex(BPLType mapType)
@@ -107,6 +111,12 @@ namespace Symbooglix
             Debug.Assert(StoresAtConcreteIndices.Count == 0);
         }
 
+        private void DropSymbolicNonAliasingStores()
+        {
+            StoresAtSymbolicNonAliasingIndices.Clear();
+            Debug.Assert(StoresAtSymbolicNonAliasingIndices.Count == 0);
+        }
+
         private bool AreConcrete(IList<Expr> indices)
         {
             foreach (var index in indices)
@@ -116,6 +126,26 @@ namespace Symbooglix
                     return false;
             }
             return true;
+        }
+
+        private bool AreKnownSymbolicNonAliasingIndices(IList<Expr> indices)
+        {
+            if (StoresAtSymbolicNonAliasingIndices.Count == 0)
+                return false;
+
+            if (StoresAtSymbolicNonAliasingIndices.ContainsKey(new MapKey(indices)))
+                return true;
+
+            return false;
+        }
+
+        // Only returns true if the indices definitely do not alias what we have stored
+        // in StoresAtSymbolicNonAliasingIndices.
+        // Note that if this method returns false it means that the indices "might" alias.
+        private bool DoesNotAliasSymbolicNonAliasingIndices(IList<Expr> indices)
+        {
+            // TODO:
+            return false;
         }
 
         // Might avoid map store flushing
@@ -135,11 +165,19 @@ namespace Symbooglix
                     return storedValue;
                 }
             }
+            else if (AreKnownSymbolicNonAliasingIndices(indices))
+            {
+                // We have this symbolic location already stored
+                var mapKey = new MapKey(indices);
+                return StoresAtSymbolicNonAliasingIndices[mapKey];
+            }
 
             // Reading from a location in the map we don't have stored
             // so we need to flush all stores and return the full expression.
-            // Note we aren't doing a write so we can keep the stores however
-            // (by not calling DropConcreteStores())
+            // Note we aren't doing a write so we can keep the stores in
+            // StoresAtConcreteIndices and StoresAtSymbolicNonAliasingIndices
+            // for future look up.
+            // (by not calling DropConcreteStores() and DropSymbolicNonAliasingStores())
             FlushUnflushedStores();
 
             // Build map selects to access the location symbolically
@@ -152,6 +190,32 @@ namespace Symbooglix
             return result;
         }
 
+
+
+        private enum CurrentMode
+        {
+            NONE,
+            CONCRETE_STORE,
+            SYMBOLIC_NON_ALIASING_STORE
+        }
+
+        private CurrentMode GetCurrentMode()
+        {
+            if (StoresAtConcreteIndices.Count == 0 && StoresAtSymbolicNonAliasingIndices.Count == 0)
+                return CurrentMode.NONE;
+
+            if (StoresAtConcreteIndices.Count > 0 && StoresAtSymbolicNonAliasingIndices.Count > 0)
+                throw new InvalidOperationException("StoresAtConcreteIndices and StoresAtSymbolicNonAliasingIndices cannot both be active at the same time");
+
+            if (StoresAtConcreteIndices.Count > 0)
+                return CurrentMode.CONCRETE_STORE;
+
+            if (StoresAtSymbolicNonAliasingIndices.Count > 0)
+                return CurrentMode.SYMBOLIC_NON_ALIASING_STORE;
+
+            throw new InvalidOperationException("Unreachable");
+        }
+
         // Might avoid map store flushing
         public void WriteMapAt(IList<Expr> indices, Expr value)
         {
@@ -159,18 +223,58 @@ namespace Symbooglix
 
             if (AreConcrete(indices))
             {
-                // Don't create store expressions, just store directly which can be retrieved by
+                if (GetCurrentMode() == CurrentMode.SYMBOLIC_NON_ALIASING_STORE)
+                {
+                    // Can't be in both modes simultaneously so flush any unflushed stores
+                    // left from StoresAtSymbolicNonAliasingIndices
+                    // FIXME: We could optimise to avoid doing this but we don't right now
+                    // because we could end up with a mix of concrete and symbolic indices
+                    // in the store and we might not flush them in the right order
+                    FlushUnflushedStores();
+
+                    // Drop the stores they won't be valid anymore
+                    DropSymbolicNonAliasingStores();
+                    Debug.Assert(GetCurrentMode() == CurrentMode.NONE);
+                }
+
+                // Don't create map store expressions, just store directly which can be retrieved by
                 // ReadMapAt()
                 var mapKey = new MapKey(indices);
                 StoresAtConcreteIndices[mapKey] = value;
                 UnflushedStores[mapKey] = value;
+                Debug.Assert(GetCurrentMode() == CurrentMode.CONCRETE_STORE);
+                return;
+            }
+            else if (AreKnownSymbolicNonAliasingIndices(indices) /* overwrite is okay */ || 
+                     DoesNotAliasSymbolicNonAliasingIndices(indices))
+            {
+                if (GetCurrentMode() == CurrentMode.CONCRETE_STORE)
+                {
+                    // Can't be in both modes simultaneously so flush any unflushed stores
+                    // left from StoresAtConcreteIndices
+                    // FIXME: We could optimise to avoid doing this but we don't right now
+                    // because we could end up with a mix of concrete and symbolic indices
+                    // in the store and we might not flush them in the right order
+                    FlushUnflushedStores();
+
+                    // Drop concrete stores, we can't have them around simultaneously
+                    DropConcreteStores();
+                }
+
+                // Don't create map store expression, just store directly which can be retrieved
+                // by ReadMapAt()
+                var mapKey = new MapKey(indices);
+                StoresAtConcreteIndices[mapKey] = value;
+                UnflushedStores[mapKey] = value;
+                Debug.Assert(GetCurrentMode() == CurrentMode.SYMBOLIC_NON_ALIASING_STORE);
                 return;
             }
 
-            // Writing to a symbolic index. We need to flush all stores, empty the stores
-            // then store the new value
+            // Writing to a symbolic index. We need to flush all unflushed stores, drop the stores
+            // and then store the new value
             FlushUnflushedStores();
             DropConcreteStores(); // The stores are no longer valid so drop them
+            DropSymbolicNonAliasingStores(); // The stores are no longer valid so drop them
             DirectWrite(indices, value);
         }
 
@@ -297,23 +401,30 @@ namespace Symbooglix
             if (!newValue.Type.Equals(this.MapType))
                 throw new ArgumentException("newValue must have correct map type");
 
-            DropConcreteStores(); // The stores are no longer valid so drop them all
+            // The stores are no longer valid so drop them all
+            DropConcreteStores();
+            DropSymbolicNonAliasingStores();
+
             UnflushedStores.Clear(); // We don't want unflushed stores to ever get flushed onto the new expression
             Debug.Assert(UnflushedStores.Count == 0);
             Debug.Assert(StoresAtConcreteIndices.Count == 0);
             ExpressionRepresentation = newValue;
+            Debug.Assert(GetCurrentMode() == CurrentMode.NONE);
         }
 
         public MapProxy Clone()
         {
             var other = (MapProxy) this.MemberwiseClone();
 
-            // This should be a very lightweight copy
+            // These should be a very lightweight copies
             var copySACI = StoresAtConcreteIndices.ToImmutable();
             other.StoresAtConcreteIndices = copySACI.ToBuilder();
 
             var copyUFS = UnflushedStores.ToImmutable();
             other.UnflushedStores = copyUFS.ToBuilder();
+
+            var copySASNAI = StoresAtSymbolicNonAliasingIndices.ToImmutable();
+            other.StoresAtSymbolicNonAliasingIndices = copySASNAI.ToBuilder();
 
             return other;
         }
