@@ -31,10 +31,6 @@ namespace Symbooglix
 
     public class ConstraintManager : IConstraintManager
     {
-        // FIXME: We are doing reference equality here
-        // we can't move towards doing Expr equality checks
-        // until Expr.GetHashCode() is fixed to be a constant time
-        // operation
         private HashSet<Constraint> InternalConstraints;
 
         public int Count
