@@ -3,6 +3,8 @@ using Microsoft.Boogie;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Immutable;
+using System.Numerics;
+using System.Diagnostics;
 
 
 namespace Symbooglix
@@ -35,13 +37,16 @@ namespace Symbooglix
     public class SimpleVariableStore : IVariableStore
     {
         private ImmutableDictionary<Variable, Expr>.Builder BasicTypeVariableStore;
-        private Dictionary<Variable, MapProxy> MapTypeVariableStore;
+        private ImmutableDictionary<Variable, MapProxy>.Builder MapTypeVariableStore;
+        private BigInteger CopyOnWriteKey; // Epoch counter for MapProxy objects
 
         public SimpleVariableStore()
         {
             var emptyDict = ImmutableDictionary<Variable, Expr>.Empty;
             BasicTypeVariableStore = emptyDict.ToBuilder();
-            MapTypeVariableStore = new Dictionary<Variable, MapProxy>();
+            var emptyMPDict = ImmutableDictionary<Variable, MapProxy>.Empty;
+            MapTypeVariableStore = emptyMPDict.ToBuilder();
+            CopyOnWriteKey = new BigInteger(0);
         }
 
         private bool IsMapVariable(Variable v)
@@ -64,7 +69,8 @@ namespace Symbooglix
 
             if (IsMapVariable(v))
             {
-                MapTypeVariableStore.Add(v, new MapProxy(initialValue));
+                var mp = new MapProxy(initialValue, this.CopyOnWriteKey);
+                MapTypeVariableStore.Add(v, mp);
             }
             else
                 BasicTypeVariableStore.Add(v, initialValue);
@@ -94,14 +100,19 @@ namespace Symbooglix
             var copyBasicTypeVariableStore = this.BasicTypeVariableStore.ToImmutable();
             that.BasicTypeVariableStore = copyBasicTypeVariableStore.ToBuilder();
 
-            // FIXME: We need to come up with some kind of copy-on-write mechanism
-            // so that we can avoid copying the MapProxies until we actually have to write to them
-            // Clone the MapProxies
-            that.MapTypeVariableStore = new Dictionary<Variable, MapProxy>(this.MapTypeVariableStore.Count);
-            foreach (var pair in this.MapTypeVariableStore)
-            {
-                that.MapTypeVariableStore.Add(pair.Key, pair.Value.Clone());
-            }
+            var copyMapTypeVariableStore = this.MapTypeVariableStore.ToImmutable();
+            that.MapTypeVariableStore = copyMapTypeVariableStore.ToBuilder();
+
+            // Note we delay cloning the MapStore objects until an attempt is made to write to one of them.
+            // This requires that we be must be very careful and make sure that any public interface that allows
+            // writing to the MapProxy triggers a clone of the MapStore.
+            //
+            // Now that a copy has been performed we need to increment to CopyOnWrite key of this and that
+            // so any MapStore objects we created before cloning will be copied if an attempt is
+            // made to write to them (using one of the IVariable interfaces) from this or that.
+            ++this.CopyOnWriteKey;
+            ++that.CopyOnWriteKey;
+
             return that;
         }
 
@@ -130,6 +141,14 @@ namespace Symbooglix
             if (mapProxyObj == null)
                 throw new KeyNotFoundException("map variable not in store");
 
+            if (mapProxyObj.CopyOnWriteOwnerKey != this.CopyOnWriteKey)
+            {
+                // Perform copy
+                var newMp = mapProxyObj.Clone(this.CopyOnWriteKey);
+                MapTypeVariableStore[mapVariable] = newMp;
+                mapProxyObj = newMp;
+            }
+            Debug.Assert(mapProxyObj.CopyOnWriteOwnerKey == this.CopyOnWriteKey);
             mapProxyObj.WriteMapAt(indicies, value);
         }
 
@@ -162,8 +181,9 @@ namespace Symbooglix
                 var srcInternalsMaps = ( srcStore as SimpleVariableStore ).MapTypeVariableStore;
 
                 // Clone the internal representation of the map to avoid causing any flushes
-                var mapProxyClone = srcInternalsMaps[src].Clone();
+                var mapProxyClone = srcInternalsMaps[src].Clone(this.CopyOnWriteKey);
                 this.MapTypeVariableStore[dest] = mapProxyClone;
+                Debug.Assert(this.MapTypeVariableStore[dest].CopyOnWriteOwnerKey == this.CopyOnWriteKey);
             }
             else
             {
@@ -215,6 +235,14 @@ namespace Symbooglix
                 TypeCheckDirectAssign(v, value);
                 if (IsMapVariable(v))
                 {
+                    var mp = MapTypeVariableStore[v];
+                    if (mp.CopyOnWriteOwnerKey != this.CopyOnWriteKey)
+                    {
+                        // Make copy
+                        var newMp = mp.Clone(this.CopyOnWriteKey);
+                        MapTypeVariableStore[v] = newMp;
+                    }
+                    Debug.Assert(MapTypeVariableStore[v].CopyOnWriteOwnerKey == this.CopyOnWriteKey);
                     MapTypeVariableStore[v].Write(value);
                 }
                 else

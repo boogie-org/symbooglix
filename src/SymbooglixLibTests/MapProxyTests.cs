@@ -30,7 +30,7 @@ namespace SymbooglixLibTests
 
         protected MapProxy GetMapProxy(Expr initialValue)
         {
-            return new MapProxy(initialValue);
+            return new MapProxy(initialValue, 0);
         }
 
         // FIXME: move somewhere central
@@ -285,7 +285,7 @@ namespace SymbooglixLibTests
             Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
 
             // Clone and make sure we can read the same
-            var clonedMp = mp.Clone();
+            var clonedMp = mp.Clone(1);
 
             Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(0) }));
             Assert.AreEqual(builder.True, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
@@ -360,7 +360,7 @@ namespace SymbooglixLibTests
 
 
             // Clone and make sure we can read the same
-            var clonedMp = mp.Clone();
+            var clonedMp = mp.Clone(1);
 
             Assert.AreEqual(builder.False, clonedMp.ReadMapAt(new List<Expr>() { sym }));
             Assert.AreEqual(builder.True, clonedMp.ReadMapAt(new List<Expr>() { builder.Add(builder.ConstantInt(1), sym) }));

@@ -5,11 +5,13 @@ using Microsoft.Boogie;
 using BPLType = Microsoft.Boogie.Type;
 using System.Linq;
 using System.Collections.Immutable;
+using System.Numerics;
 
 namespace Symbooglix
 {
     public class MapProxy
     {
+        public BigInteger CopyOnWriteOwnerKey {get; private set;}
         private Expr ExpressionRepresentation;
         BPLType MapType;
         public readonly int NumberOfIndices;
@@ -61,9 +63,10 @@ namespace Symbooglix
         ImmutableDictionary<MapKey,Expr>.Builder StoresAtSymbolicNonAliasingIndices;
         Variable SymVariable ; // FIXME: Type should be SymbolicVariable
 
-        public MapProxy(Expr initialValue)
+        public MapProxy(Expr initialValue, BigInteger copyOnWriteOwnerKey)
         {
             this.MapType = initialValue.Type;
+            this.CopyOnWriteOwnerKey = copyOnWriteOwnerKey;
 
             if (!this.MapType.IsMap)
                 throw new ArgumentException("Must be map type");
@@ -97,14 +100,20 @@ namespace Symbooglix
             return numberOfIndices;
         }
 
+        // We should probably lock other places too
+        // but this one is especially risky because multiple IVariableStores may have
+        // a handle to us and trigger flushing simultaneously. This must happen sequentially
         private void FlushUnflushedStores()
         {
-            foreach (var mapping in UnflushedStores)
+            lock (UnflushedStores)
             {
-                DirectWrite(mapping.Key.Indices, mapping.Value);
+                foreach (var mapping in UnflushedStores)
+                {
+                    DirectWrite(mapping.Key.Indices, mapping.Value);
+                }
+                UnflushedStores.Clear();
+                Debug.Assert(UnflushedStores.Count == 0);
             }
-            UnflushedStores.Clear();
-            Debug.Assert(UnflushedStores.Count == 0);
         }
 
         private void DropConcreteStores()
@@ -492,7 +501,7 @@ namespace Symbooglix
             Debug.Assert(GetCurrentMode() == CurrentMode.NONE);
         }
 
-        public MapProxy Clone()
+        public MapProxy Clone(BigInteger newOwnerCopyOnWriteKey)
         {
             var other = (MapProxy) this.MemberwiseClone();
 
@@ -506,6 +515,7 @@ namespace Symbooglix
             var copySASNAI = StoresAtSymbolicNonAliasingIndices.ToImmutable();
             other.StoresAtSymbolicNonAliasingIndices = copySASNAI.ToBuilder();
 
+            other.CopyOnWriteOwnerKey = newOwnerCopyOnWriteKey;
             return other;
         }
     }
