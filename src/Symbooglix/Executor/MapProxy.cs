@@ -13,7 +13,8 @@ namespace Symbooglix
         private Expr ExpressionRepresentation;
         BPLType MapType;
         public readonly int NumberOfIndices;
-        private static IExprBuilder Builder = new SimpleExprBuilder(/*immutable=*/ true);
+        // FIXME: Make this user specifiable
+        private static IExprBuilder Builder = new ConstantFoldingExprBuilder(new SimpleExprBuilder(/*immutable=*/ true));
 
         class MapKey
         {

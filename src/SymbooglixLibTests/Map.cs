@@ -170,7 +170,7 @@ namespace SymbooglixLibTests
                 assert {:symbooglix_bp ""check_written""} true;
 
                 // write to symbolic location
-                x[1][symIndex] := false;
+                x[0][symIndex] := false;
 
                 assert {:symbooglix_bp ""check_sym_write""} true;
             }
@@ -197,7 +197,9 @@ namespace SymbooglixLibTests
                         Assert.AreEqual(builder.False, x01);
 
                         // Check the flushed expression from
-                        Assert.AreEqual("~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]]",
+                        // Note without the constant folding expr builder the form is
+                        // "~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]]"
+                        Assert.AreEqual("~sb_x_0[0 := ~sb_x_0[0][0 := true][1 := false]]",
                                         e.CurrentState.GetInScopeVariableExpr(localVarV).ToString());
                         break;
                     case "check_sym_write":
@@ -206,7 +208,8 @@ namespace SymbooglixLibTests
                         var x00After = e.CurrentState.ReadMapVariableInScopeAt(localVarV, new List<Expr>() { builder.ConstantInt(0), builder.ConstantInt(0) });
                         Console.WriteLine(x00After.ToString());
                         // FIXME: I'm unsure if this is correct
-                        Assert.AreEqual("~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]][1 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0 := ~sb_x_0[0 := ~sb_x_0[0][0 := true]][0][1 := false]][1][~sb_symIndex_0 := false]][0][0]",
+                        Console.WriteLine(x00After.ToString());
+                        Assert.AreEqual("~sb_x_0[0][0 := true][1 := false][~sb_symIndex_0 := false][0]",
                             x00After.ToString());
                         break;
                     default:

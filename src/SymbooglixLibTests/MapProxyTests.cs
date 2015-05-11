@@ -272,8 +272,8 @@ namespace SymbooglixLibTests
             Assert.AreEqual(symBool, clonedMp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
             Assert.AreEqual(builder.True, mp.ReadMapAt(new List<Expr>() { builder.ConstantInt(2) }));
 
-            // Double store at index 2 because the earlier Read() flushed the unflushed stores
-            Assert.AreEqual("map[0 := false][2 := true][2 := symBool]", clonedMp.Read().ToString());
+
+            Assert.AreEqual("map[0 := false][2 := symBool]", clonedMp.Read().ToString());
 
             Assert.AreEqual("map[0 := symBool][2 := true]", mp.Read().ToString());
         }
