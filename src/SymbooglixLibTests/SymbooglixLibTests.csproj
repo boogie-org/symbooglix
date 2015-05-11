@@ -104,6 +104,9 @@
     <Compile Include="CachingSymbolicPoolTests.cs" />
     <Compile Include="VariableStoreTests.cs" />
     <Compile Include="MapProxyTests.cs" />
+    <Compile Include="ConstraintTests.cs" />
+    <Compile Include="ConstraintManagerTests.cs" />
+    <Compile Include="Transforms\QueryTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

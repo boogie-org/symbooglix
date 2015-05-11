@@ -51,14 +51,29 @@ namespace Symbooglix
 
         protected HashSet<Constraint> GetNewHashSet()
         {
-            // Use a special IEqualityComparer<Constraint> that only looks
-            // at Constraint.Expr because we only care about that
-            return new HashSet<Constraint>(new ConstraintInHashSetCompare());
+            return new HashSet<Constraint>();
         }
 
+        // The hashcode is iteratively computed everytime a new constraint is added
+        private int PreComputedHashCode = 0;
         public ConstraintManager()
         {
             InternalConstraints = GetNewHashSet();
+        }
+
+        private void FullyRecomputeHashCode()
+        {
+            PreComputedHashCode = 0;
+            foreach (var c in InternalConstraints)
+            {
+                UpdateHashCode(c);
+            }
+        }
+
+        // Used to iteratively update the hash code every time a new constraint is added
+        private void UpdateHashCode(Constraint c)
+        {
+            PreComputedHashCode = ( 97 * PreComputedHashCode ) + c.GetHashCode();
         }
 
         public IConstraintManager Clone()
@@ -88,6 +103,7 @@ namespace Symbooglix
 
             Debug.Assert(c.Condition.ShallowType.IsBool, "constraint must be boolean");
             InternalConstraints.Add(c);
+            UpdateHashCode(c);
         }
 
         public IConstraintManager GetSubSet(ISet<Constraint> subset)
@@ -116,6 +132,8 @@ namespace Symbooglix
                 }
             }
 
+            // Fully recompute the hashcode on the new constraint manager
+            other.FullyRecomputeHashCode();
             return other;
         }
 
@@ -164,6 +182,27 @@ namespace Symbooglix
                 result = SW.ToString();
             }
             return result;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            var other = obj as ConstraintManager;
+            if (other == null)
+                return false;
+
+            if (this.Count != other.Count)
+                return false;
+
+            return this.InternalConstraints.SetEquals(other.InternalConstraints);
+
+        }
+
+        public override int GetHashCode()
+        {
+            return this.PreComputedHashCode;
         }
     }
 

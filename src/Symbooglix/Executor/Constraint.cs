@@ -56,19 +56,32 @@ namespace Symbooglix
             var fvuf = new FindSymbolicsAndUFsVisitor(this.InternalUsedVariables, this.InternalUsedUninterpretedFunctions);
             fvuf.Visit(Condition);
         }
-    }
 
-    class ConstraintInHashSetCompare : IEqualityComparer<Constraint>
-    {
-        public bool Equals(Constraint x, Constraint y)
+        // Equality and GetHashCode only care about the constraint
+        // they don't care if the Origin is different
+        public override bool Equals(object obj)
         {
+            if (obj == null)
+                return false;
+
+            var other = obj as Constraint;
+            if (other == null)
+                return false;
+
+            // Try to do quick checks first
+            if (InternalUsedVariables.Count != other.InternalUsedVariables.Count)
+                return false;
+
+            if (InternalUsedUninterpretedFunctions.Count != other.InternalUsedUninterpretedFunctions.Count)
+                return false;
+
             // Potentially slow comparision
-            return ExprUtil.StructurallyEqual(x.Condition, y.Condition);
+            return ExprUtil.StructurallyEqual(this.Condition, other.Condition);
         }
 
-        public int GetHashCode(Constraint obj)
+        public override int GetHashCode()
         {
-            return obj.Condition.GetHashCode();
+            return this.Condition.GetHashCode();
         }
     }
 
