@@ -78,7 +78,7 @@ namespace Symbooglix
                     // First see if it's possible for the false branch to be feasible
                     // ∃ X constraints(X) ∧ ¬ condition(X)
                     var query = new Solver.Query(constraints, trueExpr);
-                    falseBranchResult =  SolverImpl.ComputeSatisfiability(query.WithNegatedQueryExpr(builder));
+                    falseBranchResult =  InternalComputeSatisfiability(query.WithNegatedQueryExpr(builder));
                     var falseBranch = falseBranchResult.Satisfiability;
 
 
@@ -105,7 +105,7 @@ namespace Symbooglix
 
                         // Now see if it's possible for execution to continue past the assertion
                         // ∃ X constraints(X) ∧ condition(X)
-                        trueBranchResult = SolverImpl.ComputeSatisfiability(query);
+                        trueBranchResult = InternalComputeSatisfiability(query);
                         trueBranch = trueBranchResult.Satisfiability;
                     }
 
@@ -122,6 +122,24 @@ namespace Symbooglix
                 }
             }
 
+            protected IQueryResult InternalComputeSatisfiability(Query query)
+            {
+                // Check for a few things that we can quick give an answer for
+                // otherwise call the real solver
+
+                if (ExprUtil.IsTrue(query.QueryExpr.Condition))
+                    return new SimpleQueryResult(Result.SAT);
+
+                if (ExprUtil.IsFalse(query.QueryExpr.Condition))
+                    return new SimpleQueryResult(Result.UNSAT);
+
+                // If queryExpr is already in the constraint set then the result
+                // is satisfiable
+                if (query.Constraints.Contains(query.QueryExpr))
+                    return new SimpleQueryResult(Result.SAT);
+
+                return SolverImpl.ComputeSatisfiability(query);
+            }
            
 
             public IQueryResult CheckSatisfiability(Query query)
@@ -133,7 +151,7 @@ namespace Symbooglix
                 // an ISolverImplFactory that we take so we can create new solver implementations whenever it's necessary.
                 Timer.Start();
 
-                var result = SolverImpl.ComputeSatisfiability(query);
+                var result = InternalComputeSatisfiability(query);
 
                 Timer.Stop();
                 UpdateStatistics(result);
