@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Boogie;
 using System.IO;
+using System.Collections.Immutable;
 
 namespace Symbooglix
 {
@@ -31,7 +32,7 @@ namespace Symbooglix
 
     public class ConstraintManager : IConstraintManager
     {
-        private HashSet<Constraint> InternalConstraints;
+        private ImmutableHashSet<Constraint>.Builder InternalConstraints;
 
         public int Count
         {
@@ -49,18 +50,12 @@ namespace Symbooglix
             get { return InternalConstraints; }
         }
 
-        protected HashSet<Constraint> GetNewHashSet()
-        {
-            return new HashSet<Constraint>();
-        }
-
-
-
         // The hashcode is iteratively computed everytime a new constraint is added
         private int PreComputedHashCode = 0;
         public ConstraintManager()
         {
-            InternalConstraints = GetNewHashSet();
+            var empty = ImmutableHashSet<Constraint>.Empty;
+            InternalConstraints = empty.ToBuilder();
         }
 
         private void FullyRecomputeHashCode()
@@ -81,13 +76,8 @@ namespace Symbooglix
         public IConstraintManager Clone()
         {
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
-            other.InternalConstraints = GetNewHashSet();
-
-            // Constraints should be immutable so we don't need to clone the Expr
-            foreach (var c in this.InternalConstraints)
-            {
-                other.InternalConstraints.Add(c);
-            }
+            var asImmutable = this.InternalConstraints.ToImmutable();
+            other.InternalConstraints = asImmutable.ToBuilder();
 
             return other;
         }
@@ -114,25 +104,15 @@ namespace Symbooglix
             if (InternalConstraints.SetEquals(subset))
                 return this;
 
+            if (subset.Count >= InternalConstraints.Count)
+                throw new ArgumentException("Subset has count >= to count of this constraint manager's constraints");
+
             // Is this the most efficient way to do this?
             ConstraintManager other = (ConstraintManager) this.MemberwiseClone();
             Debug.Assert(subset.IsSubsetOf(InternalConstraints), "argument ``subset`` is not a valid subset");
 
-            if (subset is HashSet<Constraint>)
-            {
-                // FIXME: Remove this hack and see if it makes much of a performance difference
-                // Reuse the container for efficiency
-                // This doesn't feel very safe...
-                other.InternalConstraints = (HashSet<Constraint>) subset;
-            }
-            else
-            {
-                other.InternalConstraints = GetNewHashSet();
-                foreach (var constraint in subset)
-                {
-                    other.InternalConstraints.Add(constraint);
-                }
-            }
+            var asIm = ImmutableHashSet<Constraint>.Empty.Union(subset);
+            other.InternalConstraints = asIm.ToBuilder();
 
             // Fully recompute the hashcode on the new constraint manager
             other.FullyRecomputeHashCode();
