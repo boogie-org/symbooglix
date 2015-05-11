@@ -235,15 +235,22 @@ namespace Symbooglix
                 TypeCheckDirectAssign(v, value);
                 if (IsMapVariable(v))
                 {
-                    var mp = MapTypeVariableStore[v];
-                    if (mp.CopyOnWriteOwnerKey != this.CopyOnWriteKey)
+                    if (MapTypeVariableStore.ContainsKey(v))
                     {
-                        // Make copy
-                        var newMp = mp.Clone(this.CopyOnWriteKey);
-                        MapTypeVariableStore[v] = newMp;
+                        var mp = MapTypeVariableStore[v];
+                        if (mp.CopyOnWriteOwnerKey != this.CopyOnWriteKey)
+                        {
+                            // Make copy
+                            var newMp = mp.Clone(this.CopyOnWriteKey);
+                            MapTypeVariableStore[v] = newMp;
+                        }
+                        MapTypeVariableStore[v].Write(value);
+                    }
+                    else
+                    {
+                        MapTypeVariableStore[v] = new MapProxy(value, this.CopyOnWriteKey);
                     }
                     Debug.Assert(MapTypeVariableStore[v].CopyOnWriteOwnerKey == this.CopyOnWriteKey);
-                    MapTypeVariableStore[v].Write(value);
                 }
                 else
                     BasicTypeVariableStore[v] = value;

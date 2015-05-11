@@ -276,6 +276,7 @@ namespace SymbooglixDriver
                 ExitWith(ExitCode.EXCEPTION_RAISED);
                 return (int)ExitCode.EXCEPTION_RAISED; // Keep compiler happy
             }
+            //return RealMain(args);
         }
 
         private static void SetupTerminationCatchers(Executor executor)
