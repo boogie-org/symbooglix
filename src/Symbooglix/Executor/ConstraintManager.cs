@@ -15,6 +15,7 @@ namespace Symbooglix
         IEnumerable<Constraint> Constraints { get; }
         void AddConstraint(Expr e, ProgramLocation location);
         void AddConstraint(Constraint c);
+        bool Contains(Constraint c);
 
         /// <summary>
         /// Returns
@@ -185,6 +186,11 @@ namespace Symbooglix
         public override int GetHashCode()
         {
             return this.PreComputedHashCode;
+        }
+
+        public bool Contains(Constraint c)
+        {
+            return InternalConstraints.Contains(c);
         }
     }
 
