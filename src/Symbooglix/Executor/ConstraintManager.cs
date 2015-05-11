@@ -54,6 +54,8 @@ namespace Symbooglix
             return new HashSet<Constraint>();
         }
 
+
+
         // The hashcode is iteratively computed everytime a new constraint is added
         private int PreComputedHashCode = 0;
         public ConstraintManager()

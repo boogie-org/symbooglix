@@ -103,6 +103,9 @@ namespace SymbooglixDriver
             [Option("log-non-terminated-state-info", DefaultValue=1, HelpText="Log information about a termination state to a YAML file (a value of 0 disables)")]
             public int LogNonTerminatedStateInfo { get; set;}
 
+            [Option("caching-solver", DefaultValue=-1, HelpText="-1 do not use, 0 unlimited query cache, other query cache limited by specified number")]
+            public int CachingSolver { get; set; }
+
             [Option("ci-solver", DefaultValue = 1, HelpText = "Use Constraint independence solver")]
             public int ConstraintIndepenceSolver { get; set; }
 
@@ -868,6 +871,11 @@ namespace SymbooglixDriver
                 // FIXME: How are we going to ensure this file gets closed properly?
                 StreamWriter QueryLogFile = new StreamWriter(options.queryLogPath, /*append=*/ options.appendLoggedQueries > 0);
                 solverImpl = new Solver.SMTLIBQueryLoggingSolverImpl(solverImpl, QueryLogFile, /*useNamedAttributeBindings=*/true, options.humanReadable > 0);
+            }
+
+            if (options.CachingSolver >= 0)
+            {
+                solverImpl = new Solver.SimpleSolverCache(solverImpl, options.CachingSolver);
             }
 
             if (options.ConstraintIndepenceSolver > 0)

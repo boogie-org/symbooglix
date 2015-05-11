@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Boogie;
+using System.Diagnostics;
 
 namespace Symbooglix
 {
@@ -40,6 +41,16 @@ namespace Symbooglix
             public override int GetHashCode()
             {
                 return 33 * Constraints.GetHashCode() + QueryExpr.GetHashCode();
+            }
+
+            public Query Clone()
+            {
+                var that = (Query) this.MemberwiseClone();
+                that.Constraints = this.Constraints.Clone();
+
+                // No need to clone QueryExpr it is immutable.
+                Debug.Assert(that.QueryExpr.Condition.Immutable);
+                return that;
             }
         }
     }

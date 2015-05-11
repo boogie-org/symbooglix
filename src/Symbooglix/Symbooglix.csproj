@@ -133,6 +133,7 @@
     <Compile Include="Expr\ConstantCachingExprBuilder.cs" />
     <Compile Include="Executor\IVariableStore.cs" />
     <Compile Include="Executor\MapProxy.cs" />
+    <Compile Include="Solver\SimpleSolverCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">
