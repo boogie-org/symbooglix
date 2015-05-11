@@ -327,8 +327,11 @@ namespace SymbooglixLibTests
             // m[sym + sym2] := true
             mp.WriteMapAt(new List<Expr>() { builder.Add(sym2, sym) }, builder.True);
 
+            // Read back
+            Assert.AreEqual("true", mp.ReadMapAt(new List<Expr>() { builder.Add(sym2, sym) }).ToString());
+
             // Read back should give fully flushed expression
-            Assert.AreEqual("map[sym2 + sym := true][sym2 + sym]", mp.ReadMapAt(new List<Expr>() { builder.Add(sym2, sym) }).ToString());
+            Assert.AreEqual("map[sym2 + sym := true][sym2 + sym2]", mp.ReadMapAt(new List<Expr>() { builder.Add(sym2, sym2) }).ToString());
         }
 
         [Test()]
@@ -622,9 +625,12 @@ namespace SymbooglixLibTests
             // m[sym2] := true
             mp.WriteMapAt(new List<Expr>() { sym2 }, builder.True);
 
-            // FIXME: Due to the current implementation we won't be able to read this back directly
-            // and instead get back the fully flushed expression
-            Assert.AreEqual("map[1 + sym := true][sym2 := true][sym2]", mp.ReadMapAt( new List<Expr>() {sym2}).ToString());
+            // Note the ConstantFoldingExprBuilder manages to extract the true for us
+            Assert.AreEqual("true", mp.ReadMapAt( new List<Expr>() {sym2}).ToString());
+
+            // Read from symoblic location where we don't know if it aliases with existing stores. This
+            // will force full flush
+            Assert.AreEqual("map[1 + sym := true][sym2 := true][sym]", mp.ReadMapAt( new List<Expr>() {sym}).ToString());
 
             // The next write to this non-aliasing location should be readable directly
             // m[3 + sym2] := true
