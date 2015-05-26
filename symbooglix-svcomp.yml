@@ -1,0 +1,30 @@
+# vim: set sw=2 ts=2 softtabstop=2 expandtab:
+runner: Symbooglix
+runner_config:
+  tool_path: "~/symbooglix/sbx.exe"
+  max_memory: 10240 # 10 GiB
+  max_time: 900
+  additional_args:
+    - "--solver-timeout=30"
+    - "--stop-at-failure=1" # Stop when we find the first bug
+    - "--skip-log-success-states"
+    - "--skip-log-unsat-assume-states"
+    - "--log-non-terminated-state-info=0"
+    - "--write-smt2=0"
+    # Note --fork-at-predicated-assign is False by default
+    - "--goto-assume-look-ahead=1"
+    - "--remove-trivial-assumes"
+    - "--globaldde=1"
+    - "--fold-constants=1"
+    - "--ci-solver=1"
+    - "--constant-caching=0"
+    # Note these are only safe because we checked that all assumptions in the Boogie
+    # programs are satisfiable beforehand.
+    - "--check-entry-requires=0"
+    - "--check-entry-axioms=0"
+    - "--check-unique-vars=0"
+  entry_point: "main"
+  stack_size: "unlimited"
+  memory_limit_enforcement:
+    enforcer: "poll"
+    time_period: 1.0
