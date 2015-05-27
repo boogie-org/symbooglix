@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER Dan Liew <daniel.liew@imperial.ac.uk>
 
-ENV CONTAINER_USER=sbx \
+ENV CONTAINER_USER=ase \
     BINARY_DIR=src/SymbooglixDriver/bin/Release \
     BOOGIE_RUNNER_REVISION=9be74e6e12bac25befa0f4fb13ced040754b702a
 
@@ -19,10 +19,10 @@ RUN apt-get update && apt-get -y install wget && \
     apt-get update && \
     apt-get -y install --no-install-recommends mono-devel z3=4.3.1-0~trusty1
 
-# Create ``sbx`` user for container with password ``sbx``.
+# Create user for container with password set to the user name
 # Give it sudo access so it possible to install new packages inside the container.
 # NEVER EVER EVER EVER USE THIS CONTAINER IN PRODUCTION DUE HOW EASY IT IS
-# TO GET ROOT PRIVILIDGES WITH THE ``sbx`` USER!
+# TO GET ROOT PRIVILIDGES WITH THE ${CONTAINER_USER} USER!
 RUN useradd -m ${CONTAINER_USER} && \
     echo ${CONTAINER_USER}:${CONTAINER_USER} | chpasswd && \
     echo "${CONTAINER_USER}  ALL=(root) ALL" >> /etc/sudoers
