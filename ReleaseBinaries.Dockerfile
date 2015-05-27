@@ -17,7 +17,7 @@ RUN apt-get update && apt-get -y install wget && \
     apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590 && \
     echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list && \
     apt-get update && \
-    apt-get -y install mono-complete z3=4.3.1-0~trusty1
+    apt-get -y install --no-install-recommends mono-devel z3=4.3.1-0~trusty1
 
 # Create ``sbx`` user for container with password ``sbx``.
 # Give it sudo access so it possible to install new packages inside the container.
