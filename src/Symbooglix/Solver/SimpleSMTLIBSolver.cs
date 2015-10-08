@@ -149,12 +149,21 @@ namespace Symbooglix
 
                     ++InternalStatistics.ProcessCreationCount;
 
+                    // HACK: When running in a NUnit test environment Console.Out.Encoding under Mono (4.0.4) is a UTF-8
+                    // encoding with emission of the "Byte ordering mark" (BOM) enabled whereas in a normal executable
+                    // environment the emission of the BOM is disabled. This causes problems because Z3 can't handle a
+                    // BOM, therefore we want the emission of a BOM to always be disabled. It seems that when Mono sets
+                    // up a process, it creates a pipe for the redirected input stream and it uses Console.Out.Encoding
+                    // to set the encoding on the writable end of the pipe, therefore we want emission of the BOM to
+                    // always be disabled on that stream. Modifying Console.OutputEncoding seems to acheieve this.
+                    Console.OutputEncoding = TheEncoding;
+
                     this.TheProcess = Process.Start(StartInfo);
 
                     if (Printer == null)
-                        Printer = new SMTLIBQueryPrinter(GetStdInput(), /*useNamedAttributeBindings*/UseNamedAttributes, /*humanReadable=*/false);
+                        Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*useNamedAttributeBindings*/UseNamedAttributes, /*humanReadable=*/false);
                     else
-                        Printer.ChangeOutput(GetStdInput());
+                        Printer.ChangeOutput(TheProcess.StandardInput);
 
 
                     // Register for asynchronous callbacks
@@ -166,16 +175,6 @@ namespace Symbooglix
                     ReceivedResult = false;
                     SolverProcessTimer.Stop();
                 }
-            }
-
-            private StreamWriter GetStdInput()
-            {
-                // This is a hack. It seems when running the NUnit tests the Byte-Order-Mark gets emitted but not in the driver and this
-                // seems to be caused by how the Encoding is set up. We hack around this by using our own StreamWriter and always
-                // set encoderShouldEmitUTF8Identifier to false
-                var streamWriter = new StreamWriter(TheProcess.StandardInput.BaseStream, TheEncoding);
-                streamWriter.AutoFlush = true;
-                return streamWriter;
             }
 
             public void SetTimeout(int seconds)
