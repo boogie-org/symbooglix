@@ -37,7 +37,16 @@ $ git submodule init
 $ git submodule update
 ```
 
-We also depend on several NuGet packages. To get these run
+## Monodevelop or Visual Studio
+
+You can load the ``symbooglix/symbooglix.sln`` file into Visual Studio or Monodevelop and build from there.
+
+We depend on several NuGet packages. Hopefully NuGet will automatically "restore" the packages we depend
+on but if not you may need to "restore them manually" before building.
+
+## Linux/OSX command line
+
+We depend on several NuGet packages. To get these run
 
 ```
 $ cd src
@@ -63,8 +72,17 @@ Now make a symbolic link (or copy) to the the z3 executable and place it in the 
 
 where ``<BUILD_TYPE>`` is the build type used to build Symbooglix.
 
-Alternatively you can load the ``symbooglix/symbooglix.sln`` file into Visual
-Studio or Monodevelop and build from there.
+# Running your first Boogie program
+
+```
+$ mono src/SymbooglixDriver/<BUILD_TYPE>/Debug/sbx.exe test_programs/basic/symbolic/142.bpl
+```
+
+To see the available Symbooglix driver options run
+
+```
+$ mono src/SymbooglixDriver/<BUILD_TYPE>/Debug/sbx.exe --help
+```
 
 # Testing
 
