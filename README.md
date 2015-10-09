@@ -1,19 +1,16 @@
 <!-- vim: set textwidth=120: -->
-Symbooglix
-==========
+# Symbooglix
 
 The Symbolic execution engine for [Boogie](http://research.microsoft.com/en-us/projects/boogie/). This project
 is currently at the research stage and so is not yet making stable releases.
 
 [![Build Status](https://travis-ci.org/symbooglix/symbooglix.svg?branch=master)](https://travis-ci.org/symbooglix/symbooglix)
 
-Dependencies
-============
+# Dependencies
 
 To build you will need
 
-Common dependencies
--------------------
+## Common dependencies
 
 - Git
 - Python
@@ -23,18 +20,15 @@ Common dependencies
 - CommandLine (obtained via NuGet on restore)
 - System.Collections.Immutable (obtained via NuGet on restore)
 
-If using Linux
---------------
+## If using Linux
 
 - Mono and related tools (I advise you use Monodevelop as your IDE)
 
-If using Windows
-----------------
+## If using Windows
 
 - You should install the "NUnit Test Adapter" in Visual Studio so you can run the unit tests.
 
-Getting started
-===============
+# Getting started
 
 We use several git submodules for symbooglix. Before you start you should initialise them by running
 
@@ -72,13 +66,11 @@ where ``<BUILD_TYPE>`` is the build type used to build Symbooglix.
 Alternatively you can load the ``symbooglix/symbooglix.sln`` file into Visual
 Studio or Monodevelop and build from there.
 
-Testing
-=======
+# Testing
 
 There are two forms of testing used for Symbooglix
 
-NUnit tests
-===========
+# NUnit tests
 
 [NUnit](https://github.com/nunit) is used for unit testing. This comes preinstalled
 in mono but the version is too old so you need to obtain NUnit 2.6.4. When you built
@@ -95,8 +87,7 @@ $ mono ./nuget.exe install -Version 2.6.4 NUnit.Runners
 $ utils/run-unit-tests.sh NUnit.Runners.2.6.4/tools/nunit-console.exe <BUILD_TYPE>
 ```
 
-Driver tests
-============
+# Driver tests
 
 The Symbooglix driver is ``sbx.exe``. To test it install the lit and OutputCheck tools
 
@@ -111,8 +102,7 @@ Now to run the tests run
 $ lit -s test_programs/
 ```
 
-Symbooglix Driver Output
-========================
+# Symbooglix Driver Output
 
 When the SymbooglixDriver (``sbx.exe``) runs it creates a directory named
 ``symbooglix-<N>`` (where <N> is an increasing integer) which contains files
