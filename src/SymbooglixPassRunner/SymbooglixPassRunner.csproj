@@ -30,6 +30,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="CommandLine">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -45,13 +48,12 @@
       <Project>{FCD3AC7F-9DFD-46C8-AB1E-09F0B0F16DC5}</Project>
       <Name>ParserHelper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ExternalLibs\CommandLine\src\libcmdline\CommandLine.csproj">
-      <Project>{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}</Project>
-      <Name>CommandLine</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Symbooglix\Symbooglix.csproj">
       <Project>{69F04878-1CD0-454C-87A6-6B155D2D4855}</Project>
       <Name>Symbooglix</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

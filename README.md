@@ -21,7 +21,7 @@ Common dependencies
 - Z3 4.3.1 (avoid Z3 4.3.2, newer versions should be fine)
 - Boogie (obtained via a Git submodule)
 - NUnit 2.6.4 (obtained via NuGet on restore)
-- CommandLine (currently a Git submodule)
+- CommandLine (obtained via NuGet on restore)
 - System.Collections.Immutable (obtained via NuGet on restore)
 
 If using Linux
