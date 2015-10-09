@@ -10,7 +10,6 @@ namespace Symbooglix
         public enum Result {SAT, UNSAT, UNKNOWN};
 
 
-        // TODO: Make ISolver return this instead of just Result
         public interface IQueryResult
         {
             Result Satisfiability { get; }
