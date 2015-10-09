@@ -17,7 +17,7 @@ Common dependencies
 
 - Git
 - Python
-- Z3 (SMT Solver)
+- Z3 4.3.1 (avoid Z3 4.3.2, newer versions should be fine)
 
 If using Linux
 --------------
@@ -38,18 +38,35 @@ We use several git submodules for symbooglix. Before you start you should initia
 $ git submodule init
 $ git submodule update
 ```
+
+We also depend on several NuGet packages. To get these run
+
+```
+$ cd src
+$ wget https://dist.nuget.org/win-x86-commandline/v2.8.6/nuget.exe
+$ mono nuget.exe restore
+```
+
 Now if everthing went okay you can build Symbooglix by running
 
 ```
 $ cd src/ # A symboolgix.sln file should be in this directory
-$ xbuild
+$ mono nuget.exe restore symbooglix.sln
+$ xbuild /p:Configuration=<BUILD_TYPE>
 ```
+
+where ``<BUILD_TYPE>`` is ``Debug`` or ``Release``. If you use ``Release`` you also need
+to pass ``/p:Platform=x86`` (this needs fixing!).
+
+Now make a symbolic link (or copy) to the the z3 executable and place it in the following directories:
+
+* ``src/SymbooglixDriver/bin/<BUILD_TYPE>/``
+* ``src/Symbooglix/bin/<BUILD_TYPE>/``
+
+where ``<BUILD_TYPE>`` is the build type used to build Symbooglix.
 
 Alternatively you can load the ``symbooglix/symbooglix.sln`` file into Visual
 Studio or Monodevelop and build from there.
-
-Now make a symbolic link (or copy) to the the z3 executable and place it in the directory
-containing the built ``symbooglix.exe``.
 
 Testing
 =======
@@ -64,19 +81,19 @@ in mono 3.2 (and probably other versions).
 
 These tests are easy to run from within monodevelop.
 
-However you can run these tests from the console on Linux. To do so run
-the following (replace ``Debug`` with another build configuration if you
-want to use that configuration's build instead).
+However you can run these tests from the console on Linux. To do so you need
+to obtain the NUnit.Runners NuGet package and then use a shell script to run
+the tests. Replace ``<BUILD_TYPE>`` with the build type you wish to test.
 
 ```
-$ nunit-console4 src/BoogieTests/bin/Debug/BoogieTests.dll
-$ nunit-console4 src/SymbooglixLibTests/bin/Debug/SymbooglixLibTests.dll
+$ mono ./nuget.exe install -Version 2.6.4 NUnit.Runners
+$ utils/run-unit-tests.sh NUnit.Runners.2.6.4/tools/nunit-console.exe <BUILD_TYPE>
 ```
 
 Driver tests
 ============
 
-Install the lit and OutputCheck tools
+The Symbooglix driver is ``sbx.exe``. To test it install the lit and OutputCheck tools
 
 ```
 $ pip install lit

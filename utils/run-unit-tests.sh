@@ -2,7 +2,7 @@
 # This is hacky script to run all the unit tests
 
 if [ $# -ne 2 ]; then
-    echo "$0 <CONSOLE_RUNNER_PATH> <BUILD_TYPER>"
+    echo "$0 <CONSOLE_RUNNER_PATH> <BUILD_TYPE>"
     exit 1
 fi
 CONSOLE_RUNNER="$1"
