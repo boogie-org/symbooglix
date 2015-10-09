@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Basetypes;
 using Microsoft.Boogie;
 using System.Numerics;

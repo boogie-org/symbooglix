@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Symbooglix.Solver;
 using Symbooglix;
 using System.IO;

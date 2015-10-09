@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Symbooglix;
 using System.Linq;
 using System.Collections.Generic;

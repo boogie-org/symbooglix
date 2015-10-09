@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Symbooglix;
 using Microsoft.Boogie;
 using System.Collections.Generic;

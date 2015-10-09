@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Boogie;
 using Microsoft.Basetypes;
 using System.Collections.Generic;

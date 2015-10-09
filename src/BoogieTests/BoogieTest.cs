@@ -1,4 +1,4 @@
-﻿using Microsoft.Boogie;
+using Microsoft.Boogie;
 using NUnit.Framework;
 using SymbooglixLibTests; // FIXME: We shouldn't depend on this.
 using System;

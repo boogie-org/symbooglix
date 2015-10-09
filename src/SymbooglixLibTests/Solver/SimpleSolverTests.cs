@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Symbooglix;
 using Solver = Symbooglix.Solver;
 using NUnit.Framework;

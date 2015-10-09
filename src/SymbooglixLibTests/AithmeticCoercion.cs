@@ -1,4 +1,4 @@
-﻿using Microsoft.Boogie;
+using Microsoft.Boogie;
 using NUnit.Framework;
 using Symbooglix;
 using System;

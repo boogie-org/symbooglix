@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using Microsoft.Boogie;
 using System.Collections.Generic;
