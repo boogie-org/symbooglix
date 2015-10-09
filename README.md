@@ -110,3 +110,21 @@ Now to run the tests run
 ```
 $ lit -s test_programs/
 ```
+
+Symbooglix Driver Output
+========================
+
+When the SymbooglixDriver (``sbx.exe``) runs it creates a directory named
+``symbooglix-<N>`` (where <N> is an increasing integer) which contains files
+detailing various parts of the execution.  The can be disabled using
+``--file-logging=0``.
+
+Here are some of the files and directories that you will find inside ``symbooglix-<N>``.
+
+* ``instr_stats.callgrind`` - A file that can be given to KCacheGrind to visualise line coverage and the number of times certain branches were taken.
+* ``executor_info.yml`` - Statistics about the Execution engine.
+* ``terminated_states/`` contains a file for each reporting how it terminated (emission of successful states can be suppressed using ``--skip-log-success-states``, you may wish to use ``--skip-log-unsat-assume-states`` too).
+* ``nonterminated_states/`` contains a file for each state that had not finished executing (i.e. due to hitting a global timeout).
+* ``termination_counters.yml`` - Reports the number of states by termination type where the termination type is non speculative
+* ``termination_counters_ONLY_SPECULATIVE.yml`` - Same as above but only reports speculative execution state. A speculative execution state is marked as speculative when a solver query fails (i.e. returns unknown or timesout) and currently Symbooglix will kill an execution state when this occurs.
+* ``program.bpl`` - The transformed version of the Boogie program that Symbooglix actually executed on.
