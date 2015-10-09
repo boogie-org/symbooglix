@@ -2,7 +2,8 @@
 Symbooglix
 ==========
 
-The Symbolic execution engine for [Boogie](http://research.microsoft.com/en-us/projects/boogie/)
+The Symbolic execution engine for [Boogie](http://research.microsoft.com/en-us/projects/boogie/). This project
+is currently at the research stage and so is not yet making stable releases.
 
 [![Build
 Status](https://magnum.travis-ci.com/delcypher/symbooglix.svg?token=QQ3F3xFawVVs4ymGi3xa)](https://magnum.travis-ci.com/delcypher/symbooglix)
@@ -18,6 +19,10 @@ Common dependencies
 - Git
 - Python
 - Z3 4.3.1 (avoid Z3 4.3.2, newer versions should be fine)
+- Boogie (obtained via a Git submodule)
+- NUnit 2.6.4 (obtained via NuGet on restore)
+- CommandLine (currently a Git submodule)
+- System.Collections.Immutable (obtained via NuGet on restore)
 
 If using Linux
 --------------
@@ -27,7 +32,7 @@ If using Linux
 If using Windows
 ----------------
 
-- NUnit 2.6.3. You should install the "NUnit Test Adapter" in Visual Studio so you can run the unit tests.
+- You should install the "NUnit Test Adapter" in Visual Studio so you can run the unit tests.
 
 Getting started
 ===============
@@ -77,9 +82,10 @@ NUnit tests
 ===========
 
 [NUnit](https://github.com/nunit) is used for unit testing. This comes preinstalled
-in mono 3.2 (and probably other versions).
+in mono but the version is too old so you need to obtain NUnit 2.6.4. When you built
+Symbooglix you will have already obtained the newer version of NUnit using NuGet.
 
-These tests are easy to run from within monodevelop.
+These tests are easy to run from within monodevelop or Visual Studio (you need the NUnit Test Adapter add-on installed).
 
 However you can run these tests from the console on Linux. To do so you need
 to obtain the NUnit.Runners NuGet package and then use a shell script to run
