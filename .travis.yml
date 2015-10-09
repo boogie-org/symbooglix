@@ -5,7 +5,7 @@ solution: "src/Symbooglix.sln"
 install:
   - sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
   # FIXME: We should not be using Boogaloo's repo for Z3
-  - sudo echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list
+  - sudo sh -c 'echo "deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main" > /etc/apt/sources.list.d/smt.list'
   - sudo apt-get update
   - nuget restore ${TRAVIS_SOLUTION}
   # Install Z3
