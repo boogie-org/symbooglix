@@ -29,7 +29,7 @@ WORKDIR /home/${CONTAINER_USER}/
 # Setup Python
 # Note python3-dev installs gcc. We need that so pyyaml gets built properly
 # but remove gcc (and other bits) afterwards to save space
-RUN apt-get -y --no-install-recommends install python3 python3-pip libyaml-dev git && \
+RUN apt-get -y --no-install-recommends install python3 python3-pip libyaml-dev && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10 && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10 && \
     apt-get -y install python3-dev && \
