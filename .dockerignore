@@ -1,3 +1,13 @@
 .git/
-ExternalLibs/
-test_programs/
+ExternalLibs/Boogie/.git
+ExternalLibs/Boogie/Binaries
+ExternalLibs/Boogie/Binaries/*.dll
+ExternalLibs/Boogie/Binaries/*.mdb
+ExternalLibs/Boogie/Binaries/*.exe
+ExternalLibs/Boogie/Source/*/bin
+ExternalLibs/Boogie/Source/*/obj
+test_programs/*/*/Output
+test_programs/*/Output
+src/*/bin
+src/*/obj
+src/packages
