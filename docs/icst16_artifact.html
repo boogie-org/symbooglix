@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Symbooglix Artifact</title>
+  </head>
+<body>
+  <h1>Symbooglix Artifact</h1>
+
+  <p>
+  These instructions detail how to obtain the benchmarks used to evaluate Symbooglix
+  and the tools used in evaluation. Symbooglix is open source an is available on
+  <a href="https://github.com/symbooglix/symbooglix">GitHub.</a>
+  </p>
+
+  <h2 id="boogie_tool_comparison">Boogie tool comparison</h2>
+
+  <h3>Obtaining the benchmarks</h3>
+  <p>
+  <b>WARNING: The sbb repo is very large</b>. It takes roughly 13 GiB of space.
+  </p>
+  <p>
+  The <code>gpu</code> and <code>sbb</code> repository corresponds to the GPU benchmarks
+  and SV-COMP benchmarks discussed in the paper respectively.
+  </p>
+  <code>
+    git clone https://github.com/symbooglix/gpu.git </br>
+    git clone --branch icst16 https://github.com/symbooglix/sbb.git
+  </code>
+
+  <p>
+  Each repo contains a <code>program_list.txt</code> which can be given to
+  <code>boogie-batch-runner.py</code> which will be used later.
+  </p>
+
+  <h3>Obtaining the tools</h3>
+  <p>
+    We provide <a href="http://www.docker.com">Docker</a> images for each tool
+    including Symbooglix which can be pulled from the <a href="https://registry.hub.docker.com/">DockerHub</a>.
+    Note that Duality is built on top of Corral, hence there is only a Corral image.
+  </p>
+  <p>
+    In order to run the tools via Docker you will need to install it if you haven't
+    already. We used Docker 1.6.2, you can try older versions but things may not work
+    correctly. Docker runs natively on Linux and can be indirectly run on
+    Windows or OSX via the <a href="http://boot2docker.io/">Boot2Docker</a> project.
+  </p>
+  <p>
+    If you prefer to build the images from scratch run <code>make</code> in
+    <a href="https://github.com/symbooglix/icst16-tools-docker-files">https://github.com/symbooglix/icst16-tools-docker-files</a>.
+  </p>
+
+  <p>
+    The images can be found on our <a href="https://hub.docker.com/u/symbooglix/">Docker organisation page</a>.
+    Run the following commands to pull down the Docker images
+  </p>
+  <code>
+    docker pull symbooglix/boogaloo:icst16 </br>
+    docker pull symbooglix/boogie:icst16 </br>
+    docker pull symbooglix/corral:icst16 </br>
+    docker pull symbooglix/gpuverify:icst16 </br>
+    docker pull symbooglix/symbooglix:icst16 </br>
+  </code>
+
+  <p>
+    Each image runs as the <code>icst</code> user by default. This user has sudo access
+    so you can install additional packages. The password is <code>icst</code>
+  </p>
+  <p>
+  Each docker image has the <a href="https://github.com/symbooglix/boogie-runner">boogie-runner</a> framework installed which can
+  be invoked via the <code>boogie-runner.py</code> or <code>boogie-batch-runner.py</code>
+  commands. Each docker image also has the boogie-runner config files (<code>.yml</code>)
+  in the home directory. These instruct the boogie-runner framework how to run a tool. There
+  may be multiple configuration files. For example the corral image has
+  </p>
+  <ol>
+    <li><code>corral-64-gpu.yml</code> - Corral with a bound of 64 to run on the GPU benchmarks</li>
+    <li><code>corral-nb-gpu.yml</code> - Corral with a large bound to run on the GPU benchmarks</li>
+    <li><code>corral-8-svcomp.yml</code> - Corral with a bound 8 to run the SV-COMP benchmarks</li>
+    <li><code>corral-nb-svcomp.yml</code> - Corral with a large bound to run on the SV-COMP benchmarks</li>
+    <li><code>duality-svcomp.yml</code> - Duality to run on the SV-COMP benchmarks</li>
+  </ol>
+
+  <h3>Creating a container</h3>
+  <p>
+  To run a tool you need to create a docker container and mount the benchmarks inside it as a volume.
+  For example to create a Docker container for Corral/Duality and get shell access run:
+  </p>
+  <code>
+    docker run --rm -ti -v /path/to/benchmark/directory:/mnt symbooglix/corral:icst16
+  </code>
+  <p>Note</p>
+  <ul>
+    <li><code>/path/to/benchmark/directory</code> should be the path to the directory containing
+      one of the benchmark suites you downloaded earlier.
+    </li>
+    <li>The <code>-v</code> flag is creating a volume inside the container. In the above example
+      the benchmark directory is mounted inside the container at <code>/mnt</code>
+    <li><code>--rm</code> flag means that the container and any changes you
+      make in the container will be deleted when you leave the container.
+      Remove this flag if you want to keep the container.
+    </li>
+    <li><code>symbooglix/corral:icst16</code> is the name of the image replace this with the image
+      you wish to use</li>
+  </ul>
+  <p>
+    Once you have shell access inside the container you can then run the tool inside container.
+  </p>
+  <h3>Running a tool directly</h3>
+  <p>
+    The tools are on the <code>ase</code> user's <code>PATH</code> inside the container so you
+    can invoke them directly if you wish. The tool executables are:
+  </p>
+  <ul>
+    <li><code>Boogie.exe</code> (in the <code>symbooglix/boogie:icst16</code> image)</li>
+    <li><code>boogaloo</code> (in the <code>symbooglix/boogaloo:icst16</code> image)</li>
+    <li><code>Corral.exe</code> (in the <code>symbooglix/corral:icst16</code> image)</li>
+    <li><code>gpuverify</code> (in the <code>symbooglix/gpuverify:icst16</code> image)</li>
+    <li><code>sbx.exe</code> (in the <code>symbooglix/symbooglix:icst16</code> image)</li>
+  </ul>
+
+  <h3>Running a single benchmark using boogie-runner.py</h3>
+    <p>
+    The <code>boogie-runner.py</code> tool allows a single benchmark to be run conveniently. To try it
+    run:
+    </p>
+    <code>
+      boogie-runner.py config.yml /path/to/boogie/program.bpl work_dir result.yml
+    </code>
+    <ul>
+      <li><code>config.yml</code> is one of the YAML configuration files in the home directory.</li>
+      <li><code>/path/to/boogie/program.bpl</code> is the path inside the container to the Boogie program you wish the tool to use</li>
+      <li><code>work_dir</code> is a working directory for the run. It should not already eixst.</li>
+      <li><code>result.yml</code> is the path to write the results to.</li>
+    </ul>
+
+  <h3>Running a set of benchmarks using boogie-batch-runner.py</h3>
+  <p>
+    The <code>boogie-batch-runner.py</code> tool allows multiple benchmarks to be run conveniently.
+    An example invocation if the Symbooglix image was being used with the GPU benchmarks mounted in
+    <code>/mnt/</code> would be:
+  </p>
+  <code>
+    boogie-batch-runner.py --rprefix /mnt/other/ ~/symbooglix-gpu.yml /mnt/program_list.txt work_dir result.yml
+  </code>
+
+  <h2>KLEE comparison</h2>
+
+  <h3>Running Symbooglix</h2>
+  <p>
+    The process is nearly identical to how Symbooglix is run when comparing it against other Boogie tools
+    (See <a href="#boogie_tool_comparison">Boogie tool comparison</a>)
+    The only difference is that Symbooglix is run on a smaller subset (361 programs) of the SV-COMP benchmarks.
+    The program list to be be passed to <code>boogie-batch-runner.py</code> is <code>klee_comparision_program_list.txt</code>
+    in the root of the <code>sbb</code> repository.
+  </p>
+
+  <h3>Running KLEE</h3>
+  <p>
+    The first stage is to obtain Docker images for the modified versions of KLEE. There are two versions, one is
+    a 32-bit build of KLEE and one is a 64-bit build of KLEE. The reason for requiring two different versions is that
+    the benchmarks are a mix of 32-bit and 64-bit x86 programs and
+    <a href="https://github.com/klee/klee/issues/286">KLEE does not work correctly when executing programs designed far a different architecture than the host machine.</a>
+  </p>
+  <p>
+    First pull the images (alternatively you can build the <a href="https://github.com/symbooglix/klee/tree/svcomp_32bit">32-bit</a> and
+    <a href="https://github.com/symbooglix/klee/tree/svcomp">64-bit</a> Docker images from source).
+  </p>
+  <code>
+    $ docker pull symbooglix/klee_svcomp32:latest </br>
+    $ docker pull symbooglix/klee_svcomp64:latest
+  </code>
+
+  <p>
+    Now we need to get the SV-COMP 2015 benchmarks. These have been modified in several ways:
+    <ul>
+      <li>The <a href="https://github.com/dbeyer/sv-benchmarks/pull/40">new Makefile build system for the C benchmarks in SV-COMP 2016</a> has been back-ported</li>
+      <li>The benchmarks that were not converted to Boogie programs by the authors of <a href="https://github.com/smackers/smack">SMACK</a> were removed</li>
+      <li>Various fixes were applied to make compilation with Clang possible</li>
+    </ul>
+  </p>
+
+  <p>
+  All these changes are visible as <a href="https://github.com/symbooglix/sv-benchmarks/commits/klee_svcomp15_smack">commits on top of</a>
+  the <a href="https://github.com/dbeyer/sv-benchmarks/tree/svcomp15">official SVCOMP 2015 tag.</a>
+    To obtain the benchmarks run:
+  </p>
+  <code>
+    $ git clone --branch klee_svcomp15_smack https://github.com/symbooglix/sv-benchmarks.git
+  </code>
+
+  <p>
+    Now we can build the benchmarks by using 64-bit Docker image (note the SV-COMP build system will take care of setting the architecture).
+    Run the following:
+  </p>
+  <code>
+    $ cd sv-benchmarks/c </br> </br>
+    # Start a container, mounting the benchmarks inside the container at /mnt. </br>
+    # Note that the --user= stuff is so that inside the container the same uid/gid is used so </br>
+    # the volume mounted inside the container can be written to. Don't worry about the messages </br>
+    # about not finding the group name or not having a username </br>
+    $ docker run --rm -ti -v $(pwd):/mnt --user=$(id -u):$(id -g) symbooglix/klee_svcomp64 </br> </br>
+    # Now go into the benchmark directory </br>
+    I have no name!@bd3e8672a05b:/home/klee$ cd /mnt </br> </br>
+    # Now we will compile the benchmarks. Note you can use the -jN flag to build N benchmarks concurrently to speed things up</br>
+    I have no name!@bd3e8672a05b:/home/klee$ make CC=clang-3.4 SUPPRESS_WARNINGS=1 </br> </br>
+    # If everything compiled without errors then leave the container </br>
+    I have no name!@bd3e8672a05b:/home/klee$ exit </br> </br>
+  </code>
+  <p>
+    Now check that inside <code>sv-benchmarks/c</code> there is a directory called <code>bin</code>. This contains all the compiled benchmarks (<code>*.oi</code> and <code>*.oc</code> files).
+  </p>
+
+  <p>
+    Now we need to obtain a version of the <b>Boogie-Runner</b> framework that has been modified to run KLEE benchmarks and install its
+    dependencies. Note the Boogie-Runner framework requires Python3. Note you need root access to run <code>pip3</code> like this. If
+    you don't have root access use <a href="https://virtualenv.readthedocs.org/en/latest/">Virtualenv</a> to create a virtual Python
+    enviroment and install the dependencies in it.
+  </p>
+  <code>
+    $ git clone  https://github.com/symbooglix/boogie-runner.git </br>
+    $ cd boogie-runner </br>
+    $ git checkout 8e9c6b630a456696d68ca0a3b171f069d8e651d7 </br>
+    $ pip3 install --requirement requirements.txt </br>
+  </code>
+
+  <p>We now have everything needed to run KLEE on the benchmarks.
+  To run KLEE on the 32-bit benchmarks run the following where <code>&lt;BENCH_DIR&gt;</code> is the path to the <code>c</code> directory
+  in the location where you cloned the <code>https://github.com/symbooglix/sv-benchmarks.git</code> repository and <code>&lt;WORK_DIR_32&gt;</code>
+  is a non-existant directory to be created and used as the working directory. The results will be written to <code>results_32.yml</code>.
+  </p>
+  <code>
+    $ ./boogie-batch-runner.py --rprefix &lt;BENCH_DIR&gt;/bin/ &lt;BENCH_DIR&gt;/klee32_config.yml  &lt;BENCH_DIR&gt;/program_list.filtered_sbb.32.txt &lt;WORK_DIR_32&gt; results_32.yml
+  </code>
+  <p>
+    The code for running on the 64-bit benchmarks is similiar. Note KLEE will fail to execute most of these.
+  </p>
+  <code>
+    $ ./boogie-batch-runner.py --rprefix &lt;BENCH_DIR&gt;/bin/ &lt;BENCH_DIR&gt;/klee64_config.yml  &lt;BENCH_DIR&gt;/program_list.filtered_sbb.64.txt &lt;WORK_DIR_64&gt; results_64.yml
+  </code>
+
+
+  <h2>Getting help</h2>
+  If you have issues using the Docker images the <a href="http://www.doc.ic.ac.uk/~dsl11/">please contact me</a>.
+</body>
+</html>
