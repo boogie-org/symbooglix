@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # This is hacky script to run all the unit tests
 
 if [ $# -ne 2 ]; then
