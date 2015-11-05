@@ -65,8 +65,7 @@ $ mono nuget.exe restore symbooglix.sln
 $ xbuild /p:Configuration=<BUILD_TYPE>
 ```
 
-where ``<BUILD_TYPE>`` is ``Debug`` or ``Release``. If you use ``Release`` you also need
-to pass ``/p:Platform=x86`` (this needs fixing!).
+where ``<BUILD_TYPE>`` is ``Debug`` or ``Release``.
 
 Now make a symbolic link (or copy) to the the z3 executable and place it in the following directories:
 
