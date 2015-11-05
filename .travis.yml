@@ -2,6 +2,10 @@
 language: csharp
 sudo: true
 solution: "src/Symbooglix.sln"
+# Each item in the "env" list is a build configuration that will be enumerated
+env:
+  - BUILD_TYPE=Release
+  - BUILD_TYPE=Debug
 install:
   - sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
   # FIXME: We should not be using Boogaloo's repo for Z3
@@ -16,11 +20,11 @@ install:
 script:
   - git submodule init
   - git submodule update
-  - xbuild /p:Configuration=Debug ${TRAVIS_SOLUTION}
+  - xbuild /p:Configuration=${BUILD_TYPE} ${TRAVIS_SOLUTION}
   # Setup symlinks so Symbooglix can find the solver
-  - ln -s /usr/bin/z3 src/SymbooglixDriver/bin/Debug/z3.exe
-  - ln -s /usr/bin/z3 src/Symbooglix/bin/Debug/z3.exe
+  - ln -s /usr/bin/z3 src/SymbooglixDriver/bin/${BUILD_TYPE}/z3.exe
+  - ln -s /usr/bin/z3 src/Symbooglix/bin/${BUILD_TYPE}/z3.exe
   # Run unit tests
-  - utils/run-unit-tests.sh ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe Debug
+  - utils/run-unit-tests.sh ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ${BUILD_TYPE}
   # Run driver tests
-  - lit -v test_programs/
+  - lit -v --param sbx_build=${BUILD_TYPE} test_programs/
