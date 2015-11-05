@@ -53,7 +53,7 @@ USER ${CONTAINER_USER}
 RUN cd ${SBX_SRC} && wget ${NUGET_URL} -O nuget.exe && \
     mozroots --import --sync && \
     mono ./nuget.exe restore ${SBX_SRC}/src/Symbooglix.sln
-RUN cd ${SBX_SRC} && xbuild /p:Configuration=${BUILD_TYPE} /p:Platform=X86 src/Symbooglix.sln
+RUN cd ${SBX_SRC} && xbuild /p:Configuration=${BUILD_TYPE} src/Symbooglix.sln
 RUN ln -s /usr/bin/z3 ${SBX_SRC}/src/SymbooglixDriver/bin/${BUILD_TYPE}/z3.exe && \
     ln -s /usr/bin/z3 ${SBX_SRC}/src/Symbooglix/bin/${BUILD_TYPE}/z3.exe
 
