@@ -97,12 +97,14 @@ namespace SymbooglixLibTests
 
             // FIXME: Relative paths are fragile!
             // Look in the directory of the symbooglix binaries for solver
-            var pathToSolver = Path.GetFullPath("../../../" + 
-                                                "Symbooglix" + Path.DirectorySeparatorChar +
-                                                "bin" + Path.DirectorySeparatorChar +
-                                                "Debug" + Path.DirectorySeparatorChar +
-                                                "z3"
-                                               );
+            var pathToSolver = "../../../Symbooglix/bin/{0}/z3".Replace('/', Path.DirectorySeparatorChar);
+
+            // Depending on the build type choose which directory we search for the Solver
+            #if DEBUG
+            pathToSolver = String.Format(pathToSolver, "Debug");
+            #else
+            pathToSolver = String.Format(pathToSolver, "Release");
+            #endif
 
             if (!File.Exists(pathToSolver))
             {
