@@ -5,7 +5,6 @@
 var g:bv8;
 
 procedure main()
-// CHECK-L: Concretising  g := 0bv8
 requires g == 0bv8;
 modifies g;
 // CHECK: State 0: Terminated with failing ensures .+${CHECKFILE_NAME}:${LINE:+1}: g == 1bv8
