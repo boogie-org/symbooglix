@@ -299,6 +299,46 @@ namespace SymbooglixLibTests
             Assert.IsTrue(check_map_copy);
         }
 
+        [Test()]
+        public void AxiomOnMap()
+        {
+            p = LoadProgramFrom(@"
+            const g:[int]bool;
+            // the bound variable here is the index into a map
+            axiom (exists x:int :: (x == 0) && g[x]);
+
+            procedure main() {
+              assert g[0];
+            }
+            ", "test.bpl");
+            e = GetExecutor(p, /*scheduler=*/ new DFSStateScheduler(), /*solver=*/ GetSolver());
+            var tc = new TerminationCounter(TerminationCounter.CountType.BOTH);
+            tc.Connect(e);
+            e.Run(GetMain(p));
+            Assert.AreEqual(1, tc.Sucesses);
+            Assert.AreEqual(0, tc.FailingAsserts);
+        }
+
+        [Test()]
+        public void AxiomOnMap2()
+        {
+            p = LoadProgramFrom(@"
+            const g:[int]bool;
+            // the bound variable here is a map
+            axiom (exists m:[int]bool :: m[0] == g[0]);
+
+            procedure main() {
+              assert g[0] || !g[0];
+            }
+            ", "test.bpl");
+            e = GetExecutor(p, /*scheduler=*/ new DFSStateScheduler(), /*solver=*/ GetSolver());
+            var tc = new TerminationCounter(TerminationCounter.CountType.BOTH);
+            tc.Connect(e);
+            e.Run(GetMain(p));
+            Assert.AreEqual(1, tc.Sucesses);
+            Assert.AreEqual(0, tc.FailingAsserts);
+        }
+
         [Test(),Ignore()]
         public void TwoDMap()
         {
