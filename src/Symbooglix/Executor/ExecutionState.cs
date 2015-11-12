@@ -310,7 +310,7 @@ namespace Symbooglix
 
         public Expr ReadMapVariableInScopeAt(Variable v, IList<Expr> indices)
         {
-            if (v is GlobalVariable)
+            if (v is GlobalVariable || v is Constant)
             {
                 return Mem.Globals.ReadMap(v, indices);
             }
