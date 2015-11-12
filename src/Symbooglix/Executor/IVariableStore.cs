@@ -38,6 +38,9 @@ namespace Symbooglix
             set;
         }
 
+        // Note here that the indicies are ordered as they would be used
+        // to perform an access syntactically in Boogie (i.e. left to right)
+        // e.g. if the access is m[0][1] then the indicies should be {0, 1}.
         Expr ReadMap(Variable mapVariable, IList<Expr> indicies);
         void WriteMap(Variable mapVariable, IList<Expr> indicies, Expr value);
         void MapCopy(Variable dest, Variable src, IVariableStore srcStore);

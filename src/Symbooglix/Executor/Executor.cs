@@ -1419,13 +1419,14 @@ namespace Symbooglix
         private List<Expr> ComputeMapAssignIndices(MapAssignLhs malhs)
         {
             // We will traverse the assignment building up the indices. The indices
-            // are actually backwards so we will need reverse at the end
+            // are actually backwards so we will need reverse at the end.
             AssignLhs currentAssign = malhs;
             var indices = new List<Expr>();
             do
             {
                 var asMapAssign = currentAssign as MapAssignLhs;
-                // Add the index at this assign backwards
+                // Add the indices at this assign backwards so what when we reverse
+                // later they will be the correct way round.
                 foreach (var index in asMapAssign.Indexes.AsEnumerable().Reverse())
                 {
                     indices.Add(index);

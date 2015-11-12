@@ -68,7 +68,24 @@ namespace Symbooglix
             var asMapSelect = ExprUtil.AsMapSelect(node);
             if (asMapSelect != null)
             {
-                // Gather the indices. They will be backwards
+                // Gather the indices. They will be backwards as we traversing top down so have to
+                // reverse at the end.
+                //
+                // Here's an example showing this:
+                //
+                // var m:[int][int]bool;
+                // y:= m[0][1]
+                //
+                // The indicies we want are [0][1], but when traverse we will visit them backwards as
+                // we start at the root of the expression tree.
+                //
+                // The structure of this is
+                //
+                //            mapselect
+                //            /        \
+                //    mapselect        1
+                //    /      \
+                //  m        0
                 var indices = new List<Expr>();
                 Expr firstArg = null;
                 do
