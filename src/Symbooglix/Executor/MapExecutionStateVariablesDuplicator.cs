@@ -103,20 +103,8 @@ namespace Symbooglix
                 // Hopefully a map variable we can write to
                 var asId = ExprUtil.AsIdentifer(firstArg);
 
-                // Note: the indices count is to check that map is being fully indexed into and not partially
-                if (asId != null && asId.Decl.TypedIdent.Type.IsMap && 
-                    indices.Count == MapProxy.ComputeIndicesRequireToDirectlyIndex(asId.Decl.TypedIdent.Type))
+                if (asId != null && asId.Decl.TypedIdent.Type.IsMap)
                 {
-                    // Put indices in correct order
-                    indices.Reverse();
-
-                    // Expand the indices so variables are mapped
-                    var expandedIndices = new List<Expr>();
-                    foreach (var index in indices)
-                    {
-                        expandedIndices.Add((Expr) this.Visit(index));
-                    }
-
                     // Do a remapping if necessary
                     // FIXME: This sucks. Fix boogie instead!
                     Variable V = null;
@@ -125,8 +113,24 @@ namespace Symbooglix
                     else
                         V = asId.Decl;
 
-                    var valueFromMap = State.ReadMapVariableInScopeAt(V, expandedIndices);
-                    return valueFromMap;
+                    // We need to make sure that the map variable isn't bound and that
+                    // Note: that map is being fully indexed into and not partially
+                    if ((!BoundVariables.Contains(V)) &&
+                        indices.Count == MapProxy.ComputeIndicesRequireToDirectlyIndex(asId.Decl.TypedIdent.Type))
+                    {
+                        // Put indices in correct order
+                        indices.Reverse();
+
+                        // Expand the indices so variables are mapped
+                        var expandedIndices = new List<Expr>();
+                        foreach (var index in indices)
+                        {
+                            expandedIndices.Add((Expr) this.Visit(index));
+                        }
+
+                        var valueFromMap = State.ReadMapVariableInScopeAt(V, expandedIndices);
+                        return valueFromMap;
+                    }
                 }
             }
 
