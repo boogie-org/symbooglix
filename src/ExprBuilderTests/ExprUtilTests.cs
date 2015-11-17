@@ -8,10 +8,12 @@
 // See LICENSE for details.
 //------------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Symbooglix;
 using Microsoft.Boogie;
 using System.Diagnostics;
+using BType = Microsoft.Boogie.Type;
 
 namespace ExprBuilderTests
 {
@@ -380,6 +382,32 @@ namespace ExprBuilderTests
             }
             Assert.AreNotEqual(e0.GetHashCode(), e1.GetHashCode());
             Assert.IsFalse(ExprUtil.StructurallyEqual(e0, e1));
+        }
+
+        [Test()]
+        public void NotUninterpretedFunction() {
+            var sb = GetSimpleBuilder();
+            var constant = sb.ConstantBV(0, 32); // 0bv32
+            var addConstants = sb.BVADD(constant, constant);
+            var asUF = ExprUtil.AsUninterpretedFunctionCall(addConstants);
+            Assert.IsNull(asUF);
+        }
+
+        [Test()]
+        public void UninterpretedFunction() {
+            var FCB = new Symbooglix.FunctionCallBuilder();
+            var func = FCB.CreateCachedUninterpretedFunctionCall(
+                "foo",
+                BType.Bool, // Return type
+                new List<Microsoft.Boogie.Type>() {
+                    BType.GetBvType(32), BType.GetBvType(32)
+                }
+            );
+
+            var sb = GetSimpleBuilder();
+            var callFunc = sb.UFC(func, sb.ConstantBV(0, 32), sb.ConstantBV(1, 32));
+            var asUF = ExprUtil.AsUninterpretedFunctionCall(callFunc);
+            Assert.IsNotNull(asUF);
         }
     }
 }

@@ -388,6 +388,28 @@ namespace Symbooglix
             return null;
         }
 
+        public static NAryExpr AsUninterpretedFunctionCall(Expr e) {
+            var asFunctionCall = InternalAsFun<FunctionCall>(e);
+            if (asFunctionCall == null)
+                return null;
+
+            var function = ( asFunctionCall.Fun as FunctionCall ).Func;
+
+            // FIXME: Should we maintain a list of known built-ins and check against that?
+
+            // Check if its a bvbuiltin
+            var bvBuiltin = function.FindStringAttribute("bvbuiltin");
+            if (bvBuiltin != null)
+                return null;
+
+            // Check if its a builtin
+            var builtin = function.FindStringAttribute("builtin");
+            if (builtin != null)
+                return null;
+
+            return asFunctionCall;
+        }
+
         public static NAryExpr AsArithmeticCoercion(Expr e)
         {
             return InternalAsFun<ArithmeticCoercion>(e);
@@ -401,11 +423,6 @@ namespace Symbooglix
         public static NAryExpr AsMapStore(Expr e)
         {
             return InternalAsFun<MapStore>(e);
-        }
-
-        public static NAryExpr AsFunctionCall(Expr e)
-        {
-            return InternalAsFun<FunctionCall>(e);
         }
 
         public static bool IsZero(Expr e)

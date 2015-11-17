@@ -163,20 +163,10 @@ namespace Symbooglix
             }
 
             // Collect uninterpreted functions
-            var asFC = ExprUtil.AsFunctionCall(e);
-            if (asFC != null)
+            var asUFC = ExprUtil.AsUninterpretedFunctionCall(e);
+            if (asUFC != null)
             {
-                var FC = asFC.Fun as FunctionCall;
-
-                // Don't collect SMTLIBv2 functions
-                if (QKeyValue.FindStringAttribute(FC.Func.Attributes, "bvbuiltin") != null)
-                    return;
-
-                // Don't collect other builtins
-                if (QKeyValue.FindStringAttribute(FC.Func.Attributes, "builtin") != null)
-                    return;
-
-                UninterpretedFunctions.Add(FC.Func);
+                UninterpretedFunctions.Add((asUFC.Fun as FunctionCall).Func);
             }
         }
     }
