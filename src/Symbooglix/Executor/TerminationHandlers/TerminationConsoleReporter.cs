@@ -67,9 +67,19 @@ namespace Symbooglix
                 var enforced = tt.ExitLocation.AsAxiom.FindAttribute("symbooglix_enforce_unique");
                 if (enforced != null)
                     msg += System.Environment.NewLine + "This axiom was generated to enforce the unique keyword.";
+
+                if (args.State.Speculative)
+                {
+                    // FIXME: This specific to the SymbooglixDriver and is not general. Right now it's quite useful
+                    // to tell users this though.
+                    msg += System.Environment.NewLine + System.Environment.NewLine +
+                        "Note this is a speculative failure because the solver" +
+                        " could not prove that the axiom is satisfiable. If you trust your axioms then you" +
+                        " can disable checking them by using --check-entry-axioms=0";
+                }
             }
 
-            WriteLine(color, msg );
+            WriteLine(color, msg);
         }
     }
 }
