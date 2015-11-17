@@ -374,6 +374,29 @@ namespace TransformTests
         }
 
         [Test()]
+        public void LiveGlobalVariablesUsedInAxiom()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                const x:int;
+                // FIXME: Should GlobalDDE be changed to remove this variable?
+                const z:int; // This variable could be considered dead but the axiom will keep it alive
+                axiom x == z;
+
+                procedure main() {
+                    var y:int;
+
+                    y := x;
+                }
+                ", "test.bpl");
+
+            Assert.AreEqual(2, GlobalVariableCount(prog));
+            Assert.AreEqual(1, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(2, GlobalVariableCount(prog));
+            Assert.AreEqual(1, AxiomCount(prog));
+        }
+
+        [Test()]
         public void TransitiveAxiomFunctionDependency()
         {
             var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
