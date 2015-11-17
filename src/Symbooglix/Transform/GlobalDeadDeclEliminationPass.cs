@@ -34,8 +34,13 @@ namespace Symbooglix
 
             public bool RunOn(Program prog, PassInfo passInfo)
             {
-                // Collect used functions and global variables
-                var FFV = new FindUsedFunctionAndGlobalVariableVisitor();
+                // Collect used functions and global variables.
+                // Note we don't want to consider an axiom as "using" interpreted functions because
+                // axioms using interpreted functions aren't (or at least shouldn't be) constraining
+                // those interpreted functions. If we considered interpreted functions as being used by
+                // axioms then this might prevent those axioms (and uninterpreted functions in those axioms)
+                // form being removed.
+                var FFV = new FindUsedFunctionAndGlobalVariableVisitor(/*ignoreInterpretedFunctionsInAxioms=*/ true);
                 FFV.Visit(prog);
 
                 // Initialise with all declared functions
@@ -238,7 +243,8 @@ namespace Symbooglix
 
             private bool InAxiom;
             private Axiom CurrentAxiom;
-            public FindUsedFunctionAndGlobalVariableVisitor()
+            public readonly bool IgnoreInterpretedFunctionsInAxioms;
+            public FindUsedFunctionAndGlobalVariableVisitor(bool ignoreInterpretedFunctionsInAxioms)
             {
                 FuncsUsedInCode = new HashSet<Function>();
                 VarsUsedInCode = new HashSet<Variable>();
@@ -247,6 +253,7 @@ namespace Symbooglix
                 FuncsUsedInAxiom = new Dictionary<Axiom, HashSet<Function>>();
                 AxiomsUsingVar = new Dictionary<Variable, HashSet<Axiom>>();
                 VarsUsedInAxiom = new Dictionary<Axiom, HashSet<Variable>>();
+                IgnoreInterpretedFunctionsInAxioms = ignoreInterpretedFunctionsInAxioms;
 
                 InAxiom = false;
             }
@@ -325,6 +332,13 @@ namespace Symbooglix
                 if (InAxiom)
                 {
                     Debug.Assert(CurrentAxiom != null);
+
+                    if (IgnoreInterpretedFunctionsInAxioms && ExprUtil.AsUninterpretedFunction(node.Func) == null)
+                    {
+                        // This FunctionCall does not call an uninterpreted function. Therefore it must call an
+                        // an interpreted function
+                        return;
+                    }
 
                     // Record the mapping both ways
                     if (!AxiomsUsingFunc.ContainsKey(node.Func))

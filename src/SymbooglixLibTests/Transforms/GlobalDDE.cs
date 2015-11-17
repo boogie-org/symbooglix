@@ -518,6 +518,67 @@ namespace TransformTests
             Assert.AreEqual(6, AxiomCount(prog));
         }
 
+        [Test()]
+        public void NoAxiomDependencyOnInterpretedFunctions()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                function {:bvbuiltin ""bvadd""} BVADD32(bv32,bv32) returns (bv32);
+
+                // This function and axiom are dead
+                function ADD_ONE(bv32) returns (bv32);
+                axiom (forall x:bv32 :: ADD_ONE(x) == BVADD32(x, 1bv32));
+
+                procedure main() {
+                    var x:bv32;
+                    var y:bv32;
+
+                    x := BVADD32(x, y);
+                    assert x == BVADD32(x, y);
+                }
+            ", "test.bpl");
+
+            Assert.AreEqual(0, GlobalVariableCount(prog));
+            Assert.AreEqual(2, FunctionCount(prog));
+            Assert.AreEqual(1, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(0, GlobalVariableCount(prog));
+            Assert.AreEqual(1, FunctionCount(prog));
+            Assert.AreEqual(0, AxiomCount(prog));
+
+            var func = prog.TopLevelDeclarations.OfType<Function>().First();
+            Assert.AreEqual("BVADD32", func.Name);
+        }
+
+        [Test()]
+        public void NoAxiomDependencyOnInterpretedFunctions2()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                function {:bvbuiltin ""bvadd""} BVADD32(bv32,bv32) returns (bv32);
+
+                // This function and axiom are live due to being used in main()
+                function ADD_ONE(bv32) returns (bv32);
+                axiom (forall x:bv32 :: ADD_ONE(x) == BVADD32(x, 1bv32));
+
+                procedure main() {
+                    var x:bv32;
+                    var y:bv32;
+
+                    x := BVADD32(x, y);
+                    assert x == BVADD32(x, y);
+                    assert BVADD32(x, 1bv32) == ADD_ONE(x);
+                }
+            ", "test.bpl");
+
+            Assert.AreEqual(0, GlobalVariableCount(prog));
+            Assert.AreEqual(2, FunctionCount(prog));
+            Assert.AreEqual(1, AxiomCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(0, GlobalVariableCount(prog));
+            Assert.AreEqual(2, FunctionCount(prog));
+            Assert.AreEqual(1, AxiomCount(prog));
+        }
+
+
         public void RunGDDE(Program prog)
         {
             var GDDE = new Symbooglix.Transform.GlobalDeadDeclEliminationPass();
