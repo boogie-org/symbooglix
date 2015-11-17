@@ -395,19 +395,26 @@ namespace Symbooglix
 
             var function = ( asFunctionCall.Fun as FunctionCall ).Func;
 
-            // FIXME: Should we maintain a list of known built-ins and check against that?
+            var asUF = AsUninterpretedFunction(function);
+            if (asUF == null)
+                return null;
 
-            // Check if its a bvbuiltin
-            var bvBuiltin = function.FindStringAttribute("bvbuiltin");
+            return asFunctionCall;
+        }
+
+        public static Function AsUninterpretedFunction(Function f)
+        {
+            // FIXME: Should we maintain a list of known built-ins and check against that?
+            var bvBuiltin = f.FindStringAttribute("bvbuiltin");
             if (bvBuiltin != null)
                 return null;
 
             // Check if its a builtin
-            var builtin = function.FindStringAttribute("builtin");
+            var builtin = f.FindStringAttribute("builtin");
             if (builtin != null)
                 return null;
 
-            return asFunctionCall;
+            return f;
         }
 
         public static NAryExpr AsArithmeticCoercion(Expr e)

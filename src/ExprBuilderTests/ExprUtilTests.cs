@@ -391,12 +391,16 @@ namespace ExprBuilderTests
             var addConstants = sb.BVADD(constant, constant);
             var asUF = ExprUtil.AsUninterpretedFunctionCall(addConstants);
             Assert.IsNull(asUF);
+
+            // Yuck...
+            var func = ((addConstants as NAryExpr).Fun as FunctionCall).Func;
+            Assert.IsNull(ExprUtil.AsUninterpretedFunction(func));
         }
 
         [Test()]
         public void UninterpretedFunction() {
             var FCB = new Symbooglix.FunctionCallBuilder();
-            var func = FCB.CreateCachedUninterpretedFunctionCall(
+            var funcCall = FCB.CreateCachedUninterpretedFunctionCall(
                 "foo",
                 BType.Bool, // Return type
                 new List<Microsoft.Boogie.Type>() {
@@ -404,8 +408,10 @@ namespace ExprBuilderTests
                 }
             );
 
+            Assert.IsNotNull(ExprUtil.AsUninterpretedFunction(funcCall.Func));
+
             var sb = GetSimpleBuilder();
-            var callFunc = sb.UFC(func, sb.ConstantBV(0, 32), sb.ConstantBV(1, 32));
+            var callFunc = sb.UFC(funcCall, sb.ConstantBV(0, 32), sb.ConstantBV(1, 32));
             var asUF = ExprUtil.AsUninterpretedFunctionCall(callFunc);
             Assert.IsNotNull(asUF);
         }
