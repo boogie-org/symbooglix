@@ -113,8 +113,10 @@ namespace Symbooglix
         Expr Old(Expr operand);
 
         // Quantifiers
-        Expr ForAll(IList<Variable> freeVars, Expr body);
-        Expr Exists(IList<Variable> freeVargs, Expr body);
+        // triggers should be set to null if there are no triggers.
+        // FIXME: Boogie's API for triggers is gross (eurgh.. linked list)
+        Expr ForAll(IList<Variable> freeVars, Expr body, Trigger triggers);
+        Expr Exists(IList<Variable> freeVargs, Expr body, Trigger triggers);
 
         Expr Distinct(IList<Expr> exprs);
     }

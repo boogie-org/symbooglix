@@ -1142,7 +1142,7 @@ namespace Symbooglix
             return UB.Ge(lhs, rhs);
         }
 
-        public override Expr ForAll(IList<Variable> freeVars, Expr body)
+        public override Expr ForAll(IList<Variable> freeVars, Expr body, Trigger triggers=null)
         {
             var litBody = ExprUtil.AsLiteral(body);
             // (∀ x :: true) ==> true
@@ -1153,10 +1153,10 @@ namespace Symbooglix
             }
 
             // Can't constant fold
-            return UB.ForAll(freeVars, body);
+            return UB.ForAll(freeVars, body, triggers);
         }
 
-        public override Expr Exists(IList<Variable> freeVars, Expr body)
+        public override Expr Exists(IList<Variable> freeVars, Expr body, Trigger triggers=null)
         {
             var litBody = ExprUtil.AsLiteral(body);
             // (∃ x :: true) ==> true
@@ -1167,7 +1167,7 @@ namespace Symbooglix
             }
 
             // Can't constant fold
-            return UB.Exists(freeVars, body);
+            return UB.Exists(freeVars, body, triggers);
         }
 
         private BigInteger MaxValuePlusOne(int bitWidth)

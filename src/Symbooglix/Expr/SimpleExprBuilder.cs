@@ -1026,7 +1026,7 @@ namespace Symbooglix
             return result;
         }
 
-        public Expr ForAll(IList<Variable> freeVars, Expr body)
+        public Expr ForAll(IList<Variable> freeVars, Expr body, Trigger triggers=null)
         {
             if (!body.Type.IsBool)
             {
@@ -1038,13 +1038,15 @@ namespace Symbooglix
                 throw new ArgumentException("ForAllExpr must have at least one free variable");
             }
 
+            TypeCheckTriggers(freeVars, body, triggers);
+
             // Should we check the free variables are actually used? This could be quite expensive to do!
-            var result = new ForallExpr(Token.NoToken, new List<Variable>(freeVars), body, Immutable);
+            var result = new ForallExpr(Token.NoToken, new List<Variable>(freeVars), triggers, body, Immutable);
             result.Type = BasicType.Bool;
             return result;
         }
 
-        public Expr Exists(IList<Variable> freeVars, Expr body)
+        public Expr Exists(IList<Variable> freeVars, Expr body, Trigger triggers=null)
         {
             if (!body.Type.IsBool)
             {
@@ -1056,10 +1058,17 @@ namespace Symbooglix
                 throw new ArgumentException("ExistsExpr must have at least one free variable");
             }
 
+            TypeCheckTriggers(freeVars, body, triggers);
+
             // Should we check the free variables are actually used? This could be quite expensive to do!
-            var result = new ExistsExpr(Token.NoToken, new List<Variable>(freeVars), body, Immutable);
+            var result = new ExistsExpr(Token.NoToken, new List<Variable>(freeVars), triggers, body, Immutable);
             result.Type = BasicType.Bool;
             return result;
+        }
+
+        private void TypeCheckTriggers(IList<Variable> freeVars, Expr body, Trigger triggers)
+        {
+            // TODO:
         }
 
         public Expr Distinct(IList<Expr> exprs)

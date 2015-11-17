@@ -32,6 +32,29 @@ namespace Symbooglix
             IgnoreDuplicateSymbolics = ignoreDuplicateSymbolics;
         }
 
+        private void GatherChildNodes(Expr node, Stack<Expr> nodeStack)
+        {
+            for (int index = node.GetNumberOfChildren() -1 ; index >= 0 ; --index)
+            {
+                nodeStack.Push(node.GetChild(index));
+            }
+
+            // Triggers on quantified expressions aren't included is "getChild()" methods, gather those if they exist
+            var asQuantifierExpr = node as QuantifierExpr;
+            if (asQuantifierExpr != null)
+            {
+                // We consider all the triggers to be direct children of the quantified expression
+                Trigger trigger = asQuantifierExpr.Triggers;
+                while (trigger != null)
+                {
+                    foreach (var triggerExpr in trigger.Tr)
+                        nodeStack.Push(triggerExpr);
+
+                    trigger = trigger.Next;
+                }
+            }
+        }
+
         public List<Expr> CheckDuplication(Expr original, Expr duplicated)
         {
             var nodeStack = new Stack<Expr>();
@@ -43,11 +66,7 @@ namespace Symbooglix
             {
                 var node = nodeStack.Pop();
                 SeenNodes.Add(node);
-
-                for (int index = node.GetNumberOfChildren() -1 ; index >= 0 ; --index)
-                {
-                    nodeStack.Push(node.GetChild(index));
-                }
+                GatherChildNodes(node, nodeStack);
             }
 
             nodeStack.Clear();
@@ -75,11 +94,7 @@ namespace Symbooglix
                         Debug.Print("Found duplicate!");
                     }
                 }
-
-                for (int index = node.GetNumberOfChildren() -1 ; index >= 0 ; --index)
-                {
-                    nodeStack.Push(node.GetChild(index));
-                }
+                GatherChildNodes(node, nodeStack);
             }
             return duplicates;
         }

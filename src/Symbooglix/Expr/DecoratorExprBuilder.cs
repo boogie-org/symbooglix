@@ -357,14 +357,14 @@ namespace Symbooglix
             return UB.Old(operand);
         }
 
-        public virtual Expr ForAll(IList<Variable> freeVars, Expr body)
+        public virtual Expr ForAll(IList<Variable> freeVars, Expr body, Trigger triggers)
         {
-            return UB.ForAll(freeVars, body);
+            return UB.ForAll(freeVars, body, triggers);
         }
 
-        public virtual Expr Exists(IList<Variable> freeVargs, Expr body)
+        public virtual Expr Exists(IList<Variable> freeVargs, Expr body, Trigger triggers)
         {
-            return UB.Exists(freeVargs, body);
+            return UB.Exists(freeVargs, body, triggers);
         }
 
         public Expr Distinct(IList<Expr> exprs)

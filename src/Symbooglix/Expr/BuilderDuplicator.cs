@@ -44,10 +44,18 @@ namespace Symbooglix
             var bodyCopy = this.Visit(node.Body) as Expr;
             Debug.Assert(bodyCopy != null);
             var freeVars = new List<Variable>(node.Dummies);
-            // FIXME: Teach the builder to accept Triggers
-            var newNode = Builder.Exists(freeVars, bodyCopy);
+            var newTriggers = this.VisitTrigger(node.Triggers);
+            var newNode = Builder.Exists(freeVars, bodyCopy, newTriggers);
             Debug.Assert(newNode != null);
             return newNode;
+        }
+
+        public override Trigger VisitTrigger(Trigger node)
+        {
+            if (node == null)
+                return null;
+
+            return base.VisitTrigger(node);
         }
 
         public override Expr VisitBvExtractExpr(BvExtractExpr node)
@@ -66,13 +74,13 @@ namespace Symbooglix
             return newNode;
         }
 
-        public override Expr VisitForallExpr (ForallExpr node)
+        public override Expr VisitForallExpr(ForallExpr node)
         {
             var bodyCopy = this.Visit(node.Body) as Expr;
             Debug.Assert(bodyCopy != null);
             var freeVars = new List<Variable>(node.Dummies);
-            // FIXME: Teach the builder to accept Triggers
-            var newNode = Builder.ForAll(freeVars, bodyCopy);
+            var newTriggers = this.VisitTrigger(node.Triggers);
+            var newNode = Builder.ForAll(freeVars, bodyCopy, newTriggers);
             Debug.Assert(newNode != null);
             return newNode;
         }

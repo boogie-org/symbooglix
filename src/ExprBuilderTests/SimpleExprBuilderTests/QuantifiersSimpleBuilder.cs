@@ -13,6 +13,8 @@ using NUnit.Framework;
 using Microsoft.Boogie;
 using System.Collections.Generic;
 
+using BPLType = Microsoft.Boogie.Type;
+
 namespace ExprBuilderTests
 {
     [TestFixture()]
@@ -40,6 +42,27 @@ namespace ExprBuilderTests
             CheckIsBoolType(result);
         }
 
+        [Test()]
+        public void SimpleForAllWithTrigger()
+        {
+            var builder = GetSimpleBuilder();
+            var freeVarX = GetVariable("x", BasicType.Int);
+            var xid = new IdentifierExpr(Token.NoToken, freeVarX);
+
+            var fb = new FunctionCallBuilder();
+            var funcCall = fb.CreateUninterpretedFunctionCall("f", BPLType.Int, new List<BPLType>() { BPLType.Int });
+            var body = builder.Gt(builder.UFC(funcCall, xid), xid);
+
+            // Single trigger
+            var triggers = new Microsoft.Boogie.Trigger(Token.NoToken,
+                                                       /*positive=*/true,
+                                                       new List<Expr>() { builder.UFC(funcCall, xid) }, null);
+
+            var result = builder.ForAll(new List<Variable>() { freeVarX}, body, triggers);
+            Assert.AreEqual("(forall x: int :: { f(x) } f(x) > x)", result.ToString());
+            CheckIsBoolType(result);
+        }
+
         [Test(), ExpectedException(typeof(ExprTypeCheckException))]
         public void SimpleForAllWrongBodyType()
         {
@@ -63,6 +86,27 @@ namespace ExprBuilderTests
             var body = builder.Eq(xid, yid);
             var result = builder.Exists(new List<Variable>() { freeVarX, freeVarY }, body);
             Assert.AreEqual("(exists x: int, y: int :: x == y)", result.ToString());
+            CheckIsBoolType(result);
+        }
+
+        [Test()]
+        public void SimpleExistsWithTrigger()
+        {
+            var builder = GetSimpleBuilder();
+            var freeVarX = GetVariable("x", BasicType.Int);
+            var xid = new IdentifierExpr(Token.NoToken, freeVarX);
+
+            var fb = new FunctionCallBuilder();
+            var funcCall = fb.CreateUninterpretedFunctionCall("f", BPLType.Int, new List<BPLType>() { BPLType.Int });
+            var body = builder.Gt(builder.UFC(funcCall, xid), xid);
+
+            // Single trigger
+            var triggers = new Microsoft.Boogie.Trigger(Token.NoToken,
+                /*positive=*/true,
+                new List<Expr>() { builder.UFC(funcCall, xid) }, null);
+
+            var result = builder.Exists(new List<Variable>() { freeVarX}, body, triggers);
+            Assert.AreEqual("(exists x: int :: { f(x) } f(x) > x)", result.ToString());
             CheckIsBoolType(result);
         }
 

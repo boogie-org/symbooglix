@@ -13,6 +13,8 @@ using NUnit.Framework;
 using Symbooglix;
 using Microsoft.Boogie;
 
+using BPLType = Microsoft.Boogie.Type;
+
 namespace ExprBuilderTests
 {
     public class BuilderDuplicatorTests : SimpleExprBuilderTestBase
@@ -1138,6 +1140,34 @@ namespace ExprBuilderTests
         }
 
         [Test()]
+        public void simpleExistsWithTrigger()
+        {
+            var builder = GetSimpleBuilder();
+            var free0Pair = GetVarAndIdExpr("x", BasicType.Int);
+            var free1Pair = GetVarAndIdExpr("y", BasicType.Int);
+            Variable free0Var = free0Pair.Item1;
+            Variable free1Var = free1Pair.Item1;
+            IdentifierExpr x = free0Pair.Item2;
+            IdentifierExpr y = free1Pair.Item2;
+
+            var fb = new FunctionCallBuilder();
+            var dummyFunc = fb.CreateCachedUninterpretedFunctionCall("f", BPLType.Bool,
+                new List<BPLType>() {BPLType.Int, BPLType.Int});
+
+            var triggerExpr = builder.UFC(dummyFunc, x, y);
+            var trigger = new Trigger(Token.NoToken,
+                /*pos=*/true,
+                new List<Expr>() { triggerExpr },
+                null);
+
+            var root = builder.Exists(new List<Variable>() { free0Var, free1Var },
+                builder.Gt(builder.Add(x, y),
+                    builder.Sub(x, y)), trigger);
+            Assert.AreEqual("(exists x: int, y: int :: { f(x, y) } x + y > x - y)", root.ToString());
+            DuplicateAndCheck(root, builder);
+        }
+
+        [Test()]
         public void simpleForall()
         {
             var builder = GetSimpleBuilder();
@@ -1152,6 +1182,34 @@ namespace ExprBuilderTests
                 builder.Gt(builder.Add(x, y),
                            builder.Sub(x, y)));
             Assert.AreEqual("(forall x: int, y: int :: x + y > x - y)", root.ToString());
+            DuplicateAndCheck(root, builder);
+        }
+
+        [Test()]
+        public void simpleForallWithTrigger()
+        {
+            var builder = GetSimpleBuilder();
+            var free0Pair = GetVarAndIdExpr("x", BasicType.Int);
+            var free1Pair = GetVarAndIdExpr("y", BasicType.Int);
+            Variable free0Var = free0Pair.Item1;
+            Variable free1Var = free1Pair.Item1;
+            IdentifierExpr x = free0Pair.Item2;
+            IdentifierExpr y = free1Pair.Item2;
+
+            var fb = new FunctionCallBuilder();
+            var dummyFunc = fb.CreateCachedUninterpretedFunctionCall("f", BPLType.Bool,
+                new List<BPLType>() {BPLType.Int, BPLType.Int});
+
+            var triggerExpr = builder.UFC(dummyFunc, x, y);
+            var trigger = new Trigger(Token.NoToken,
+                /*pos=*/true,
+                new List<Expr>() { triggerExpr },
+                null);
+
+            var root = builder.ForAll(new List<Variable>() { free0Var, free1Var },
+                builder.Gt(builder.Add(x, y),
+                    builder.Sub(x, y)), trigger);
+            Assert.AreEqual("(forall x: int, y: int :: { f(x, y) } x + y > x - y)", root.ToString());
             DuplicateAndCheck(root, builder);
         }
     }

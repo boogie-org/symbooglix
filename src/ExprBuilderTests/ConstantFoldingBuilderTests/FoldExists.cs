@@ -13,6 +13,8 @@ using Microsoft.Boogie;
 using System.Collections.Generic;
 using Symbooglix;
 
+using BPLType = Microsoft.Boogie.Type;
+
 namespace ExprBuilderTests.ConstantFoldingTests
 {
     [TestFixture()]
@@ -56,11 +58,35 @@ namespace ExprBuilderTests.ConstantFoldingTests
             var freeVarY = yPair.Item1;
             var y = yPair.Item2;
 
-            var foldedResult = cfb.Exists(new List<Variable>() { freeVarX, freeVarY}, cfb.Lt(x,y));
-            var simpleResult = sb.Exists(new List<Variable>() {freeVarX, freeVarY}, sb.Lt(x,y));
+            var fb = new FunctionCallBuilder();
+            var dummyFunc = fb.CreateCachedUninterpretedFunctionCall("f", BPLType.Bool,
+                new List<BPLType>() {BPLType.Int, BPLType.Int});
+
+            var triggerExpr = sb.UFC(dummyFunc, x, y);
+            var trigger = new Trigger(Token.NoToken,
+                /*pos=*/true,
+                new List<Expr>() { triggerExpr },
+                null);
+
+            var foldedResult = cfb.Exists(new List<Variable>() { freeVarX, freeVarY}, cfb.Lt(x,y), trigger);
+            var simpleResult = sb.Exists(new List<Variable>() {freeVarX, freeVarY}, sb.Lt(x,y), trigger);
             CheckIsBoolType(foldedResult);
             CheckIsBoolType(simpleResult);
             Assert.AreEqual(simpleResult, foldedResult);
+
+            // FIXME: Equals() currently doesn't check triggers, so do it manually
+            Assert.IsInstanceOf<ExistsExpr>(foldedResult);
+            Assert.IsInstanceOf<ExistsExpr>(simpleResult);
+            var foldedResultAsExists = foldedResult as ExistsExpr;
+            var simpleResultAsExists = simpleResult as ExistsExpr;
+            Assert.IsNotNull(foldedResultAsExists.Triggers);
+            Assert.IsNull(foldedResultAsExists.Triggers.Next);
+            Assert.IsNotNull(simpleResultAsExists.Triggers);
+            Assert.IsNull(simpleResultAsExists.Triggers.Next);
+            Assert.AreSame(foldedResultAsExists.Triggers, simpleResultAsExists.Triggers);
+
+            // Use this gross Boogie API too
+            Assert.IsTrue(BinderExpr.EqualWithAttributesAndTriggers(simpleResult, foldedResult));
         }
     }
 }
