@@ -84,6 +84,81 @@ namespace ExprSMTLIBTest
             }
         }
 
+        [Test()]
+        public void ForAllSinglePositiveTrigger()
+        {
+            Expr result = buildQuant(/*isForAll=*/true,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr},null);
+                return trigger;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) ) ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ForAllTwoPositiveTriggers()
+        {
+            Expr result = buildQuant(/*isForAll=*/true,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr},null);
+                var triggerExpr2 = builder.UFC(f, yId, xId);
+                var trigger2 = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr2}, trigger);
+                return trigger2;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f y x  ) ):pattern ( (f x y  ) ) ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ForAllSingleTriggerObjMultipleExpr()
+        {
+            Expr result = buildQuant(/*isForAll=*/true,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var triggerExpr2 = builder.UFC(f, yId, xId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr, triggerExpr2},null);
+                return trigger;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) (f y x  ) ) ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ForAllSingleNegativeTrigger()
+        {
+            Expr result = buildQuant(/*isForAll=*/true,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/false, new List<Expr>() {triggerExpr},null);
+                return trigger;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :no-pattern (f x y  ) ) )", writer.ToString());
+            }
+        }
+
 
         [Test()]
         public void ExistsNoTriggers()
@@ -98,6 +173,81 @@ namespace ExprSMTLIBTest
                 var printer = new SMTLIBQueryPrinter(writer, false, false);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(exists (  (x Int) (y Int) ) (> (f x y  ) x ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ExistsSinglePositiveTrigger()
+        {
+            Expr result = buildQuant(/*isForAll=*/false,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr},null);
+                return trigger;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) ) ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ExistsTwoPositiveTriggers()
+        {
+            Expr result = buildQuant(/*isForAll=*/false,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr},null);
+                var triggerExpr2 = builder.UFC(f, yId, xId);
+                var trigger2 = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr2}, trigger);
+                return trigger2;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f y x  ) ):pattern ( (f x y  ) ) ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ExistsSingleTriggerObjMultipleExpr()
+        {
+            Expr result = buildQuant(/*isForAll=*/false,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var triggerExpr2 = builder.UFC(f, yId, xId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/true, new List<Expr>() {triggerExpr, triggerExpr2},null);
+                return trigger;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) (f y x  ) ) ) )", writer.ToString());
+            }
+        }
+
+        [Test()]
+        public void ExistsSingleNegativeTrigger()
+        {
+            Expr result = buildQuant(/*isForAll=*/false,
+                delegate(IExprBuilder builder, FunctionCall f, IdentifierExpr xId, IdentifierExpr yId)
+            {
+                var triggerExpr = builder.UFC(f, xId, yId);
+                var trigger = new Trigger(Token.NoToken, /*pos=*/false, new List<Expr>() {triggerExpr},null);
+                return trigger;
+            });
+            using (var writer = new StringWriter())
+            {
+                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                printer.PrintExpr(result);
+                Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :no-pattern (f x y  ) ) )", writer.ToString());
             }
         }
     }

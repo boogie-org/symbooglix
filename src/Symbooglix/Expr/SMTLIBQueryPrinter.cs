@@ -629,7 +629,60 @@ namespace Symbooglix
             PrintSeperator();
             TW.Write(")");
             PrintSeperator();
-            PrintExpr(QE.Body);
+
+            // Handle Triggers
+            if (QE.Triggers == null)
+            {
+                PrintExpr(QE.Body);
+            }
+            else
+            {
+                TW.Write("(!");
+                PushIndent();
+                PrintSeperator();
+
+                PrintExpr(QE.Body);
+                PrintSeperator();
+
+                // fixme: pos!
+                // Print triggers
+                var trigger = QE.Triggers;
+                if (trigger.Pos)
+                {
+                    while (trigger != null)
+                    {
+                        // list of expressions
+                        TW.Write(":pattern (");
+                        PushIndent();
+                        PrintSeperator();
+                        foreach (var triggerExpr in trigger.Tr)
+                        {
+                            PrintExpr(triggerExpr);
+                            PrintSeperator();
+                        }
+                        PopIndent();
+                        TW.Write(")");
+                        trigger = trigger.Next;
+                    }
+                }
+                else
+                {
+                    if (trigger.Tr.Count != 1)
+                        throw new InvalidDataException("Negative trigger is malformed");
+
+                    // no-pattern takes an expression rather than a list of expressions
+                    TW.Write(":no-pattern");
+                    PushIndent();
+                    PrintSeperator();
+                    PrintExpr(trigger.Tr[0]);
+                    PopIndent();
+                }
+
+                PopIndent();
+                PrintSeperator();
+                TW.Write(")");
+            }
+
             PopIndent();
             PrintSeperator();
             TW.Write(")");
