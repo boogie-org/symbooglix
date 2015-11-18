@@ -16,7 +16,7 @@ using NUnit.Framework;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class NotEq
+    public class NotEq : ExprSMTLIBTestBase
     {
         [Test()]
         public void Test()
@@ -28,7 +28,7 @@ namespace ExprSMTLIBTest
 
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(neq);
                 Assert.AreEqual("(distinct (_ bv0 32) (_ bv1 32) )", writer.ToString());
             }

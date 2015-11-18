@@ -17,7 +17,7 @@ using Symbooglix;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class Literal
+    public class Literal : ExprSMTLIBTestBase
     {
         IExprBuilder Builder;
         public Literal()
@@ -58,7 +58,7 @@ namespace ExprSMTLIBTest
         {
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(e);
                 Assert.IsTrue(writer.ToString() == expected);
             }

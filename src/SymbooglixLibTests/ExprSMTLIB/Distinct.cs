@@ -17,7 +17,7 @@ using Microsoft.Boogie;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class Distinct
+    public class Distinct : ExprSMTLIBTestBase
     {
         [Test()]
         public void Test()
@@ -29,7 +29,7 @@ namespace ExprSMTLIBTest
 
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(distinct);
                 Assert.AreEqual("(distinct false true )", writer.ToString());
             }

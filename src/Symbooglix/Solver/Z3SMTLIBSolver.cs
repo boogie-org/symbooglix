@@ -17,8 +17,8 @@ namespace Symbooglix
         public class Z3SMTLIBSolver : SimpleSMTLIBSolver
         {
             private SMTLIBQueryPrinter.Logic LogicToUse = SMTLIBQueryPrinter.Logic.DO_NOT_SET;
-            public Z3SMTLIBSolver(bool useNamedAttributes, string pathToSolver, bool persistentProcess) :
-                base(useNamedAttributes, pathToSolver, "-in -smt2", persistentProcess) // Z3 specific command line args
+            public Z3SMTLIBSolver(bool useNamedAttributes, string pathToSolver, bool persistentProcess, bool emitTriggers) :
+                base(useNamedAttributes, pathToSolver, "-in -smt2", persistentProcess, emitTriggers) // Z3 specific command line args
             {
                 // HACK:
                 // Z3 supports SMTLIB-v2.5 command (reset)
@@ -27,8 +27,8 @@ namespace Symbooglix
             }
 
             // HACK:
-            public Z3SMTLIBSolver(bool useNamedAttributes, string pathToSolver, bool persistentProcess, SMTLIBQueryPrinter.Logic logic) :
-                this(useNamedAttributes, pathToSolver, persistentProcess)
+            public Z3SMTLIBSolver(bool useNamedAttributes, string pathToSolver, bool persistentProcess, bool emitTriggers, SMTLIBQueryPrinter.Logic logic) :
+                this(useNamedAttributes, pathToSolver, persistentProcess, emitTriggers)
             {
                 LogicToUse = logic;
             }

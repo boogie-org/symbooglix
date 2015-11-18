@@ -18,7 +18,7 @@ using System.Collections.Generic;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class TypeSynonym
+    public class TypeSynonym : ExprSMTLIBTestBase
     {
         private IExprBuilder builder;
 
@@ -56,7 +56,7 @@ namespace ExprSMTLIBTest
             string result = null;
             using (var stringWriter = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(stringWriter, false, false);
+                var printer = GetPrinter(stringWriter);
 
                 // Make a typesynonym
                 var typeDecl = new TypeSynonymDecl(Token.NoToken, "mysyn", null, type);

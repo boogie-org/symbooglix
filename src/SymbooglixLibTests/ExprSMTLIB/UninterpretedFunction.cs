@@ -17,7 +17,7 @@ using System.IO;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class UninterpretedFunction
+    public class UninterpretedFunction : ExprSMTLIBTestBase
     {
         public UninterpretedFunction()
         {
@@ -42,7 +42,7 @@ namespace ExprSMTLIBTest
             // FIXME: This needs to be factored out
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.AddDeclarations(e);
                 printer.PrintFunctionDeclarations();
                 printer.PrintExpr(e);

@@ -55,6 +55,9 @@ namespace SymbooglixDriver
             [Option("emit-after", DefaultValue = false, HelpText = "Emit Boogie program to stdout before running each pass")]
             public bool emitProgramAfter { get; set; }
 
+            [Option("emit-triggers", DefaultValue = 1, HelpText = "Emit quantifier triggers during execution (experimental). Default 1")]
+            public int emitTriggers { get; set; }
+
             [Option("esi-show-constraints", DefaultValue = 0, HelpText = "If logging ExecutionState info as YAML then show constraints (Default: 0)")]
             public int ExecutionStateInfoShowConstraints { get; set; }
 
@@ -862,10 +865,18 @@ namespace SymbooglixDriver
             switch (options.solver)
             {
                 case CmdLineOpts.Solver.CVC4:
-                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, options.PersistentSolver > 0,logicToUse);
+                    solverImpl = new Solver.CVC4SMTLIBSolver(options.UseNamedAttributes > 0,
+                                                             options.pathToSolver,
+                                                             options.PersistentSolver > 0,
+                                                             options.emitTriggers > 0,
+                                                             logicToUse);
                     break;
                 case CmdLineOpts.Solver.Z3:
-                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0, options.pathToSolver, options.PersistentSolver > 0,logicToUse);
+                    solverImpl = new Solver.Z3SMTLIBSolver(options.UseNamedAttributes > 0,
+                                                           options.pathToSolver,
+                                                           options.PersistentSolver > 0,
+                                                           options.emitTriggers > 0,
+                                                           logicToUse);
                     break;
                 case CmdLineOpts.Solver.DUMMY:
                     solverImpl = new Solver.DummySolver(Symbooglix.Solver.Result.UNKNOWN);

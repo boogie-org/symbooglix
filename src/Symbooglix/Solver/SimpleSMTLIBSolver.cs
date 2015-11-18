@@ -43,7 +43,9 @@ namespace Symbooglix
             // Only has meaning if PersistentProcess is True
             protected bool UseReset;
 
-            protected SimpleSMTLIBSolver(bool useNamedAttributes, string PathToSolverExecutable, string solverArguments, bool persistentProcess)
+            private bool EmitTriggers;
+
+            protected SimpleSMTLIBSolver(bool useNamedAttributes, string PathToSolverExecutable, string solverArguments, bool persistentProcess, bool emitTriggers)
             {
                 if (! File.Exists(PathToSolverExecutable))
                     throw new SolverNotFoundException(PathToSolverExecutable);
@@ -53,6 +55,7 @@ namespace Symbooglix
                 ReceivedResultEvent = null;
                 this.PersistentProcess = persistentProcess;
                 UseReset = false;
+                EmitTriggers = emitTriggers;
 
                 ReadExprTimer = new Stopwatch();
                 SolverProcessTimer = new Stopwatch();
@@ -170,7 +173,7 @@ namespace Symbooglix
                     this.TheProcess = Process.Start(StartInfo);
 
                     if (Printer == null)
-                        Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*useNamedAttributeBindings*/UseNamedAttributes, /*humanReadable=*/false);
+                        Printer = new SMTLIBQueryPrinter(TheProcess.StandardInput, /*useNamedAttributeBindings*/UseNamedAttributes, /*humanReadable=*/false, /*printTriggers=*/EmitTriggers);
                     else
                         Printer.ChangeOutput(TheProcess.StandardInput);
 

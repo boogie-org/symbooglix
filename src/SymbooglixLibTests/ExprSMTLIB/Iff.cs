@@ -16,7 +16,7 @@ using NUnit.Framework;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class Iff
+    public class Iff : ExprSMTLIBTestBase
     {
         [Test()]
         public void Test()
@@ -28,7 +28,7 @@ namespace ExprSMTLIBTest
 
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(iffExpr);
                 Assert.AreEqual("(and (=> true false ) (=> false true ) )", writer.ToString());
             }

@@ -108,6 +108,7 @@
     <Compile Include="ConstraintManagerTests.cs" />
     <Compile Include="Transforms\QueryTests.cs" />
     <Compile Include="ExprSMTLIB\Quantifiers.cs" />
+    <Compile Include="ExprSMTLIB\ExprSMTLIBTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

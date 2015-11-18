@@ -10,8 +10,9 @@ using BPLType = Microsoft.Boogie.Type;
 namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class Quantifiers
+    public class Quantifiers : ExprSMTLIBTestBase
     {
+
         // FIXME: Taken from SimpleExprBuilderTestBase. This needs to be refactored
         protected Tuple<Variable, IdentifierExpr> GetVarAndIdExpr(string name, Microsoft.Boogie.Type type, bool isBound=false)
         {
@@ -78,7 +79,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(forall (  (x Int) (y Int) ) (> (f x y  ) x ) )", writer.ToString());
             }
@@ -96,7 +97,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) ) ) )", writer.ToString());
             }
@@ -116,7 +117,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f y x  ) ):pattern ( (f x y  ) ) ) )", writer.ToString());
             }
@@ -135,7 +136,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) (f y x  ) ) ) )", writer.ToString());
             }
@@ -153,7 +154,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(forall (  (x Int) (y Int) ) (! (> (f x y  ) x ) :no-pattern (f x y  ) ) )", writer.ToString());
             }
@@ -170,7 +171,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(exists (  (x Int) (y Int) ) (> (f x y  ) x ) )", writer.ToString());
             }
@@ -188,7 +189,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) ) ) )", writer.ToString());
             }
@@ -208,7 +209,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f y x  ) ):pattern ( (f x y  ) ) ) )", writer.ToString());
             }
@@ -227,7 +228,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :pattern ( (f x y  ) (f y x  ) ) ) )", writer.ToString());
             }
@@ -245,7 +246,7 @@ namespace ExprSMTLIBTest
             });
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.PrintExpr(result);
                 Assert.AreEqual("(exists (  (x Int) (y Int) ) (! (> (f x y  ) x ) :no-pattern (f x y  ) ) )", writer.ToString());
             }

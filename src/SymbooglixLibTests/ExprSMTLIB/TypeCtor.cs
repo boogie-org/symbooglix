@@ -16,10 +16,10 @@ using System.Collections.Generic;
 using System.IO;
 
 
-namespace SymbooglixLibTests
+namespace ExprSMTLIBTest
 {
     [TestFixture()]
-    public class TypeConstructor
+    public class TypeConstructor : ExprSMTLIBTestBase
     {
         [Test()]
         public void NoArguments()
@@ -39,7 +39,7 @@ namespace SymbooglixLibTests
 
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.AddDeclarations(eq);
                 printer.PrintSortDeclarations();
                 Assert.AreEqual("(declare-sort @fox)\n", writer.ToString());
@@ -64,7 +64,7 @@ namespace SymbooglixLibTests
 
             using (var writer = new StringWriter())
             {
-                var printer = new SMTLIBQueryPrinter(writer, false, false);
+                var printer = GetPrinter(writer);
                 printer.AddDeclarations(eq);
                 printer.PrintSortDeclarations();
                 Assert.AreEqual("(declare-sort @fox)\n", writer.ToString());

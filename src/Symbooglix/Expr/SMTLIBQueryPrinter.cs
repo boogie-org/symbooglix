@@ -43,7 +43,9 @@ namespace Symbooglix
         private bool NamedBindingsDisabledInQuantifierExpr;
         private ExprCountingVisitor BindingsFinder;
 
-        public SMTLIBQueryPrinter(TextWriter TW, bool useNamedAttributeBindings, bool humanReadable, int indent=2)
+        private bool PrintTriggers;
+
+        public SMTLIBQueryPrinter(TextWriter TW, bool useNamedAttributeBindings, bool humanReadable, bool printTriggers = true, int indent=2)
         {
             this.HumanReadable = humanReadable; // Must be set before output is set
             ChangeOutput(TW);
@@ -63,6 +65,7 @@ namespace Symbooglix
             Bindings = new Dictionary<Expr, int>( new ExprReferenceCompare());
             this.UseNamedAttributeBindings = useNamedAttributeBindings;
             this.NamedBindingsDisabledInQuantifierExpr = false;
+            PrintTriggers = printTriggers;
 
             TheTraverser = new SMTLIBTraverser(this);
         }
@@ -631,7 +634,7 @@ namespace Symbooglix
             PrintSeperator();
 
             // Handle Triggers
-            if (QE.Triggers == null)
+            if (QE.Triggers == null || !PrintTriggers)
             {
                 PrintExpr(QE.Body);
             }
