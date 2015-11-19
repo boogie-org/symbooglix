@@ -11,12 +11,15 @@ install:
   # FIXME: We should not be using Boogaloo's repo for Z3
   - sudo sh -c 'echo "deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main" > /etc/apt/sources.list.d/smt.list'
   - sudo apt-get update
-  - nuget restore ${TRAVIS_SOLUTION}
+  # Retry a few times just incase this fails too
+  - travis_retry nuget restore ${TRAVIS_SOLUTION}
   # Install Z3
   - sudo apt-get -y install z3=4.3.1-0~trusty1
   # Install needed python tools
   - sudo pip install lit OutputCheck pyyaml
-  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+  # On TravisCI legacy infrastructure this command frequently times out, use
+  # this TravisCI specific helper program to retry a few times
+  - travis_retry nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - git submodule init
   - git submodule update
