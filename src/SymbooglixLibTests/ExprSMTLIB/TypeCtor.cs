@@ -42,7 +42,7 @@ namespace ExprSMTLIBTest
                 var printer = GetPrinter(writer);
                 printer.AddDeclarations(eq);
                 printer.PrintSortDeclarations();
-                Assert.AreEqual("(declare-sort @fox)\n", writer.ToString());
+                Assert.AreEqual("(declare-sort @fox)", writer.ToString().Trim());
             }
         }
 
