@@ -21,8 +21,8 @@ namespace SymbooglixLibTests
         [Test()]
         public void TestCase()
         {
-            SolverStats beforeAssert;
-            SolverStats afterAssert;
+            SolverStats? beforeAssert = null;
+            SolverStats? afterAssert = null;
             p = LoadProgramFrom("programs/OnlyOneSolverCall.bpl");
             ISolver Solver = GetSolver();
             e = GetExecutor(p, new DFSStateScheduler(), Solver);
@@ -46,8 +46,11 @@ namespace SymbooglixLibTests
             Assert.IsNotNull(beforeAssert);
             Assert.IsNotNull(afterAssert);
 
-            Assert.AreEqual(1, beforeAssert.TotalQueries);
-            Assert.AreEqual(2, afterAssert.TotalQueries);
+            Assert.IsTrue(beforeAssert.HasValue);
+            Assert.IsTrue(afterAssert.HasValue);
+
+            Assert.AreEqual(1, beforeAssert.Value.TotalQueries);
+            Assert.AreEqual(2, afterAssert.Value.TotalQueries);
 
         }
     }
