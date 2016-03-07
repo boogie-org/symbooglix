@@ -29,6 +29,34 @@ namespace SymbooglixLibTests
             Assert.AreEqual(0, counter.NumberOfFailures);
             Assert.AreEqual(1, counter.Sucesses);
         }
+
+        [Test()]
+        public void NestedTypeSynonym()
+        {
+            p = LoadProgramFrom(@"
+                type ref = int;
+                type blob = ref;
+                type XXX = blob;
+
+                procedure main()
+                {
+                  var myvar:XXX;
+                  assume(myvar == 0);
+                  assert(myvar == 0);
+                }
+            ", "test.bpl");
+
+            e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
+
+            var tc = new TerminationCounter();
+            tc.Connect(e);
+
+            e.Run(GetMain(p));
+
+            Assert.AreEqual(1, tc.NumberOfTerminatedStates);
+            Assert.AreEqual(0, tc.NumberOfFailures);
+            Assert.AreEqual(0, e.Statistics.ForkCount);
+        }
     }
 }
 

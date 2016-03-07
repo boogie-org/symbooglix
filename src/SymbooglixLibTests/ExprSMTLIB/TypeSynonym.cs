@@ -51,6 +51,21 @@ namespace ExprSMTLIBTest
             CheckType(BasicType.Real, builder.ConstantReal("0.5"), "Real", "(= symbolic_0 0.5 )");
         }
 
+        [Test()]
+        public void NestedInteger()
+        {
+            var ts1 = CreateTypeSynonym(BasicType.Int, "syn0");
+            var ts2 = CreateTypeSynonym(ts1, "syn1");
+            CheckType(ts2, builder.ConstantInt(15), "Int", "(= symbolic_0 15 )");
+        }
+
+        private Microsoft.Boogie.Type CreateTypeSynonym(Microsoft.Boogie.Type type, string name)
+        {
+            var typeDecl = new TypeSynonymDecl(Token.NoToken, name, null, type);
+            var ts = new TypeSynonymAnnotation(Token.NoToken, typeDecl, new List<Microsoft.Boogie.Type>());
+            return ts;
+        }
+
         private void CheckType(Microsoft.Boogie.Type type, LiteralExpr theConstant, string expectedType, string expectedExpr)
         {
             string result = null;
@@ -58,9 +73,7 @@ namespace ExprSMTLIBTest
             {
                 var printer = GetPrinter(stringWriter);
 
-                // Make a typesynonym
-                var typeDecl = new TypeSynonymDecl(Token.NoToken, "mysyn", null, type);
-                var ts = new TypeSynonymAnnotation(Token.NoToken, typeDecl, new List<Microsoft.Boogie.Type>());
+                var ts = CreateTypeSynonym(type, "mysn");
 
                 // Check we get the basic type back
                 Assert.AreEqual(expectedType, SMTLIBQueryPrinter.GetSMTLIBType(ts));

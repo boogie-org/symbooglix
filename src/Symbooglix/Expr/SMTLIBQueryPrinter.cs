@@ -318,13 +318,14 @@ namespace Symbooglix
         {
             Microsoft.Boogie.Type theType = null;
 
-            // Handle type synonym. E.g. ``type arrayId = bv2``
+            // Handle type synonyms. E.g. ``type arrayId = bv2``
             // Perhaps we should run a pass in the program to remove
             // type synonyms?
-            if (T is TypeSynonymAnnotation)
-                theType = ( T as TypeSynonymAnnotation ).ExpandedType;
-            else
-                theType = T;
+            theType = T;
+            while (theType is TypeSynonymAnnotation)
+            {
+                theType = ( theType as TypeSynonymAnnotation ).ExpandedType;
+            }
 
             if (theType is BvType)
             {
