@@ -34,6 +34,9 @@ namespace SymbooglixDriver
             [Option("append-query-log-file", DefaultValue = 0, HelpText = "When logging queries (see --log-queries) append to file rather than overwriting")]
             public int appendLoggedQueries { get; set; }
 
+            [Option("catch-exceptions", DefaultValue = 1, HelpText="Catch Exceptions")]
+            public int CatchExceptions { get; set; }
+
             [Option("constant-caching", DefaultValue=1, HelpText="Cache constants when building expressions")]
             public int ConstantCaching { get; set; }
 
@@ -274,9 +277,25 @@ namespace SymbooglixDriver
 
         public static int Main(String[] args)
         {
+            // This is for debugging
+            bool catchExceptions = true;
+            foreach (var arg in args)
+            {
+                // Look for --catch-exceptions=0
+                if (arg == "--catch-exceptions=0")
+                {
+                    catchExceptions = false;
+                    break;
+                }
+            }
+            if (!catchExceptions)
+            {
+                Console.WriteLine("Not catching exceptions in the driver");
+                return RealMain(args);
+            }
+
             // We use this to capture if an unhandled exception was
             // raised and exit with the appropriate exit code if this happens.
-
             try
             {
                 return RealMain(args);
@@ -288,7 +307,6 @@ namespace SymbooglixDriver
                 ExitWith(ExitCode.EXCEPTION_RAISED);
                 return (int)ExitCode.EXCEPTION_RAISED; // Keep compiler happy
             }
-            //return RealMain(args);
         }
 
         private static void SetupTerminationCatchers(Executor executor)
@@ -604,8 +622,12 @@ namespace SymbooglixDriver
                         executor.Run(entryPoint, options.timeout);
                     }
                 }
-                catch (InitialStateTerminated)
+                catch (InitialStateTerminated e)
                 {
+                    if (options.CatchExceptions == 0)
+                    {
+                        throw e;
+                    }
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
                     Console.ResetColor();
@@ -613,6 +635,10 @@ namespace SymbooglixDriver
                 }
                 catch (RecursiveFunctionDetectedException rfdException)
                 {
+                    if (options.CatchExceptions == 0)
+                    {
+                        throw rfdException;
+                    }
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("Detected the following recursive functions");
                     foreach (var function in rfdException.Functions)
@@ -629,18 +655,30 @@ namespace SymbooglixDriver
                 }
                 catch (OutOfMemoryException e)
                 {
+                    if (options.CatchExceptions == 0)
+                    {
+                        throw e;
+                    }
                     Console.Error.WriteLine("Ran out of memory!");
                     Console.Error.WriteLine(e.ToString());
                     ExitWith(ExitCode.OUT_OF_MEMORY);
                 }
                 catch (NotImplementedException e)
                 {
+                    if (options.CatchExceptions == 0)
+                    {
+                        throw e;
+                    }
                     Console.Error.WriteLine("Feature not implemented!");
                     Console.Error.WriteLine(e.ToString());
                     ExitWith(ExitCode.NOT_IMPLEMENTED_EXCEPTION);
                 }
                 catch (NotSupportedException e)
                 {
+                    if (options.CatchExceptions == 0)
+                    {
+                        throw e;
+                    }
                     Console.Error.WriteLine("Feature not supported!");
                     Console.Error.WriteLine(e.ToString());
                     ExitWith(ExitCode.NOT_SUPPORTED_EXCEPTION);
