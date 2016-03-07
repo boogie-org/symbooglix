@@ -581,25 +581,24 @@ namespace Symbooglix
                 catch (Exception e)
                 {
                     otherException = e;
+                    throw;
                 }
                 finally
                 {
                     // HACK: If another type of exception, exit early so we don't
                     // try to notify of Executor termination which might raise more
                     // exceptions obscuring the original
-                    if (otherException != null)
+                    if (otherException == null)
                     {
-                        throw otherException;
-                    }
-                    Console.WriteLine("Notifying listeners of Executor termination");
-                    // Notify listeners that the Executor finished.
+                        Console.WriteLine("Notifying listeners of Executor termination");
+                        // Notify listeners that the Executor finished.
 
-
-                    // If we ran out of memory the hope is that we free'd enough
-                    // for the listeners to be able to complete but this is not guaranteed.
-                    if (ExecutorTerminated != null)
-                    {
-                        ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
+                        // If we ran out of memory the hope is that we free'd enough
+                        // for the listeners to be able to complete but this is not guaranteed.
+                        if (ExecutorTerminated != null)
+                        {
+                            ExecutorTerminated(this, new ExecutorTerminatedArgs(this));
+                        }
                     }
                 }
 

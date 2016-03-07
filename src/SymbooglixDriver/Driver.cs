@@ -622,11 +622,11 @@ namespace SymbooglixDriver
                         executor.Run(entryPoint, options.timeout);
                     }
                 }
-                catch (InitialStateTerminated e)
+                catch (InitialStateTerminated)
                 {
                     if (options.CatchExceptions == 0)
                     {
-                        throw e;
+                        throw;
                     }
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("The initial state terminated. Execution cannot continue");
@@ -637,7 +637,7 @@ namespace SymbooglixDriver
                 {
                     if (options.CatchExceptions == 0)
                     {
-                        throw rfdException;
+                        throw;
                     }
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine("Detected the following recursive functions");
@@ -657,7 +657,7 @@ namespace SymbooglixDriver
                 {
                     if (options.CatchExceptions == 0)
                     {
-                        throw e;
+                        throw;
                     }
                     Console.Error.WriteLine("Ran out of memory!");
                     Console.Error.WriteLine(e.ToString());
@@ -667,7 +667,7 @@ namespace SymbooglixDriver
                 {
                     if (options.CatchExceptions == 0)
                     {
-                        throw e;
+                        throw;
                     }
                     Console.Error.WriteLine("Feature not implemented!");
                     Console.Error.WriteLine(e.ToString());
@@ -677,7 +677,7 @@ namespace SymbooglixDriver
                 {
                     if (options.CatchExceptions == 0)
                     {
-                        throw e;
+                        throw;
                     }
                     Console.Error.WriteLine("Feature not supported!");
                     Console.Error.WriteLine(e.ToString());
