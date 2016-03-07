@@ -561,7 +561,7 @@ namespace Symbooglix
                 List<char> preAllocated = null;
 
                 OutOfMemoryException oome = null;
-
+                Exception otherException = null;
                 try
                 {
                     // HACK: pre-allocate 10MiB that we can free if we run out of memory
@@ -578,8 +578,19 @@ namespace Symbooglix
                     this.TerminationType = ExecutorTerminationType.OUT_OF_MEMORY;
                     oome = e;
                 }
+                catch (Exception e)
+                {
+                    otherException = e;
+                }
                 finally
                 {
+                    // HACK: If another type of exception, exit early so we don't
+                    // try to notify of Executor termination which might raise more
+                    // exceptions obscuring the original
+                    if (otherException != null)
+                    {
+                        throw otherException;
+                    }
                     Console.WriteLine("Notifying listeners of Executor termination");
                     // Notify listeners that the Executor finished.
 
