@@ -1,0 +1,13 @@
+# Autodetect text files and ensure that we normalise
+# their line endings to lf internally. When checked out
+# they may use different line endings.
+* text=auto
+
+# Set what line endings should be used when these files are checked out
+*.sln text eol=crlf
+*.csproj text eol=lf
+*.cs text diff=csharp eol=lf
+packages.config text eol=crlf
+*.bpl text eol=lf
+*.py text eol=lf
+lit.site.cfg text eol=lf
