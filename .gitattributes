@@ -7,7 +7,7 @@
 *.sln text eol=crlf
 *.csproj text eol=lf
 *.cs text diff=csharp eol=lf
-packages.config text eol=crlf
+**/packages.config text eol=crlf
 *.bpl text eol=lf
 *.py text eol=lf
-lit.site.cfg text eol=lf
+test_programs/lit.site.cfg text eol=lf
