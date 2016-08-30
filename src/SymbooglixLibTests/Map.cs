@@ -351,6 +351,25 @@ namespace SymbooglixLibTests
             e.Run(GetMain(p));
 
         }
+
+        [Test()]
+        public void MultiArityMapMixedTypes()
+        {
+            p = LoadProgramFrom(@"
+            procedure main() {
+              var x:[int,bool]bool;
+
+              x[0,false] := true;
+              assert x[0,false] == true;
+            }
+            ", "test.bpl");
+            e = GetExecutor(p, /*scheduler=*/ new DFSStateScheduler(), /*solver=*/ GetSolver());
+            var tc = new TerminationCounter(TerminationCounter.CountType.BOTH);
+            tc.Connect(e);
+            e.Run(GetMain(p));
+            Assert.AreEqual(1, tc.Sucesses);
+            Assert.AreEqual(0, tc.FailingAsserts);
+        }
     }
 }
 

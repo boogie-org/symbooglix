@@ -90,7 +90,8 @@ namespace Symbooglix
                 Expr firstArg = null;
                 do
                 {
-                    for (int index=1; index < asMapSelect.Args.Count; ++index)
+                    // Traverse multi-arity arguments in reverse because later on we reverse them.
+                    for (int index=asMapSelect.Args.Count -1; index >= 1; --index)
                     {
                         // Don't do index variable mapping here because we might
                         // need to throw away what we've done
