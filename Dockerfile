@@ -7,14 +7,15 @@ ENV CONTAINER_USER=sbx \
     NUGET_URL=https://dist.nuget.org/win-x86-commandline/v2.8.6/nuget.exe \
     SBX_SRC=/home/sbx/symbooglix
 
-# FIXME: This is overkill, we don't need everything from mono
+# FIXME: This is overkill, we don't need everything from mono.
+# Note ca-certificates-mono is needed so NuGet can pull down the packages we need.
 RUN apt-get update && apt-get -y install wget && \
     wget -O - http://download.mono-project.com/repo/xamarin.gpg |apt-key add - && \
     echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/${MONO_VERSION} main" > /etc/apt/sources.list.d/mono-xamarin.list && \
     apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590 && \
     echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list && \
     apt-get update && \
-    apt-get -y install --no-install-recommends mono-devel z3=4.3.1-0~trusty1
+    apt-get -y install --no-install-recommends mono-devel ca-certificates-mono z3=4.3.1-0~trusty1
 
 # Create user for container with password set to the user name
 # Give it sudo access so it possible to install new packages inside the container.
@@ -48,10 +49,8 @@ ADD utils ${SBX_SRC}/utils
 RUN chown --recursive ${CONTAINER_USER} ${SBX_SRC}
 
 # Switch to container user and build
-# Note mozroots is required to initialise certificate store so nuget works
 USER ${CONTAINER_USER}
 RUN cd ${SBX_SRC} && wget ${NUGET_URL} -O nuget.exe && \
-    mozroots --import --sync && \
     mono ./nuget.exe restore ${SBX_SRC}/src/Symbooglix.sln
 RUN cd ${SBX_SRC} && xbuild /p:Configuration=${BUILD_TYPE} src/Symbooglix.sln
 RUN ln -s /usr/bin/z3 ${SBX_SRC}/src/SymbooglixDriver/bin/${BUILD_TYPE}/z3.exe && \
