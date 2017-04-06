@@ -113,14 +113,14 @@ namespace Symbooglix
                 //
                 // The rule is basically this:
                 //
-                // decimal_rep_for_bits = (2^m - x) mod (2^m)
+                // decimal_rep_for_bits = (2^m - |x|) mod (2^m)
 
                 if (bitWidth <=1)
                     throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
 
                 var abs = BigInteger.Abs(decimalValue);
 
-                if (abs >= BigInteger.Pow(2, bitWidth -1))
+                if (abs > BigInteger.Pow(2, bitWidth -1))
                     throw new ArgumentException("Decimal value cannot be represented in the requested number of bits");
 
                 var result = ( twoToPowerOfBits - abs );

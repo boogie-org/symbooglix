@@ -161,6 +161,7 @@ namespace ExprBuilderTests
         [TestCase(-5, 4, "11bv4")]
         [TestCase(-11, 32, "4294967285bv32")]
         [TestCase(0, 4, "0bv4")]
+        [TestCase(-8, 4, "8bv4")]
         public void NegativeBV(int decimalValue, int width, string expectedString)
         {
             _NegativeBV(decimalValue, width, expectedString);
