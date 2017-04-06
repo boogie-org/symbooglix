@@ -12,10 +12,10 @@ ENV CONTAINER_USER=sbx \
 RUN apt-get update && apt-get -y install wget && \
     wget -O - http://download.mono-project.com/repo/xamarin.gpg |apt-key add - && \
     echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/${MONO_VERSION} main" > /etc/apt/sources.list.d/mono-xamarin.list && \
-    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590 && \
-    echo 'deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main' > /etc/apt/sources.list.d/smt.list && \
+    wget -O - http://download.opensuse.org/repositories/home:delcypher:z3/xUbuntu_14.04/Release.key | apt-key add - && \
+    echo 'deb http://download.opensuse.org/repositories/home:/delcypher:/z3/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/smt.list && \
     apt-get update && \
-    apt-get -y install --no-install-recommends mono-devel ca-certificates-mono z3=4.3.1-0~trusty1
+    apt-get -y install --no-install-recommends mono-devel ca-certificates-mono z3=4.4.1-0
 
 # Create user for container with password set to the user name
 # Give it sudo access so it possible to install new packages inside the container.

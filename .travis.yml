@@ -9,11 +9,11 @@ env:
   - BUILD_TYPE=Debug
 install:
   - sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
-  # FIXME: We should not be using Boogaloo's repo for Z3
-  - sudo sh -c 'echo "deb http://ppa.launchpad.net/delcypher/boogaloo-smt/ubuntu trusty main" > /etc/apt/sources.list.d/smt.list'
+  - sudo -c 'wget -O - http://download.opensuse.org/repositories/home:delcypher:z3/xUbuntu_14.04/Release.key | apt-key add -'
+  - sudo sh -c 'echo "deb http://download.opensuse.org/repositories/home:/delcypher:/z3/xUbuntu_14.04/ /" > /etc/apt/sources.list.d/smt.list'
   - sudo apt-get update
   # Install Z3
-  - sudo apt-get -y install z3=4.3.1-0~trusty1
+  - sudo apt-get -y install z3=4.4.1-0
   # Install needed python tools
   # NOTE: DO NOT USE `sudo` here because TravisCI uses its own `pip` tool in a
   # virtualenv.
