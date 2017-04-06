@@ -590,7 +590,7 @@ namespace Symbooglix
                     // exceptions obscuring the original
                     if (otherException == null)
                     {
-                        Console.WriteLine("Notifying listeners of Executor termination");
+                        // Console.WriteLine("Notifying listeners of Executor termination");
                         // Notify listeners that the Executor finished.
 
                         // If we ran out of memory the hope is that we free'd enough
