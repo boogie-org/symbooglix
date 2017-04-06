@@ -54,6 +54,7 @@ namespace Symbooglix
                 ReceivedError = false;
                 ReceivedResultEvent = null;
                 this.PersistentProcess = persistentProcess;
+                this.Timeout = 0;
                 UseReset = false;
                 EmitTriggers = emitTriggers;
 
