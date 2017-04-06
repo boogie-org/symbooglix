@@ -10,9 +10,7 @@ NUGET_URL=${NUGET_URL:-https://dist.nuget.org/win-x86-commandline/v2.8.6/nuget.e
 
 cd "${SBX_SRC}"
 
-TRAVIS_RETRY=""
 if [ -n "${TRAVIS}" ]; then
-  TRAVIS_RETRY="travis_retry"
   NUGET=("nuget")
 else
   # Get NuGet
@@ -21,10 +19,10 @@ else
 fi
 
 # Restore packages
-eval ${TRAVIS_RETRY} ${NUGET[*]} restore ${TRAVIS_SOLUTION}
+${NUGET[*]} restore ${TRAVIS_SOLUTION}
 
 # Download NUnit runners
-eval ${TRAVIS_RETRY} ${NUGET[*]} install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+${NUGET[*]} install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 
 # Set up git submodules
 if [ "X${SKIP_SUBMODULE_SETUP}" != "X1" ]; then
