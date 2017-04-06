@@ -4,8 +4,8 @@ MAINTAINER Dan Liew <daniel.liew@imperial.ac.uk>
 ENV CONTAINER_USER=sbx \
     BUILD_TYPE=Release \
     MONO_VERSION=4.0.0 \
-    NUGET_URL=https://dist.nuget.org/win-x86-commandline/v2.8.6/nuget.exe \
-    SBX_SRC=/home/sbx/symbooglix
+    SBX_SRC=/home/sbx/symbooglix \
+    SKIP_SUBMODULE_SETUP=1
 
 # FIXME: This is overkill, we don't need everything from mono.
 # Note ca-certificates-mono is needed so NuGet can pull down the packages we need.
@@ -50,11 +50,9 @@ RUN chown --recursive ${CONTAINER_USER} ${SBX_SRC}
 
 # Switch to container user and build
 USER ${CONTAINER_USER}
-RUN cd ${SBX_SRC} && wget ${NUGET_URL} -O nuget.exe && \
-    mono ./nuget.exe restore ${SBX_SRC}/src/Symbooglix.sln
-RUN cd ${SBX_SRC} && xbuild /p:Configuration=${BUILD_TYPE} src/Symbooglix.sln
-RUN ln -s /usr/bin/z3 ${SBX_SRC}/src/SymbooglixDriver/bin/${BUILD_TYPE}/z3.exe && \
-    ln -s /usr/bin/z3 ${SBX_SRC}/src/Symbooglix/bin/${BUILD_TYPE}/z3.exe
+RUN cd ${SBX_SRC} && \
+    utils/travis-prepare.sh && \
+    utils/travis-build.sh
 
 # Put sbx.exe in the user's PATH
 RUN echo 'export PATH=$PATH:${SBX_SRC}/src/SymbooglixDriver/bin/${BUILD_TYPE}' >> \
