@@ -124,6 +124,7 @@ namespace ExprBuilderTests
         [TestCase(5, 4, "5bv4")]
         [TestCase(11, 32, "11bv32")]
         [TestCase(0, 4, "0bv4")]
+        [TestCase (15, 4, "15bv4")]
         public void PositiveBV(int decimalValue, int width, string expectedString)
         {
             _PositiveBV(decimalValue, width, expectedString);
