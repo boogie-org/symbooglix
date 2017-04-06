@@ -21,10 +21,10 @@ else
 fi
 
 # Restore packages
-${TRAVIS_RETRY} ${NUGET[*]} restore ${TRAVIS_SOLUTION}
+eval ${TRAVIS_RETRY} ${NUGET[*]} restore ${TRAVIS_SOLUTION}
 
 # Download NUnit runners
-${TRAVIS_RETRY} ${NUGET[*]} install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+eval ${TRAVIS_RETRY} ${NUGET[*]} install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 
 # Set up git submodules
 if [ "X${SKIP_SUBMODULE_SETUP}" != "X1" ]; then
