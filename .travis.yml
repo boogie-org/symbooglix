@@ -1,5 +1,6 @@
 # vim: set sw=2 ts=2 softtabstop=2 expandtab:
 language: csharp
+dist: trusty
 sudo: true
 solution: "src/Symbooglix.sln"
 # Each item in the "env" list is a build configuration that will be enumerated
