@@ -3,7 +3,7 @@ MAINTAINER Dan Liew <daniel.liew@imperial.ac.uk>
 
 ENV CONTAINER_USER=sbx \
     BUILD_TYPE=Release \
-    MONO_VERSION=4.0.0 \
+    MONO_VERSION=4.8.0 \
     SBX_SRC=/home/sbx/symbooglix \
     SKIP_SUBMODULE_SETUP=1
 
