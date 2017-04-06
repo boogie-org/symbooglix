@@ -19,7 +19,6 @@ for test in ${UNIT_TESTS[@]} ; do
     echo "Running suite ${test}"
     mono --debug ${CONSOLE_RUNNER} \
         -nologo \
-        -nodots \
         -output=temp.out \
         -err=temp.err \
         -timeout=${TIMEOUT} \
