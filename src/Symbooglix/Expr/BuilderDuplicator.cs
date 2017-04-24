@@ -128,6 +128,16 @@ namespace Symbooglix
             // might be "zeroextend 16", we don't care about the number
             string firstWord = builtin.Split(' ')[0];
             Debug.Assert(firstWord.Length > 0);
+
+            // Handle `(_ zero_extend x)` and `(_ sign_extend x)` style builtins
+            if (firstWord.StartsWith("(_")) {
+                var words = builtin.Split(' ');
+                if (words.Length < 2) {
+                    throw new ArgumentException("Malformed bvbuiltin name \"" + builtin + "\"");
+                }
+                firstWord = words[1];
+            }
+
             int retWidth = 0;
             switch (firstWord)
             {
@@ -220,7 +230,7 @@ namespace Symbooglix
                     Debug.Assert(newArgs.Count == 2);
                     return Builder.BVSGE(newArgs[0], newArgs[1]);
                 default:
-                    throw new NotImplementedException(firstWord + " bvbuiltin not supported!");
+                    throw new NotImplementedException("\"" + firstWord + "\" bvbuiltin not supported!");
             }
         }
 
