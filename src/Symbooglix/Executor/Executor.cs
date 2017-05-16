@@ -282,6 +282,21 @@ namespace Symbooglix
         }
         public event EventHandler<ForkEventArgs> ForkOccurred;
 
+        public class TransferToBlockEventArgs : EventArgs
+        {
+            public ExecutionState State { get; private set; }
+            public Block PreviousBlock { get; private set; }
+            public Block NewBlock { get; private set; }
+            public TransferToBlockEventArgs(ExecutionState state, Block previousBlock, Block newBlock)
+            {
+                State = state;
+                PreviousBlock = previousBlock;
+                NewBlock = newBlock;
+            }
+        }
+
+        public event EventHandler<TransferToBlockEventArgs> BasicBlockChanged;
+
         public ExecutionTreeNode TreeRoot
         {
             get
@@ -1667,7 +1682,7 @@ namespace Symbooglix
                     // FIXME: We should look ahead for assumes and check that they are satisfiable so we don't create states and then immediatly destroy them!
                     newState = Fork(CurrentState, c.GetProgramLocation()); // FIXME: This is not memory efficient
                     c.GetInstructionStatistics().IncrementForks();
-                    newState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[targetId]);
+                    TransferStateToBlock(newState, c.labelTargets[targetId]);
                     StateScheduler.AddState(newState);
 
                     // The Current state also needs a new node
@@ -1676,7 +1691,7 @@ namespace Symbooglix
             }
 
             // The current execution state will always take the first target
-            CurrentState.GetCurrentStackFrame().TransferToBlock(c.labelTargets[0]);
+            TransferStateToBlock(CurrentState, c.labelTargets[0]);
         }
 
         private struct LookAheadInfo
@@ -1820,7 +1835,7 @@ namespace Symbooglix
                 }
 
                 // Transfer to the appropriate basic block
-                theState.GetCurrentStackFrame().TransferToBlock(theInfo.Target);
+                TransferStateToBlock(theState, theInfo.Target);
 
                 if (theInfo.ReWrittenAssumeConstraint != null)
                 {
@@ -1920,6 +1935,16 @@ namespace Symbooglix
                 ForkOccurred(this, new ForkEventArgs(stateToFork, newState));
             }
             return newState;
+        }
+
+        protected void TransferStateToBlock(ExecutionState state, Block BB)
+        {
+            Block previous = state.GetCurrentStackFrame().CurrentBlock;
+            state.GetCurrentStackFrame().TransferToBlock(BB);
+            if (BasicBlockChanged != null)
+            {
+                BasicBlockChanged(this, new TransferToBlockEventArgs(state, previous, BB));
+            }
         }
 
     }

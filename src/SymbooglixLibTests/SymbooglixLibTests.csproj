@@ -110,6 +110,7 @@
     <Compile Include="ExprSMTLIB\Quantifiers.cs" />
     <Compile Include="ExprSMTLIB\ExprSMTLIBTestBase.cs" />
     <Compile Include="ExecutorForkEvent.cs" />
+    <Compile Include="ExecutorTransferBBEvent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
