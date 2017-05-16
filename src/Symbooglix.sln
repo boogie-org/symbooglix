@@ -179,8 +179,8 @@ Global
 		$1.FileWidth = 120
 		$1.inheritsSet = VisualStudio
 		$1.inheritsScope = text/plain
-		$1.scope = text/plain
-		$1.TabsToSpaces = False
+		$1.scope = text/x-csharp
+		$1.NoTabsAfterNonTabs = True
 		$0.TextStylePolicy = $2
 		$2.FileWidth = 120
 		$2.NoTabsAfterNonTabs = True
@@ -210,7 +210,6 @@ Global
 		$3.SpacingAfterMethodDeclarationName = False
 		$3.SpaceAfterMethodCallName = False
 		$3.SpaceBeforeOpenSquareBracket = False
-		$3.SpaceBeforeComma = True
 		$0.TextStylePolicy = $4
 		$4.FileWidth = 120
 		$4.TabsToSpaces = False
