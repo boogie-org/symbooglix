@@ -143,8 +143,10 @@ namespace TransformTests
                 ", "test.bpl");
 
             Assert.AreEqual(3, FunctionCount(prog));
+            Assert.AreEqual(2 , AxiomCount(prog)); // Implicit
             RunGDDE(prog);
             Assert.AreEqual(2, FunctionCount(prog));
+            Assert.AreEqual(1 , AxiomCount(prog)); // Implicit
         }
 
         [Test()]
