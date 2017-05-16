@@ -270,6 +270,18 @@ namespace Symbooglix
 
         public event EventHandler<ContextChangeEventArgs> ContextChanged;
 
+        public class ForkEventArgs : EventArgs
+        {
+            public ExecutionState Parent { get; private set; }
+            public ExecutionState Child { get; private set; }
+            public ForkEventArgs(ExecutionState parent , ExecutionState child)
+            {
+                this.Parent = parent;
+                this.Child = child;
+            }
+        }
+        public event EventHandler<ForkEventArgs> ForkOccurred;
+
         public ExecutionTreeNode TreeRoot
         {
             get
@@ -1900,6 +1912,12 @@ namespace Symbooglix
             // Should DeepClone() handle this instead?
             //newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);
             ++InternalStatistics.ForkCount;
+
+            // Notify
+            if (ForkOccurred != null)
+            {
+                ForkOccurred(this, new ForkEventArgs(stateToFork, newState));
+            }
             return newState;
         }
 
