@@ -229,13 +229,19 @@ namespace Symbooglix
 
         private void AddSort(Microsoft.Boogie.Type typ)
         {
-            if (typ.IsCtor)
-            {
+            if (typ.IsCtor) {
                 var typAsCtor = typ.AsCtor;
                 if (typAsCtor.Arguments.Count > 0)
                     throw new NotSupportedException("Can't handle constructor types with arguments");
 
                 sortsToDeclare.Add(typ.AsCtor.Decl);
+            } else if (typ.IsMap) {
+                // Maps might use constructor types
+                var typAsMap = typ.AsMap;
+                foreach (var arg in typAsMap.Arguments) {
+                    AddSort(arg);
+                }
+                AddSort(typAsMap.Result);
             }
         }
 
