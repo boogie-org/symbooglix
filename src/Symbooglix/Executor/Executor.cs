@@ -1913,8 +1913,9 @@ namespace Symbooglix
             //newState.TreeNode = new ExecutionTreeNode(newState, stateToFork.TreeNode, createdAt);
             ++InternalStatistics.ForkCount;
 
-            // Notify
-            if (ForkOccurred != null)
+            // Notify listeners to fork event apart from fork from special
+            // `InitialState`.
+            if (ForkOccurred != null && stateToFork != InitialState)
             {
                 ForkOccurred(this, new ForkEventArgs(stateToFork, newState));
             }

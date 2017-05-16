@@ -24,7 +24,6 @@ namespace SymbooglixLibTests
                     procedure main()
                     {
                         entry:
-                            assert {:symbooglix_bp ""foo""} true;
                             goto foo, bar;
                         foo:
                             assume g == 1;
@@ -37,35 +36,22 @@ namespace SymbooglixLibTests
             e = GetExecutor(p, new DFSStateScheduler(), GetSolver());
             e.UseGotoLookAhead = useLookAhead;
             int forkCounter = 0;
-            bool initialStateCreated = false;
             bool hitGoto = false;
-            e.BreakPointReached += delegate(object sender, Executor.BreakPointEventArgs e) {
-                initialStateCreated = true;
-            };
             e.ForkOccurred += delegate(object sender, Executor.ForkEventArgs e) {
                 forkCounter += 1;
                 Assert.AreNotSame(e.Child, e.Parent);
                 Assert.IsTrue(e.Parent.Id + 1 == e.Child.Id);
-                if (initialStateCreated) {
-                    // FIXME: This doesn't work with the global id value
-                    // Assert.AreEqual(e.Parent.Id, 0);
-                    // Assert.AreEqual(e.Child.Id, 1);
-                    Assert.AreSame(e.Parent.GetCurrentStackFrame().Impl, e.Child.GetCurrentStackFrame().Impl);
-                    Assert.AreSame(e.Parent.GetCurrentBlock(), e.Child.GetCurrentBlock());
-                    Assert.IsInstanceOf<Microsoft.Boogie.GotoCmd>(e.Parent.GetCurrentStackFrame().CurrentInstruction.Current);
-                    Assert.AreSame(e.Parent.GetCurrentStackFrame().CurrentInstruction.Current, e.Child.GetCurrentStackFrame().CurrentInstruction.Current);
-                    hitGoto = true;
-                }
-                else
-                {
-                    // FIXME: This doesn't work with the global id value
-                    // Assert.AreEqual(e.Parent.Id, -1);
-                    // Assert.AreEqual(e.Child.Id, 0);
-                    Assert.AreEqual(e.Child.Mem.Stack.Count, 0);
-                }
+                // FIXME: This doesn't work with the global id value
+                // Assert.AreEqual(e.Parent.Id, 0);
+                // Assert.AreEqual(e.Child.Id, 1);
+                Assert.AreSame(e.Parent.GetCurrentStackFrame().Impl, e.Child.GetCurrentStackFrame().Impl);
+                Assert.AreSame(e.Parent.GetCurrentBlock(), e.Child.GetCurrentBlock());
+                Assert.IsInstanceOf<Microsoft.Boogie.GotoCmd>(e.Parent.GetCurrentStackFrame().CurrentInstruction.Current);
+                Assert.AreSame(e.Parent.GetCurrentStackFrame().CurrentInstruction.Current, e.Child.GetCurrentStackFrame().CurrentInstruction.Current);
+                hitGoto = true;
             };
             e.Run(GetMain(p));
-            Assert.AreEqual(forkCounter, 2);
+            Assert.AreEqual(forkCounter, 1);
             Assert.IsTrue(hitGoto);
         }
     }
