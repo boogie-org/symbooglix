@@ -275,17 +275,7 @@ namespace Symbooglix
                 {
                     // Don't record top level functions or variables because these are declarations.
                     // We only care about uses of functions or variables
-                    if (tld is Function)
-                    {
-                        // We need to visit the function body if it has one because it may reference
-                        // other functions
-                        var f = tld as Function;
-                        if (f.Body != null)
-                            Visit(f.Body);
-
-                        continue;
-                    }
-                    else if (tld is GlobalVariable || tld is Constant)
+                    if (tld is GlobalVariable || tld is Constant || tld is Function)
                     {
                         continue;
                     }
@@ -326,35 +316,57 @@ namespace Symbooglix
                 return base.VisitNAryExpr(node);
             }
 
-            public void VisitFunctionCall(FunctionCall node)
-            {
-                Debug.Assert(node.Func != null);
-                if (InAxiom)
-                {
+            public override Function VisitFunction(Function node) {
+                Debug.Assert(node != null);
+                if (InAxiom) {
                     Debug.Assert(CurrentAxiom != null);
 
-                    if (IgnoreInterpretedFunctionsInAxioms && ExprUtil.AsUninterpretedFunction(node.Func) == null)
-                    {
+                    if (IgnoreInterpretedFunctionsInAxioms && ExprUtil.AsUninterpretedFunction(node) == null) {
                         // This FunctionCall does not call an uninterpreted function. Therefore it must call an
                         // an interpreted function
-                        return;
+                        return node;
+                    }
+
+                    if (FuncsUsedInAxiom[CurrentAxiom].Contains(node)) {
+                        // We've already visited this function before
+                        // in the context of this axiom. So don't visit again.
+                        // This means we might travserse the same function
+                        // body multiple times in the context of different axioms.
+                        // I think that means we'll never get stuck traversing
+                        // recursive function bodies but I'm not sure.
+                        return node;
                     }
 
                     // Record the mapping both ways
-                    if (!AxiomsUsingFunc.ContainsKey(node.Func))
-                    {
-                        AxiomsUsingFunc[node.Func] = new HashSet<Axiom>();
+                    if (!AxiomsUsingFunc.ContainsKey(node)) {
+                        AxiomsUsingFunc[node] = new HashSet<Axiom>();
                     }
-                    AxiomsUsingFunc[node.Func].Add(CurrentAxiom);
+                    AxiomsUsingFunc[node].Add(CurrentAxiom);
 
                     // Assume Hash set has already been initialised
-                    FuncsUsedInAxiom[CurrentAxiom].Add(node.Func);
-                }
-                else
-                {
-                    FuncsUsedInCode.Add(node.Func);
+                    FuncsUsedInAxiom[CurrentAxiom].Add(node);
+                } else {
+                    if (FuncsUsedInCode.Contains(node)) {
+                        // We've visited this function before in the context
+                        // of code so we don't need to add it to `FuncsUsedInCode`
+                        // or travserse its body again. Traversing again might
+                        // get us stuck in a loop with recursive functions.
+                        return node;
+                    }
+                    FuncsUsedInCode.Add(node);
                 }
 
+                // Now if the function has a body traverse that because
+                // this function depends on functions that this function calls
+                if (node.Body != null) {
+                    Visit(node.Body);
+                }
+                return node;
+            }
+
+            public void VisitFunctionCall(FunctionCall node)
+            {
+                VisitFunction(node.Func);
             }
 
             public override Variable VisitVariable(Variable node)

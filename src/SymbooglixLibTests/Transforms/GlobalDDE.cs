@@ -96,6 +96,28 @@ namespace TransformTests
         }
 
         [Test()]
+        public void RecursiveFuncUsed()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                // Foo is alive and is recursive
+                function foo(x:int) returns(int) {
+                    if x !=0 && x > 0 then foo(x-1) else 0
+                }
+
+                procedure main()
+                {
+                    assert foo(1) == 0;
+                }
+                " , "test.bpl");
+
+            Assert.AreEqual(1 , FunctionCount(prog));
+            Assert.AreEqual(1 , AxiomCount(prog)); // Implicit axiom on foo()
+            RunGDDE(prog);
+            Assert.AreEqual(1, FunctionCount(prog));
+            Assert.AreEqual(1, AxiomCount(prog)); // Implicit axiom on foo()
+        }
+
+        [Test()]
         public void InDirectFuncUseWithImplicitAxiom()
         {
             var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
@@ -123,7 +145,37 @@ namespace TransformTests
             Assert.AreEqual(3, FunctionCount(prog));
             RunGDDE(prog);
             Assert.AreEqual(2, FunctionCount(prog));
+        }
 
+        [Test()]
+        public void InDirectFuncIsDeadUseWithImplicitAxiom()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                // Foo is dead because it's used by bar which is dead
+                function foo(x:int) returns(bool);
+
+                // This gets converted to an axiom during parsing
+                function bar() returns (bool)
+                {
+                    foo(5)
+                }
+
+                // Baz is dead. This gets converted to an axiom during parsing
+                function baz() returns (bool)
+                {
+                    true
+                }
+
+                procedure main()
+                {
+                    assert true;
+                }
+                " , "test.bpl");
+            Assert.AreEqual(2 , AxiomCount(prog)); // Implicit
+            Assert.AreEqual(3 , FunctionCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(0 , FunctionCount(prog));
+            Assert.AreEqual(0 , AxiomCount(prog));
         }
 
         [Test()]
@@ -179,6 +231,62 @@ namespace TransformTests
             RunGDDE(prog);
             Assert.AreEqual(0, FunctionCount(prog));
             Assert.AreEqual(0, AxiomCount(prog));
+
+        }
+
+        [Test()]
+        public void InDirectFuncIsDeadUseWithoutImplicitAxiom()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                // foo is dead because it's used by bar
+                function foo(x:int) returns(bool);
+
+                // No axiom is used here, bar is dead
+                function {:inline } bar() returns (bool)
+                {
+                    foo(5)
+                }
+
+                procedure main()
+                {
+                    assert true;
+                }
+                " , "test.bpl");
+
+            Assert.AreEqual(2 , FunctionCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(0 , FunctionCount(prog));
+
+        }
+
+        [Test()]
+        public void DoubleInDirectFuncIsDeadUseWithoutImplicitAxiom()
+        {
+            var prog = SymbooglixLibTests.SymbooglixTest.LoadProgramFrom(@"
+                // baz is dead because bar() is dead
+                function baz(x:int) returns(bool);
+
+                // foo is dead because it's used by bar
+                function {:inline } foo(x:int) returns(bool)
+                {
+                    baz(2)
+                }
+
+                // No axiom is used here, bar is dead
+                function {:inline } bar() returns (bool)
+                {
+                    foo(5)
+                }
+
+                procedure main()
+                {
+                    assert true;
+                }
+                " , "test.bpl");
+
+            Assert.AreEqual(3 , FunctionCount(prog));
+            RunGDDE(prog);
+            Assert.AreEqual(0 , FunctionCount(prog));
 
         }
 
