@@ -127,6 +127,9 @@ namespace SymbooglixDriver
             [Option("max-depth", DefaultValue=-1, HelpText="Max ExplicitBranchDepth to explore. Default is -1 which means no limit")]
             public int MaxDepth { get; set; }
 
+            [Option("max-loop-depth", DefaultValue = -1, HelpText = "Max loop depth to explore. Default is -1 which means no limit")]
+            public int MaxLoopDepth { get; set; }
+
             [Option("print-instr", DefaultValue = false, HelpText = "Print instructions during execution")]
             public bool useInstructionPrinter { get; set; }
 
@@ -858,6 +861,9 @@ namespace SymbooglixDriver
 
             if (options.PreferLoopEscapingPaths > 0)
                 scheduler = new LoopEscapingScheduler(scheduler);
+
+            if (options.MaxLoopDepth > 0)
+                scheduler = new LimitLoopBoundScheduler(scheduler, options.MaxLoopDepth);
 
             return scheduler;
         }

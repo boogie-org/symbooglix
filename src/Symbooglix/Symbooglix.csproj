@@ -125,6 +125,8 @@
     <Compile Include="Executor\IVariableStore.cs" />
     <Compile Include="Executor\MapProxy.cs" />
     <Compile Include="Solver\SimpleSolverCache.cs" />
+    <Compile Include="Executor\StateSchedulers\LimitLoopBoundScheduler.cs" />
+    <Compile Include="Analysis\LoopInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ExternalLibs\Boogie\Source\Core\Core.csproj">

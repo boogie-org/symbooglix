@@ -30,6 +30,7 @@ namespace Symbooglix
         public int UnexplorableGotos { get { return GetCounter<TerminatedAtGotoWithUnsatisfiableTargets>(); }}
         public int DisallowedPathDepths { get { return GetCounter<TerminatedWithDisallowedExplicitBranchDepth>(); } }
         public int UnsatsifiableUniqueConstants { get { return GetCounter<TerminatedWithUnsatisfiableUniqueAttribute>(); }}
+        public int DisallowedLoopDepths { get { return GetCounter<TerminatedWithDisallowedLoopBound>(); }}
 
         private Dictionary<System.Type, int> Counters;
 
@@ -128,6 +129,7 @@ namespace Symbooglix
             Counters.Add(typeof(TerminatedWithDisallowedSpeculativePath), 0);
             Counters.Add(typeof(TerminatedAtGotoWithUnsatisfiableTargets), 0);
             Counters.Add(typeof(TerminatedWithDisallowedExplicitBranchDepth), 0);
+            Counters.Add(typeof(TerminatedWithDisallowedLoopBound), 0);
             Counters.Add(typeof(TerminatedWithUnsatisfiableUniqueAttribute), 0);
         }
 

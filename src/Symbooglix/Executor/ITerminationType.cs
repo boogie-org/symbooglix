@@ -13,6 +13,7 @@ using Microsoft.Boogie;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace Symbooglix
@@ -329,6 +330,41 @@ namespace Symbooglix
 
         public ProgramLocation ExitLocation
         {
+            get;
+            internal set;
+        }
+    }
+
+    public class TerminatedWithDisallowedLoopBound : ITerminationType
+    {
+        public TerminatedWithDisallowedLoopBound(ProgramLocation location, BigInteger loopBound)
+        {
+            Debug.Assert(location != null, "location cannot be null");
+            this.LoopBound = loopBound;
+            this.ExitLocation = location;
+            State = null;
+        }
+
+        public string GetMessage()
+        {
+            String msg = String.Format("Terminated with loop bound {0} exceeded at {1}:{2}",
+                                       LoopBound,
+                                       ExitLocation.FileName,
+                                       ExitLocation.LineNumber);
+            return msg;
+        }
+
+        public ExecutionState State {
+            get;
+            internal set;
+        }
+
+        public ProgramLocation ExitLocation {
+            get;
+            internal set;
+        }
+
+        public BigInteger LoopBound {
             get;
             internal set;
         }
