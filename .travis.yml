@@ -15,9 +15,7 @@ install:
   # Install Z3
   - sudo apt-get -y install z3=4.4.1-0
   # Install needed python tools
-  # NOTE: DO NOT USE `sudo` here because TravisCI uses its own `pip` tool in a
-  # virtualenv.
-  - pip install lit OutputCheck pyyaml
+  - sudo pip install lit OutputCheck pyyaml
 script:
   - SBX_SRC=`pwd` utils/travis-prepare.sh
   - SBX_SRC=`pwd` utils/travis-build.sh
