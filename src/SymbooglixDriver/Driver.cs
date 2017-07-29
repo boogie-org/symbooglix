@@ -707,6 +707,7 @@ namespace SymbooglixDriver
                     exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_FOUND_SPECULATIVE_PATHS;
                 else if (nonSpeculativeterminationCounter.DisallowedPathDepths > 0)
                     exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_HIT_BOUND;
+                Console.WriteLine("NOTE: Bugs may have been missed!");
             }
             ExitWith(exitCode);
             return (int) exitCode; // This is required to keep the compiler happy.
