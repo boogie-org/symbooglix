@@ -333,7 +333,6 @@ namespace SymbooglixDriver
                 }
             };
 
-            #if __MonoCS__
             // Sending SIGINT to the driver when stdout/stderr is not attached to a TTY does not seem to
             // trigger the Coinsole.CancelKeyPress event. So here we use a HACK to catch the signals we
             // care about and ask the Executor to terminate
@@ -360,7 +359,6 @@ namespace SymbooglixDriver
                     }
                 }
             });
-            #endif
         }
 
         public static int RealMain(String[] args)
