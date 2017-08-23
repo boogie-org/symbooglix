@@ -703,11 +703,14 @@ namespace SymbooglixDriver
                 // because path exploration may not have been exhaustive due to speculative paths
                 // or hitting a bound. This isn't perfect because we may hit a bound and have speculative
                 // paths so we could use either exit code in this case.
-                if (nonSpeculativeterminationCounter.DisallowedSpeculativePaths > 0 || speculativeTerminationCounter.NumberOfTerminatedStates > 0)
+                if (nonSpeculativeterminationCounter.DisallowedSpeculativePaths > 0 || speculativeTerminationCounter.NumberOfTerminatedStates > 0) {
                     exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_FOUND_SPECULATIVE_PATHS;
-                else if (nonSpeculativeterminationCounter.DisallowedPathDepths > 0)
+                    Console.WriteLine("NOTE: Bugs may have been missed!");
+                }
+                else if (nonSpeculativeterminationCounter.DisallowedPathDepths > 0) {
                     exitCode = ExitCode.NO_ERRORS_NO_TIMEOUT_BUT_HIT_BOUND;
-                Console.WriteLine("NOTE: Bugs may have been missed!");
+                    Console.WriteLine("NOTE: Bugs may have been missed!");
+                }
             }
             ExitWith(exitCode);
             return (int) exitCode; // This is required to keep the compiler happy.
