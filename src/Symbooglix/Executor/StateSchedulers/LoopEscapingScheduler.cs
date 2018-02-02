@@ -110,6 +110,7 @@ namespace Symbooglix
             // Compute the basic blocks that escape loops
             foreach(var impl in executor.TheProgram.Implementations)
             {
+                impl.PruneUnreachableBlocks();
                 var CFG = Program.GraphFromImpl(impl);
                 CFG.ComputeLoops();
                 foreach (var Header in CFG.Headers)
