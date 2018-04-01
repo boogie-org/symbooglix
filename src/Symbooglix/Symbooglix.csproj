@@ -35,6 +35,7 @@
     <Compile Include="Expr\Traverser.cs" />
     <Compile Include="Expr\SMTLIBQueryPrinter.cs" />
     <Compile Include="Expr\NonSymbolicDuplicator.cs" />
+    <Compile Include="Transform\PruneUnreachableBlocksPass.cs" />
     <Compile Include="Util\ExceptionThrowingTextWriterTraceListener.cs" />
     <Compile Include="Solver\DummySolver.cs" />
     <Compile Include="Solver\ISolver.cs" />

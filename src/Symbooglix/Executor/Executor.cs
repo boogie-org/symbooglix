@@ -353,6 +353,9 @@ namespace Symbooglix
             InternalPreparationPassManager.Add(FRF);
             InternalPreparationPassManager.Add(new Transform.FunctionInliningPass());
 
+            //This is a workaround to the issue described at https://github.com/boogie-org/boogie/issues/92.
+            InternalPreparationPassManager.Add(new Transform.PruneUnreachableBlocksPass());
+
             if (UseGlobalDDE)
                 InternalPreparationPassManager.Add(new Transform.GlobalDeadDeclEliminationPass());
 
