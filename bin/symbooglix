@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Wrapper script to run sbx.exe on non-Windows systems using Mono
+#
+# Adapted from https://github.com/Microsoft/dafny/blob/master/Binaries/dafny
+
+MONO=$(which mono)
+
+# find the source directory for this script even if it's been symlinked
+# from https://stackoverflow.com/questions/59895/
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SYMBOOGLIX_ROOT="$( cd -P "$(dirname "$( dirname "$SOURCE" )" )" && pwd )"
+BUILD_TYPE=${BUILD_TYPE:-Debug}
+SYMBOOGLIX="$SYMBOOGLIX_ROOT/src/SymbooglixDriver/bin/$BUILD_TYPE/sbx.exe"
+
+if [[ ! -x "$MONO" ]]; then
+    echo "Error: Symbooglix requires Mono to run on non-Windows systems."
+    exit 1
+fi
+
+if [[ ! -e "$SYMBOOGLIX" ]]; then
+    echo "Error: sbx.exe not found at $SYMBOOGLIX."
+    exit 1
+fi
+
+"$MONO" "$SYMBOOGLIX" "$@"
