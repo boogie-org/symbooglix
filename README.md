@@ -1,17 +1,20 @@
 # Symbooglix
 
-The Symbolic execution engine for [Boogie](http://research.microsoft.com/en-us/projects/boogie/). This project
-is currently at the research stage and so is not yet making stable releases.
-
 [![Build Status](https://travis-ci.org/symbooglix/symbooglix.svg?branch=master)](https://travis-ci.org/symbooglix/symbooglix)
+
+A symbolic execution engine for
+[Boogie](http://research.microsoft.com/en-us/projects/boogie/).  A
+paper describing Symbooglix can be accessed [here](https://srg.doc.ic.ac.uk/publications/16-symbooglix-icst.html).
+
+This project is currently at the research stage and so is not yet making stable releases.
 
 # Docker Image
 
-A Docker image is availabe at https://hub.docker.com/r/symbooglix/symbooglix/
+A Docker image is available at https://hub.docker.com/r/symbooglix/symbooglix/
 
 # Dependencies
 
-To build you will need
+To build you will need:
 
 ## Common dependencies
 
@@ -33,7 +36,7 @@ To build you will need
 
 # Getting started
 
-We use several git submodules for symbooglix. Before you start you should initialise them by running
+We use several git submodules for Symbooglix. Before you start you should initialise them by running
 
 ```
 $ git submodule init
@@ -136,5 +139,5 @@ Here are some of the files and directories that you will find inside ``symboogli
 * ``terminated_states/`` contains a file for each reporting how it terminated (emission of successful states can be suppressed using ``--skip-log-success-states``, you may wish to use ``--skip-log-unsat-assume-states`` too).
 * ``nonterminated_states/`` contains a file for each state that had not finished executing (i.e. due to hitting a global timeout).
 * ``termination_counters.yml`` - Reports the number of states by termination type where the termination type is non speculative
-* ``termination_counters_ONLY_SPECULATIVE.yml`` - Same as above but only reports speculative execution state. A speculative execution state is marked as speculative when a solver query fails (i.e. returns unknown or timesout) and currently Symbooglix will kill an execution state when this occurs.
+* ``termination_counters_ONLY_SPECULATIVE.yml`` - Same as above but only reports speculative execution state. A speculative execution state is marked as speculative when a solver query fails (i.e. returns unknown or times out) and currently Symbooglix will kill an execution state when this occurs.
 * ``program.bpl`` - The transformed version of the Boogie program that Symbooglix actually executed on.
