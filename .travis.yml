@@ -1,21 +1,23 @@
 # vim: set sw=2 ts=2 softtabstop=2 expandtab:
 language: csharp
-dist: trusty
-sudo: true
+dist: xenial
+sudo: required
 solution: "src/Symbooglix.sln"
+
+addons:
+  apt:
+    packages:
+      - z3
+
 # Each item in the "env" list is a build configuration that will be enumerated
 env:
   - BUILD_TYPE=Release
   - BUILD_TYPE=Debug
+
 install:
-  - sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C504E590
-  - sudo sh -c 'wget -O - http://download.opensuse.org/repositories/home:delcypher:z3/xUbuntu_14.04/Release.key | apt-key add -'
-  - sudo sh -c 'echo "deb http://download.opensuse.org/repositories/home:/delcypher:/z3/xUbuntu_14.04/ /" > /etc/apt/sources.list.d/smt.list'
-  - sudo apt-get update
-  # Install Z3
-  - sudo apt-get -y install z3=4.4.1-0
   # Install needed python tools
   - sudo pip install lit OutputCheck pyyaml
+
 script:
   - SBX_SRC=`pwd` utils/travis-prepare.sh
   - SBX_SRC=`pwd` utils/travis-build.sh
