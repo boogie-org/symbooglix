@@ -1,6 +1,6 @@
 # Symbooglix
 
-[![Build Status](https://travis-ci.org/symbooglix/symbooglix.svg?branch=master)](https://travis-ci.org/symbooglix/symbooglix)
+[![Build Status](https://travis-ci.org/boogie-org/symbooglix.svg?branch=master)](https://travis-ci.org/boogie-org/symbooglix)
 
 A symbolic execution engine for
 [Boogie](http://research.microsoft.com/en-us/projects/boogie/).  A
