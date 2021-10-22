@@ -1,0 +1,35 @@
+name: Symbooglix CI
+
+on: [push, pull_request]
+
+jobs:
+  job0:
+    name: Symbooglix CI
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET 5.0.x
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+
+      - name: Install Z3
+        run: sudo apt install -y z3
+
+      - name: Install Python dependencies
+        run: sudo pip install lit OutputCheck pyyaml
+
+      - name: Prepare
+        run: SBX_SRC=`pwd` utils/travis-prepare.sh
+
+      - name: Build
+        run: SBX_SRC=`pwd` utils/travis-build.sh
+
+      - name: Test
+        run: SBX_SRC=`pwd` utils/travis-test.sh
+
