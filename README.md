@@ -1,9 +1,11 @@
 # Symbooglix
 
-[![Build Status](https://travis-ci.org/boogie-org/symbooglix.svg?branch=master)](https://travis-ci.org/boogie-org/symbooglix)
+[![License][license-badge]](LICENSE.txt)
+[![Symbooglix CI](https://github.com/boogie-org/symbooglix/actions/workflows/test.yml/badge.svg)](https://github.com/boogie-org/symbooglix/actions/workflows/test.yml)
+
 
 A symbolic execution engine for
-[Boogie](http://research.microsoft.com/en-us/projects/boogie/).  A
+[Boogie](https://github.com/boogie-org/boogie).  A
 paper describing Symbooglix can be accessed [here](https://srg.doc.ic.ac.uk/publications/16-symbooglix-icst.html).
 
 This project is currently at the research stage and so is not yet making stable releases.
