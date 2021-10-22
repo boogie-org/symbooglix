@@ -6,11 +6,12 @@ jobs:
   job0:
     name: Symbooglix CI
     runs-on: ubuntu-20.04
+
     strategy:
       matrix:
-       include:
-         - BUILD_TYPE: Release
-         - BUILD_TYPE: Debug
+        build-type: [Release, Debug]
+    env:
+      BUILD_TYPE: ${{ matrix.build-type }}
 
     steps:
       - uses: actions/checkout@v2
