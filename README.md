@@ -1,6 +1,8 @@
 # Symbooglix
 
-[![Build Status](https://travis-ci.org/boogie-org/symbooglix.svg?branch=master)](https://travis-ci.org/boogie-org/symbooglix)
+[![License][license-badge]](LICENSE.txt)
+[![Symbooglix CI](https://github.com/boogie-org/symbooglix/actions/workflows/test.yml/badge.svg)](https://github.com/boogie-org/symbooglix/actions/workflows/test.yml)
+
 
 A symbolic execution engine for
 [Boogie](http://research.microsoft.com/en-us/projects/boogie/).  A
