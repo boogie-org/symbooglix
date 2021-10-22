@@ -12,7 +12,7 @@ cd "${SBX_SRC}"
 lit -v --param sbx_build=${BUILD_TYPE} test_programs/
 
 EXTRA_OPTIONS=()
-if [ "${GITHUB_ACTIONS}" != "true" ] ; then
+if [ "${GITHUB_ACTIONS}" = "true" ] ; then
   # FIXME: `SymbooglixLibTests` is broken on TravisCI right now
   # I don't know why.
   # HACK: Force only a subset of tests to run
