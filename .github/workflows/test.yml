@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        configuration: [Debug, Release]
+       include:
+         - BUILD_TYPE: Release
+         - BUILD_TYPE: Debug
 
     steps:
       - uses: actions/checkout@v2
