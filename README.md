@@ -143,3 +143,5 @@ Here are some of the files and directories that you will find inside ``symboogli
 * ``termination_counters.yml`` - Reports the number of states by termination type where the termination type is non speculative
 * ``termination_counters_ONLY_SPECULATIVE.yml`` - Same as above but only reports speculative execution state. A speculative execution state is marked as speculative when a solver query fails (i.e. returns unknown or times out) and currently Symbooglix will kill an execution state when this occurs.
 * ``program.bpl`` - The transformed version of the Boogie program that Symbooglix actually executed on.
+
+[license-badge]: https://img.shields.io/github/license/boogie-org/symbooglix?color=blue
